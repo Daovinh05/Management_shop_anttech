@@ -16,6 +16,13 @@ class Users_m extends connectDB
         return (mysqli_num_rows($result) > 0);
     }
 
+    // Method to check if phone number already exists
+    function checkTrungSoDienThoai($so_dien_thoai)
+    {
+        $sql = "SELECT * FROM users WHERE so_dien_thoai = '$so_dien_thoai'";
+        $result = mysqli_query($this->con, $sql);
+        return (mysqli_num_rows($result) > 0);
+    }
     public function checktrungEmail($email, $ma_user)
     {
         $sql = "SELECT * FROM users
@@ -120,11 +127,5 @@ class Users_m extends connectDB
             return mysqli_fetch_assoc($result);
         }
         return false;
-    }
-
-    // Login method for backward compatibility
-    function Users_login($username, $password)
-    {
-        return $this->validateUser($username, md5($password));
     }
 }

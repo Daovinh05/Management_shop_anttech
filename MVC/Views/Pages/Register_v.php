@@ -184,10 +184,10 @@
 
             <form method="post" action="http://localhost/QLSP/Login/process_register">
                 <div class="form-group">
-                    <label>Tên đăng nhập</label>
+                    <label>Tên tài khoản</label>
                     <!-- <input type="text" name="username" placeholder="Nhập tên đăng nhập" required> -->
 
-                    <input type="text" name="username" placeholder="Nhập tên đăng nhập" required
+                    <input type="text" name="username" placeholder="Nhập tên tài khoản" required
                         value="<?php echo isset($_SESSION['form_data']['username']) ? htmlspecialchars($_SESSION['form_data']['username']) : ''; ?>">
                 </div>
 
@@ -204,7 +204,14 @@
                     <!-- <input type="email" name="email" placeholder="Nhập email" required> -->
 
                     <input type="text" name="fullname" placeholder="Nhập họ và tên" required
-                        value="<?php echo isset($_SESSION['form_data']['fullname']) ? htmlspecialchars($_SESSION['form_data']['fullname']) : ''; ?>">
+                        value="<?php echo isset($_SESSION['form_data']['full_name']) ? htmlspecialchars($_SESSION['form_data']['full_name']) : ''; ?>">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <!-- <input type="email" name="email" placeholder="Nhập email" required> -->
+
+                    <input type="text" name="phone" placeholder="Nhập số điện thoại" required
+                        value="<?php echo isset($_SESSION['form_data']['phone']) ? htmlspecialchars($_SESSION['form_data']['phone']) : ''; ?>">
                 </div>
 
                 <div class="form-group">
