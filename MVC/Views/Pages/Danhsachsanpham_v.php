@@ -278,12 +278,16 @@
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Mã TD</th>
-                            <th>Tên món</th>
+                            <th>Mã SP</th>
+                            <th>Tên SP</th>
                             <th>Hình ảnh</th>
                             <th>Giá</th>
                             <th>Số lượng</th>
-                            <th>Danh mục</th>
+                            <th>Tên danh mục</th>
+                            <th>Tên thương hiệu</th>
+                            <th>Tên nhà cung cấp</th>
+                            
+                            
                             <th style="text-align:right">Thao tác</th>
                         </tr>
                     </thead>
@@ -297,12 +301,12 @@
                                 <tr>
                                     <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
                                     </td>
-                                    <td><?php echo htmlspecialchars($row['ma_thuc_don']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['ten_mon']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['ma_san_pham']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
                                     <td>
-                                        <?php if ($row['img_thuc_don']): ?>
-                                            <img src="<?php echo !empty($row['img_thuc_don']) ? '/qlsp/Public/Pictures/thucdon/' . htmlspecialchars($row['img_thuc_don']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
-                                                alt="<?php echo htmlspecialchars($row['ten_mon']) ?>"
+                                        <?php if ($row['img_hinh_anh']): ?>
+                                            <img src="<?php echo !empty($row['img_hinh_anh']) ? '/qlsp/Public/Pictures/thucdon/' . htmlspecialchars($row['img_hinh_anh']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
+                                                alt="<?php echo htmlspecialchars($row['ten_san_pham']) ?>"
                                                 style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
                                         <?php else: ?>
                                             <span>Không có hình</span>
@@ -310,10 +314,10 @@
                                     </td>
                                     <td><?php echo number_format($row['gia'], 0, ',', '.') ?> ₫</td>
                                     <td>
-                                        <?php if ($row['so_luong'] > 0): ?>
+                                        <?php if ($row['so_luong_kho'] > 0): ?>
                                             <span
                                                 style="background:#d1fae5;color:#065f46;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                                Còn <?php echo htmlspecialchars($row['so_luong']); ?>
+                                                Còn <?php echo htmlspecialchars($row['so_luong_kho']); ?>
                                             </span>
                                         <?php else: ?>
                                             <span
@@ -323,13 +327,15 @@
                                         <?php endif; ?>
                                     </td>
                                     <td><?php echo isset($row['ten_danh_muc']) ? htmlspecialchars($row['ten_danh_muc']) : 'N/A' ?>
+                                    <td><?php echo isset($row['ten_thuong_hieu']) ? htmlspecialchars($row['ten_thuong_hieu']) : 'N/A' ?>
+                                    <td><?php echo isset($row['ten_nha_cung_cap']) ? htmlspecialchars($row['ten_nha_cung_cap']) : 'N/A' ?>
                                     </td>
                                     <td style="text-align:right">
                                         <!-- <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'nhan_vien'): ?> -->
-                                        <a href="http://localhost/QLSP/Thucdon/sua/<?php echo urlencode($row['ma_thuc_don']) ?>"><button
+                                        <a href="http://localhost/QLSP/Thucdon/sua/<?php echo urlencode($row['ma_san_pham']) ?>"><button
                                                 class="btn-edit">✏️
                                                 Sửa</button></a>
-                                        <a href="http://localhost/QLSP/Thucdon/xoa/<?php echo urlencode($row['ma_thuc_don']) ?>"
+                                        <a href="http://localhost/QLSP/Thucdon/xoa/<?php echo urlencode($row['ma_san_pham']) ?>"
                                             onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                                 class="btn-delete">🗑️
                                                 Xóa</button></a>

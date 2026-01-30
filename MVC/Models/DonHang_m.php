@@ -50,10 +50,11 @@ class DonHang_m extends connectDB
     // Hàm lấy tất cả đơn hàng với thông tin người dùng
     function DonHang_getAll()
     {
-        $sql = "SELECT dh.*, u.full_name, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai
+        $sql = "SELECT dh.*, u.full_name, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai , km.ten_khuyen_mai ,km.tien_khuyen_mai
                 FROM don_hang dh
                 LEFT JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
                 ORDER BY dh.ngay_tao DESC";
         return mysqli_query($this->con, $sql);
     }
