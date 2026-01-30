@@ -109,8 +109,8 @@ class Login extends controller
 
             if (!empty($email)) {
                 // Since we're registering a new user, we don't have a ma_user yet, so we'll check if email exists in general
-                $existing_email = $this->user->getUserByEmail($email);
-                if ($existing_email) {
+                $existing_email = $this->user->checktrungEmail($email, '');
+                if ($existing_email && mysqli_num_rows($existing_email) > 0) {
                     $_SESSION['error'] = 'Email đã được sử dụng!';
                     header('Location: ' . $this->url('Login/register'));
                     exit;
@@ -129,10 +129,7 @@ class Login extends controller
                 }
             }
 
-            // Generate a unique user ID
-            $ma_user = 'USER' . rand(1000, 9999);
-            $result = $this->user->users_ins($ma_user, $username, $full_name, md5($password), $email, 'khach_hang', $phone);
-
+            $result = $this->user->createUser($username, $email, $full_name, $password, 'khach_hang', $phone);
             if ($result) {
                 // Clear form data after successful registration
                 unset($_SESSION['form_data']);

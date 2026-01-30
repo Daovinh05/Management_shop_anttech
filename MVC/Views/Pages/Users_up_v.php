@@ -22,7 +22,7 @@
         }
 
         .wrap {
-            min-height: 100vh;
+            min-height: 50vh;
             display: flex;
             justify-content: center;
             align-items: center;

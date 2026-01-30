@@ -7,7 +7,7 @@ class app
     function __construct()
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
-        // $this->checkAuth();
+        $this->checkAuth();
 
         $arr = $this->processURL();
 

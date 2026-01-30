@@ -70,7 +70,12 @@
                     value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : '' ?>" />
             </div>
             <div>
-                <label>Tên user <span style="color:red">*</span></label>
+                <label>Họ và tên <span style="color:red">*</span></label>
+                <input type="text" name="txtHoten" required
+                    value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : '' ?>" />
+            </div>
+            <div>
+                <label>Tên tài khoản <span style="color:red">*</span></label>
                 <input type="text" name="txtTenuser" required
                     value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />
             </div>
