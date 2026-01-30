@@ -299,16 +299,16 @@
                                 <tr>
                                     <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
                                     </td>
-                                    <td><span style="font-weight:600;color:var(--accent)"><?php echo $row['mancc'] ?></span>
+                                    <td><span style="font-weight:600;color:var(--accent)"><?php echo $row['ma_nha_cung_cap'] ?></span>
                                     </td>
-                                    <td><?php echo $row['tenncc'] ?></td>
-                                    <td><?php echo $row['diachi'] ?></td>
-                                    <td><?php echo $row['dienthoai'] ?></td>
+                                    <td><?php echo $row['ten_nha_cung_cap'] ?></td>
+                                    <td><?php echo $row['dia_chi'] ?></td>
+                                    <td><?php echo $row['dien_thoai'] ?></td>
                                     <td style="text-align:right">
-                                        <a href="http://localhost/QLSP/Nhacungcap/sua/<?php echo $row['mancc'] ?>"><button
+                                        <a href="http://localhost/QLSP/Nhacungcap/sua/<?php echo $row['ma_nha_cung_cap'] ?>"><button
                                                 class="btn-edit">✏️
                                                 Sửa</button></a>
-                                        <a href="http://localhost/QLSP/Nhacungcap/xoa/<?php echo $row['mancc'] ?>"
+                                        <a href="http://localhost/QLSP/Nhacungcap/xoa/<?php echo $row['ma_nha_cung_cap'] ?>"
                                             onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                                 class="btn-delete">🗑️
                                                 Xóa</button></a>

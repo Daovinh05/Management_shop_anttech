@@ -281,7 +281,7 @@
                             <th>STT</th>
                             <th>Mã DM</th>
                             <th>Tên DM</th>
-                            <th>Hình ảnh</th>
+                            
                             <th>Ngày tạo</th>
                             <th style="text-align:right">Thao tác</th>
                         </tr>
@@ -300,15 +300,7 @@
                                             style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_danh_muc']) ?></span>
                                     </td>
                                     <td><?php echo htmlspecialchars($row['ten_danh_muc']) ?></td>
-                                    <td>
-                                        <?php if ($row['image']): ?>
-                                            <img src="<?php echo !empty($row['image']) ? '/qlsp/Public/Pictures/danhmuc/' . htmlspecialchars($row['image']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
-                                                alt="<?php echo htmlspecialchars($row['ten_danh_muc']) ?>"
-                                                style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
-                                        <?php else: ?>
-                                            <span>Không có hình</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    
                                     <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
                                     </td>
                                     <td style="text-align:right">

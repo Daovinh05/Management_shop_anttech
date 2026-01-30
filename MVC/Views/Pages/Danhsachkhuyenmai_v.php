@@ -282,7 +282,9 @@
                             <th>Mã KM</th>
                             <th>Tên khuyến mãi</th>
                             <th>Tiền khuyến mãi</th>
-                            <th>Ghi chú</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Ngày kết thúc</th>
+                            <th>Trạng thái khuyến mại</th>
                             <th style="text-align:right">Thao tác</th>
                         </tr>
                     </thead>
@@ -299,7 +301,9 @@
                                     <td><?php echo htmlspecialchars($row['ma_khuyen_mai']) ?></td>
                                     <td><?php echo htmlspecialchars($row['ten_khuyen_mai']) ?></td>
                                     <td><?php echo number_format($row['tien_khuyen_mai'], 0, ',', '.') ?> ₫</td>
-                                    <td><?php echo htmlspecialchars($row['ghi_chu']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['ngay_bat_dau']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['ngay_ket_thuc']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['trang_thai_khuyen_mai']) ?></td>
                                     <td style="text-align:right">
                                         <a
                                             href="http://localhost/QLSP/Khuyenmai/sua/<?php echo urlencode($row['ma_khuyen_mai']) ?>"><button

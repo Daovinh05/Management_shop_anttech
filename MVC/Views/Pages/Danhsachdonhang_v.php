@@ -548,12 +548,12 @@
                         <tr>
                             <th>STT</th>
                             <th>Mã ĐH</th>
-                            <th>Bàn</th>
-                            <th>User</th>
-                            <th>Tổng tiền</th>
-                            <th>Khuyến mại</th>
+                            <th>Mã user</th>
+                            <th>Mã địa chỉ</th>
+                            <th>Mã khuyến mãi</th>
+                            <!-- <th>Khuyến mại</th> -->
                             <th>Thanh toán</th>
-                            <th>Trạng thái thanh toán</th>
+                            <th>Trạng thái don hàng</th>
                             <th>Ngày tạo</th>
                             <th>Chi tiết</th>
                             <th style="text-align:right">Thao tác</th>
@@ -566,26 +566,27 @@
                             $serial = 1; // Khởi tạo bộ đếm số thứ tự
                             while ($row = mysqli_fetch_array($data['dulieu'])) {
                         ?>
-                                <tr>
-                                    <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                                    </td>
+                                <tr> ma_don_hang, ma_user, ma_dia_chi, ma_khuyen_mai, tong_tien_hang, trang_thai_don_hang, ngay_tao
+                                    <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span></td>
                                     <td><?php echo htmlspecialchars($row['ma_don_hang']) ?></td>
-                                    <td><?php echo isset($row['ten_ban']) ? htmlspecialchars($row['ten_ban']) : htmlspecialchars($row['ma_ban']) ?>
+                                    <td><?php echo htmlspecialchars($row['ma_user']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['ma_dia_chi']) ?></td>
+                                    <td><?php echo htmlspecialchars($row['ma_khuyen_mai']) ?></td>
+                                    <!-- <td><?php echo isset($row['ten_ban']) ? htmlspecialchars($row['ten_ban']) : htmlspecialchars($row['ma_ban']) ?></td>
+                                    <td><?php echo isset($row['ten_user']) ? htmlspecialchars($row['ten_user']) : htmlspecialchars($row['ma_user']) ?></td> -->
+
+                                    <td><span class="currency"><?php echo number_format($row['tong_tien_hang'], 0, ',', '.') ?> ₫</span>
                                     </td>
-                                    <td><?php echo isset($row['ten_user']) ? htmlspecialchars($row['ten_user']) : htmlspecialchars($row['ma_user']) ?>
-                                    </td>
-                                    <td><span class="currency"><?php echo number_format($row['tong_tien'], 0, ',', '.') ?> ₫</span>
-                                    </td>
-                                    <td><span
+                                    <!-- <td><span
                                             class="currency discount">-<?php echo number_format($row['tien_khuyen_mai'] ?? 0, 0, ',', '.') ?>
-                                            ₫</span></td>
-                                    <td><span
+                                            ₫</span></td> -->
+                                    <!-- <td><span
                                             class="currency"><?php echo number_format($row['tong_tien'] - ($row['tien_khuyen_mai'] ?? 0), 0, ',', '.') ?>
-                                            ₫</span></td>
+                                            ₫</span></td> -->
                                     <td>
                                         <span
-                                            style="background:<?php echo $row['trang_thai_thanh_toan'] == 'chua_thanh_toan' ? '#fed7aa' : '#d1fae5'; ?>;color:<?php echo $row['trang_thai_thanh_toan'] == 'chua_thanh_toan' ? '#c2410c' : '#065f46'; ?>;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                            <?php echo $row['trang_thai_thanh_toan'] == 'chua_thanh_toan' ? 'Not' : 'Done'; ?>
+                                            style="background:<?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? '#fed7aa' : '#d1fae5'; ?>;color:<?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? '#c2410c' : '#065f46'; ?>;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
+                                            <?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? 'Not' : 'Done'; ?>
                                         </span>
                                     </td>
                                     <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
