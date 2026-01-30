@@ -202,13 +202,13 @@
         /* Specific column widths */
         th:nth-child(1),
         td:nth-child(1) {
-            width: 4%;
+            width: 5%;
         }
 
         /* STT */
         th:nth-child(2),
         td:nth-child(2) {
-            width: 10%;
+            width: 5%;
         }
 
         /* Mã ĐH */
@@ -220,25 +220,25 @@
         /* Bàn */
         th:nth-child(4),
         td:nth-child(4) {
-            width: 10%;
+            width: 7%;
         }
 
         /* Người dùng */
         th:nth-child(5),
         td:nth-child(5) {
-            width: 8%;
+            width: 7%;
         }
 
         /* Tổng tiền */
         th:nth-child(6),
         td:nth-child(6) {
-            width: 8%;
+            width: 7%;
         }
 
         /* Tiền khuyến mãi */
         th:nth-child(7),
         td:nth-child(7) {
-            width: 9%;
+            width: 8%;
         }
 
         /* Số tiền cần thanh toán */
@@ -256,19 +256,19 @@
         /* Ngày tạo */
         th:nth-child(10),
         td:nth-child(10) {
-            width: 8%;
+            width: 9%;
         }
 
         /* Chi tiết */
         th:nth-child(10),
         td:nth-child(10) {
-            width: 8%;
+            width: 5%;
         }
 
         /* Thao tác */
         th:nth-child(11),
         td:nth-child(11) {
-            width: 10%;
+            width: 7%;
         }
 
         th,
@@ -281,18 +281,32 @@
         }
 
         /* Right-align specific columns for better readability */
-        td:nth-child(1),
+
         td:nth-child(5),
-        td:nth-child(6),
-        td:nth-child(7) {
-            text-align: right;
+        td:nth-child(6) {
+            text-align: left;
             font-family: 'Courier New', monospace;
         }
 
         th:nth-child(5),
-        th:nth-child(6),
-        th:nth-child(7) {
-            text-align: right;
+        th:nth-child(6) {
+            text-align: left;
+        }
+
+        td:nth-child(1),
+        td:nth-child(7),
+        td:nth-child(8),
+        td:nth-child(9),
+        td:nth-child(10) {
+            text-align: center;
+        }
+
+        th:nth-child(1),
+        th:nth-child(7),
+        th:nth-child(8),
+        th:nth-child(9),
+        th:nth-child(10) {
+            text-align: center;
         }
 
         /* Style for currency values */
@@ -548,12 +562,11 @@
                         <tr>
                             <th>STT</th>
                             <th>Mã ĐH</th>
-                            <th>Mã user</th>
-                            <th>Mã địa chỉ</th>
-                            <th>Mã khuyến mãi</th>
-                            <!-- <th>Khuyến mại</th> -->
+                            <th>Khách hàng</th>    
+                            <th>Giá gốc</th>    
+                            <th>Tiền khuyến mãi</th>
                             <th>Thanh toán</th>
-                            <th>Trạng thái don hàng</th>
+                            <th>Trạng thái đơn hàng</th>
                             <th>Ngày tạo</th>
                             <th>Chi tiết</th>
                             <th style="text-align:right">Thao tác</th>
@@ -566,31 +579,36 @@
                             $serial = 1; // Khởi tạo bộ đếm số thứ tự
                             while ($row = mysqli_fetch_array($data['dulieu'])) {
                         ?>
-                                <tr> ma_don_hang, ma_user, ma_dia_chi, ma_khuyen_mai, tong_tien_hang, trang_thai_don_hang, ngay_tao
+                                <tr> 
                                     <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span></td>
                                     <td><?php echo htmlspecialchars($row['ma_don_hang']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['ma_user']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['ma_dia_chi']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['ma_khuyen_mai']) ?></td>
-                                    <!-- <td><?php echo isset($row['ten_ban']) ? htmlspecialchars($row['ten_ban']) : htmlspecialchars($row['ma_ban']) ?></td>
-                                    <td><?php echo isset($row['ten_user']) ? htmlspecialchars($row['ten_user']) : htmlspecialchars($row['ma_user']) ?></td> -->
-
+                                    <td>
+                                        <div style="font-weight: 500;">
+                                            <?php echo htmlspecialchars($row['ten_nguoi_nhan']) ?>
+                                        </div>
+                                        
+                                        <div style="font-size: 13px; color: #666; margin-top: 2px;">
+                                            <i class="fa-solid fa-phone" style="font-size: 11px;"></i> 
+                                            <?php echo htmlspecialchars($row['so_dien_thoai'] ?? 'Không có SĐT') ?>
+                                        </div>
+                                    </td>
                                     <td><span class="currency"><?php echo number_format($row['tong_tien_hang'], 0, ',', '.') ?> ₫</span>
                                     </td>
-                                    <!-- <td><span
+                                    <td><span
                                             class="currency discount">-<?php echo number_format($row['tien_khuyen_mai'] ?? 0, 0, ',', '.') ?>
-                                            ₫</span></td> -->
-                                    <!-- <td><span
-                                            class="currency"><?php echo number_format($row['tong_tien'] - ($row['tien_khuyen_mai'] ?? 0), 0, ',', '.') ?>
-                                            ₫</span></td> -->
+                                            ₫</span></td>
+
+                                    <td><span
+                                            class="currency"><?php echo number_format($row['tong_tien_hang'] - ($row['tien_khuyen_mai'] ?? 0), 0, ',', '.') ?>
+                                            ₫</span></td>
                                     <td>
                                         <span
                                             style="background:<?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? '#fed7aa' : '#d1fae5'; ?>;color:<?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? '#c2410c' : '#065f46'; ?>;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
                                             <?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? 'Not' : 'Done'; ?>
                                         </span>
                                     </td>
-                                    <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
-                                    </td>
+                                    <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?></td>
+
                                     <td>
                                         <button class="detail-btn" onclick="showOrderDetails('<?php echo $row['ma_don_hang']; ?>')">
                                             <i class="fa-solid fa-eye"></i> Xem
