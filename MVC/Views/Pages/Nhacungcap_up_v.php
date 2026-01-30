@@ -22,7 +22,7 @@
         }
 
         .wrap {
-            min-height: 50vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -125,7 +125,7 @@
 
         .btn-secondary {
             background: #e5e7eb;
-            color: #4b5563;
+            color: var(--secondary-hover);
             border: 1px solid #d1d5db;
         }
 
@@ -178,11 +178,11 @@
     <div class="wrap">
         <div class="card">
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file Người dùng</h2>
-                <p class="hint">Sử dụng form dưới đây để tải lên file Người dùng.</p>
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file Nhà cung cấp</h2>
+                <p class="hint">Sử dụng form dưới đây để tải lên file Nhà cung cấp.</p>
             </div>
 
-            <form method="POST" action="http://localhost/Banhang/Users/up_l" enctype="multipart/form-data">
+            <form method="POST" action="http://localhost/QLSP/Nhacungcap/up_l" enctype="multipart/form-data">
 
                 <label for="txtGhichu">Ghi chú (Tùy chọn)</label>
                 <input type="text" name="txtGhichu" id="txtGhichu" placeholder="Nhập ghi chú hoặc mô tả cho file này">
@@ -205,7 +205,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="http://localhost/Banhang/Users/danhsach" class="btn btn-secondary">
+                    <a href="http://localhost/QLSP/Nhacungcap/danhsach" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
                     <button type="submit" name="btnUpload" class="btn btn-primary" style="min-width: 150px;">

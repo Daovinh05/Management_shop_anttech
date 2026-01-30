@@ -81,6 +81,12 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                         </a>
                     </li>
                     <li>
+                        <a href="http://localhost/Banhang/Thongke"
+                            class="<?php echo (strpos($current, 'Thongke_v') !== false) ? 'active' : ''; ?>">
+                            <i class="fa-solid fa-chart-line"></i> Thống kê
+                        </a>
+                    </li>
+                    <li>
                         <a href="http://localhost/Banhang/Login/logout" class="logout-btn1" title="Đăng xuất">
                             <i class="fa-solid fa-sign-out-alt"></i> Đăng xuất
                         </a>

@@ -73,15 +73,19 @@ class Login extends controller
         if (isset($_POST['username']) && isset($_POST['password'])) {
             $username = $_POST['username'];
             $password = $_POST['password'];
+            $phone = $_POST['phone'] ?? '';  // Changed from 'so_dien_thoai' to 'phone' to match the form
             $confirm_password = $_POST['confirm_password'];
             $email = $_POST['email'] ?? '';
+            $full_name = $_POST['fullname'] ?? $username;
 
             // Store form data in session to preserve values on validation errors
             $_SESSION['form_data'] = [
                 'username' => $username,
                 'email' => $email,
                 'password' => $password,
-                'confirm_password' => $confirm_password
+                'confirm_password' => $confirm_password,
+                'phone' => $phone,
+                'full_name' => $full_name
             ];
 
             if ($password !== $confirm_password) {
@@ -96,7 +100,7 @@ class Login extends controller
             //     exit;
             // }
 
-            $existing_user_result = $this->user->checktrungTenUser($username);
+            $existing_user_result = $this->user->getUserByUsername($username);
             if ($existing_user_result) {
                 $_SESSION['error'] = 'Tên đăng nhập đã tồn tại!';
                 header('Location: ' . $this->url('Login/register'));
@@ -104,8 +108,9 @@ class Login extends controller
             }
 
             if (!empty($email)) {
-                $existing_email = $this->user->checktrungEmail($email);
-                if ($existing_email) {
+                // Since we're registering a new user, we don't have a ma_user yet, so we'll check if email exists in general
+                $existing_email = $this->user->checktrungEmail($email, '');
+                if ($existing_email && mysqli_num_rows($existing_email) > 0) {
                     $_SESSION['error'] = 'Email đã được sử dụng!';
                     header('Location: ' . $this->url('Login/register'));
                     exit;
@@ -114,10 +119,17 @@ class Login extends controller
                 $email = $username . '@gmail.com';
             }
 
+            // Check if phone number already exists
+            if (!empty($phone)) {
+                $existing_phone = $this->user->checkTrungSoDienThoai($phone);
+                if ($existing_phone) {
+                    $_SESSION['error'] = 'Số điện thoại đã được sử dụng!';
+                    header('Location: ' . $this->url('Login/register'));
+                    exit;
+                }
+            }
 
-
-            $result = $this->user->createUser($username, $email, $password, 'khach_hang');
-
+            $result = $this->user->createUser($username, $email, $full_name, $password, 'khach_hang', $phone);
             if ($result) {
                 // Clear form data after successful registration
                 unset($_SESSION['form_data']);
