@@ -20,13 +20,13 @@ class DonHang_m extends connectDB
     }
 
     // Hàm tìm kiếm đơn hàng
-    function DonHang_find($ma_don_hang, $ma_user)
+    function DonHang_find($ma_don_hang, $full_name)
     {
         $sql = "SELECT dh.*, u.full_name, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai
                 FROM don_hang dh
                 LEFT JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
-                WHERE dh.ma_don_hang LIKE '%$ma_don_hang%' AND dh.ma_user LIKE '%$ma_user%'
+                WHERE dh.ma_don_hang LIKE '%$ma_don_hang%' AND u.full_name LIKE '%$full_name%'
                 ORDER BY dh.ngay_tao DESC";
         return mysqli_query($this->con, $sql);
     }

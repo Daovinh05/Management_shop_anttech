@@ -113,25 +113,17 @@
 
     <div class="card">
         <h1>Cập nhật Món ăn</h1>
-        <p class="lead">Chỉnh sửa thông tin món ăn.</p>
-        <form method="post" action="http://localhost/QLSP/Thucdon/update" enctype="multipart/form-data">
+        <p class="lead">Chỉnh sửa thông tin sản phẩm.</p>
+        <form method="post" action="http://localhost/Banhang/Sanpham/update" enctype="multipart/form-data">
             <div>
-                <label>Mã thực đơn <span style="color:red">*</span></label>
-                <input type="text" name="txtMathucdon" value="<?php echo htmlspecialchars($data['ma_thuc_don']); ?>"
+                <label>Mã sản phẩm <span style="color:red">*</span></label>
+                <input type="text" name="txtMasanpham" value="<?php echo htmlspecialchars($data['ma_san_pham']); ?>"
                     readonly />
             </div>
             <div>
                 <label>Tên món <span style="color:red">*</span></label>
-                <input type="text" name="txtTenmon" value="<?php echo htmlspecialchars($data['ten_mon']); ?>" />
-            </div>
-            <div>
-                <label>Giá</label>
-                <input type="number" name="txtGia" value="<?php echo htmlspecialchars($data['gia']); ?>" />
-            </div>
-            <div>
-                <label>Số lượng</label>
-                <input type="number" name="txtSoluong" value="<?php echo htmlspecialchars($data['so_luong']); ?>"
-                    min="0" />
+                <input type="text" name="txtTensanpham"
+                    value="<?php echo htmlspecialchars($data['ten_san_pham']); ?>" />
             </div>
             <div>
                 <label>Danh mục <span style="color:red">*</span></label>
@@ -140,8 +132,36 @@
                     <?php
                     if (isset($data['dsdm'])) {
                         while ($row = mysqli_fetch_array($data['dsdm'])) {
-                            $selected = ($data['ma_danh_muc'] == $row['ma_danh_muc']) ? 'selected' : '';
+                            $selected = (isset($data['ma_danh_muc']) && $data['ma_danh_muc'] == $row['ma_danh_muc']) ? 'selected' : '';
                             echo '<option value="' . $row['ma_danh_muc'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_danh_muc']) . '</option>';
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+            <div>
+                <label>Thương hiệu <span style="color:red">*</span></label>
+                <select name="ddlThuonghieu" required>
+                    <option value="">-- Chọn thương hiệu --</option>
+                    <?php
+                    if (isset($data['dsth'])) {
+                        while ($row = mysqli_fetch_array($data['dsth'])) {
+                            $selected = (isset($data['ma_thuong_hieu']) && $data['ma_thuong_hieu'] == $row['ma_thuong_hieu']) ? 'selected' : '';
+                            echo '<option value="' . $row['ma_thuong_hieu'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_thuong_hieu']) . '</option>';
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+            <div>
+                <label>Nhà cung cấp <span style="color:red">*</span></label>
+                <select name="ddlNhacungcap" required>
+                    <option value="">-- Chọn nhà cung cấp --</option>
+                    <?php
+                    if (isset($data['dsncc'])) {
+                        while ($row = mysqli_fetch_array($data['dsncc'])) {
+                            $selected = (isset($data['ma_nha_cung_cap']) && $data['ma_nha_cung_cap'] == $row['ma_nha_cung_cap']) ? 'selected' : '';
+                            echo '<option value="' . $row['ma_nha_cung_cap'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_nha_cung_cap']) . '</option>';
                         }
                     }
                     ?>
@@ -157,14 +177,15 @@
                 <?php if (!empty($data['img_thuc_don'])): ?>
                 <div class="current-image">
                     <p>Hình ảnh hiện tại:</p>
-                    <img src="/qlsp/Public/Pictures/thucdon/<?php echo htmlspecialchars($data['img_thuc_don']); ?>"
+                    <img src="/Banhang/Public/Pictures/Sanpham/<?php echo htmlspecialchars($data['img_thuc_don']); ?>"
                         alt="<?php echo htmlspecialchars($data['ten_mon']); ?>" />
                 </div>
                 <?php endif; ?>
             </div>
 
             <div class="actions">
-                <a href="http://localhost/QLSP/Thucdon/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
+                <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn-back"><i
+                        class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>

@@ -25,7 +25,7 @@ class Donhang extends controller
         $result = $this->dh->DonHang_getAll();
 
         $this->view('Master', [
-            'page' => 'danhsachdonhang_v',
+            'page' => 'Danhsachdonhang_v',
             'dulieu' => $result
         ]);
     }
@@ -39,13 +39,13 @@ class Donhang extends controller
         $result = $this->dh->DonHang_getAll();
 
         $this->view('Master', [
-            'page' => 'donhang_v',
-            'madonhang' => '',
-            'mauser' => '',
-            'madc' => '',
-            'makm' => '',
-            'tongtien' => '',
-            'trangthai' => '',
+            'page' => 'Donhang_v',
+            'ma_don_hang' => '',
+            'full_name' => '',
+            'ma_dia_chi' => '',
+            'ma_khuyen_mai' => '',
+            'tong_tien_hang' => '',
+            'trang_thai_don_hang' => '',
             'dsuser' => $dsuser,
             'dsdc' => $dsdc,
             'dskm' => $dskm,
@@ -74,13 +74,13 @@ class Donhang extends controller
                 if ($kq1) {
                     echo "<script>alert('Mã đơn hàng đã tồn tại! Vui lòng nhập mã khác.')</script>";
                     $this->view('Master', [
-                        'page' => 'donhang_v',
-                        'madonhang' => $ma_don_hang,
-                        'mauser' => $ma_user,
-                        'madc' => $ma_dia_chi,
-                        'makm' => $ma_khuyen_mai,
-                        'tongtien' => $tong_tien_hang,
-                        'trangthai' => $trang_thai_don_hang,
+                        'page' => 'Donhang_v',
+                        'ma_don_hang' => $ma_don_hang,
+                        'ma_user' => $ma_user,
+                        'ma_dia_chi' => $ma_dia_chi,
+                        'ma_khuyen_mai' => $ma_khuyen_mai,
+                        'tong_tien_hang' => $tong_tien_hang,
+                        'trang_thai_don_hang' => $trang_thai_don_hang,
                         'dsuser' => $this->user->Users_getAll(),
                         'dsdc' => $this->dc->DiaChiGiaoHang_getAll(),
                         'dskm' => $this->km->KhuyenMai_getAll()
@@ -113,17 +113,54 @@ class Donhang extends controller
     function Timkiem()
     {
         // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_don_hang = $_POST['txtMaDonHang'] ?? '';
-        $ma_user = $_POST['txtMaUser'] ?? '';
+        $ma_don_hang = $_POST['txtMadonhang'] ?? '';
+        $full_name = $_POST['txtTenkhachhang'] ?? '';
+        $result = $this->dh->DonHang_find($ma_don_hang, $full_name);
+        if (isset($_POST['btnXuatexcel'])) {
 
-        // LẤY DỮ LIỆU THEO MÃ ĐƠN HÀNG + MÃ NGƯỜI DÙNG
-        $result = $this->dh->DonHang_find($ma_don_hang, $ma_user);
+            $objExcel = new PHPExcel();
+            $objExcel->setActiveSheetIndex(0);
+            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachDonHang');
 
+            $sheet->setCellValue('A1', 'Mã đơn hàng');
+            $sheet->setCellValue('B1', 'Tên khách hàng');
+            $sheet->setCellValue('E1', 'Tổng tiền hàng');
+            $sheet->setCellValue('D1', 'Tên khuyến mãi');
+            $sheet->setCellValue('F1', 'Thanh toán');
+            $sheet->setCellValue('G1', 'Trạng thái đơn hàng');
+            $sheet->setCellValue('H1', 'Ngày tạo đơn hàng');
+
+            $rowCount = 2; // Starting from row 2 since row 1 is headers
+            mysqli_data_seek($result, 0); // Reset result pointer to beginning
+            while ($row = mysqli_fetch_assoc($result)) {
+                $sheet->setCellValue('A' . $rowCount, $row['ma_don_hang']);
+                $sheet->setCellValue('B' . $rowCount, $row['full_name']);
+                $sheet->setCellValue('C' . $rowCount, $row['tong_tien_hang']);
+                $sheet->setCellValue('D' . $rowCount, $row['ten_khuyen_mai']);
+                $sheet->setCellValue('E' . $rowCount, $row['thanh_toan']);
+                $sheet->setCellValue('F' . $rowCount, $row['trang_thai_don_hang']);
+                $sheet->setCellValue('G' . $rowCount, $row['ngay_tao_don_hang']);
+                $rowCount++;
+            }
+
+            foreach (range('A', 'H') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            if (ob_get_length()) ob_end_clean();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="DanhSachDonHang.xlsx"');
+            header('Cache-Control: max-age=0');
+
+            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+            $writer->save('php://output');
+            exit;
+        }
         // DISPLAY VIEW
         $this->view('Master', [
-            'page' => 'danhsachdonhang_v',
-            'madonhang' => $ma_don_hang,
-            'mauser' => $ma_user,
+            'page' => 'Danhsachdonhang_v',
+            'ma_don_hang' => $ma_don_hang,
+            'full_name' => $full_name,
             'dulieu' => $result
         ]);
     }
@@ -132,7 +169,7 @@ class Donhang extends controller
     {
         $result = $this->dh->DonHang_getById($ma_don_hang);
         $row = mysqli_fetch_array($result);
-        
+
         // Lấy danh sách người dùng, địa chỉ, khuyến mãi cho dropdown
         $dsuser = $this->user->Users_getAll();
         $dsdc = $this->dc->DiaChiGiaoHang_getAll();

@@ -100,28 +100,20 @@
 <body>
 
     <div class="card">
-        <h1>Thêm món mới</h1>
-        <p class="lead">Nhập thông tin món ăn mới.</p>
-        <form method="post" action="http://localhost/QLSP/Thucdon/ins" enctype="multipart/form-data">
+        <h1>Thêm sản phẩm mới</h1>
+        <p class="lead">Nhập thông tin sản phẩm mới.</p>
+        <form method="post" action="http://localhost/Banhang/Sanpham/ins" enctype="multipart/form-data">
             <div>
-                <label>Mã thực đơn <span style="color:red">*</span></label>
-                <input type="text" name="txtMathucdon" required
-                    value="<?php echo isset($data['ma_thuc_don']) ? htmlspecialchars($data['ma_thuc_don']) : ''; ?>" />
+                <label>Mã sản phẩm <span style="color:red">*</span></label>
+                <input type="text" name="txtMaSanPham" required
+                    value="<?php echo isset($data['ma_san_pham']) ? htmlspecialchars($data['ma_san_pham']) : ''; ?>" />
             </div>
             <div>
-                <label>Tên món <span style="color:red">*</span></label>
-                <input type="text" name="txtTenmon" required
-                    value="<?php echo isset($data['ten_mon']) ? htmlspecialchars($data['ten_mon']) : ''; ?>" />
+                <label>Tên sản phẩm <span style="color:red">*</span></label>
+                <input type="text" name="txtTenSanPham" required
+                    value="<?php echo isset($data['ten_san_pham']) ? htmlspecialchars($data['ten_san_pham']) : ''; ?>" />
             </div>
-            <div>
-                <label>Giá</label>
-                <input type="number" name="txtGia" required
-                    value="<?php echo isset($data['gia']) ? htmlspecialchars($data['gia']) : ''; ?>" />
-            </div>
-            <div>
-                <label>Số lượng</label>
-                <input type="number" name="txtSoluong" value="0" min="0" />
-            </div>
+
             <div>
                 <label>Danh mục <span style="color:red">*</span></label>
                 <select name="ddlDanhmuc" required>
@@ -137,6 +129,34 @@
                 </select>
             </div>
             <div>
+                <label>Thương hiệu <span style="color:red">*</span></label>
+                <select name="ddlThuonghieu" required>
+                    <option value="">-- Chọn thương hiệu --</option>
+                    <?php
+                    if (isset($data['dsth'])) {
+                        while ($row = mysqli_fetch_array($data['dsth'])) {
+                            $selected = (isset($data['ma_thuong_hieu']) && $data['ma_thuong_hieu'] == $row['ma_thuong_hieu']) ? 'selected' : '';
+                            echo '<option value="' . $row['ma_thuong_hieu'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_thuong_hieu']) . '</option>';
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+            <div>
+                <label>Nhà cung cấp <span style="color:red">*</span></label>
+                <select name="ddlNhacungcap" required>
+                    <option value="">-- Chọn nhà cung cấp --</option>
+                    <?php
+                    if (isset($data['dsncc'])) {
+                        while ($row = mysqli_fetch_array($data['dsncc'])) {
+                            $selected = (isset($data['ma_nha_cung_cap']) && $data['ma_nha_cung_cap'] == $row['ma_nha_cung_cap']) ? 'selected' : '';
+                            echo '<option value="' . $row['ma_nha_cung_cap'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_nha_cung_cap']) . '</option>';
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+            <div>
                 <label>Hình ảnh</label>
                 <div class="file-input-wrapper">
                     <span>Chọn hình ảnh...</span>
@@ -146,7 +166,8 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/QLSP/Thucdon/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
+                <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn-back"><i
+                        class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>

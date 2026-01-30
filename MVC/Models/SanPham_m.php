@@ -22,11 +22,12 @@ class SanPham_m extends connectDB
     // Hàm tìm kiếm sản phẩm (kèm tên danh mục, thương hiệu, nhà cung cấp)
     function SanPham_find($ma_san_pham, $ten_san_pham)
     {
-        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap 
+        $sql = "SELECT s.*, bt.gia, bt.so_luong_kho, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                 LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
                 WHERE s.ma_san_pham LIKE '%$ma_san_pham%' AND s.ten_san_pham LIKE '%$ten_san_pham%'
                 ORDER BY LENGTH(s.ma_san_pham), s.ma_san_pham";
         return mysqli_query($this->con, $sql);
