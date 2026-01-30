@@ -16,6 +16,13 @@ class Users_m extends connectDB
         return (mysqli_num_rows($result) > 0);
     }
 
+    // Method to check if phone number already exists
+    function checkTrungSoDienThoai($so_dien_thoai)
+    {
+        $sql = "SELECT * FROM users WHERE so_dien_thoai = '$so_dien_thoai'";
+        $result = mysqli_query($this->con, $sql);
+        return (mysqli_num_rows($result) > 0);
+    }
     public function checktrungEmail($email, $ma_user)
     {
         $sql = "SELECT * FROM users
@@ -94,7 +101,7 @@ class Users_m extends connectDB
     }
 
     // Hàm tạo user mới với mã user tự động tăng U01, U02, ...U10 nhé dùng cho đăng ký
-    function createUser($username, $email, $password, $role)
+    function createUser($username, $email,  $full_name, $password, $role, $so_dien_thoai)
     {
         $sql_max = "SELECT ma_user FROM users WHERE ma_user LIKE 'U%' ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC LIMIT 1";
         $result = mysqli_query($this->con, $sql_max);
@@ -107,24 +114,7 @@ class Users_m extends connectDB
         }
         $ma_user = 'U' . str_pad($next_id, 2, '0', STR_PAD_LEFT);
 
-        $sql = "INSERT INTO users (ma_user, ten_user, email, password, phan_quyen) VALUES ('$ma_user', '$username', '$email', '$password', '$role')";
+        $sql = "INSERT INTO users (ma_user, ten_user, email, full_name,password, phan_quyen, so_dien_thoai) VALUES ('$ma_user', '$username', '$email', '$full_name','$password', '$role','$so_dien_thoai')";
         return mysqli_query($this->con, $sql);
-    }
-
-    // Method to get user by email
-    function getUserByEmail($email)
-    {
-        $sql = "SELECT * FROM users WHERE email = '$email'";
-        $result = mysqli_query($this->con, $sql);
-        if ($result && mysqli_num_rows($result) > 0) {
-            return mysqli_fetch_assoc($result);
-        }
-        return false;
-    }
-
-    // Login method for backward compatibility
-    function Users_login($username, $password)
-    {
-        return $this->validateUser($username, md5($password));
     }
 }

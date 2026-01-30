@@ -10,7 +10,7 @@
 
         .card {
             width: 100%;
-            max-width: 820px;
+            /* max-width: 1220px; */
             background: #fff;
             padding: 28px;
             border-radius: 12px
@@ -74,15 +74,16 @@
                     value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : '' ?>" />
             </div>
             <div>
-                <label>Tên dăng nhập</label>
-                <input type="text" name="txtTenuser" required
-                    value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />
-            </div>
-            <div>
-                <label>Họ và tên</label>
+                <label>Họ và tên <span style="color:red">*</span></label>
                 <input type="text" name="txtHoten" required
                     value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : '' ?>" />
             </div>
+            <div>
+                <label>Tên tài khoản</label>
+                <input type="text" name="txtTenuser" required
+                    value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />
+            </div>
+
             <div>
                 <label>Mật khẩu</label>
                 <input type="text" name="txtPassword"
@@ -111,7 +112,8 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Users/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
+                <a href="http://localhost/Banhang/Users/danhsach" class="btn-back"><i
+                        class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>
             </div>

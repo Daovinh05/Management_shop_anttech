@@ -169,6 +169,7 @@ class Users extends controller
             'page' => 'Users_sua',
             'ma_user' => $row['ma_user'],
             'ten_user' => $row['ten_user'],
+            'full_name' => $row['full_name'],
             'password' => $row['password'],
             'email' => $row['email'],
             'phan_quyen' => $row['phan_quyen']
@@ -179,6 +180,7 @@ class Users extends controller
     {
         if (isset($_POST['btnCapnhat'])) {
             $ma_user = $_POST['txtMauser'];
+            $full_name = $_POST['txtHoten'];
             $ten_user = $_POST['txtTenuser'];
             $password = $_POST['txtPassword'];
             $email = $_POST['txtEmail'];
@@ -190,7 +192,7 @@ class Users extends controller
                 return;
             }
 
-            $kq = $this->user->Users_update($ma_user, $ten_user, $password, $email, $phan_quyen);
+            $kq = $this->user->Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!'); window.location='" . $this->url('Users/danhsach') . "';</script>";
             else

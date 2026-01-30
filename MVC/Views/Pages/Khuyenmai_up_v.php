@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Upload file — Tổng hợp hoàn chỉnh</title>
+    <title>Upload file — Khuyến mãi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -22,7 +22,7 @@
         }
 
         .wrap {
-            min-height: 50vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -125,7 +125,7 @@
 
         .btn-secondary {
             background: #e5e7eb;
-            color: #4b5563;
+            color: var(--secondary-hover);
             border: 1px solid #d1d5db;
         }
 
@@ -171,6 +171,37 @@
             color: var(--primary);
             margin-top: 3px;
         }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #e3e7ef;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e3e7ef;
+        }
+
+        thead th {
+            background: #f8fafc;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
     </style>
 </head>
 
@@ -178,19 +209,18 @@
     <div class="wrap">
         <div class="card">
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file Người dùng</h2>
-                <p class="hint">Sử dụng form dưới đây để tải lên file Người dùng.</p>
+                <h2><i class="fa-solid fa-gift"></i> Tải lên file Khuyến mãi</h2>
+                <p class="hint">Sử dụng form dưới đây để tải lên file Khuyến mãi.</p>
             </div>
 
-            <form method="POST" action="http://localhost/Banhang/Users/up_l" enctype="multipart/form-data">
-
+            <form method="POST" action="http://localhost/QLSP/Khuyenmai/up_l" enctype="multipart/form-data">
                 <label for="txtGhichu">Ghi chú (Tùy chọn)</label>
                 <input type="text" name="txtGhichu" id="txtGhichu" placeholder="Nhập ghi chú hoặc mô tả cho file này">
 
                 <label>Chọn file (*Bắt buộc)</label>
                 <div class="file-upload-wrapper" id="file-wrapper">
                     <div class="file-upload-icon">
-                        <i class="fa-regular fa-file-lines"></i>
+                        <i class="fa-regular fa-file-excel"></i>
                     </div>
                     <h4 style="margin-bottom: 5px; font-size: 16px;">Nhấn vào đây để chọn file</h4>
                     <p class="hint">Hoặc kéo thả file vào khu vực này (.xls, .xlsx)</p>
@@ -205,10 +235,10 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="http://localhost/Banhang/Users/danhsach" class="btn btn-secondary">
+                    <a href="http://localhost/QLSP/Khuyenmai/danhsach" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
-                    <button type="submit" name="btnUpload" class="btn btn-primary" style="min-width: 150px;">
+                    <button type="submit" name="btnNhap" class="btn btn-primary" style="min-width: 150px;">
                         <i class="fa-solid fa-upload"></i> Tải lên ngay
                     </button>
                 </div>
@@ -224,6 +254,8 @@
                     <li><i class="fa-solid fa-caret-right"></i> Cấu trúc cột cần tuân thủ thứ tự quy định của hệ thống.
                     </li>
                 </ul>
+
+
             </div>
         </div>
     </div>
@@ -239,7 +271,7 @@
                 display.style.display = 'block';
                 wrapper.style.borderColor = 'var(--primary)'; // Đổi màu border khi đã chọn file
             } else {
-                display.style.none = 'none';
+                display.style.display = 'none';
                 wrapper.style.borderColor = '#d0d7e2'; // Trả về màu border mặc định
             }
         }
