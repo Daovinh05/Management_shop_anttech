@@ -495,15 +495,11 @@
                 <p class="lead">Theo dõi và quản lý các đơn hàng trong quán.</p>
             </div>
             <div class="actions">
-                <!-- <a href="http://localhost/QLSP/Donhang/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
-                    Thêm đơn </a> -->
-                <!-- <a href="http://localhost/QLSP/Donhang/import_form" class="btn-ghost"><i
-                        class="fa-solid fa-file-excel"></i> Nhập
-                    Excel</a> -->
+
             </div>
         </div>
 
-        <form method="post" action="http://localhost/QLSP/Donhang/Timkiem" class="form-search"
+        <form method="post" action="http://localhost/Banhang/Donhang/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -512,21 +508,16 @@
                         value="<?php echo isset($data['ma_don_hang']) ? htmlspecialchars($data['ma_don_hang']) : ''; ?>" />
                 </div>
                 <div>
-                    <label for="searchName">Tên bàn</label>
-                    <input type="text" id="searchName" name="txtTenban" placeholder="Nhập tên bàn..."
-                        value="<?php echo isset($data['ten_ban']) ? htmlspecialchars($data['ten_ban']) : ''; ?>" />
-                </div>
-                <div>
-                    <label for="searchName">Tên user</label>
-                    <input type="text" id="searchName" name="txtTenuser" placeholder="Nhập tên user..."
-                        value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : ''; ?>" />
+                    <label for="searchName">Tên khách hàng</label>
+                    <input type="text" id="searchName" name="txtTenkhachhang" placeholder="Nhập tên khách hàng..."
+                        value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : ''; ?>" />
                 </div>
             </div>
 
             <div class="actions" style="margin-top:0;">
                 <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
-                <a href="http://localhost/QLSP/Donhang/danhsach" class="btn-ghost">Làm mới</a>
+                <a href="http://localhost/Banhang/Donhang/danhsach" class="btn-ghost">Làm mới</a>
                 <button type="submit" name="btnXuatexcel" class="btn-excel">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
