@@ -30,10 +30,10 @@ class Nhacungcap extends controller
 
         $this->view('Master', [
             'page' => 'nhacungcap_v',
-            'manhacungcap' => '',
-            'tennhacungcap' => '',
-            'diachi' => '',
-            'sodienthoai' => '',
+            'ma_nha_cung_cap' => '',
+            'ten_nha_cung_cap' => '',
+            'dia_chi' => '',
+            'dien_thoai' => '',
             'dulieu' => $result
         ]);
     }
@@ -41,10 +41,10 @@ class Nhacungcap extends controller
     function ins()
     {
         if (isset($_POST['btnLuu'])) {
-            $ma_nha_cung_cap = $_POST['txtMaNhaCungCap'];
-            $ten_nha_cung_cap = $_POST['txtTenNhaCungCap'];
+            $ma_nha_cung_cap = $_POST['txtManhacungcap'];
+            $ten_nha_cung_cap = $_POST['txtTennhacungcap'];
             $dia_chi = $_POST['txtDiaChi'];
-            $dien_thoai = $_POST['txtDienThoai'];
+            $so_dien_thoai = $_POST['txtDienThoai'];
 
             if ($ma_nha_cung_cap == '') {
                 echo "<script>alert('Mã nhà cung cấp không được rỗng!')</script>";
@@ -58,13 +58,13 @@ class Nhacungcap extends controller
                     echo "<script>alert('Mã nhà cung cấp đã tồn tại! Vui lòng nhập mã khác.')</script>";
                     $this->view('Master', [
                         'page' => 'nhacungcap_v',
-                        'manhacungcap' => $ma_nha_cung_cap,
-                        'tennhacungcap' => $ten_nha_cung_cap,
-                        'diachi' => $dia_chi,
-                        'sodienthoai' => $dien_thoai
+                        'ma_nha_cung_cap' => $ma_nha_cung_cap,
+                        'ten_nha_cung_cap' => $ten_nha_cung_cap,
+                        'dia_chi' => $dia_chi,
+                        'dien_thoai' => $so_dien_thoai
                     ]);
                 } else {
-                    $kq = $this->ncc->nhacungcap_ins($ma_nha_cung_cap, $ten_nha_cung_cap, $dia_chi, $dien_thoai);
+                    $kq = $this->ncc->nhacungcap_ins($ma_nha_cung_cap, $ten_nha_cung_cap, $dia_chi, $so_dien_thoai);
                     if ($kq) {
                         echo "<script>alert('Thêm mới thành công!')</script>";
                         $this->danhsach();
@@ -72,10 +72,10 @@ class Nhacungcap extends controller
                         echo "<script>alert('Thêm mới thất bại!')</script>";
                         $this->view('Master', [
                             'page' => 'nhacungcap_v',
-                            'manhacungcap' => $ma_nha_cung_cap,
-                            'tennhacungcap' => $ten_nha_cung_cap,
-                            'diachi' => $dia_chi,
-                            'sodienthoai' => $dien_thoai
+                            'ma_nha_cung_cap' => $ma_nha_cung_cap,
+                            'ten_nha_cung_cap' => $ten_nha_cung_cap,
+                            'dia_chi' => $dia_chi,
+                            'dien_thoai' => $so_dien_thoai
                         ]);
                     }
                 }
@@ -86,17 +86,16 @@ class Nhacungcap extends controller
     function Timkiem()
     {
         // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_nha_cung_cap = $_POST['txtMaNhaCungCap'] ?? '';
-        $ten_nha_cung_cap = $_POST['txtTenNhaCungCap'] ?? '';
+        $ma_nha_cung_cap = $_POST['txtManhacungcap'] ?? '';
+        $ten_nha_cung_cap = $_POST['txtTennhacungcap'] ?? '';
 
-        // LẤY DỮ LIỆU THEO MÃ NHÀ CUNG CẤP + TÊN NHÀ CUNG CẤP
         $result = $this->ncc->NhaCungCap_find($ma_nha_cung_cap, $ten_nha_cung_cap);
 
         // DISPLAY VIEW
         $this->view('Master', [
-            'page' => 'danhsachnhacungcap_v',
-            'manhacungcap' => $ma_nha_cung_cap,
-            'tennhacungcap' => $ten_nha_cung_cap,
+            'page' => 'Danhsachnhacungcap_v',
+            'ma_nha_cung_cap' => $ma_nha_cung_cap,
+            'ten_nha_cung_cap' => $ten_nha_cung_cap,
             'dulieu' => $result
         ]);
     }
@@ -107,23 +106,23 @@ class Nhacungcap extends controller
         $row = mysqli_fetch_array($result);
 
         $this->view('Master', [
-            'page' => 'nhacungcap_sua',
-            'manhacungcap' => $row['ma_nha_cung_cap'],
-            'tennhacungcap' => $row['ten_nha_cung_cap'],
-            'diachi' => $row['dia_chi'],
-            'sodienthoai' => $row['dien_thoai']
+            'page' => 'Nhacungcap_sua',
+            'ma_nha_cung_cap' => $row['ma_nha_cung_cap'],
+            'ten_nha_cung_cap' => $row['ten_nha_cung_cap'],
+            'dia_chi' => $row['dia_chi'],
+            'dien_thoai' => $row['dien_thoai']
         ]);
     }
 
     function update()
     {
         if (isset($_POST['btnCapnhat'])) {
-            $ma_nha_cung_cap = $_POST['txtMaNhaCungCap'];
-            $ten_nha_cung_cap = $_POST['txtTenNhaCungCap'];
-            $dia_chi = $_POST['txtDiaChi'];
-            $dien_thoai = $_POST['txtDienThoai'];
+            $ma_nha_cung_cap = $_POST['txtManhacungcap'];
+            $ten_nha_cung_cap = $_POST['txtTennhacungcap'];
+            $dia_chi = $_POST['txtDiachi'];
+            $so_dien_thoai = $_POST['txtSodienthoai'];
 
-            $kq = $this->ncc->NhaCungCap_update($ma_nha_cung_cap, $ten_nha_cung_cap, $dia_chi, $dien_thoai);
+            $kq = $this->ncc->NhaCungCap_update($ma_nha_cung_cap, $ten_nha_cung_cap, $dia_chi, $so_dien_thoai);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!')</script>";
             else

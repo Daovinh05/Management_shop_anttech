@@ -178,11 +178,11 @@
     <div class="wrap">
         <div class="card">
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file Danh mục</h2>
-                <p class="hint">Sử dụng form dưới đây để tải lên file Danh mục.</p>
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file thương hiệu</h2>
+                <p class="hint">Sử dụng form dưới đây để tải lên file thương hiệu.</p>
             </div>
 
-            <form method="POST" action="http://localhost/Banhang/Danhmuc/up_l" enctype="multipart/form-data">
+            <form method="POST" action="http://localhost/Banhang/Thuonghieu/up_l" enctype="multipart/form-data">
 
                 <label for="txtGhichu">Ghi chú (Tùy chọn)</label>
                 <input type="text" name="txtGhichu" id="txtGhichu" placeholder="Nhập ghi chú hoặc mô tả cho file này">
@@ -205,7 +205,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn btn-secondary">
+                    <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
                     <button type="submit" name="btnUpload" class="btn btn-primary" style="min-width: 150px;">

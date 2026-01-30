@@ -22,7 +22,13 @@ class KhuyenMai_m extends connectDB
     // Hàm tìm kiếm khuyến mãi
     function KhuyenMai_find($ma_khuyen_mai, $ten_khuyen_mai)
     {
-        $sql = "SELECT * FROM khuyen_mai
+        $current_date = date('Y-m-d');
+        $sql = "SELECT *,
+                       CASE
+                           WHEN ngay_ket_thuc < '$current_date' THEN 'het'
+                           ELSE 'con'
+                       END AS trang_thai_khuyen_mai
+                FROM khuyen_mai
                 WHERE ma_khuyen_mai LIKE '%$ma_khuyen_mai%' AND ten_khuyen_mai LIKE '%$ten_khuyen_mai%'
                 ORDER BY LENGTH(ma_khuyen_mai), ma_khuyen_mai";
         return mysqli_query($this->con, $sql);
@@ -47,7 +53,13 @@ class KhuyenMai_m extends connectDB
     // Hàm lấy tất cả khuyến mãi
     function KhuyenMai_getAll()
     {
-        $sql = "SELECT * FROM khuyen_mai
+        $current_date = date('Y-m-d');
+        $sql = "SELECT *,
+                       CASE
+                           WHEN ngay_ket_thuc < '$current_date' THEN 'het'
+                           ELSE 'con'
+                       END AS trang_thai_khuyen_mai
+                FROM khuyen_mai
                 ORDER BY LENGTH(ma_khuyen_mai), ma_khuyen_mai";
         return mysqli_query($this->con, $sql);
     }
@@ -55,7 +67,13 @@ class KhuyenMai_m extends connectDB
     // Hàm lấy chi tiết khuyến mãi
     function KhuyenMai_getById($ma_khuyen_mai)
     {
-        $sql = "SELECT * FROM khuyen_mai
+        $current_date = date('Y-m-d');
+        $sql = "SELECT *,
+                       CASE
+                           WHEN ngay_ket_thuc < '$current_date' THEN 'het'
+                           ELSE 'con'
+                       END AS trang_thai_khuyen_mai
+                FROM khuyen_mai
                 WHERE ma_khuyen_mai = '$ma_khuyen_mai'";
         return mysqli_query($this->con, $sql);
     }

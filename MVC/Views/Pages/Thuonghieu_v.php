@@ -3,6 +3,7 @@
 
 <body>
     <style>
+        /* Simple form styles following existing pattern */
         .card {
             width: 100%;
             background: #fff;
@@ -88,45 +89,53 @@
             font-size: 14px;
             color: #4b5563;
         }
-
-        .current-image {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .current-image img {
-            max-width: 150px;
-            max-height: 150px;
-            object-fit: contain;
-            border: 1px solid #e3e7ef;
-            border-radius: 5px;
-        }
     </style>
 
     <div class="card">
-        <h1>Sửa Danh mục</h1>
-        <p class="lead">Chỉnh sửa thông tin danh mục.</p>
-        <form method="post" action="http://localhost/Banhang/Danhmuc/update" enctype="multipart/form-data">
+        <h1>Thêm mới Thương hiệu</h1>
+        <p class="lead">Nhập thông tin thương hiệu mới.</p>
+        <form method="post" action="http://localhost/Banhang/Thuonghieu/ins" enctype="multipart/form-data">
             <div>
-                <label>Mã danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtMadanhmuc" required readonly
-                    value="<?php echo isset($data['ma_danh_muc']) ? htmlspecialchars($data['ma_danh_muc']) : '' ?>" />
+                <label>Mã thương hiệu <span style="color:red">*</span></label>
+                <input type="text" name="txtMathuonghieu" required
+                    value="<?php echo isset($data['ma_thuong_hieu']) ? htmlspecialchars($data['ma_thuong_hieu']) : '' ?>" />
             </div>
             <div>
-                <label>Tên danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtTendanhmuc" required
-                    value="<?php echo isset($data['ten_danh_muc']) ? htmlspecialchars($data['ten_danh_muc']) : '' ?>" />
+                <label>Tên thương hiệu <span style="color:red">*</span></label>
+                <input type="text" name="txtTenthuonghieu" required
+                    value="<?php echo isset($data['ten_thuong_hieu']) ? htmlspecialchars($data['ten_thuong_hieu']) : '' ?>" />
             </div>
+            <!-- <div>
+                <label>Hình ảnh</label>
+                <div class="file-input-wrapper">
+                    <span>Chọn hình ảnh...</span>
+                    <input type="file" name="txtImage" accept="image/*" />
+                </div>
+                <div class="file-name" id="fileName">Chưa chọn file</div>
+            </div> -->
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
+                <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="btn-back"><i
+                        class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
-                    <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>
+                    <button type="reset" class="btn-ghost">Reset</button>
+                    <button type="submit" name="btnLuu" class="btn-primary">Lưu thông tin</button>
                 </div>
             </div>
         </form>
     </div>
+
+    <script>
+        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+            const fileNameDisplay = document.getElementById('fileName');
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'Chưa chọn file';
+            }
+        });
+    </script>
 </body>
 
 </html>

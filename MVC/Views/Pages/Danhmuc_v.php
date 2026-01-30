@@ -3,92 +3,92 @@
 
 <body>
     <style>
-        /* Simple form styles following existing pattern */
-        .card {
-            width: 100%;
-            background: #fff;
-            padding: 28px;
-            border-radius: 12px
-        }
+    /* Simple form styles following existing pattern */
+    .card {
+        width: 100%;
+        background: #fff;
+        padding: 28px;
+        border-radius: 12px
+    }
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600
-        }
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600
+    }
 
-        input,
-        select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #e3e7ef
-        }
+    input,
+    select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #e3e7ef
+    }
 
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px
-        }
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px
+    }
 
-        .btn-back {
-            background: #6b7280;
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 10px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px
-        }
+    .btn-back {
+        background: #6b7280;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px
+    }
 
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid #e6e9f2;
-            color: #6b7280;
-            padding: 10px 16px;
-            border-radius: 10px
-        }
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid #e6e9f2;
+        color: #6b7280;
+        padding: 10px 16px;
+        border-radius: 10px
+    }
 
-        .btn-primary {
-            background: #2463ff;
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 10px;
-            border: 0
-        }
+    .btn-primary {
+        background: #2463ff;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 0
+    }
 
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            background: #f8fafc;
-            padding: 10px 15px;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            transition: border-color 0.3s;
-        }
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        background: #f8fafc;
+        padding: 10px 15px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        transition: border-color 0.3s;
+    }
 
-        .file-input-wrapper:hover {
-            border-color: #9ca3af;
-        }
+    .file-input-wrapper:hover {
+        border-color: #9ca3af;
+    }
 
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
+    .file-input-wrapper input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
 
-        .file-name {
-            margin-top: 8px;
-            font-size: 14px;
-            color: #4b5563;
-        }
+    .file-name {
+        margin-top: 8px;
+        font-size: 14px;
+        color: #4b5563;
+    }
     </style>
 
     <div class="card">
@@ -105,17 +105,10 @@
                 <input type="text" name="txtTendanhmuc" required
                     value="<?php echo isset($data['ten_danh_muc']) ? htmlspecialchars($data['ten_danh_muc']) : '' ?>" />
             </div>
-            <div>
-                <label>Hình ảnh</label>
-                <div class="file-input-wrapper">
-                    <span>Chọn hình ảnh...</span>
-                    <input type="file" name="txtImage" accept="image/*" />
-                </div>
-                <div class="file-name" id="fileName">Chưa chọn file</div>
-            </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
+                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn-back"><i
+                        class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
@@ -124,17 +117,6 @@
             </div>
         </form>
     </div>
-
-    <script>
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            const fileNameDisplay = document.getElementById('fileName');
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
-            } else {
-                fileNameDisplay.textContent = 'Chưa chọn file';
-            }
-        });
-    </script>
 </body>
 
 </html>

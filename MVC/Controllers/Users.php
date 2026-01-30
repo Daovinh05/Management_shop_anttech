@@ -48,24 +48,45 @@ class Users extends controller
         if (isset($_POST['btnLuu'])) {
             $ma_user = $_POST['txtMauser'];
             $ten_user = $_POST['txtTenuser'];
+            $full_name = $_POST['txtHoten'] ?? ''; // Using the correct field name from the view
             $password = $_POST['txtPassword'];
             $email = $_POST['txtEmail'];
             $phan_quyen = $_POST['ddlPhanquyen'];
+            $so_dien_thoai = $_POST['txtSoDienThoai'] ?? ''; // Phone number field
 
             if ($ma_user == '') {
                 echo "<script>alert('Mã user không được rỗng!')</script>";
             } else {
                 $kq1 = $this->user->checktrungMaUser($ma_user);
                 $checkEmail = $this->user->checktrungEmail($email, null);
+
+                // Also check if phone number already exists
+                if ($so_dien_thoai != '' && $this->user->checkTrungSoDienThoai($so_dien_thoai)) {
+                    echo "<script>alert('Số điện thoại đã được sử dụng!')</script>";
+                    $this->view('Master', [
+                        'page' => 'Users_v',
+                        'ma_user' => $ma_user,
+                        'ten_user' => $ten_user,
+                        'full_name' => $full_name,
+                        'password' => $password,
+                        'email' => $email,
+                        'phan_quyen' => $phan_quyen,
+                        'so_dien_thoai' => ''
+                    ]);
+                    return;
+                }
+
                 if ($kq1) {
                     echo "<script>alert('Mã user đã tồn tại!')</script>";
                     $this->view('Master', [
                         'page' => 'Users_v',
                         'ma_user' => $ma_user,
                         'ten_user' => $ten_user,
+                        'full_name' => $full_name,
                         'password' => $password,
                         'email' => $email,
-                        'phan_quyen' => $phan_quyen
+                        'phan_quyen' => $phan_quyen,
+                        'so_dien_thoai' => $so_dien_thoai
                     ]);
                 } else if (mysqli_num_rows($checkEmail) > 0) {
                     echo "<script>alert('Email đã được sử dụng!')</script>";
@@ -73,13 +94,15 @@ class Users extends controller
                         'page' => 'Users_v',
                         'ma_user' => $ma_user,
                         'ten_user' => $ten_user,
+                        'full_name' => $full_name,
                         'password' => $password,
                         'email' => '',
-                        'phan_quyen' => $phan_quyen
+                        'phan_quyen' => $phan_quyen,
+                        'so_dien_thoai' => $so_dien_thoai
                     ]);
                     return;
                 } else {
-                    $kq = $this->user->users_ins($ma_user, $ten_user, $password, $email, $phan_quyen);
+                    $kq = $this->user->users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai);
                     if ($kq) {
                         echo "<script>alert('Thêm mới thành công!')</script>";
                         $this->danhsach();
@@ -89,9 +112,11 @@ class Users extends controller
                             'page' => 'Users_v',
                             'ma_user' => $ma_user,
                             'ten_user' => $ten_user,
+                            'full_name' => $full_name,
                             'password' => $password,
                             'email' => $email,
-                            'phan_quyen' => $phan_quyen
+                            'phan_quyen' => $phan_quyen,
+                            'so_dien_thoai' => $so_dien_thoai
                         ]);
                     }
                 }
@@ -172,7 +197,8 @@ class Users extends controller
             'full_name' => $row['full_name'],
             'password' => $row['password'],
             'email' => $row['email'],
-            'phan_quyen' => $row['phan_quyen']
+            'phan_quyen' => $row['phan_quyen'],
+            'so_dien_thoai' => $row['so_dien_thoai']
         ]);
     }
 
@@ -185,6 +211,7 @@ class Users extends controller
             $password = $_POST['txtPassword'];
             $email = $_POST['txtEmail'];
             $phan_quyen = $_POST['ddlPhanquyen'];
+            $so_dien_thoai = $_POST['txtSoDienThoai'] ?? '';
 
             $check = $this->user->checktrungEmail($email, $ma_user);
             if (mysqli_num_rows($check) > 0) {
@@ -192,7 +219,7 @@ class Users extends controller
                 return;
             }
 
-            $kq = $this->user->Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen);
+            $kq = $this->user->Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!'); window.location='" . $this->url('Users/danhsach') . "';</script>";
             else
@@ -273,8 +300,12 @@ class Users extends controller
                 return;
             }
 
+            // Get additional fields from Excel if available (assuming column F is full_name and G is phone number)
+            $full_name = isset($sheetData[$i]['F']) ? trim($sheetData[$i]['F']) : '';
+            $so_dien_thoai = isset($sheetData[$i]['G']) ? trim($sheetData[$i]['G']) : '';
+
             // Insert
-            if (!$this->user->users_ins($ma_user, $ten_user, $password, $email, $phan_quyen)) {
+            if (!$this->user->users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai)) {
                 die(mysqli_error($this->user->con));
             }
         }

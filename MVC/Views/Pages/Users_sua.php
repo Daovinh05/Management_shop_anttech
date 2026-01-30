@@ -95,6 +95,11 @@
                     value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : '' ?>" />
             </div>
             <div>
+                <label>Số điện thoại</label>
+                <input type="text" name="txtSoDienThoai"
+                    value="<?php echo isset($data['so_dien_thoai']) ? htmlspecialchars($data['so_dien_thoai']) : '' ?>" />
+            </div>
+            <div>
                 <label>Phân quyền</label>
                 <select name="ddlPhanquyen">
                     <option value="nhan_vien"

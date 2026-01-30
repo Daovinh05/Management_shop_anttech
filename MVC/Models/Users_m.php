@@ -114,7 +114,7 @@ class Users_m extends connectDB
         }
         $ma_user = 'U' . str_pad($next_id, 2, '0', STR_PAD_LEFT);
 
-        $sql = "INSERT INTO users (ma_user, ten_user, email, full_name,password, phan_quyen, so_dien_thoai) VALUES ('$ma_user', '$username', '$email', '$full_name','$password', '$role','$so_dien_thoai')";
+        $sql = "INSERT INTO users (ma_user, ten_user, email, full_name, password, phan_quyen, so_dien_thoai) VALUES ('$ma_user', '$username', '$email', '$full_name', '$password', '$role', '$so_dien_thoai')";
         return mysqli_query($this->con, $sql);
     }
 }

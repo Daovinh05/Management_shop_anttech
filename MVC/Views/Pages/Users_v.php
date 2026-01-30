@@ -75,6 +75,11 @@
                     value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : '' ?>" />
             </div>
             <div>
+                <label>Số điện thoại</label>
+                <input type="text" name="txtSoDienThoai"
+                    value="<?php echo isset($data['so_dien_thoai']) ? htmlspecialchars($data['so_dien_thoai']) : '' ?>" />
+            </div>
+            <div>
                 <label>Tên tài khoản <span style="color:red">*</span></label>
                 <input type="text" name="txtTenuser" required
                     value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />

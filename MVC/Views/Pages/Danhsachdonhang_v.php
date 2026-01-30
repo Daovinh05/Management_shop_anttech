@@ -575,7 +575,8 @@
                                     <!-- <td><?php echo isset($row['ten_ban']) ? htmlspecialchars($row['ten_ban']) : htmlspecialchars($row['ma_ban']) ?></td>
                                     <td><?php echo isset($row['ten_user']) ? htmlspecialchars($row['ten_user']) : htmlspecialchars($row['ma_user']) ?></td> -->
 
-                                    <td><span class="currency"><?php echo number_format($row['tong_tien_hang'], 0, ',', '.') ?> ₫</span>
+                                    <td><span class="currency"><?php echo number_format($row['tong_tien_hang'], 0, ',', '.') ?>
+                                            ₫</span>
                                     </td>
                                     <!-- <td><span
                                             class="currency discount">-<?php echo number_format($row['tien_khuyen_mai'] ?? 0, 0, ',', '.') ?>

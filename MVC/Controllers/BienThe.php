@@ -58,7 +58,7 @@ class BienThe extends controller
             $dung_luong = $_POST['txtDungLuong'];
             $gia = $_POST['txtGia'];
             $so_luong_kho = $_POST['txtSoLuongKho'];
-            
+
             $dssp = $this->sp->SanPham_getAll();
 
             if ($ma_bien_the == '') {
@@ -89,7 +89,8 @@ class BienThe extends controller
                         echo "<script>alert('Thêm mới thành công!')</script>";
                         $this->danhsach();
                     } else {
-                        echo "<script>alert('Thêm mới thất bại!')</script>";
+                        $error = mysqli_error($this->bt->con);
+                        echo "<script>alert('Thêm mới thất bại! Lỗi: " . addslashes($error) . "')</script>";
                         $this->view('Master', [
                             'page' => 'bienthe_v',
                             'mabienthe' => $ma_bien_the,
@@ -114,7 +115,7 @@ class BienThe extends controller
         $ma_bien_the = $_POST['txtMaBienThe'] ?? '';
         $ten_bien_the = $_POST['txtTenBienThe'] ?? '';
 
-        // LẤY DỮ LIỆU THEO MÃ BIẾN THỂ + TÊN BIẾN THỂ
+        // 👉 LẤY DỮ LIỆU THEO MÃ BIẾN THỂ + TÊN BIẾN THỂ
         $result = $this->bt->BienThe_find($ma_bien_the, $ten_bien_the);
 
         // DISPLAY VIEW
@@ -130,7 +131,7 @@ class BienThe extends controller
     {
         $result = $this->bt->BienThe_getById($ma_bien_the);
         $row = mysqli_fetch_array($result);
-        
+
         // Lấy danh sách sản phẩm cho dropdown
         $dssp = $this->sp->SanPham_getAll();
 
@@ -163,8 +164,10 @@ class BienThe extends controller
             $kq = $this->bt->BienThe_update($ma_bien_the, $ma_san_pham, $ten_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!')</script>";
-            else
-                echo "<script>alert('Cập nhật thất bại!')</script>";
+            else {
+                $error = mysqli_error($this->bt->con);
+                echo "<script>alert('Cập nhật thất bại! Lỗi: " . addslashes($error) . "')</script>";
+            }
 
             $this->Get_data();
         }
@@ -177,5 +180,62 @@ class BienThe extends controller
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('BienThe/danhsach') . "';</script>";
         else
             echo "<script>alert('Xóa thất bại!'); window.location='" . $this->url('BienThe/danhsach') . "';</script>";
+    }
+
+    // Hiển thị form nhập Excel
+    function import_form()
+    {
+        $this->view('Master', [
+            'page' => 'bienthe_up_v'
+        ]);
+    }
+
+
+    function up_l()
+    {
+        if (!isset($_FILES['txtfile']) || $_FILES['txtfile']['error'] != 0) {
+            echo "<script>alert('Upload file lỗi')</script>";
+            return;
+        }
+
+        $file = $_FILES['txtfile']['tmp_name'];
+
+        $objReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $objExcel  = $objReader->load($file);
+
+        $sheet     = $objExcel->getSheet(0);
+        $sheetData = $sheet->toArray(null, true, true, true);
+
+        for ($i = 2; $i <= count($sheetData); $i++) {
+
+            $ma_bien_the = trim($sheetData[$i]['A']);
+            $ma_san_pham = trim($sheetData[$i]['B']);
+            $ten_bien_the = trim($sheetData[$i]['C']);
+            $mau_sac = trim($sheetData[$i]['D']);
+            $ram = trim($sheetData[$i]['E']);
+            $dung_luong = trim($sheetData[$i]['F']);
+            $gia = trim($sheetData[$i]['G']);
+            $so_luong_kho = trim($sheetData[$i]['H']);
+
+            if ($ma_bien_the == '') continue;
+
+            // ✅ CHECK TRÙNG MÃ BIẾN THỂ
+            if ($this->bt->checktrungMaBT($ma_bien_the)) {
+                echo "<script>
+                alert('Mã biến thể $ma_bien_the đã tồn tại! Vui lòng kiểm tra lại file.');
+                window.location.href='" . $this->url('BienThe/import_form') . "';
+            </script>";
+                return;
+            }
+
+            // Insert
+            if (!$this->bt->bien_the_ins($ma_bien_the, $ma_san_pham, $ten_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho)) {
+                $error = mysqli_error($this->bt->con);
+                die("Lỗi khi thêm biến thể: " . $error);
+            }
+        }
+
+        echo "<script>alert('Upload biến thể thành công!')</script>";
+        $this->view('Master', ['page' => 'bienthe_up_v']);
     }
 }
