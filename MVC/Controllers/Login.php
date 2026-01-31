@@ -17,7 +17,7 @@ class Login extends controller
     {
         if (isset($_SESSION['user_id'])) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: ' . $this->url('Home'));
+                header('Location: ' . $this->url('admin'));
             } else {
                 header('Location: ' . $this->url('Khachhang'));
             }
@@ -43,7 +43,7 @@ class Login extends controller
                 $_SESSION['user_role'] = $user['phan_quyen'];
 
                 if ($user['phan_quyen'] == 'admin') {
-                    header('Location: ' . $this->url('Home'));
+                    header('Location: ' . $this->url('admin'));
                 } else {
                     header('Location: ' . $this->url('Khachhang'));
                 }

@@ -60,7 +60,7 @@ class app
         // Nếu người dùng đã đăng nhập nhưng cố truy cập trang đăng nhập, chuyển hướng theo vai trò
         if (isset($_SESSION['user_id']) && in_array($current_route, ['Users/login', 'Login'])) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: http://localhost/Banhang/Home');
+                header('Location: http://localhost/Banhang/admin');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
                 header('Location: http://localhost/Banhang/Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
@@ -74,7 +74,7 @@ class app
         // Nếu người dùng đã đăng nhập và truy cập trang chủ trực tiếp, chuyển hướng theo vai trò
         if (isset($_SESSION['user_id']) && empty($current_route)) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: http://localhost/Banhang/Home');
+                header('Location: http://localhost/Banhang/admin');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
                 header('Location: http://localhost/Banhang/Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
