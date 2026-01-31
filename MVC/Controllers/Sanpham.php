@@ -58,9 +58,9 @@ class Sanpham extends controller
         if (isset($_POST['btnLuu'])) {
             $ma_san_pham = $_POST['txtMaSanPham'];
             $ten_san_pham = $_POST['txtTenSanPham'];
-            $ma_danh_muc = $_POST['ddlDanhMuc'];
-            $ma_thuong_hieu = $_POST['ddlThuongHieu'];
-            $ma_nha_cung_cap = $_POST['ddlNhaCungCap'];
+            $ma_danh_muc = isset($_POST['ddlDanhmuc']) ? $_POST['ddlDanhmuc'] : '';
+            $ma_thuong_hieu = isset($_POST['ddlThuonghieu']) ? $_POST['ddlThuonghieu'] : '';
+            $ma_nha_cung_cap = isset($_POST['ddlNhacungcap']) ? $_POST['ddlNhacungcap'] : '';
 
             $dsdm = $this->dm->DanhMuc_getAll();
             $dsth = $this->th->ThuongHieu_getAll();
@@ -101,7 +101,7 @@ class Sanpham extends controller
                     }
 
                     if (move_uploaded_file($filetmp, $upload_path)) {
-                        $img_thuc_don = $final_filename; // Chỉ lưu tên tệp vào DB
+                        $img_hinh_anh = $final_filename; // Chỉ lưu tên tệp vào DB
                     } else {
                         echo "<script>alert('Upload hình ảnh thất bại!');</script>";
                         $this->view('Master', [

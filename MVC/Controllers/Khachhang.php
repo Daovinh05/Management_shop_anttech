@@ -34,8 +34,8 @@ class Khachhang extends controller
         $dssp = $this->sp->SanPham_getAll();
         $dsdm = $this->dm->DanhMuc_getAll();
 
-        $this->view('Master', [
-            'page' => 'khachhang_home',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_home',
             'dssp' => $dssp,
             'dsdm' => $dsdm
         ]);
@@ -436,5 +436,113 @@ class Khachhang extends controller
         }
 
         header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+    }
+
+    // Lọc sản phẩm theo mức giá
+    function filter_by_price()
+    {
+        header('Content-Type: application/json');
+
+        if (isset($_POST['price_range'])) {
+            $price_range = $_POST['price_range'];
+
+            // Gọi phương thức từ model để lọc sản phẩm theo mức giá
+            $result = $this->sp->SanPham_filterByCategoryAndPrice('', $price_range);
+
+            // Check if query was successful
+            if (!$result) {
+                echo json_encode([
+                    'products' => [],
+                    'count' => 0,
+                    'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
+                ]);
+                return;
+            }
+
+            $products = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $products[] = $row;
+            }
+
+            echo json_encode([
+                'products' => $products,
+                'count' => count($products)
+            ]);
+        } else {
+            echo json_encode([
+                'products' => [],
+                'count' => 0
+            ]);
+        }
+    }
+
+    // Lọc sản phẩm theo danh mục
+    function filter_by_category()
+    {
+        header('Content-Type: application/json');
+
+        if (isset($_POST['category_id'])) {
+            $category_id = $_POST['category_id'];
+
+            // Gọi phương thức từ model để lọc sản phẩm theo danh mục
+            $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, '');
+
+            // Check if query was successful
+            if (!$result) {
+                echo json_encode([
+                    'products' => [],
+                    'count' => 0,
+                    'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
+                ]);
+                return;
+            }
+
+            $products = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $products[] = $row;
+            }
+
+            echo json_encode([
+                'products' => $products,
+                'count' => count($products)
+            ]);
+        } else {
+            echo json_encode([
+                'products' => [],
+                'count' => 0
+            ]);
+        }
+    }
+
+    // Lọc sản phẩm theo cả danh mục và mức giá
+    function filter_by_both()
+    {
+        header('Content-Type: application/json');
+
+        $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : '';
+        $price_range = isset($_POST['price_range']) ? $_POST['price_range'] : '';
+
+        // Gọi phương thức từ model để lọc sản phẩm
+        $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, $price_range);
+
+        // Check if query was successful
+        if (!$result) {
+            echo json_encode([
+                'products' => [],
+                'count' => 0,
+                'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
+            ]);
+            return;
+        }
+
+        $products = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $products[] = $row;
+        }
+
+        echo json_encode([
+            'products' => $products,
+            'count' => count($products)
+        ]);
     }
 }
