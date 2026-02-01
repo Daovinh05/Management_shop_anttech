@@ -217,4 +217,51 @@ class Donhang extends controller
         else
             echo "<script>alert('Xóa thất bại!'); window.location='" . $this->url('Donhang/danhsach') . "';</script>";
     }
+
+    // FILE: controllers/Donhang.php
+
+    public function get_order_details($id) {
+        // 1. SỬA LỖI QUAN TRỌNG: Dùng $this->dh thay vì $this->donhang_model
+        // 2. SỬA LỖI TÊN HÀM: Dùng DonHang_getById thay vì getThongTinDonHang
+        
+        // Lấy thông tin chi tiết món
+        $raw_details = $this->dh->getChiTietDonHang($id); 
+        
+        // Lấy thông tin chung đơn hàng (để lấy ghi chú)
+        $raw_order = $this->dh->DonHang_getById($id); 
+
+        // --- Chuyển dữ liệu sang mảng ---
+        $details_arr = [];
+        if ($raw_details) {
+            while ($row = mysqli_fetch_assoc($raw_details)) {
+                // Map dữ liệu để JavaScript dễ đọc
+                $row['ten_mon'] = $row['ten_san_pham']; 
+                $row['img_thuc_don'] = $row['hinh_anh'];
+                // Lấy giá lúc mua nếu có, không thì lấy giá hiện tại
+                if (!isset($row['gia_tai_thoi_diem_dat']) && isset($row['gia_luc_mua'])) {
+                    $row['gia_tai_thoi_diem_dat'] = $row['gia_luc_mua'];
+                }
+                $details_arr[] = $row;
+            }
+        }
+
+        $order_note = '';
+        if ($raw_order && mysqli_num_rows($raw_order) > 0) {
+            $order_data = mysqli_fetch_assoc($raw_order);
+            $order_note = $order_data['ghi_chu'] ?? ''; 
+        }
+
+        // --- Trả về JSON ---
+        $result = [
+            'order_details' => $details_arr, 
+            'order_notes'   => $order_note
+        ];
+
+        // Xóa bộ nhớ đệm để tránh lỗi JSON
+        if (ob_get_length()) ob_clean();
+        
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($result);
+        exit(); 
+    }
 }

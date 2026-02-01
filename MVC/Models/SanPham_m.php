@@ -52,7 +52,7 @@ class SanPham_m extends connectDB
     // Hàm lấy tất cả sản phẩm với thông tin danh mục, thương hiệu, nhà cung cấp
     function SanPham_getAll()
     {
-        $sql = "SELECT s.*, bt.gia, bt.so_luong_kho,  dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+        $sql = "SELECT s.*, bt.gia, bt.so_luong_kho, bt.ten_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu

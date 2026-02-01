@@ -277,6 +277,7 @@
                         <th>STT</th>
                         <th>Mã SP</th>
                         <th>Tên SP</th>
+                        <th>Tên biến thể</th>
                         <th>Hình ảnh</th>
                         <th>Giá</th>
                         <th>Số lượng</th>
@@ -300,6 +301,7 @@
                         </td>
                         <td><?php echo htmlspecialchars($row['ma_san_pham']) ?></td>
                         <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
+                        <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
                         <td>
                             <?php if ($row['img_hinh_anh']): ?>
                             <img src="<?php echo !empty($row['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($row['img_hinh_anh']) : '/qlsp/Public/Pictures/no-image.png'; ?>"

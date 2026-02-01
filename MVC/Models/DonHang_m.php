@@ -69,4 +69,214 @@ class DonHang_m extends connectDB
                 WHERE dh.ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
+
+
+    // Lấy thống kê tổng quan về trạng thái đơn hàng
+    function DonHang_ThongKeTongQuan()
+    {
+        $sql = "SELECT trang_thai_don_hang, COUNT(*) as so_luong 
+                FROM don_hang 
+                GROUP BY trang_thai_don_hang";
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lấy danh sách đơn hàng chi tiết với tính toán lợi nhuận
+    function DonHang_ThongKeChiTiet()
+    {
+        $sql = "SELECT 
+                    dh.ma_don_hang,
+                    dh.ngay_tao,
+                    dh.tong_tien_hang,
+                    dh.trang_thai_don_hang,
+                    tt.phuong_thuc,
+                    tt.trang_thai_thanh_toan,
+                    u.full_name as ten_khach_hang,
+                    u.so_dien_thoai,
+                    dc.dia_chi,
+                    COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
+                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)), 0) as loi_nhuan,
+                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)) / NULLIF(dh.tong_tien_hang, 0) * 100, 0) as ty_le_lai
+                FROM don_hang dh
+                INNER JOIN users u ON dh.ma_user = u.ma_user
+                LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
+                LEFT JOIN chi_tiet_don_hang ctdh ON dh.ma_don_hang = ctdh.ma_don_hang
+                LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                GROUP BY dh.ma_don_hang
+                ORDER BY dh.ngay_tao DESC";
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lấy thống kê theo phương thức thanh toán
+    function DonHang_ThongKePhuongThuc()
+    {
+        $sql = "SELECT 
+                    tt.phuong_thuc,
+                    COUNT(DISTINCT dh.ma_don_hang) as so_don,
+                    SUM(dh.tong_tien_hang) as tong_tien
+                FROM don_hang dh
+                INNER JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
+                WHERE dh.trang_thai_don_hang != 'da_huy'
+                GROUP BY tt.phuong_thuc";
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lọc đơn hàng theo khoảng thời gian
+    function DonHang_LocTheoNgay($tuNgay, $denNgay)
+    {
+        $sql = "SELECT 
+                    dh.ma_don_hang,
+                    dh.ngay_tao,
+                    dh.tong_tien_hang,
+                    dh.trang_thai_don_hang,
+                    tt.phuong_thuc,
+                    tt.trang_thai_thanh_toan,
+                    u.full_name as ten_khach_hang,
+                    u.so_dien_thoai,
+                    dc.dia_chi,
+                    COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
+                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)), 0) as loi_nhuan,
+                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)) / NULLIF(dh.tong_tien_hang, 0) * 100, 0) as ty_le_lai
+                FROM don_hang dh
+                INNER JOIN users u ON dh.ma_user = u.ma_user
+                LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
+                LEFT JOIN chi_tiet_don_hang ctdh ON dh.ma_don_hang = ctdh.ma_don_hang
+                LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                WHERE DATE(dh.ngay_tao) BETWEEN '$tuNgay' AND '$denNgay'
+                GROUP BY dh.ma_don_hang
+                ORDER BY dh.ngay_tao DESC";
+        
+        $result = mysqli_query($this->con, $sql);
+        $danhSach = [];
+        
+        if ($result && mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $danhSach[] = $row;
+            }
+        }
+        
+        return $danhSach;
+    }
+    
+    // Tìm kiếm đơn hàng theo mã đơn hàng hoặc tên khách hàng
+    function DonHang_TimKiem($maDonHang, $tenKhachHang)
+    {
+        $sql = "SELECT 
+                    dh.ma_don_hang,
+                    dh.ngay_tao,
+                    dh.tong_tien_hang,
+                    dh.trang_thai_don_hang,
+                    tt.phuong_thuc,
+                    tt.trang_thai_thanh_toan,
+                    u.full_name as ten_khach_hang,
+                    u.so_dien_thoai,
+                    dc.dia_chi,
+                    COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
+                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)), 0) as loi_nhuan,
+                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)) / NULLIF(dh.tong_tien_hang, 0) * 100, 0) as ty_le_lai
+                FROM don_hang dh
+                INNER JOIN users u ON dh.ma_user = u.ma_user
+                LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
+                LEFT JOIN chi_tiet_don_hang ctdh ON dh.ma_don_hang = ctdh.ma_don_hang
+                LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                WHERE 1=1";
+        
+        if (!empty($maDonHang)) {
+            $sql .= " AND dh.ma_don_hang LIKE '%$maDonHang%'";
+        }
+        
+        if (!empty($tenKhachHang)) {
+            $sql .= " AND u.full_name LIKE '%$tenKhachHang%'";
+        }
+        
+        $sql .= " GROUP BY dh.ma_don_hang ORDER BY dh.ngay_tao DESC";
+        
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lấy thống kê doanh thu theo tháng
+    function DonHang_ThongKeTheoThang($nam)
+    {
+        $sql = "SELECT 
+                    MONTH(ngay_tao) as thang,
+                    COUNT(*) as so_don,
+                    SUM(tong_tien_hang) as doanh_thu
+                FROM don_hang
+                WHERE YEAR(ngay_tao) = $nam
+                AND trang_thai_don_hang != 'da_huy'
+                GROUP BY MONTH(ngay_tao)
+                ORDER BY thang";
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lấy top sản phẩm bán chạy
+    function DonHang_TopSanPham($limit = 10)
+    {
+        $sql = "SELECT 
+                    sp.ten_san_pham,
+                    bt.ten_bien_the,
+                    bt.mau_sac,
+                    bt.ram,
+                    bt.dung_luong,
+                    SUM(ctdh.so_luong) as tong_ban,
+                    SUM(ctdh.so_luong * ctdh.gia_luc_mua) as doanh_thu
+                FROM chi_tiet_don_hang ctdh
+                INNER JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                INNER JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
+                INNER JOIN don_hang dh ON ctdh.ma_don_hang = dh.ma_don_hang
+                WHERE dh.trang_thai_don_hang != 'da_huy'
+                GROUP BY ctdh.ma_bien_the
+                ORDER BY tong_ban DESC
+                LIMIT $limit";
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lấy tổng doanh thu theo khoảng thời gian
+    function DonHang_TongDoanhThu($tuNgay, $denNgay)
+    {
+        $sql = "SELECT 
+                    COUNT(*) as tong_don,
+                    SUM(tong_tien_hang) as tong_doanh_thu,
+                    AVG(tong_tien_hang) as trung_binh_don
+                FROM don_hang
+                WHERE DATE(ngay_tao) BETWEEN '$tuNgay' AND '$denNgay'
+                AND trang_thai_don_hang != 'da_huy'";
+        return mysqli_query($this->con, $sql);
+    }
+    
+    // Lấy thống kê theo trạng thái thanh toán
+    function DonHang_ThongKeThanhToan()
+    {
+        $sql = "SELECT 
+                    tt.trang_thai_thanh_toan,
+                    COUNT(*) as so_luong,
+                    SUM(tt.so_tien_thanh_toan) as tong_tien
+                FROM thanh_toan tt
+                INNER JOIN don_hang dh ON tt.ma_don_hang = dh.ma_don_hang
+                WHERE dh.trang_thai_don_hang != 'da_huy'
+                GROUP BY tt.trang_thai_thanh_toan";
+        return mysqli_query($this->con, $sql);
+    }
+
+    // FILE: models/DonHang_m.php
+
+    // Thêm hàm này vào cuối file Model
+    function getChiTietDonHang($ma_don_hang) {
+        // Sử dụng LEFT JOIN để đảm bảo nếu sản phẩm bị xóa thì vẫn hiện đơn hàng
+        $sql = "SELECT 
+                    ct.*, 
+                    sp.ten_san_pham, 
+                    sp.hinh_anh, 
+                    bt.mau_sac, 
+                    bt.ram, 
+                    bt.dung_luong 
+                FROM chi_tiet_don_hang ct
+                LEFT JOIN bien_the bt ON ct.ma_bien_the = bt.ma_bien_the
+                LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
+                WHERE ct.ma_don_hang = '$ma_don_hang'";
+                
+        return mysqli_query($this->con, $sql);
+    }
 }

@@ -299,7 +299,7 @@
         <div class="quick-actions">
             <h2><i class="fa-solid fa-bolt"></i> Hành động nhanh</h2>
             <div class="actions-grid">
-                <a href="http://localhost/QLSP/Users/danhsach" class="action-card">
+                <a href="http://localhost/Banhang/Users/danhsach" class="action-card">
                     <div class="action-icon bg-blue">
                         <i class="fa-solid fa-users"></i>
                     </div>
@@ -309,37 +309,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/QLSP/Nhacungcap/danhsach" class="action-card">
-                    <div class="action-icon bg-indigo">
-                        <i class="fa-solid fa-truck-fast"></i>
-                    </div>
-                    <div class="action-content">
-                        <h3>Nhà cung cấp</h3>
-                        <p>Quản lý nhà cung cấp</p>
-                    </div>
-                </a>
-
-                <a href="http://localhost/QLSP/Banuong/danhsach" class="action-card">
-                    <div class="action-icon bg-cyan">
-                        <i class="fa-solid fa-chair"></i>
-                    </div>
-                    <div class="action-content">
-                        <h3>Bàn uống</h3>
-                        <p>Quản lý bàn uống</p>
-                    </div>
-                </a>
-
-                <a href="http://localhost/QLSP/Sanpham/danhsach" class="action-card">
-                    <div class="action-icon bg-green">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="action-content">
-                        <h3>Nguyên liệu</h3>
-                        <p>Quản lý nguyên liệu</p>
-                    </div>
-                </a>
-
-                <a href="http://localhost/QLSP/Danhmuc/danhsach" class="action-card">
+                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="action-card">
                     <div class="action-icon bg-purple">
                         <i class="fa-solid fa-file-excel"></i>
                     </div>
@@ -349,7 +319,48 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/QLSP/Khuyenmai/danhsach" class="action-card">
+                <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="action-card">
+                    <div class="action-icon bg-cyan">
+                        <i class="fa-solid fa-chair"></i>
+                    </div>
+                    <div class="action-content">
+                        <h3>Thương hiệu</h3>
+                        <p>Quản lý thương hiệu</p>
+                    </div>
+                </a>
+
+                <a href="http://localhost/Banhang/Nhacungcap/danhsach" class="action-card">
+                    <div class="action-icon bg-indigo">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div class="action-content">
+                        <h3>Nhà cung cấp</h3>
+                        <p>Quản lý nhà cung cấp</p>
+                    </div>
+                </a>
+
+
+
+                <a href="http://localhost/Banhang/Sanpham/danhsach" class="action-card">
+                    <div class="action-icon bg-green">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div class="action-content">
+                        <h3>Sản phẩm</h3>
+                        <p>Quản lý sản phẩm</p>
+                    </div>
+                </a>
+
+                <a href="http://localhost/Banhang/BienThe/danhsach" class="action-card">
+                    <div class="action-icon bg-orange">
+                        <i class="fa-solid fa-sliders-h"></i>
+                    </div>
+                    <div class="action-content">
+                        <h3>Biến thể</h3>
+                        <p>Quản lý biến thể sản phẩm</p>
+                </div>
+
+                <a href="http://localhost/Banhang/Khuyenmai/danhsach" class="action-card">
                     <div class="action-icon bg-pink">
                         <i class="fa-solid fa-gift"></i>
                     </div>
@@ -359,17 +370,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/QLSP/Thucdon/danhsach" class="action-card">
-                    <div class="action-icon bg-yellow">
-                        <i class="fa-solid fa-utensils"></i>
-                    </div>
-                    <div class="action-content">
-                        <h3>Thực đơn</h3>
-                        <p>Quản lý món ăn</p>
-                    </div>
-                </a>
-
-                <a href="http://localhost/QLSP/Donhang/danhsach" class="action-card">
+                <a href="http://localhost/Banhang/Donhang/danhsach" class="action-card">
                     <div class="action-icon bg-orange">
                         <i class="fa-solid fa-cart-shopping"></i>
                     </div>
@@ -379,7 +380,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/QLSP/Thongke/thongke" class="action-card">
+                <a href="http://localhost/Banhang/Thongke/thongke" class="action-card">
                     <div class="action-icon bg-teal">
                         <i class="fa-solid fa-chart-simple"></i>
                     </div>

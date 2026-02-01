@@ -82,7 +82,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                     </li>
                     <li>
                         <a href="http://localhost/Banhang/Thongke"
-                            class="<?php echo (strpos($current, 'Thongke_v') !== false) ? 'active' : ''; ?>">
+                            class="<?php echo (strpos($current, 'Thongkedoanhthu_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-chart-line"></i> Thống kê
                         </a>
                     </li>

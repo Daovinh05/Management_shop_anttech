@@ -592,9 +592,18 @@
                                 class="currency"><?php echo number_format($row['tong_tien_hang'] - ($row['tien_khuyen_mai'] ?? 0), 0, ',', '.') ?>
                                 ₫</span></td>
                         <td>
-                            <span
-                                style="background:<?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? '#fed7aa' : '#d1fae5'; ?>;color:<?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? '#c2410c' : '#065f46'; ?>;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                <?php echo $row['trang_thai_don_hang'] == 'chua_thanh_toan' ? 'Not' : 'Done'; ?>
+                            <?php 
+                            $status = $row['trang_thai_don_hang'];
+                            [$bg, $color, $label] = match($status) {
+                                'cho_duyet'  => ['#fef3c7', '#92400e', 'Chờ duyệt'],
+                                'dang_giao'  => ['#dbeafe', '#1e40af', 'Đang giao'],
+                                'hoan_thanh' => ['#d1fae5', '#065f46', 'Hoàn thành'],
+                                'da_huy'     => ['#fee2e2', '#991b1b', 'Đã hủy'],
+                                default      => ['#f3f4f6', '#374151', 'Không rõ'],
+                            };
+                            ?>
+                            <span style="background:<?= $bg ?>; color:<?= $color ?>; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600">
+                                <?= $label ?>
                             </span>
                         </td>
                         <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
@@ -618,147 +627,159 @@
             </table>
         </div>
         <script>
-        // Manual search only (no AJAX)
-        const idInput = document.getElementById('searchId');
-        const nameInput = document.getElementById('searchName');
-        const resultCount = document.getElementById('resultCount');
+            // --- CẤU HÌNH ---
+            // Kiểm tra đúng tên thư mục trên localhost của bạn (Banhang hay QLSP?)
+            const BASE_URL = 'http://localhost/Banhang'; 
 
-        // khởi tạo đếm
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
+            // Hiển thị số lượng bản ghi
+            const resultCount = document.getElementById('resultCount');
+            if(resultCount) {
+                resultCount.textContent = '<?php echo $count; ?> bản ghi';
+            }
 
-        // Chi tiết đơn hàng admin -> xuất hoá đon cho bartender
-        function showOrderDetails(orderId) {
-            // Hiển thị thông báo đang tải ban đầu
-            document.getElementById('detailModal').style.display = 'block';
+            // --- HÀM XEM CHI TIẾT ---
+            function showOrderDetails(orderId) {
+                const modal = document.getElementById('detailModal');
+                const modalBody = document.getElementById('modalBody');
+                const modalTitle = document.getElementById('modalTitle');
 
-            const modalBody = document.getElementById('modalBody');
-            modalBody.innerHTML =
-                '<div style="text-align: center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải chi tiết...</div>';
+                // Reset và hiển thị loading
+                modal.style.display = 'block';
+                modalTitle.innerHTML = `Chi tiết đơn hàng: <strong>${orderId}</strong>`;
+                modalBody.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>Đang tải dữ liệu...</div>';
 
-            // Cập nhật tiêu đề modal với ID đơn hàng
-            document.getElementById('modalTitle').innerHTML = `Chi tiết đơn hàng: <strong>${orderId}</strong>`;
-
-            // Lấy chi tiết đơn hàng qua AJAX
-            fetch(`http://localhost/Banhang/Donhang/get_order_details/${orderId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.order_details && data.order_details.length > 0) {
-                        let orderDetailHtml = `
+                // Gọi API
+                fetch(`${BASE_URL}/Donhang/get_order_details/${orderId}`)
+                    .then(response => {
+                        // Kiểm tra xem server trả về JSON hay HTML lỗi
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            return response.json();
+                        } else {
+                            console.error("Server response:", response);
+                            throw new Error("Server trả về lỗi (HTML) thay vì dữ liệu JSON. Kiểm tra lại Model/Controller.");
+                        }
+                    })
+                    .then(data => {
+                        console.log("Dữ liệu nhận được:", data); // F12 xem log này nếu lỗi
+                        
+                        if (data.order_details && data.order_details.length > 0) {
+                            let html = '';
+                            
+                            // A. TÍNH TỔNG TIỀN
+                            let totalMoney = 0;
+                            data.order_details.forEach(item => {
+                                let gia = parseFloat(item.gia_tai_thoi_diem_dat || item.gia_luc_mua || 0);
+                                totalMoney += parseFloat(item.so_luong) * gia;
+                            });
+                            
+                            // B. HEADER TÓM TẮT
+                            html += `
                             <div class="order-summary">
                                 <div class="order-summary-grid">
                                     <div class="order-summary-item">
-                                        <span class="order-summary-label">Mã đơn hàng</span>
+                                        <span class="order-summary-label">Mã đơn</span>
                                         <span class="order-summary-value">${orderId}</span>
                                     </div>
                                     <div class="order-summary-item">
-                                        <span class="order-summary-label">Tổng món</span>
+                                        <span class="order-summary-label">Số lượng máy</span>
                                         <span class="order-summary-value">${data.order_details.length}</span>
                                     </div>
                                     <div class="order-summary-item">
-                                        <span class="order-summary-label">Tổng tiền</span>
-                                        <span class="order-summary-value">`;
+                                        <span class="order-summary-label">Tổng tiền hàng</span>
+                                        <span class="order-summary-value" style="color:#059669">${totalMoney.toLocaleString('vi-VN')} ₫</span>
+                                    </div>
+                                </div>
+                            </div>`;
 
-                        // Tính tổng số tiền
-                        let total = 0;
-                        data.order_details.forEach(item => {
-                            total += parseFloat(item.so_luong) * parseFloat(item.gia_tai_thoi_diem_dat);
-                        });
+                            // C. BẢNG CHI TIẾT
+                            html += `
+                            <h3>Danh sách sản phẩm</h3>
+                            <div class="table-container" style="max-height: 300px; margin-top:0;">
+                                <table class="order-details-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:60px">Ảnh</th>
+                                            <th>Tên sản phẩm & Cấu hình</th>
+                                            <th style="text-align:center; width:60px">SL</th>
+                                            <th style="text-align:right">Đơn giá</th>
+                                            <th style="text-align:right">Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
 
-                        orderDetailHtml += total.toLocaleString('vi-VN') + ' ₫</span></div></div></div>';
+                            data.order_details.forEach(item => {
+                                let gia = parseFloat(item.gia_tai_thoi_diem_dat || item.gia_luc_mua || 0);
+                                let thanhTien = parseFloat(item.so_luong) * gia;
+                                
+                                // Xử lý ảnh (sửa đường dẫn /qlsp/ thành đúng thư mục của bạn nếu cần)
+                                let imgPath = item.hinh_anh || item.img_thuc_don;
+                                let imgHtml = imgPath 
+                                    ? `<img src="/Banhang/Public/Pictures/products/${imgPath}" onerror="this.src='https://placehold.co/40x40?text=No+Img'">`
+                                    : `<span style="font-size:10px; color:#999">No IMG</span>`;
 
-                        orderDetailHtml += `
-                            <h3>Chi tiết món ăn</h3>
-                            <table class="order-details-table">
-                                <thead>
-                                    <tr>
-                                        <th>Hình ảnh</th>
-                                        <th>Tên món</th>
-                                        <th>Số lượng</th>
-                                        <th>Giá tại thời điểm đặt</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                                // Hiển thị màu, ram
+                                let cauhinh = '';
+                                if(item.mau_sac || item.ram) {
+                                    cauhinh = `<div style="font-size:12px; color:#666; margin-top:4px;">
+                                        <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px">${item.mau_sac || ''}</span> 
+                                        ${item.ram ? ` | ${item.ram}/${item.dung_luong}` : ''}
+                                    </div>`;
+                                }
 
-                        // Hiển thị ghi chú đơn hàng trong tất cả các hàng
-                        const orderNotes = data.order_notes ? '<span title="' + data.order_notes + '">' + (data
-                                .order_notes.length > 20 ? data.order_notes.substring(0, 20) + '...' : data
-                                .order_notes) + '</span>' :
-                            '<span style="color: #9ca3af; font-style: italic;">Không có</span>';
-
-                        data.order_details.forEach(item => {
-                            orderDetailHtml += `
+                                html += `
                                 <tr>
+                                    <td>${imgHtml}</td>
                                     <td>
-                                        ${item.img_thuc_don ? `<img src="/qlsp/Public/Pictures/thucdon/${item.img_thuc_don}" alt="${item.ten_mon}">` : '<span>Không có</span>'}
+                                        <div style="font-weight:600; color:#253243">${item.ten_san_pham || item.ten_mon}</div>
+                                        ${cauhinh}
                                     </td>
-                                    <td>${item.ten_mon}</td>
-                                    <td>${item.so_luong}</td>
-                                    <td>${parseFloat(item.gia_tai_thoi_diem_dat).toLocaleString('vi-VN')} ₫</td>
+                                    <td style="text-align:center">${item.so_luong}</td>
+                                    <td style="text-align:right">${gia.toLocaleString('vi-VN')}</td>
+                                    <td style="text-align:right; font-weight:600">${thanhTien.toLocaleString('vi-VN')}</td>
                                 </tr>`;
-                        });
+                            });
 
-                        // Thêm phần ghi chú đơn hàng tổng thể nếu có
-                        if (data.order_notes) {
-                            orderDetailHtml += `
-                                <tr>
-                                    <td colspan="4" style="background-color: #fff3cd; border-top: 2px solid #dee2e6; padding: 10px;">
-                                        <strong>Ghi chú đơn hàng:</strong> ${data.order_notes}
-                                    </td>
-                                </tr>`;
-                        }
+                            // D. GHI CHÚ
+                            if (data.order_notes && data.order_notes.trim() !== "") {
+                                html += `<tr><td colspan="5" style="background:#fffbeb; color:#92400e; padding:10px;"><i class="fa-regular fa-note-sticky"></i> <strong>Ghi chú:</strong> ${data.order_notes}</td></tr>`;
+                            }
 
-                        orderDetailHtml += `
-                                </tbody>
-                            </table>`;
+                            html += `</tbody></table></div>`;
 
-                        // Thêm nút in cho bartender
-                        orderDetailHtml += `
-                            <div style="margin-top: 20px; text-align: center;">
-                                <a href="http://localhost/QLSP/Staff/generateInvoice_admin/${orderId}" class="btn-print" target="_blank" style="
-                                    background: #71c942;
-                                    color: #212529;
-                                    border: none;
-                                    padding: 10px 20px;
-                                    border-radius: 6px;
-                                    text-decoration: none;
-                                    font-size: 14px;
-                                    font-weight: bold;
-                                    display: inline-block;">
-                                    <i class="fa-solid fa-file-invoice"></i> In đơn cho bartender
+                            // E. NÚT IN
+                            html += `
+                            <div style="margin-top: 20px; text-align: right; border-top:1px solid #eee; padding-top:15px">
+                                <a href="${BASE_URL}/Donhang/InHoaDon/${orderId}" target="_blank" class="btn-create" style="display:inline-block">
+                                    <i class="fa-solid fa-print"></i> In hóa đơn
                                 </a>
                             </div>`;
 
-                        modalBody.innerHTML = orderDetailHtml;
-                    } else {
-                        modalBody.innerHTML =
-                            '<div style="text-align: center; padding: 20px; color: #6b7280;">Không có chi tiết đơn hàng</div>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    modalBody.innerHTML =
-                        '<div style="text-align: center; padding: 20px; color: #dc3545;">Lỗi khi tải chi tiết đơn hàng</div>';
-                });
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
-        }
-
-        // Đóng modal khi nhấn vào bên ngoài modal
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailModal');
-            if (event.target == modal) {
-                closeModal();
+                            modalBody.innerHTML = html;
+                        } else {
+                            modalBody.innerHTML = '<div style="text-align:center; padding:30px; color:#666">Không tìm thấy sản phẩm nào trong đơn hàng này.</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi chi tiết:', error);
+                        modalBody.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: #dc3545;">
+                                <i class="fa-solid fa-triangle-exclamation fa-2x"></i><br><br>
+                                <b>Lỗi tải dữ liệu!</b><br>
+                                <small>${error.message}</small>
+                            </div>`;
+                    });
             }
-        }
 
-        // Đóng modal bằng phím Escape
-        document.onkeydown = function(event) {
-            if (event.key === "Escape") {
-                closeModal();
+            function closeModal() {
+                document.getElementById('detailModal').style.display = 'none';
             }
-        }
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('detailModal')) closeModal();
+            }
+            document.onkeydown = function(event) {
+                if (event.key === "Escape") closeModal();
+            }
         </script>
         <?php } ?>
         <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
