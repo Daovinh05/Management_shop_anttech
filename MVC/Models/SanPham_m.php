@@ -2,9 +2,9 @@
 class SanPham_m extends connectDB
 {
     // Hàm thêm sản phẩm
-    function sanpham_ins($ma_san_pham, $ten_san_pham, $img_hinh_anh, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)
+    function sanpham_ins($ma_san_pham, $ten_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)
     {
-        $sql = "INSERT INTO san_pham VALUES ('$ma_san_pham', '$ten_san_pham', '$img_hinh_anh', '$ma_danh_muc', '$ma_thuong_hieu', '$ma_nha_cung_cap', NOW())";
+        $sql = "INSERT INTO san_pham VALUES ('$ma_san_pham', '$ten_san_pham', '$ma_danh_muc', '$ma_thuong_hieu', '$ma_nha_cung_cap', NOW())";
         return mysqli_query($this->con, $sql);
     }
 
@@ -22,7 +22,7 @@ class SanPham_m extends connectDB
     // Hàm tìm kiếm sản phẩm (kèm tên danh mục, thương hiệu, nhà cung cấp)
     function SanPham_find($ma_san_pham, $ten_san_pham)
     {
-        $sql = "SELECT s.*, bt.gia, bt.so_luong_kho, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+        $sql = "SELECT s.*, bt.gia, bt.so_luong_kho, bt.img_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
@@ -34,9 +34,9 @@ class SanPham_m extends connectDB
     }
 
     // Hàm sửa sản phẩm
-    function SanPham_update($ma_san_pham, $ten_san_pham, $img_hinh_anh, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)
+    function SanPham_update($ma_san_pham, $ten_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)
     {
-        $sql = "UPDATE san_pham SET ten_san_pham = '$ten_san_pham', img_hinh_anh = '$img_hinh_anh',
+        $sql = "UPDATE san_pham SET ten_san_pham = '$ten_san_pham',
                 ma_danh_muc = '$ma_danh_muc', ma_thuong_hieu = '$ma_thuong_hieu',
                 ma_nha_cung_cap = '$ma_nha_cung_cap' WHERE ma_san_pham = '$ma_san_pham'";
         return mysqli_query($this->con, $sql);
@@ -45,6 +45,11 @@ class SanPham_m extends connectDB
     // Hàm xóa sản phẩm
     function SanPham_delete($ma_san_pham)
     {
+        // Xóa các biến thể liên quan trước
+        $delete_variants_sql = "DELETE FROM bien_the WHERE ma_san_pham = '$ma_san_pham'";
+        mysqli_query($this->con, $delete_variants_sql);
+
+        // Sau đó xóa sản phẩm
         $sql = "DELETE FROM san_pham WHERE ma_san_pham = '$ma_san_pham'";
         return mysqli_query($this->con, $sql);
     }
@@ -52,12 +57,16 @@ class SanPham_m extends connectDB
     // Hàm lấy tất cả sản phẩm với thông tin danh mục, thương hiệu, nhà cung cấp
     function SanPham_getAll()
     {
-        $sql = "SELECT s.*, bt.gia, bt.so_luong_kho, bt.ten_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+        $sql = "SELECT s.*,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as gia,
+                       (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as so_luong_kho,
+                       (SELECT ten_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as ten_bien_the,
+                       (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
+                       dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                 LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
-                LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
                 ORDER BY s.ma_san_pham DESC";
         return mysqli_query($this->con, $sql);
     }
@@ -108,7 +117,7 @@ class SanPham_m extends connectDB
         // Tạo câu truy vấn
         $where_clause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
 
-        $sql = "SELECT s.*, bt.gia AS gia_moi, dm.ten_danh_muc, th.ten_thuong_hieu
+        $sql = "SELECT s.*, bt.gia AS gia_moi, bt.img_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu

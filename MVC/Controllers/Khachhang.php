@@ -70,6 +70,14 @@ class Khachhang extends controller
         // Lấy các biến thể của sản phẩm
         $bien_the = $this->bt->BienThe_getByProduct($ma_san_pham);
 
+        // Lấy biến thể đầu tiên để làm hình ảnh chính
+        $bien_the_first = null;
+        if (mysqli_num_rows($bien_the) > 0) {
+            mysqli_data_seek($bien_the, 0); // Reset pointer to beginning
+            $bien_the_first = mysqli_fetch_assoc($bien_the);
+            mysqli_data_seek($bien_the, 0); // Reset pointer back to beginning for later use
+        }
+
         // Lấy đánh giá của sản phẩm
         $danh_gia = $this->dg->DanhGia_getByProduct($ma_san_pham);
 
@@ -77,13 +85,15 @@ class Khachhang extends controller
         $avg_rating = $this->dg->DanhGia_getAvgRatingByProduct($ma_san_pham);
 
         // Lấy sản phẩm tương tự
-        $sql_similar = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+        $sql_similar = "SELECT s.*, COALESCE(bt.img_bien_the, s.img_hinh_anh) as img_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                         FROM san_pham s
                         LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                         LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                         LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                        LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
                         WHERE s.ma_danh_muc = '" . $san_pham['ma_danh_muc'] . "'
                         AND s.ma_san_pham != '" . $ma_san_pham . "'
+                        GROUP BY s.ma_san_pham
                         LIMIT 4";
         $similar_products = mysqli_query($this->sp->con, $sql_similar);
 
@@ -91,6 +101,7 @@ class Khachhang extends controller
             'page' => 'Khachhang/khachhang_chitietsp',
             'san_pham' => $san_pham,
             'bien_the' => $bien_the,
+            'bien_the_first' => $bien_the_first,
             'danh_gia' => $danh_gia,
             'avg_rating' => $avg_rating,
             'similar_products' => $similar_products

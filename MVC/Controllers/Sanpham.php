@@ -42,7 +42,6 @@ class Sanpham extends controller
             'page' => 'sanpham_v',
             'ma_san_pham' => '',
             'ten_san_pham' => '',
-            'img_hinh_anh' => '',
             'ma_danh_muc' => '',
             'ma_thuong_hieu' => '',
             'ma_nha_cung_cap' => '',
@@ -66,76 +65,6 @@ class Sanpham extends controller
             $dsth = $this->th->ThuongHieu_getAll();
             $dsncc = $this->ncc->NhaCungCap_getAll();
 
-            // Xử lý upload hình ảnh
-            $img_hinh_anh = '';
-            if (isset($_FILES['txtImage']) && $_FILES['txtImage']['error'] == 0) {
-                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                $filename = $_FILES['txtImage']['name'];
-                $filetmp = $_FILES['txtImage']['tmp_name'];
-                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-                if (in_array($ext, $allowed)) {
-                    // Làm sạch tên tệp gốc ( xoá kí tự đặc biệt)
-                    $original_name = pathinfo($filename, PATHINFO_FILENAME);
-                    $original_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $original_name);
-                    $original_name = str_replace('-', '_', $original_name);
-                    $new_filename = $original_name . '.' . $ext;
-
-                    // Kiểm tra nếu tên tệp đã tồn tại, thêm hậu tố cho đến khi không trùng
-                    $counter = 1;
-                    $final_filename = $new_filename;
-                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/sanpham/';
-
-                    while (file_exists($upload_dir . $final_filename)) {
-                        $final_filename = $original_name . '_' . $counter . '.' . $ext;
-                        $counter++;
-                    }
-
-                    // Sử dụng đường dẫn tuyệt đối đến thư mục Public/Pictures/sanpham
-                    $upload_path = $upload_dir . $final_filename;
-
-                    // Tạo thư mục nếu chưa tồn tại
-                    if (!is_dir($upload_dir)) {
-                        // Tạo thư mục với quyền cao hơn và đảm bảo thư mục cha tồn tại
-                        mkdir($upload_dir, 0777, true);
-                    }
-
-                    if (move_uploaded_file($filetmp, $upload_path)) {
-                        $img_hinh_anh = $final_filename; // Chỉ lưu tên tệp vào DB
-                    } else {
-                        echo "<script>alert('Upload hình ảnh thất bại!');</script>";
-                        $this->view('Master', [
-                            'page' => 'sanpham_v',
-                            'ma_san_pham' => $ma_san_pham,
-                            'ten_san_pham' => $ten_san_pham,
-                            'img_hinh_anh' => $img_hinh_anh,
-                            'dsdm' => $dsdm,
-                            'dsth' => $dsth,
-                            'dsncc' => $dsncc
-                        ]);
-                        return;
-                    }
-                } else {
-                    echo "<script>alert('Định dạng hình ảnh không hợp lệ!');</script>";
-                    $this->view('Master', [
-                        'page' => 'sanpham_v',
-                        'ma_san_pham' => $ma_san_pham,
-                        'ten_san_pham' => $ten_san_pham,
-                        'img_hinh_anh' => $img_hinh_anh,
-                        'ma_danh_muc' => $ma_danh_muc,
-                        'ma_thuong_hieu' => $ma_thuong_hieu,
-                        'ma_nha_cung_cap' => $ma_nha_cung_cap,
-                        'dsdm' => $dsdm,
-                        'dsth' => $dsth,
-                        'dsncc' => $dsncc
-                    ]);
-                    return;
-                }
-            } else {
-                // Nếu không có file upload mới, sử dụng giá trị từ form (trường text)
-                $img_hinh_anh = isset($_POST['txtImage']) ? $_POST['txtImage'] : '';
-            }
-
             if ($ma_san_pham == '') {
                 echo "<script>alert('Mã sản phẩm không được rỗng!')</script>";
                 $this->themmoi();
@@ -150,7 +79,6 @@ class Sanpham extends controller
                         'page' => 'sanpham_v',
                         'ma_san_pham' => $ma_san_pham,
                         'ten_san_pham' => $ten_san_pham,
-                        'img_hinh_anh' => $img_hinh_anh,
                         'ma_danh_muc' => $ma_danh_muc,
                         'ma_thuong_hieu' => $ma_thuong_hieu,
                         'ma_nha_cung_cap' => $ma_nha_cung_cap,
@@ -159,7 +87,7 @@ class Sanpham extends controller
                         'dsncc' => $dsncc
                     ]);
                 } else {
-                    $kq = $this->sp->sanpham_ins($ma_san_pham, $ten_san_pham, $img_hinh_anh, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap);
+                    $kq = $this->sp->sanpham_ins($ma_san_pham, $ten_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap);
                     if ($kq) {
                         echo "<script>alert('Thêm mới thành công!')</script>";
                         $this->danhsach();
@@ -169,7 +97,6 @@ class Sanpham extends controller
                             'page' => 'sanpham_v',
                             'ma_san_pham' => $ma_san_pham,
                             'ten_san_pham' => $ten_san_pham,
-                            'img_hinh_anh' => $img_hinh_anh,
                             'ma_danh_muc' => $ma_danh_muc,
                             'ma_thuong_hieu' => $ma_thuong_hieu,
                             'ma_nha_cung_cap' => $ma_nha_cung_cap,
@@ -200,24 +127,21 @@ class Sanpham extends controller
 
             $sheet->setCellValue('A1', 'Mã sản phẩm');
             $sheet->setCellValue('B1', 'Tên sản phẩm');
-            $sheet->setCellValue('C1', 'Hình ảnh');
+            $sheet->setCellValue('C1', 'Hình ảnh biến thể');
             $sheet->setCellValue('D1', 'Giá');
             $sheet->setCellValue('E1', 'Số lượng');
             $sheet->setCellValue('F1', 'Tên danh mục');
             $sheet->setCellValue('G1', 'Tên thương hiệu');
             $sheet->setCellValue('H1', 'Tên nhà cung cấp');
 
-
-
-
             $rowCount = 2; // Starting from row 2 since row 1 is headers
             mysqli_data_seek($result, 0); // Reset result pointer to beginning
             while ($row = mysqli_fetch_assoc($result)) {
                 $sheet->setCellValue('A' . $rowCount, $row['ma_san_pham']);
                 $sheet->setCellValue('B' . $rowCount, $row['ten_san_pham']);
-                $sheet->setCellValue('C' . $rowCount, $row['img_hinh_anh']);
+                $sheet->setCellValue('C' . $rowCount, $row['img_bien_the']);
                 $sheet->setCellValue('D' . $rowCount, $row['gia']);
-                $sheet->setCellValue('E' . $rowCount, $row['so_luong']);
+                $sheet->setCellValue('E' . $rowCount, $row['so_luong_kho']);
                 $sheet->setCellValue('F' . $rowCount, $row['ten_danh_muc']);
                 $sheet->setCellValue('G' . $rowCount, $row['ten_thuong_hieu']);
                 $sheet->setCellValue('H' . $rowCount, $row['ten_nha_cung_cap']);
@@ -261,8 +185,6 @@ class Sanpham extends controller
             'page' => 'Sanpham_sua',
             'ma_san_pham' => $row['ma_san_pham'],
             'ten_san_pham' => $row['ten_san_pham'],
-            'img_hinh_anh' => $row['img_hinh_anh'],
-
             'ma_danh_muc' => $row['ma_danh_muc'],
             'ma_thuong_hieu' => $row['ma_thuong_hieu'],
             'ma_nha_cung_cap' => $row['ma_nha_cung_cap'],
@@ -281,72 +203,7 @@ class Sanpham extends controller
             $ma_thuong_hieu = $_POST['ddlThuonghieu'];
             $ma_nha_cung_cap = $_POST['ddlNhacungcap'];
 
-            // Lấy hình ảnh hiện tại từ database trước
-            $current_record = $this->sp->SanPham_getById($ma_san_pham);
-            $current_row = mysqli_fetch_array($current_record);
-            $img_san_pham = $current_row['img_hinh_anh']; // Giữ hình ảnh hiện tại mặc định
-
-            // Xử lý upload hình ảnh mới (nếu có)
-            if (isset($_FILES['txtImage']) && $_FILES['txtImage']['error'] == 0) {
-                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                $filename = $_FILES['txtImage']['name'];
-                $filetmp = $_FILES['txtImage']['tmp_name'];
-                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-                if (in_array($ext, $allowed)) {
-                    // Làm sạch tên tệp gốc
-                    $original_name = pathinfo($filename, PATHINFO_FILENAME);
-                    $original_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $original_name); // Chỉ giữ các ký tự an toàn
-                    $original_name = str_replace('-', '_', $original_name); // Thay thế dấu gạch nối bằng dấu gạch dưới
-                    $new_filename = $original_name . '.' . $ext;
-
-                    // Kiểm tra nếu tên tệp đã tồn tại, thêm hậu tố cho đến khi không trùng
-                    $counter = 1;
-                    $final_filename = $new_filename;
-                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/sanpham/';
-
-                    while (file_exists($upload_dir . $final_filename)) {
-                        $final_filename = $original_name . '_' . $counter . '.' . $ext;
-                        $counter++;
-                    }
-
-                    // Nếu tên tệp mới khác với tên tệp gốc, có nghĩa là đã có tệp trùng
-                    if ($final_filename !== $new_filename) {
-                        // Tạo tên tệp mới với timestamp để đảm bảo duy nhất
-                        $final_filename = $original_name . '_' . time() . '.' . $ext;
-                    }
-
-                    // Sử dụng đường dẫn tuyệt đối đến thư mục Public/Pictures/sanpham
-                    $upload_path = $upload_dir . $final_filename;
-
-                    // Tạo thư mục nếu chưa tồn tại
-                    if (!is_dir($upload_dir)) {
-                        // Tạo thư mục với quyền cao hơn
-                        mkdir($upload_dir, 0777, true);
-                    }
-
-                    if (move_uploaded_file($filetmp, $upload_path)) {
-                        // Xóa hình ảnh cũ nếu tồn tại
-                        $old_image_path = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/sanpham/' . $current_row['img_hinh_anh'];
-                        if (!empty($current_row['img_hinh_anh']) && file_exists($old_image_path) && strpos($old_image_path, '/Public/Pictures/sanpham/') !== false) {
-                            unlink($old_image_path);
-                        }
-
-                        $img_san_pham = $final_filename; // Chỉ lưu tên tệp vào DB
-                    } else {
-                        echo "<script>alert('Upload hình ảnh thất bại!');</script>";
-                        $this->sua($ma_san_pham);
-                        return;
-                    }
-                } else {
-                    echo "<script>alert('Định dạng hình ảnh không hợp lệ!');</script>";
-                    $this->sua($ma_san_pham);
-                    return;
-                }
-            }
-            // Nếu không có file upload mới, giữ nguyên hình ảnh hiện tại (đã được lấy ở trên)
-
-            $kq = $this->sp->SanPham_update($ma_san_pham, $ten_san_pham, $img_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap);
+            $kq = $this->sp->SanPham_update($ma_san_pham, $ten_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!')</script>";
             else
@@ -364,5 +221,59 @@ class Sanpham extends controller
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Sanpham/danhsach') . "';</script>";
         else
             echo "<script>alert('Xóa thất bại!'); window.location='" . $this->url('Sanpham/danhsach') . "';</script>";
+    }
+
+    // Hiển thị form nhập Excel
+    function import_form()
+    {
+        $this->view('Master', [
+            'page' => 'sanpham_up_v'
+        ]);
+    }
+
+
+    function up_l()
+    {
+        if (!isset($_FILES['txtfile']) || $_FILES['txtfile']['error'] != 0) {
+            echo "<script>alert('Upload file lỗi')</script>";
+            return;
+        }
+
+        $file = $_FILES['txtfile']['tmp_name'];
+
+        $objReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $objExcel  = $objReader->load($file);
+
+        $sheet     = $objExcel->getSheet(0);
+        $sheetData = $sheet->toArray(null, true, true, true);
+
+        for ($i = 2; $i <= count($sheetData); $i++) {
+
+            $ma_san_pham = trim($sheetData[$i]['A']);
+            $ten_san_pham = trim($sheetData[$i]['B']);
+            $ma_danh_muc = trim($sheetData[$i]['C']);
+            $ma_thuong_hieu = trim($sheetData[$i]['D']);
+            $ma_nha_cung_cap = trim($sheetData[$i]['E']);
+
+            if ($ma_san_pham == '') continue;
+
+            // ✅ CHECK TRÙNG MÃ SẢN PHẨM
+            if ($this->sp->checktrungMaSP($ma_san_pham)) {
+                echo "<script>
+                alert('Mã sản phẩm $ma_san_pham đã tồn tại! Vui lòng kiểm tra lại file.');
+                window.location.href='" . $this->url('Sanpham/import_form') . "';
+            </script>";
+                return;
+            }
+
+            // Insert
+            if (!$this->sp->sanpham_ins($ma_san_pham, $ten_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)) {
+                $error = mysqli_error($this->sp->con);
+                die("Lỗi khi thêm sản phẩm: " . $error);
+            }
+        }
+
+        echo "<script>alert('Upload sản phẩm thành công!')</script>";
+        $this->view('Master', ['page' => 'sanpham_up_v']);
     }
 }

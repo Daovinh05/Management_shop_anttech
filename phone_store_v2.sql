@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th2 01, 2026 lúc 03:49 PM
+-- Thời gian đã tạo: Th2 01, 2026 lúc 04:07 PM
 -- Phiên bản máy phục vụ: 10.4.27-MariaDB
 -- Phiên bản PHP: 7.4.33
 
@@ -31,6 +31,7 @@ CREATE TABLE `bien_the` (
   `ma_bien_the` varchar(20) NOT NULL,
   `ma_san_pham` varchar(20) NOT NULL,
   `ten_bien_the` varchar(55) DEFAULT NULL,
+  `img_bien_the` text NOT NULL,
   `mau_sac` varchar(50) DEFAULT NULL,
   `ram` varchar(50) DEFAULT NULL,
   `dung_luong` varchar(50) DEFAULT NULL,
@@ -42,13 +43,13 @@ CREATE TABLE `bien_the` (
 -- Đang đổ dữ liệu cho bảng `bien_the`
 --
 
-INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `mau_sac`, `ram`, `dung_luong`, `gia`, `so_luong_kho`) VALUES
-('BT01', 'SP01', '16GB RAM 512GB ROM', 'Đen', '16GB', '512GB', '25000000.00', 12),
-('BT02', 'SP02', 'Bản quốc tế', 'Đen', NULL, NULL, '8000000.00', 20),
-('BT03', 'SP03', 'Sạc nhanh', 'Trắng', NULL, '20000mAh', '1200000.00', 30),
-('BT04', 'Sp04', 'Apple Watch SE 2023 GPS 40mm', 'Trắng', '', '', '200000.00', 10),
-('BT06', 'Sp05', 'Apple Watch SE 2023 GPS 50mm', 'Hồng', '', '', '120000.00', 11),
-('BT07', 'SP01', '64GB RAM 512GB ROM', 'Trắng', '64', '512', '30000000.00', 10);
+INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `img_bien_the`, `mau_sac`, `ram`, `dung_luong`, `gia`, `so_luong_kho`) VALUES
+('BT01', 'SP01', '16GB RAM 512GB ROM', '', 'Đen', '16GB', '512GB', '25000000.00', 12),
+('BT02', 'SP02', 'Bản quốc tế', '', 'Đen', NULL, NULL, '8000000.00', 20),
+('BT03', 'SP03', 'Sạc nhanh', '', 'Trắng', NULL, '20000mAh', '1200000.00', 30),
+('BT04', 'Sp04', 'Apple Watch SE 2023 GPS 40mm', '', 'Trắng', '', '', '200000.00', 10),
+('BT06', 'Sp05', 'Apple Watch SE 2023 GPS 50mm', '', 'Hồng', '', '', '120000.00', 11),
+('BT07', 'SP01', '64GB RAM 512GB ROM', '', 'Trắng', '64', '512', '30000000.00', 10);
 
 -- --------------------------------------------------------
 
@@ -276,7 +277,6 @@ INSERT INTO `nha_cung_cap` (`ma_nha_cung_cap`, `ten_nha_cung_cap`, `dia_chi`, `d
 CREATE TABLE `san_pham` (
   `ma_san_pham` varchar(20) NOT NULL,
   `ten_san_pham` varchar(255) NOT NULL,
-  `img_hinh_anh` text DEFAULT NULL,
   `ma_danh_muc` varchar(20) DEFAULT NULL,
   `ma_thuong_hieu` varchar(20) DEFAULT NULL,
   `ma_nha_cung_cap` varchar(20) DEFAULT NULL,
@@ -287,14 +287,14 @@ CREATE TABLE `san_pham` (
 -- Đang đổ dữ liệu cho bảng `san_pham`
 --
 
-INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `img_hinh_anh`, `ma_danh_muc`, `ma_thuong_hieu`, `ma_nha_cung_cap`, `ngay_tao`) VALUES
-('SP01', 'Asus TUF Gaming', 'anh.jpg', 'DM07', 'TH06', 'NCC01', '2026-01-30 21:31:40'),
-('SP02', 'Tai nghe Sony WH-1000XM5', 'mac_book.jpg', 'DM08', 'TH07', 'NCC02', '2026-01-30 21:31:40'),
-('SP03', 'Sạc Anker 20000mAh', 'ss_25ult.jpg', 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40'),
-('Sp04', 'Apple Watch SE 2023 GPS 40mm', 'Appwatch23_1769883433.jpg', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
-('Sp05', 'Apple Watch SE 2023 GPS 40mm', 'Appwatch23_1769883583.jpg', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:17:41'),
-('Sp06', 'iPhone 17 Pro Max 256GB VN/A', 'iphone17.jpg', 'DM01', 'TH01', 'NCC03', '2026-02-01 01:21:33'),
-('Sp07', 'Ao ma', 'xe_1.jpg', 'DM07', 'TH01', 'NCC02', '2026-02-01 19:19:15');
+INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `ma_danh_muc`, `ma_thuong_hieu`, `ma_nha_cung_cap`, `ngay_tao`) VALUES
+('SP01', 'Asus TUF Gaming', 'DM07', 'TH06', 'NCC01', '2026-01-30 21:31:40'),
+('SP02', 'Tai nghe Sony WH-1000XM5', 'DM08', 'TH07', 'NCC02', '2026-01-30 21:31:40'),
+('SP03', 'Sạc Anker 20000mAh', 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40'),
+('Sp04', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
+('Sp05', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:17:41'),
+('Sp06', 'iPhone 17 Pro Max 256GB VN/A', 'DM01', 'TH01', 'NCC03', '2026-02-01 01:21:33'),
+('Sp07', 'Ao ma', 'DM07', 'TH01', 'NCC02', '2026-02-01 19:19:15');
 
 -- --------------------------------------------------------
 

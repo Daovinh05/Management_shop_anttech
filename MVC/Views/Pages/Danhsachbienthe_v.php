@@ -280,6 +280,7 @@
                         <th>Mã biến thể</th>
                         <th>Tên sản phẩm</th>
                         <th>Tên biến thể</th>
+                        <th>Hình ảnh</th>
                         <th>Màu sắc</th>
                         <th>Ram</th>
                         <th>Dung lượng</th>
@@ -304,6 +305,15 @@
                         </td>
                         <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
                         <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
+                        <td>
+                            <?php if (!empty($row['img_bien_the'])): ?>
+                            <img src="/Banhang/Public/Pictures/bien_the/<?php echo htmlspecialchars($row['img_bien_the']); ?>"
+                                alt="<?php echo htmlspecialchars($row['ten_bien_the']); ?>"
+                                style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
+                            <?php else: ?>
+                            <span>Không có hình</span>
+                            <?php endif; ?>
+                        </td>
                         <td><?php echo htmlspecialchars($row['mau_sac']) ?></td>
                         <td><?php echo htmlspecialchars($row['ram']) ?></td>
                         <td><?php echo htmlspecialchars($row['dung_luong']) ?></td>

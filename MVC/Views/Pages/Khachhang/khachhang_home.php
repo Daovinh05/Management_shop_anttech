@@ -894,8 +894,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                 <div class="product-card">
                                     <span
                                         class="sticker-sale">-<?php echo isset($sp['giam_gia']) ? $sp['giam_gia'] : '10'; ?>%</span>
-                                    <?php if (isset($sp['img_hinh_anh']) && $sp['img_hinh_anh']): ?>
-                                        <img src="<?php echo !empty($sp['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
+                                    <?php if (isset($sp['img_bien_the']) && $sp['img_bien_the']): ?>
+                                        <img src="<?php echo !empty($sp['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
                                             alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
                                             style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />
                                     <?php else: ?>
@@ -1145,13 +1145,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                 // Create the product link wrapper
                 const productLink = document.createElement('a');
                 productLink.className = 'product-link';
-                productLink.href = `<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>${product.ma_san_pham}`;
+                productLink.href =
+                    `<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>${product.ma_san_pham}`;
 
                 let productHtml = `<span class="sticker-sale">-${product.giam_gia || '0'}%</span>`;
 
-                if (product.img_hinh_anh) {
+                if (product.img_bien_the) {
                     productHtml +=
-                        `<img src="/Banhang/Public/Pictures/sanpham/${encodeURIComponent(product.img_hinh_anh)}" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
+                        `<img src="/Banhang/Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
                 } else {
                     productHtml +=
                         `<img src="https://placehold.co/300x300" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;

@@ -37,6 +37,7 @@ class BienThe extends controller
             'mabienthe' => '',
             'masanpham' => '',
             'tenbienthe' => '',
+            'imgbienthe' => '',
             'mausac' => '',
             'ram' => '',
             'dungluong' => '',
@@ -59,6 +60,53 @@ class BienThe extends controller
             $gia = $_POST['txtGia'];
             $so_luong_kho = $_POST['txtSoLuongKho'];
 
+            // Xử lý upload hình ảnh biến thể
+            $img_bien_the = '';
+            if (isset($_FILES['txtImage']) && $_FILES['txtImage']['error'] == 0) {
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $filename = $_FILES['txtImage']['name'];
+                $filetmp = $_FILES['txtImage']['tmp_name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+                if (in_array($ext, $allowed)) {
+                    // Làm sạch tên tệp gốc
+                    $original_name = pathinfo($filename, PATHINFO_FILENAME);
+                    $original_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $original_name);
+                    $original_name = str_replace('-', '_', $original_name);
+                    $new_filename = $original_name . '.' . $ext;
+
+                    // Kiểm tra nếu tên tệp đã tồn tại, thêm hậu tố cho đến khi không trùng
+                    $counter = 1;
+                    $final_filename = $new_filename;
+                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/bien_the/';
+
+                    while (file_exists($upload_dir . $final_filename)) {
+                        $final_filename = $original_name . '_' . $counter . '.' . $ext;
+                        $counter++;
+                    }
+
+                    // Tạo thư mục nếu chưa tồn tại
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+
+                    // Sử dụng đường dẫn tuyệt đối đến thư mục Public/Pictures/bien_the
+                    $upload_path = $upload_dir . $final_filename;
+
+                    if (move_uploaded_file($filetmp, $upload_path)) {
+                        $img_bien_the = $final_filename; // Chỉ lưu tên tệp vào DB
+                    } else {
+                        echo "<script>alert('Upload hình ảnh biến thể thất bại! Đường dẫn: $upload_path');</script>";
+                        $this->themmoi();
+                        return;
+                    }
+                } else {
+                    echo "<script>alert('Định dạng hình ảnh không hợp lệ!');</script>";
+                    $this->themmoi();
+                    return;
+                }
+            }
+
             $dssp = $this->sp->SanPham_getAll();
 
             if ($ma_bien_the == '') {
@@ -76,6 +124,7 @@ class BienThe extends controller
                         'mabienthe' => $ma_bien_the,
                         'masanpham' => $ma_san_pham,
                         'tenbienthe' => $ten_bien_the,
+                        'imgbienthe' => $img_bien_the,
                         'mausac' => $mau_sac,
                         'ram' => $ram,
                         'dungluong' => $dung_luong,
@@ -84,7 +133,7 @@ class BienThe extends controller
                         'dssp' => $dssp
                     ]);
                 } else {
-                    $kq = $this->bt->bien_the_ins($ma_bien_the, $ma_san_pham, $ten_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho);
+                    $kq = $this->bt->bien_the_ins($ma_bien_the, $ma_san_pham, $ten_bien_the, $img_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho);
                     if ($kq) {
                         echo "<script>alert('Thêm mới thành công!')</script>";
                         $this->danhsach();
@@ -96,6 +145,7 @@ class BienThe extends controller
                             'mabienthe' => $ma_bien_the,
                             'masanpham' => $ma_san_pham,
                             'tenbienthe' => $ten_bien_the,
+                            'imgbienthe' => $img_bien_the,
                             'mausac' => $mau_sac,
                             'ram' => $ram,
                             'dungluong' => $dung_luong,
@@ -140,6 +190,7 @@ class BienThe extends controller
             'mabienthe' => $row['ma_bien_the'],
             'masanpham' => $row['ma_san_pham'],
             'tenbienthe' => $row['ten_bien_the'],
+            'imgbienthe' => $row['img_bien_the'],
             'mausac' => $row['mau_sac'],
             'ram' => $row['ram'],
             'dungluong' => $row['dung_luong'],
@@ -161,7 +212,71 @@ class BienThe extends controller
             $gia = $_POST['txtGia'];
             $so_luong_kho = $_POST['txtSoLuongKho'];
 
-            $kq = $this->bt->BienThe_update($ma_bien_the, $ma_san_pham, $ten_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho);
+            // Lấy hình ảnh hiện tại từ database trước
+            $current_record = $this->bt->BienThe_getById($ma_bien_the);
+            $current_row = mysqli_fetch_array($current_record);
+            $img_bien_the = $current_row['img_bien_the']; // Giữ hình ảnh hiện tại mặc định
+
+            // Xử lý upload hình ảnh mới (nếu có)
+            if (isset($_FILES['txtImage']) && $_FILES['txtImage']['error'] == 0) {
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $filename = $_FILES['txtImage']['name'];
+                $filetmp = $_FILES['txtImage']['tmp_name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+                if (in_array($ext, $allowed)) {
+                    // Làm sạch tên tệp gốc
+                    $original_name = pathinfo($filename, PATHINFO_FILENAME);
+                    $original_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $original_name); // Chỉ giữ các ký tự an toàn
+                    $original_name = str_replace('-', '_', $original_name); // Thay thế dấu gạch nối bằng dấu gạch dưới
+                    $new_filename = $original_name . '.' . $ext;
+
+                    // Kiểm tra nếu tên tệp đã tồn tại, thêm hậu tố cho đến khi không trùng
+                    $counter = 1;
+                    $final_filename = $new_filename;
+                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/bien_the/';
+
+                    while (file_exists($upload_dir . $final_filename)) {
+                        $final_filename = $original_name . '_' . $counter . '.' . $ext;
+                        $counter++;
+                    }
+
+                    // Nếu tên tệp mới khác với tên tệp gốc, có nghĩa là đã có tệp trùng
+                    if ($final_filename !== $new_filename) {
+                        // Tạo tên tệp mới với timestamp để đảm bảo duy nhất
+                        $final_filename = $original_name . '_' . time() . '.' . $ext;
+                    }
+
+                    // Tạo thư mục nếu chưa tồn tại
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+
+                    // Sử dụng đường dẫn tuyệt đối đến thư mục Public/Pictures/bien_the
+                    $upload_path = $upload_dir . $final_filename;
+
+                    if (move_uploaded_file($filetmp, $upload_path)) {
+                        // Xóa hình ảnh cũ nếu tồn tại
+                        $old_image_path = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/bien_the/' . $current_row['img_bien_the'];
+                        if (!empty($current_row['img_bien_the']) && file_exists($old_image_path) && strpos($old_image_path, '/Public/Pictures/bien_the/') !== false) {
+                            unlink($old_image_path);
+                        }
+
+                        $img_bien_the = $final_filename; // Chỉ lưu tên tệp vào DB
+                    } else {
+                        echo "<script>alert('Upload hình ảnh biến thể thất bại! Đường dẫn: $upload_path');</script>";
+                        $this->sua($ma_bien_the);
+                        return;
+                    }
+                } else {
+                    echo "<script>alert('Định dạng hình ảnh không hợp lệ!');</script>";
+                    $this->sua($ma_bien_the);
+                    return;
+                }
+            }
+            // Nếu không có file upload mới, giữ nguyên hình ảnh hiện tại (đã được lấy ở trên)
+
+            $kq = $this->bt->BienThe_update($ma_bien_the, $ma_san_pham, $ten_bien_the, $img_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!')</script>";
             else {
@@ -228,8 +343,8 @@ class BienThe extends controller
                 return;
             }
 
-            // Insert
-            if (!$this->bt->bien_the_ins($ma_bien_the, $ma_san_pham, $ten_bien_the, $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho)) {
+            // Insert - Không bao gồm hình ảnh trong import từ Excel
+            if (!$this->bt->bien_the_ins($ma_bien_the, $ma_san_pham, $ten_bien_the, '', $mau_sac, $ram, $dung_luong, $gia, $so_luong_kho)) {
                 $error = mysqli_error($this->bt->con);
                 die("Lỗi khi thêm biến thể: " . $error);
             }
