@@ -69,7 +69,7 @@
     <div class="card">
         <h1>Sửa Biến thể</h1>
         <p class="lead">Chỉnh sửa thông tin biến thể sản phẩm.</p>
-        <form method="post" action="http://localhost/Banhang/BienThe/update">
+        <form method="post" action="http://localhost/Banhang/BienThe/update" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
                 <input type="text" name="txtMaBienThe" required readonly
@@ -93,6 +93,17 @@
                 <label>Tên biến thể</label>
                 <input type="text" name="txtTenBienThe"
                     value="<?php echo isset($data['tenbienthe']) ? htmlspecialchars($data['tenbienthe']) : '' ?>" />
+            </div>
+            <div>
+                <label>Hình ảnh biến thể</label>
+                <input type="file" name="txtImage" accept="image/*" />
+                <?php if (isset($data['imgbienthe']) && !empty($data['imgbienthe'])): ?>
+                    <div style="margin-top: 10px;">
+                        <img src="/Banhang/Public/Pictures/bien_the/<?php echo htmlspecialchars($data['imgbienthe']); ?>"
+                             alt="Hình ảnh biến thể" style="max-width: 100px; max-height: 100px;">
+                        <p>Chọn file mới để thay đổi hình ảnh</p>
+                    </div>
+                <?php endif; ?>
             </div>
             <div>
                 <label>Màu sắc</label>

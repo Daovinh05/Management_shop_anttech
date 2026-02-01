@@ -595,16 +595,19 @@
 
         .footer-links li {
             margin-bottom: 8px;
-            text-decoration: none;
+            list-style: none;
         }
 
         .footer-links li a {
             font-size: 13px;
             color: #555;
+            text-decoration: none;
+            display: block;
         }
 
         .footer-links li a:hover {
             color: var(--tet-red);
+            text-decoration: underline;
         }
 
         .fanpage-box {

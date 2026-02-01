@@ -31,6 +31,7 @@ CREATE TABLE `bien_the` (
   `ma_bien_the` varchar(20) NOT NULL,
   `ma_san_pham` varchar(20) NOT NULL,
   `ten_bien_the` varchar(55) DEFAULT NULL,
+  `img_bien_the` text NOT NULL,
   `mau_sac` varchar(50) DEFAULT NULL,
   `ram` varchar(50) DEFAULT NULL,
   `dung_luong` varchar(50) DEFAULT NULL,
@@ -174,6 +175,7 @@ CREATE TABLE `don_hang` (
   `ma_dia_chi` varchar(20) DEFAULT NULL,
   `ma_khuyen_mai` varchar(20) DEFAULT NULL,
   `tong_tien_hang` decimal(15,2) DEFAULT NULL,
+  `thanh_toan` decimal(15,2) NOT NULL,
   `trang_thai_don_hang` enum('cho_duyet','dang_giao','hoan_thanh','da_huy') DEFAULT NULL,
   `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -263,7 +265,6 @@ INSERT INTO `nha_cung_cap` (`ma_nha_cung_cap`, `ten_nha_cung_cap`, `dia_chi`, `d
 CREATE TABLE `san_pham` (
   `ma_san_pham` varchar(20) NOT NULL,
   `ten_san_pham` varchar(255) NOT NULL,
-  `img_hinh_anh` text DEFAULT NULL,
   `ma_danh_muc` varchar(20) DEFAULT NULL,
   `ma_thuong_hieu` varchar(20) DEFAULT NULL,
   `ma_nha_cung_cap` varchar(20) DEFAULT NULL,

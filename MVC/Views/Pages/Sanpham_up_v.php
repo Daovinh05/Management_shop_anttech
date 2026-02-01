@@ -209,11 +209,11 @@
     <div class="wrap">
         <div class="card">
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2><i class="fa-solid fa-utensils"></i> Tải lên file Thực đơn</h2>
-                <p class="hint">Sử dụng form dưới đây để tải lên file Thực đơn.</p>
+                <h2><i class="fa-solid fa-box-open"></i> Tải lên file Sản phẩm</h2>
+                <p class="hint">Sử dụng form dưới đây để tải lên file Sản phẩm.</p>
             </div>
 
-            <form method="POST" action="http://localhost/QLSP/Thucdon/up_l" enctype="multipart/form-data">
+            <form method="POST" action="http://localhost/Banhang/Sanpham/up_l" enctype="multipart/form-data">
                 <label for="txtGhichu">Ghi chú (Tùy chọn)</label>
                 <input type="text" name="txtGhichu" id="txtGhichu" placeholder="Nhập ghi chú hoặc mô tả cho file này">
 
@@ -235,7 +235,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="http://localhost/QLSP/Thucdon/danhsach" class="btn btn-secondary">
+                    <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
                     <button type="submit" name="btnNhap" class="btn btn-primary" style="min-width: 150px;">
@@ -251,8 +251,8 @@
                         <strong>.xlsx</strong>.
                     </li>
                     <li><i class="fa-solid fa-caret-right"></i> Dữ liệu bắt đầu từ dòng thứ 2 (dòng 1 là tiêu đề).</li>
-                    <li><i class="fa-solid fa-caret-right"></i> Cấu trúc cột cần tuân thủ thứ tự quy định của hệ thống.
-                    </li>
+                    <li><i class="fa-solid fa-caret-right"></i> Cột cần có theo thứ tự: Mã sản phẩm, Tên sản phẩm, Mã danh mục, Mã thương hiệu, Mã nhà cung cấp.</li>
+                    <li><i class="fa-solid fa-caret-right"></i> Cột hình ảnh sản phẩm không được nhập qua Excel, vui lòng thêm hình ảnh cho từng biến thể.</li>
                 </ul>
 
 

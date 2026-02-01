@@ -157,12 +157,9 @@
                 </select>
             </div>
             <div>
-                <label>Hình ảnh</label>
-                <div class="file-input-wrapper">
-                    <span>Chọn hình ảnh...</span>
-                    <input type="file" name="txtImage" accept="image/*" />
-                </div>
-                <div class="file-name" id="fileName">Chưa chọn file</div>
+                <label>Lưu ý</label>
+                <p style="color: #666; font-style: italic;">Hình ảnh,giá,số lượng sản phẩm được quản lý ở cấp độ biến
+                    thể. Vui lòng thêm hình ảnh cho từng biến thể cụ thể.</p>
             </div>
 
             <div class="actions">

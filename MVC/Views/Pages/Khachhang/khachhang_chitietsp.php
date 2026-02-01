@@ -1380,7 +1380,7 @@
                             <span
                                 class="discount-badge-circle">-<?php echo isset($data['san_pham']['giam_gia']) ? $data['san_pham']['giam_gia'] : '0'; ?>%</span>
                             <img id="mainImage"
-                                src="<?php echo !empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png'; ?>"
+                                src="<?php echo !empty($data['bien_the_first']['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($data['bien_the_first']['img_bien_the']) : '/Banhang/Public/Images/no-image.png'; ?>"
                                 alt="<?php echo $data['san_pham']['ten_san_pham']; ?>">
                         </div>
                         <div class="thumbnail-list">
@@ -1390,11 +1390,11 @@
                                 mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
                                 while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
                                     $class = $first ? 'thumb-item active' : 'thumb-item';
-                                    echo '<div class="' . $class . '"><img src="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
+                                    echo '<div class="' . $class . '" data-image="' . (!empty($bt['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : '/Banhang/Public/Images/no-image.png') . '"><img src="' . (!empty($bt['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
                                     $first = false;
                                 }
                             } else {
-                                echo '<div class="thumb-item active"><img src="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
+                                echo '<div class="thumb-item active" data-image="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '"><img src="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
                             }
                             ?>
                         </div>
@@ -1443,7 +1443,8 @@
                                 mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
                                 while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
                                     $class = $first_variant ? 'color-btn selected' : 'color-btn';
-                                    echo '<div class="' . $class . '" onclick="selectVariant(this, \'' . $bt['ten_bien_the'] . '\', \'' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '\')">';
+                                    $variant_image = !empty($bt['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : '/Banhang/Public/Images/no-image.png';
+                                    echo '<div class="' . $class . '" data-variant-image="' . $variant_image . '" onclick="selectVariant(this, \'' . $bt['ten_bien_the'] . '\', \'' . $variant_image . '\')">';
                                     echo '<input type="radio" name="ma_bien_the" value="' . $bt['ma_bien_the'] . '" ' . ($first_variant ? 'checked' : '') . ' style="display:none;">';
 
                                     // Create display text for the variant
@@ -1555,7 +1556,7 @@
                         echo '<div class="sim-card">';
                         echo '<div class="sim-badge">-' . (isset($sp['giam_gia']) ? $sp['giam_gia'] : '0') . '%</div>';
                         echo '<a href="' . $this->url('Khachhang/chitietsanpham/' . $sp['ma_san_pham']) . '" class="sim-img">';
-                        $img_src = !empty($sp['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png';
+                        $img_src = !empty($sp['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : (!empty($sp['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png');
                         echo '<img src="' . $img_src . '" alt="' . $sp['ten_san_pham'] . '">';
                         echo '</a>';
                         echo '<div class="sim-title">' . $sp['ten_san_pham'] . '</div>';
@@ -1672,7 +1673,15 @@
             variants.forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
             document.getElementById('variantLabel').innerText = "Phiên bản: " + variantName;
-            document.getElementById('mainImage').src = imageUrl;
+
+            // Get the variant image from the selected element's data attribute
+            var variantImage = element.getAttribute('data-variant-image');
+            if (variantImage) {
+                document.getElementById('mainImage').src = variantImage;
+            } else {
+                document.getElementById('mainImage').src = imageUrl;
+            }
+
             // Reset active thumb
             document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
 
@@ -1693,7 +1702,7 @@
             thumb.addEventListener('click', function() {
                 thumbs.forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                var newSrc = this.querySelector('img').src;
+                var newSrc = this.getAttribute('data-image');
                 document.getElementById('mainImage').src = newSrc;
             });
         });

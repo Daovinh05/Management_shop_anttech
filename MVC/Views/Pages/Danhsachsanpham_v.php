@@ -211,12 +211,12 @@
     <div class="card">
         <div class="actions-top">
             <div>
-                <h1><i class="fa-solid fa-utensils"></i> Quản lý Thực Đơn</h1>
-                <p class="lead">Tra cứu và cập nhật thực đơn quán.</p>
+                <h1><i class="fa-solid fa-box-open"></i> Quản lý Sản phẩm</h1>
+                <p class="lead">Tra cứu và cập nhật sản phẩm.</p>
             </div>
             <div class="actions">
                 <a href="http://localhost/Banhang/Sanpham/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
-                    Thêm món </a>
+                    Thêm sản phẩm </a>
                 <a href="http://localhost/Banhang/Sanpham/import_form" class="btn-ghost"><i
                         class="fa-solid fa-file-excel"></i> Nhập
                     Excel</a>
@@ -303,8 +303,8 @@
                         <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
                         <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
                         <td>
-                            <?php if ($row['img_hinh_anh']): ?>
-                            <img src="<?php echo !empty($row['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($row['img_hinh_anh']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
+                            <?php if ($row['img_bien_the']): ?>
+                            <img src="<?php echo !empty($row['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($row['img_bien_the']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
                                 alt="<?php echo htmlspecialchars($row['ten_san_pham']) ?>"
                                 style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
                             <?php else: ?>

@@ -114,6 +114,7 @@
             <h3>Hướng dẫn:</h3>
             <p>- File Excel phải có các cột theo thứ tự: Mã biến thể, Mã sản phẩm, Tên biến thể, Màu sắc, Ram, Dung lượng, Giá, Số lượng kho</p>
             <p>- Dữ liệu bắt đầu từ dòng thứ 2 (dòng đầu tiên là tiêu đề cột)</p>
+            <p>- Cột hình ảnh biến thể không được nhập qua Excel, vui lòng thêm hình ảnh sau khi tạo biến thể</p>
         </div>
     </div>
 
