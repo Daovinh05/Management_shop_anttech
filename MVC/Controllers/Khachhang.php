@@ -34,8 +34,8 @@ class Khachhang extends controller
         $dssp = $this->sp->SanPham_getAll();
         $dsdm = $this->dm->DanhMuc_getAll();
 
-        $this->view('Master', [
-            'page' => 'khachhang_home',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_home',
             'dssp' => $dssp,
             'dsdm' => $dsdm
         ]);
@@ -44,7 +44,7 @@ class Khachhang extends controller
     // Hiển thị sản phẩm theo danh mục
     function sanpham_theo_danhmuc($ma_danh_muc)
     {
-        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap 
+        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
@@ -54,8 +54,8 @@ class Khachhang extends controller
         $dssp = mysqli_query($this->sp->con, $sql);
         $dsdm = $this->dm->DanhMuc_getAll();
 
-        $this->view('Master', [
-            'page' => 'khachhang_sanpham',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_sanpham',
             'dssp' => $dssp,
             'dsdm' => $dsdm
         ]);
@@ -76,12 +76,24 @@ class Khachhang extends controller
         // Tính điểm trung bình
         $avg_rating = $this->dg->DanhGia_getAvgRatingByProduct($ma_san_pham);
 
-        $this->view('Master', [
-            'page' => 'khachhang_chitietsp',
+        // Lấy sản phẩm tương tự
+        $sql_similar = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+                        FROM san_pham s
+                        LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                        LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                        LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                        WHERE s.ma_danh_muc = '" . $san_pham['ma_danh_muc'] . "'
+                        AND s.ma_san_pham != '" . $ma_san_pham . "'
+                        LIMIT 4";
+        $similar_products = mysqli_query($this->sp->con, $sql_similar);
+
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_chitietsp',
             'san_pham' => $san_pham,
             'bien_the' => $bien_the,
             'danh_gia' => $danh_gia,
-            'avg_rating' => $avg_rating
+            'avg_rating' => $avg_rating,
+            'similar_products' => $similar_products
         ]);
     }
 
@@ -152,8 +164,8 @@ class Khachhang extends controller
             $chi_tiet_gio_hang = null;
         }
 
-        $this->view('Master', [
-            'page' => 'khachhang_giohang',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_giohang',
             'chi_tiet_gio_hang' => $chi_tiet_gio_hang
         ]);
     }
@@ -210,8 +222,8 @@ class Khachhang extends controller
             $dia_chi = null;
         }
 
-        $this->view('Master', [
-            'page' => 'khachhang_thanhtoan',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_thanhtoan',
             'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
             'dia_chi' => $dia_chi
         ]);
@@ -268,8 +280,8 @@ class Khachhang extends controller
                 $this->gh->GioHang_update($ma_gio_hang, $ma_user, 'ordered');
 
                 // Chuyển hướng đến trang cảm ơn
-                $this->view('Master', [
-                    'page' => 'khachhang_camon',
+                $this->view('Khachhang_Master', [
+                    'page' => 'Khachhang/khachhang_camon',
                     'ma_don_hang' => $ma_don_hang
                 ]);
             }
@@ -294,8 +306,8 @@ class Khachhang extends controller
                 ORDER BY dh.ngay_tao DESC";
         $don_hang = mysqli_query($this->dh->con, $sql);
 
-        $this->view('Master', [
-            'page' => 'khachhang_lichsu',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_lichsu',
             'don_hang' => $don_hang
         ]);
     }
@@ -323,8 +335,8 @@ class Khachhang extends controller
         // Lấy chi tiết đơn hàng
         $chi_tiet_don_hang = $this->ctdh->ChiTietDonHang_getByOrderId($ma_don_hang);
 
-        $this->view('Master', [
-            'page' => 'khachhang_chitietdh',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_chitietdh',
             'don_hang' => $dh_info,
             'chi_tiet_don_hang' => $chi_tiet_don_hang
         ]);
@@ -345,8 +357,8 @@ class Khachhang extends controller
         // Lấy địa chỉ của người dùng
         $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
 
-        $this->view('Master', [
-            'page' => 'khachhang_taikhoan',
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_taikhoan',
             'user' => $user,
             'dia_chi' => $dia_chi
         ]);
@@ -436,5 +448,113 @@ class Khachhang extends controller
         }
 
         header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+    }
+
+    // Lọc sản phẩm theo mức giá
+    function filter_by_price()
+    {
+        header('Content-Type: application/json');
+
+        if (isset($_POST['price_range'])) {
+            $price_range = $_POST['price_range'];
+
+            // Gọi phương thức từ model để lọc sản phẩm theo mức giá
+            $result = $this->sp->SanPham_filterByCategoryAndPrice('', $price_range);
+
+            // Check if query was successful
+            if (!$result) {
+                echo json_encode([
+                    'products' => [],
+                    'count' => 0,
+                    'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
+                ]);
+                return;
+            }
+
+            $products = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $products[] = $row;
+            }
+
+            echo json_encode([
+                'products' => $products,
+                'count' => count($products)
+            ]);
+        } else {
+            echo json_encode([
+                'products' => [],
+                'count' => 0
+            ]);
+        }
+    }
+
+    // Lọc sản phẩm theo danh mục
+    function filter_by_category()
+    {
+        header('Content-Type: application/json');
+
+        if (isset($_POST['category_id'])) {
+            $category_id = $_POST['category_id'];
+
+            // Gọi phương thức từ model để lọc sản phẩm theo danh mục
+            $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, '');
+
+            // Check if query was successful
+            if (!$result) {
+                echo json_encode([
+                    'products' => [],
+                    'count' => 0,
+                    'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
+                ]);
+                return;
+            }
+
+            $products = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $products[] = $row;
+            }
+
+            echo json_encode([
+                'products' => $products,
+                'count' => count($products)
+            ]);
+        } else {
+            echo json_encode([
+                'products' => [],
+                'count' => 0
+            ]);
+        }
+    }
+
+    // Lọc sản phẩm theo cả danh mục và mức giá
+    function filter_by_both()
+    {
+        header('Content-Type: application/json');
+
+        $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : '';
+        $price_range = isset($_POST['price_range']) ? $_POST['price_range'] : '';
+
+        // Gọi phương thức từ model để lọc sản phẩm
+        $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, $price_range);
+
+        // Check if query was successful
+        if (!$result) {
+            echo json_encode([
+                'products' => [],
+                'count' => 0,
+                'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
+            ]);
+            return;
+        }
+
+        $products = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $products[] = $row;
+        }
+
+        echo json_encode([
+            'products' => $products,
+            'count' => count($products)
+        ]);
     }
 }

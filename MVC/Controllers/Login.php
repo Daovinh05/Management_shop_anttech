@@ -23,7 +23,8 @@ class Login extends controller
             }
             exit;
         } else {
-            include_once __DIR__ . '/../Views/Pages/Login_v.php';
+            header('Location: ' . $this->url('Home'));
+            exit;
         }
     }
 
@@ -42,20 +43,47 @@ class Login extends controller
                 $_SESSION['user_name'] = $user['ten_user'];
                 $_SESSION['user_role'] = $user['phan_quyen'];
 
-                if ($user['phan_quyen'] == 'admin') {
-                    header('Location: ' . $this->url('admin'));
+                // Check if this is an AJAX request
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return JSON response for AJAX
+                    header('Content-Type: application/json');
+                    if ($user['phan_quyen'] == 'admin') {
+                        echo json_encode(['success' => true, 'redirect' => $this->url('admin')]);
+                    } else {
+                        echo json_encode(['success' => true, 'redirect' => $this->url('Khachhang')]);
+                    }
                 } else {
-                    header('Location: ' . $this->url('Khachhang'));
+                    // Regular redirect for non-AJAX requests
+                    if ($user['phan_quyen'] == 'admin') {
+                        header('Location: ' . $this->url('admin'));
+                    } else {
+                        header('Location: ' . $this->url('Khachhang'));
+                    }
+                    exit;
                 }
-                exit;
             } else {
                 $_SESSION['error'] = 'Tên đăng nhập hoặc mật khẩu không đúng!';
+
+                // Check if this is an AJAX request
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return JSON response for AJAX
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'error' => 'Tên đăng nhập hoặc mật khẩu không đúng!']);
+                } else {
+                    header('Location: ' . $this->url('Login'));
+                    exit;
+                }
+            }
+        } else {
+            // Check if this is an AJAX request
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                // Return JSON response for AJAX
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Dữ liệu không hợp lệ!']);
+            } else {
                 header('Location: ' . $this->url('Login'));
                 exit;
             }
-        } else {
-            header('Location: ' . $this->url('Login'));
-            exit;
         }
     }
 
@@ -65,7 +93,8 @@ class Login extends controller
         if (!isset($_SESSION['error'])) {
             unset($_SESSION['form_data']);
         }
-        include_once __DIR__ . '/../Views/Pages/Register_v.php';
+        header('Location: ' . $this->url('Home'));
+        exit;
     }
 
     function process_register()
@@ -90,7 +119,15 @@ class Login extends controller
 
             if ($password !== $confirm_password) {
                 $_SESSION['error'] = 'Mật khẩu xác nhận không khớp!';
-                header('Location: ' . $this->url('Login/register'));
+
+                // Check if this is an AJAX request
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return JSON response for AJAX
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'error' => 'Mật khẩu xác nhận không khớp!']);
+                } else {
+                    header('Location: ' . $this->url('Login/register'));
+                }
                 exit;
             }
 
@@ -103,7 +140,15 @@ class Login extends controller
             $existing_user_result = $this->user->getUserByUsername($username);
             if ($existing_user_result) {
                 $_SESSION['error'] = 'Tên đăng nhập đã tồn tại!';
-                header('Location: ' . $this->url('Login/register'));
+
+                // Check if this is an AJAX request
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return JSON response for AJAX
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'error' => 'Tên đăng nhập đã tồn tại!']);
+                } else {
+                    header('Location: ' . $this->url('Login/register'));
+                }
                 exit;
             }
 
@@ -112,7 +157,15 @@ class Login extends controller
                 $existing_email = $this->user->checktrungEmail($email, '');
                 if ($existing_email && mysqli_num_rows($existing_email) > 0) {
                     $_SESSION['error'] = 'Email đã được sử dụng!';
-                    header('Location: ' . $this->url('Login/register'));
+
+                    // Check if this is an AJAX request
+                    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                        // Return JSON response for AJAX
+                        header('Content-Type: application/json');
+                        echo json_encode(['success' => false, 'error' => 'Email đã được sử dụng!']);
+                    } else {
+                        header('Location: ' . $this->url('Login/register'));
+                    }
                     exit;
                 }
             } else {
@@ -124,7 +177,15 @@ class Login extends controller
                 $existing_phone = $this->user->checkTrungSoDienThoai($phone);
                 if ($existing_phone) {
                     $_SESSION['error'] = 'Số điện thoại đã được sử dụng!';
-                    header('Location: ' . $this->url('Login/register'));
+
+                    // Check if this is an AJAX request
+                    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                        // Return JSON response for AJAX
+                        header('Content-Type: application/json');
+                        echo json_encode(['success' => false, 'error' => 'Số điện thoại đã được sử dụng!']);
+                    } else {
+                        header('Location: ' . $this->url('Login/register'));
+                    }
                     exit;
                 }
             }
@@ -134,19 +195,42 @@ class Login extends controller
                 // Clear form data after successful registration
                 unset($_SESSION['form_data']);
                 unset($_SESSION['error']); // Also clear any error messages
-                echo '<script>alert("Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ."); window.location.href = "' . $this->url('Login') . '";</script>';
+
+                // Check if this is an AJAX request
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return JSON response for AJAX
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true, 'message' => 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.', 'redirect' => $this->url('Home')]);
+                } else {
+                    echo '<script>alert("Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ."); window.location.href = "' . $this->url('Home') . '";</script>';
+                }
                 exit;
             } else {
                 $error_msg = mysqli_error($this->user->con);
                 $_SESSION['error'] = 'Đăng ký thất bại! Lỗi: ' . $error_msg;
-                header('Location: ' . $this->url('Login/register'));
+
+                // Check if this is an AJAX request
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return JSON response for AJAX
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'error' => 'Đăng ký thất bại! Lỗi: ' . $error_msg]);
+                } else {
+                    header('Location: ' . $this->url('Login/register'));
+                }
                 exit;
             }
         } else {
-            // Clear form data if accessed without POST
-            unset($_SESSION['form_data']);
-            unset($_SESSION['error']);
-            header('Location: ' . $this->url('Login/register'));
+            // Check if this is an AJAX request
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                // Return JSON response for AJAX
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Dữ liệu không hợp lệ!']);
+            } else {
+                // Clear form data if accessed without POST
+                unset($_SESSION['form_data']);
+                unset($_SESSION['error']);
+                header('Location: ' . $this->url('Login/register'));
+            }
             exit;
         }
     }

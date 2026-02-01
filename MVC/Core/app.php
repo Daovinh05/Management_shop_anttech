@@ -1,7 +1,7 @@
 <?php
 class app
 {
-    protected $controller = "Login";
+    protected $controller = "Home";
     protected $action = "Get_data";
     protected $param = [];
     function __construct()
@@ -35,7 +35,7 @@ class app
     function checkAuth()
     {
         // Xác định các route công khai không yêu cầu xác thực
-        $public_routes = ['Users/login', 'Users/logout', 'Login', 'Login/process', 'Login/register', 'Login/process_register'];
+        $public_routes = ['Users/login', 'Users/logout', 'Login', 'Login/process', 'Login/register', 'Login/process_register', 'Khachhang', 'Khachhang/*', 'Home', 'Home/*'];
 
         // Lấy route hiện tại
         $current_route = '';
@@ -45,15 +45,16 @@ class app
             $current_route = '';
         }
 
-        // Nếu người dùng chưa đăng nhập và truy cập trang chủ trực tiếp (root URL), chuyển hướng đến đăng nhập
+        // Nếu người dùng chưa đăng nhập và truy cập trang chủ trực tiếp (root URL), cho phép truy cập trang chủ
         if (!isset($_SESSION['user_id']) && empty($current_route)) {
-            header('Location: http://localhost/Banhang/Login');
-            exit;
+            // Không chuyển hướng, cho phép truy cập trang chủ
+            return;
         }
 
-        // Nếu người dùng chưa đăng nhập và cố gắng truy cập route bảo vệ (không phải login/logout)
-        if (!isset($_SESSION['user_id']) && !in_array($current_route, $public_routes)) {
-            header('Location: http://localhost/Banhang/Login');
+        // Nếu người dùng chưa đăng nhập và cố gắng truy cập route bảo vệ (không phải login/logout hoặc khachhang hoặc home)
+        if (!isset($_SESSION['user_id']) && !in_array($current_route, $public_routes) && strpos($current_route, 'Khachhang') !== 0 && strpos($current_route, 'Home') !== 0) {
+            // Redirect to Home instead of Login since login is now on the Home page
+            header('Location: http://localhost/Banhang/Home');
             exit;
         }
 
@@ -71,16 +72,18 @@ class app
             exit;
         }
 
-        // Nếu người dùng đã đăng nhập và truy cập trang chủ trực tiếp, chuyển hướng theo vai trò
+        // Nếu người dùng đã đăng nhập và truy cập trang chủ trực tiếp, chuyển hướng theo vai trò nếu là admin hoặc nhân viên
         if (isset($_SESSION['user_id']) && empty($current_route)) {
             if ($_SESSION['user_role'] === 'admin') {
                 header('Location: http://localhost/Banhang/admin');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
                 header('Location: http://localhost/Banhang/Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
-                header('Location: http://localhost/Banhang/Khachhang');
+                // Cho phép khách hàng truy cập trang chủ
+                return;
             } else {
-                header('Location: http://localhost/Banhang/Khachhang');
+                // Cho phép truy cập trang chủ
+                return;
             }
             exit;
         }
@@ -91,8 +94,8 @@ class app
             exit;
         }
 
-        // Đảm bảo chỉ những người dùng được ủy quyền mới có thể truy cập các route khách hàng
-        if (!isset($_SESSION['user_id']) && strpos($current_route, 'Khachhang') === 0) {
+        // Đảm bảo chỉ những người dùng được ủy quyền mới có thể truy cập các route admin
+        if (!isset($_SESSION['user_id']) && strpos($current_route, 'admin') === 0) {
             header('Location: http://localhost/Banhang/Login');
             exit;
         }
