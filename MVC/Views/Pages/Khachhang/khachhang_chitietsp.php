@@ -1,198 +1,1830 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?php echo $this->url('Khachhang'); ?>">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a href="#"><?php echo $data['san_pham']['ten_danh_muc']; ?></a></li>
-                    <li class="breadcrumb-item active"><?php echo $data['san_pham']['ten_san_pham']; ?></li>
-                </ol>
-            </nav>
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $data['san_pham']['ten_san_pham']; ?> - TechZone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght @300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. CORE VARIABLES & RESET --- */
+        :root {
+            --primary-green: #00483d;
+            --secondary-green: #006a5b;
+            --tet-red: #d70018;
+            --tet-yellow: #fce700;
+            --text-gray: #555;
+            --text-dark: #333;
+            --border-color: #e0e0e0;
+            --bg-light: #f4f4f4;
+            --blue-btn: #2d72d2;
+            --fb-blue: #365899;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: white;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        /* Added position relative for overlay */
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: 0.2s;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        /* --- 2. TOP BANNER --- */
+        .top-banner {
+            background-color: var(--primary-green);
+            color: white;
+            font-size: 13px;
+            padding: 8px 0;
+        }
+
+        .top-banner .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .top-banner-left {
+            display: flex;
+            gap: 155px;
+        }
+
+        .top-banner-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-banner span i {
+            margin-right: 5px;
+        }
+
+        /* --- 3. MAIN HEADER --- */
+        .main-header {
+            background: white;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .middle-section {
+            flex-grow: 1;
+            max-width: 700px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-dropdown {
+            position: relative;
+        }
+
+        .btn-category {
+            height: 40px;
+            background: #f5f5f7;
+            border: 1px solid #e0e0e0;
+            padding: 0 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            color: #333;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 220px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            padding: 10px 0;
+            margin-top: 10px;
+            display: none;
+            z-index: 1000;
+            border: 1px solid #eee;
+        }
+
+        .dropdown-menu::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            transform: rotate(45deg);
+            border-left: 1px solid #eee;
+            border-top: 1px solid #eee;
+        }
+
+        .category-dropdown:hover .dropdown-menu {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-menu ul li a {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #333;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        .dropdown-menu ul li a i {
+            width: 25px;
+            color: #888;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .dropdown-menu ul li a:hover {
+            background-color: #f9f9f9;
+            color: var(--primary-green);
+            padding-left: 25px;
+        }
+
+        .dropdown-menu ul li a:hover i {
+            color: var(--primary-green);
+        }
+
+        .search-box {
+            flex-grow: 1;
+            display: flex;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            height: 40px;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            border: none;
+            padding: 0 15px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            background: white;
+            border: none;
+            padding: 0 20px;
+            color: var(--text-gray);
+            cursor: pointer;
+            border-left: 1px solid #eee;
+        }
+
+        .search-box button:hover {
+            color: var(--primary-green);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-gray);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--tet-red);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+
+        /* CSS CHO MENU TÀI KHOẢN */
+        .account-dropdown-menu {
+            position: absolute;
+            top: 45px;
+            right: -10px;
+            width: 200px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 8px 0;
+            display: none;
+            z-index: 1100;
+            border: 1px solid #eee;
+        }
+
+        .account-dropdown-menu.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .account-dropdown-menu::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            right: 25px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            transform: rotate(45deg);
+            border-top: 1px solid #eee;
+            border-left: 1px solid #eee;
+        }
+
+        .account-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .account-dropdown-menu a:hover {
+            background-color: #f5f5f7;
+            color: var(--primary-green);
+        }
+
+        .account-dropdown-menu a i {
+            width: 25px;
+            color: #888;
+            margin-right: 5px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 5px 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- 4. BREADCRUMB --- */
+        .breadcrumb {
+            padding: 10px 0;
+            font-size: 13px;
+            color: #777;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+
+        .breadcrumb .container {
+            display: flex;
+            gap: 5px;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-green);
+        }
+
+        /* --- 5. PRODUCT DETAIL MAIN --- */
+        .product-detail-wrapper {
+            padding: 20px 0;
+            background: white;
+        }
+
+        .product-header {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-rating {
+            font-size: 14px;
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rating-count {
+            color: #777;
+            font-size: 13px;
+            margin-left: 5px;
+        }
+
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 35% 40% 25%;
+            gap: 20px;
+        }
+
+        /* Cột 1: Ảnh */
+        .gallery-box {
+            position: relative;
+        }
+
+        .main-image-frame {
+            width: 100%;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+            height: 400px;
+        }
+
+        .main-image-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+
+        .discount-badge-circle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--tet-red);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 13px;
+            z-index: 2;
+        }
+
+        .thumbnail-list {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .thumb-item {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .thumb-item.active {
+            border-color: var(--tet-red);
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .product-meta {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #555;
+            text-align: center;
+        }
+
+        /* Cột 2: Thông tin & Option */
+        .price-box {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .new-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--tet-red);
+        }
+
+        .old-price {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .option-group {
+            margin-bottom: 15px;
+        }
+
+        .option-label {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .color-btn {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .color-btn:hover {
+            border-color: #999;
+        }
+
+        .color-btn.selected {
+            border-color: var(--tet-red);
+        }
+
+        .color-btn.selected::after {
+            content: "✔";
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            background: var(--tet-red);
+            color: white;
+            font-size: 8px;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 4px;
+        }
+
+        .color-info span {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .color-info small {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .storage-grid {
+            display: flex;
+            gap: 10px;
+        }
+
+        .storage-btn {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .storage-btn.selected {
+            border-color: var(--tet-red);
+            color: var(--tet-red);
+        }
+
+        .storage-btn.selected::after {
+            content: "✔";
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            background: var(--tet-red);
+            color: white;
+            font-size: 8px;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- STYLES CHO PHẦN SỐ LƯỢNG VÀ NÚT THÊM VÀO GIỎ --- */
+        .quantity-cart-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quantity-selector {
+            display: flex;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 40px;
+        }
+
+        .quantity-selector button {
+            width: 35px;
+            border: none;
+            background: #f9f9f9;
+            cursor: pointer;
+            font-size: 16px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-selector button:hover {
+            background: #eee;
+        }
+
+        .quantity-selector input {
+            width: 40px;
+            border: none;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            text-align: center;
+            font-size: 14px;
+            outline: none;
+            color: #333;
+        }
+
+        .add-to-cart-btn {
+            background: var(--tet-red);
+            color: white;
+            border: none;
+            height: 40px;
+            padding: 0 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .add-to-cart-btn:hover {
+            opacity: 0.8;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Action Area --- */
+        .action-area {
+            margin-top: 0;
+        }
+
+        .buy-now-btn {
+            width: 100%;
+            background: var(--tet-red);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: 0.2s;
+            border-radius: 20px;
+        }
+
+        .buy-now-btn:hover {
+            opacity: 0.7;
+        }
+
+        .buy-now-sub {
+            display: block;
+            font-size: 12px;
+            font-weight: 400;
+            text-transform: none;
+            margin-top: 3px;
+        }
+
+        .installment-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .blue-btn {
+            flex: 1;
+            background: var(--blue-btn);
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .blue-btn:hover {
+            opacity: 0.8;
+        }
+
+        .blue-btn span {
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            text-transform: none;
+            margin-top: 2px;
+        }
+
+        /* Cột 3: Khuyến mãi */
+        .promo-box {
+            border: 1px solid #fee2e2;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .promo-header {
+            background: #fee2e2;
+            color: #d70018;
+            padding: 10px 15px;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .promo-content {
+            padding: 15px;
+        }
+
+        .promo-list li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            align-items: flex-start;
+        }
+
+        .promo-number {
+            background: var(--tet-red);
+            color: white;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* --- 6. SIMILAR PRODUCTS --- */
+        .similar-section {
+            background: white;
+            padding: 30px 0;
+            border-top: 10px solid #f4f4f4;
+        }
+
+        .similar-heading {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #333;
+            position: relative;
+        }
+
+        .similar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .sim-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .sim-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .sim-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--tet-red);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .sim-img {
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sim-img img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .sim-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .sim-price {
+            color: var(--tet-red);
+            font-weight: 700;
+            font-size: 15px;
+            display: block;
+        }
+
+        .sim-old-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 12px;
+            margin-left: 5px;
+            font-weight: 400;
+        }
+
+        /* --- 7. FOOTER --- */
+        .main-footer {
+            border-top: 4px solid #f4f4f4;
+            padding: 40px 0 20px;
+            margin-top: 0;
+            background: white;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #006a5b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+        }
+
+        .footer-logo img {
+            height: 40px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .address-list li {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .address-list li strong {
+            color: #333;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links li a {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .footer-links li a:hover {
+            color: var(--tet-red);
+        }
+
+        .fanpage-box {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 5px;
+        }
+
+        .fp-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .fp-avatar {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ddd;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .fp-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .fp-info {
+            display: flex;
+            flex-direction: column;
+            padding-top: 2px;
+        }
+
+        .fp-name {
+            color: var(--fb-blue);
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 3px;
+            text-decoration: none;
+            line-height: 1.2;
+        }
+
+        .fp-name:hover {
+            text-decoration: underline;
+        }
+
+        .fp-followers {
+            color: #4b4f56;
+            font-size: 12px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .social-icons a {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #555;
+        }
+
+        .social-icons a:hover {
+            border-color: var(--tet-red);
+            color: var(--tet-red);
+        }
+
+        .contact-info p {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .contact-info span {
+            font-weight: 400;
+            color: #555;
+        }
+
+        .hotline-large {
+            font-size: 18px;
+            color: #333;
+            font-weight: 700;
+            margin-top: 10px;
+            display: block;
+        }
+
+        /* --- 8. CART SIDEBAR (NEW) --- */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+
+        .cart-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 360px;
+            height: 100%;
+            background: white;
+            z-index: 2100;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: 0.3s cubic-bezier(0.77, 0, 0.175, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-sidebar.active {
+            right: 0;
+        }
+
+        .cart-header-bar {
+            background: #f4f4f4;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-header-title {
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            color: #333;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .cart-close-btn {
+            font-size: 20px;
+            cursor: pointer;
+            color: #555;
+            margin-left: 10px;
+        }
+
+        .cart-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* Empty Cart State */
+        .empty-cart-msg {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Cart Items */
+        .cart-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+            position: relative;
+        }
+
+        .cart-item-img {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #eee;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-item-img img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .cart-item-info {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .cart-item-name {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+            line-height: 1.3;
+        }
+
+        .cart-item-variant {
+            display: block;
+            color: #777;
+            text-transform: uppercase;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            color: var(--tet-red);
+            font-weight: 500;
+        }
+
+        .cart-remove-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #555;
+            cursor: pointer;
+            background: white;
+        }
+
+        .cart-remove-btn:hover {
+            border-color: var(--tet-red);
+            color: var(--tet-red);
+        }
+
+        /* Footer */
+        .cart-footer-box {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        .cart-total-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .cart-total-price {
+            color: var(--tet-red);
+            margin-left: 5px;
+        }
+
+        .cart-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-view-cart {
+            background: var(--tet-red);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .btn-checkout {
+            background: var(--blue-btn);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .btn-view-cart:hover,
+        .btn-checkout:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+
+            .detail-layout,
+            .similar-grid,
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-header .container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .top-banner {
+                display: none;
+            }
+
+            .cart-sidebar {
+                width: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header-bar">
+            <div style="width: 20px;"></div>
+            <div class="cart-header-title">GIỎ HÀNG</div>
+            <div class="cart-close-btn" onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="cart-body" id="cartBody">
+            <div class="empty-cart-msg">Chưa có sản phẩm trong giỏ hàng</div>
+        </div>
+
+        <div class="cart-footer-box" id="cartFooter">
         </div>
     </div>
-    
-    <div class="row">
-        <!-- Thông tin sản phẩm -->
-        <div class="col-md-6">
-            <?php
-            $img_src = !empty($data['san_pham']['img_hinh_anh']) ? $data['san_pham']['img_hinh_anh'] : $this->url('Public/Images/no-image.png');
-            ?>
-            <img src="<?php echo $img_src; ?>" class="img-fluid" alt="<?php echo $data['san_pham']['ten_san_pham']; ?>">
+
+    <div class="top-banner">
+        <div class="container">
+            <div class="top-banner-left">
+                <span><i class="fa-solid fa-circle-check"></i>SẢN PHẨM CHÍNH HÃNG</span>
+                <span><i class="fa-solid fa-rotate-left"></i>CAM KẾT LỖI ĐỔI LIỀN</span>
+                <span><i class="fa-solid fa-phone-volume"></i>HOTLINE 1900.2091</span>
+            </div>
+            <div class="top-banner-right">
+                <span><i class="fa-solid fa-truck-fast"></i>MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC</span>
+            </div>
         </div>
-        
-        <div class="col-md-6">
-            <h2><?php echo $data['san_pham']['ten_san_pham']; ?></h2>
-            
-            <!-- Hiển thị đánh giá trung bình -->
-            <?php if ($data['avg_rating']): ?>
-                <div class="rating">
-                    <?php
-                    $avg_rating = round($data['avg_rating'], 1);
-                    for ($i = 1; $i <= 5; $i++) {
-                        if ($i <= $avg_rating) {
-                            echo '<span class="star filled">★</span>';
+    </div>
+
+    <header class="main-header">
+        <div class="container">
+            <a href="<?php echo $this->url('Khachhang'); ?>" class="logo"><i class="fa-brands fa-instalod"></i>
+                TECHZONE</a>
+            <div class="middle-section">
+                <div class="category-dropdown">
+                    <button class="btn-category"><i class="fa-solid fa-bars"></i> Danh mục</button>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/1'); ?>"><i
+                                        class="fa-solid fa-mobile-screen-button"></i>Điện thoại</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/2'); ?>"><i
+                                        class="fa-solid fa-laptop"></i>Laptop</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/3'); ?>"><i
+                                        class="fa-solid fa-tablet-screen-button"></i>Tablet</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/4'); ?>"><i
+                                        class="fa-solid fa-desktop"></i>Màn hình</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/5'); ?>"><i
+                                        class="fa-solid fa-memory"></i>Linh kiện PC</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/6'); ?>"><i
+                                        class="fa-solid fa-tv"></i>Tivi, Điện máy</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/7'); ?>"><i
+                                        class="fa-regular fa-clock"></i>Đồng hồ</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/8'); ?>"><i
+                                        class="fa-solid fa-headphones"></i>Âm thanh</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/9'); ?>"><i
+                                        class="fa-solid fa-charging-station"></i>Phụ kiện</a></li>
+                            <li><a href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/10'); ?>"><i
+                                        class="fa-solid fa-screwdriver-wrench"></i>Sửa chữa</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <input type="text" placeholder="Hôm nay bạn muốn tìm kiếm gì?">
+                    <button><i class="fa-solid fa-magnifying-glass"></i>Tìm kiếm</button>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="action-item" id="accountBtn">
+                    <i class="fa-regular fa-user"></i>
+                    <span>
+                        <?php
+                        if (isset($_SESSION['user_name'])) {
+                            echo htmlspecialchars($_SESSION['user_name']);
                         } else {
-                            echo '<span class="star">☆</span>';
+                            echo 'Tài khoản';
+                        }
+                        ?>
+                    </span>
+                    <div class="account-dropdown-menu" id="accountMenu">
+                        <?php if (isset($_SESSION['user_name'])): ?>
+                            <a href="<?php echo $this->url('Khachhang/taikhoan'); ?>"><i class="fa-solid fa-user-gear"></i>
+                                Quản lý tài khoản</a>
+                            <a href="<?php echo $this->url('Khachhang/lichsumuahang'); ?>"><i
+                                    class="fa-solid fa-box-open"></i> Đơn hàng của tôi</a>
+                            <div class="divider"></div>
+                            <a href="<?php echo $this->url('Login/logout'); ?>" style="color: #d70018;"><i
+                                    class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+                        <?php else: ?>
+                            <a href="<?php echo $this->url('Login'); ?>"><i class="fa-solid fa-user"></i> Đăng nhập</a>
+                            <a href="<?php echo $this->url('Login/register'); ?>"><i class="fa-solid fa-user-plus"></i> Đăng
+                                ký</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="action-item cart-icon-wrap" onclick="toggleCart()">
+                    <i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span><span class="cart-badge"
+                        id="cartBadge">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="breadcrumb">
+        <div class="container">
+            <a href="<?php echo $this->url('Khachhang'); ?>">Trang chủ</a> /
+            <a
+                href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/' . $data['san_pham']['ma_danh_muc']); ?>"><?php echo $data['san_pham']['ten_danh_muc']; ?></a>
+            /
+            <span><?php echo $data['san_pham']['ten_san_pham']; ?></span>
+        </div>
+    </div>
+
+    <div class="product-detail-wrapper">
+        <div class="container">
+
+            <div class="product-header">
+                <h1 class="product-title" id="productTitle"><?php echo $data['san_pham']['ten_san_pham']; ?></h1>
+                <div class="product-rating">
+                    <?php if ($data['avg_rating']): ?>
+                        <?php
+                        $avg_rating = round($data['avg_rating'], 1);
+                        for ($i = 1; $i <= 5; $i++) {
+                            if ($i <= $avg_rating) {
+                                echo '<i class="fa-solid fa-star"></i>';
+                            } else {
+                                if ($i - $avg_rating < 1) {
+                                    echo '<i class="fa-solid fa-star-half-stroke"></i>';
+                                } else {
+                                    echo '<i class="fa-regular fa-star"></i>';
+                                }
+                            }
+                        }
+                        ?>
+                        <span class="rating-count">(<?php echo mysqli_num_rows($data['danh_gia']); ?> Đánh giá)</span>
+                    <?php else: ?>
+                        <i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i
+                            class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i
+                            class="fa-regular fa-star"></i>
+                        <span class="rating-count">(0 Đánh giá)</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="detail-layout">
+
+                <div class="product-left">
+                    <div class="gallery-box">
+                        <div class="main-image-frame">
+                            <span
+                                class="discount-badge-circle">-<?php echo isset($data['san_pham']['giam_gia']) ? $data['san_pham']['giam_gia'] : '0'; ?>%</span>
+                            <img id="mainImage"
+                                src="<?php echo !empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png'; ?>"
+                                alt="<?php echo $data['san_pham']['ten_san_pham']; ?>">
+                        </div>
+                        <div class="thumbnail-list">
+                            <?php
+                            $first = true;
+                            if (mysqli_num_rows($data['bien_the']) > 0) {
+                                mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
+                                while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
+                                    $class = $first ? 'thumb-item active' : 'thumb-item';
+                                    echo '<div class="' . $class . '"><img src="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
+                                    $first = false;
+                                }
+                            } else {
+                                echo '<div class="thumb-item active"><img src="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
+                            }
+                            ?>
+                        </div>
+                        <div class="product-meta">
+                            Mã sản phẩm: <strong><?php echo $data['san_pham']['ma_san_pham']; ?></strong> | Danh mục:
+                            <strong><?php echo $data['san_pham']['ten_danh_muc']; ?></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-center">
+                    <h5 class="product-title"><?php echo $data['san_pham']['ten_san_pham']; ?></h5>
+
+                    <?php
+                    // Find the lowest and highest prices among variants
+                    $prices = [];
+                    if (mysqli_num_rows($data['bien_the']) > 0) {
+                        mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
+                        while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
+                            $prices[] = isset($bt['gia']) ? $bt['gia'] : 0;
                         }
                     }
-                    echo " (" . $avg_rating . "/5)";
+                    $min_price = !empty($prices) ? min($prices) : (isset($data['san_pham']['gia']) ? $data['san_pham']['gia'] : 0);
+                    $max_price = !empty($prices) ? max($prices) : (isset($data['san_pham']['gia']) ? $data['san_pham']['gia'] : 0);
                     ?>
+
+                    <div class="price-box">
+                        <?php if (isset($data['san_pham']['gia_cu']) && $data['san_pham']['gia_cu'] > (isset($data['san_pham']['gia']) ? $data['san_pham']['gia'] : 0)): ?>
+                            <span
+                                class="old-price"><?php echo number_format(isset($data['san_pham']['gia_cu']) ? $data['san_pham']['gia_cu'] : 0, 0, ',', '.') . ' ₫'; ?></span>
+                        <?php endif; ?>
+                        <span class="new-price"
+                            id="currentPrice"><?php echo number_format($min_price, 0, ',', '.') . ' ₫'; ?>
+                            <?php if ($min_price != $max_price): ?>
+                                - <?php echo number_format($max_price, 0, ',', '.') . ' ₫'; ?>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+
+                    <div class="option-group">
+                        <span class="option-label" id="variantLabel">Phiên bản</span>
+                        <div class="option-grid">
+                            <?php
+                            $first_variant = true;
+                            if (mysqli_num_rows($data['bien_the']) > 0) {
+                                mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
+                                while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
+                                    $class = $first_variant ? 'color-btn selected' : 'color-btn';
+                                    echo '<div class="' . $class . '" onclick="selectVariant(this, \'' . $bt['ten_bien_the'] . '\', \'' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '\')">';
+                                    echo '<input type="radio" name="ma_bien_the" value="' . $bt['ma_bien_the'] . '" ' . ($first_variant ? 'checked' : '') . ' style="display:none;">';
+
+                                    // Create display text for the variant
+                                    $variant_text = '';
+                                    if (isset($bt['mau_sac']) && $bt['mau_sac']) $variant_text .= $bt['mau_sac'];
+                                    if (isset($bt['dung_luong']) && $bt['dung_luong']) $variant_text .= ($variant_text ? ' - ' : '') . $bt['dung_luong'];
+                                    if (isset($bt['ram']) && $bt['ram']) $variant_text .= ($variant_text ? ' - ' : '') . $bt['ram'];
+
+                                    echo '<div class="color-info"><span>' . ($variant_text ? $variant_text : $bt['ten_bien_the']) . '</span><small>' . number_format(isset($bt['gia']) ? $bt['gia'] : 0, 0, ',', '.') . '₫</small></div>';
+                                    echo '</div>';
+                                    $first_variant = false;
+                                }
+                            }
+                            ?>
+                        </div>
+                    </div>
+
+                    <div class="quantity-cart-box">
+                        <div class="quantity-selector">
+                            <button onclick="decreaseQuantity()">-</button>
+                            <input type="text" id="quantityInput" value="1" readonly>
+                            <button onclick="increaseQuantity()">+</button>
+                        </div>
+
+                        <?php if (mysqli_num_rows($data['bien_the']) > 0): ?>
+                            <button class="add-to-cart-btn" onclick="addToCart()">
+                                <i class="fa-solid fa-cart-plus"></i> THÊM VÀO GIỎ
+                            </button>
+                        <?php else: ?>
+                            <button class="add-to-cart-btn" disabled>
+                                <i class="fa-solid fa-cart-plus"></i> TẠM HẾT HÀNG
+                            </button>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="action-area">
+                        <button class="buy-now-btn">
+                            MUA NGAY
+                            <span class="buy-now-sub">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
+                        </button>
+                        <div class="installment-row">
+                            <button class="blue-btn">
+                                TRẢ GÓP 0%
+                                <span>Xét duyệt qua điện thoại</span>
+                            </button>
+                            <button class="blue-btn">
+                                TRẢ GÓP QUA THẺ
+                                <span>Visa, Master Card, JCB</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            <?php endif; ?>
-            
-            <hr>
-            
-            <div class="product-info">
-                <p><strong>Thương hiệu:</strong> <?php echo $data['san_pham']['ten_thuong_hieu']; ?></p>
-                <p><strong>Nhà cung cấp:</strong> <?php echo $data['san_pham']['ten_nha_cung_cap']; ?></p>
-                <p><strong>Danh mục:</strong> <?php echo $data['san_pham']['ten_danh_muc']; ?></p>
+
+                <div class="product-right">
+                    <div class="promo-box">
+                        <div class="promo-header">Thông tin sản phẩm</div>
+                        <div class="promo-content">
+                            <ul class="promo-list">
+                                <li>
+                                    <span class="promo-number">1</span>
+                                    <span><strong>Thương hiệu:</strong>
+                                        <?php echo $data['san_pham']['ten_thuong_hieu']; ?></span>
+                                </li>
+                                <li>
+                                    <span class="promo-number">2</span>
+                                    <span><strong>Nhà cung cấp:</strong>
+                                        <?php echo $data['san_pham']['ten_nha_cung_cap']; ?></span>
+                                </li>
+                                <li>
+                                    <span class="promo-number">3</span>
+                                    <span><strong>Danh mục:</strong>
+                                        <?php echo $data['san_pham']['ten_danh_muc']; ?></span>
+                                </li>
+                                <li>
+                                    <span class="promo-number">4</span>
+                                    <span><strong>Mô tả:</strong>
+                                        <?php echo isset($data['san_pham']['mo_ta']) ? substr($data['san_pham']['mo_ta'], 0, 100) : 'Chưa có mô tả'; ?>...</span>
+                                </li>
+                                <li>
+                                    <span class="promo-number">5</span>
+                                    <span><strong>Bảo hành:</strong> 12 tháng chính hãng</span>
+                                </li>
+                                <li>
+                                    <span class="promo-number">6</span>
+                                    <span><strong>Khuyến mãi:</strong> Trả góp 0% lãi suất</span>
+                                </li>
+                                <li>
+                                    <span class="promo-number">7</span>
+                                    <span><strong>Ưu đãi thêm:</strong> Giảm 50k phí vận chuyển</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            
-            <hr>
-            
-            <!-- Biến thể sản phẩm -->
-            <h4>Phiên bản</h4>
-            <div class="variants">
+        </div>
+    </div>
+
+    <div class="similar-section">
+        <div class="container">
+            <h3 class="similar-heading">SẢN PHẨM TƯƠNG TỰ <i class="fa-solid fa-circle-check"
+                    style="color:#0fb30f; font-size:16px; margin-left:5px;"></i></h3>
+            <div class="similar-grid">
+
                 <?php
-                if (mysqli_num_rows($data['bien_the']) > 0) {
-                    while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
-                        echo '<div class="variant-item mb-2">';
-                        echo '<label>';
-                        echo '<input type="radio" name="ma_bien_the" value="' . $bt['ma_bien_the'] . '" required> ';
-                        echo '<strong>' . $bt['ten_bien_the'] . '</strong> - ';
-                        if ($bt['mau_sac']) echo 'Màu: ' . $bt['mau_sac'] . ', ';
-                        if ($bt['ram']) echo 'RAM: ' . $bt['ram'] . ', ';
-                        if ($bt['dung_luong']) echo 'Bộ nhớ: ' . $bt['dung_luong'] . ', ';
-                        echo '<span class="price"><strong>' . number_format($bt['gia'], 0, ',', '.') . ' VNĐ</strong></span>';
-                        echo ' (Còn ' . $bt['so_luong_kho'] . ' sản phẩm)';
-                        echo '</label>';
+                if (isset($data['similar_products']) && mysqli_num_rows($data['similar_products']) > 0) {
+                    while ($sp = mysqli_fetch_assoc($data['similar_products'])) {
+                        echo '<div class="sim-card">';
+                        echo '<div class="sim-badge">-' . (isset($sp['giam_gia']) ? $sp['giam_gia'] : '0') . '%</div>';
+                        echo '<a href="' . $this->url('Khachhang/chitietsanpham/' . $sp['ma_san_pham']) . '" class="sim-img">';
+                        $img_src = !empty($sp['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png';
+                        echo '<img src="' . $img_src . '" alt="' . $sp['ten_san_pham'] . '">';
+                        echo '</a>';
+                        echo '<div class="sim-title">' . $sp['ten_san_pham'] . '</div>';
+                        echo '<span class="sim-price">' . number_format(isset($sp['gia']) ? $sp['gia'] : 0, 0, ',', '.') . ' ₫</span>';
                         echo '</div>';
                     }
                 } else {
-                    echo '<p>Hiện chưa có phiên bản nào cho sản phẩm này.</p>';
+                    // Display placeholder products if no similar products found
+                    for ($i = 0; $i < 4; $i++) {
+                        echo '<div class="sim-card">';
+                        echo '<div class="sim-badge">-10%</div>';
+                        echo '<a href="#" class="sim-img">';
+                        echo '<img src="https://placehold.co/300x300" alt="Sản phẩm tương tự">';
+                        echo '</a>';
+                        echo '<div class="sim-title">Sản phẩm tương tự ' . ($i + 1) . '</div>';
+                        echo '<span class="sim-price">' . number_format(10000000, 0, ',', '.') . ' ₫</span>';
+                        echo '</div>';
+                    }
                 }
                 ?>
-            </div>
-            
-            <hr>
-            
-            <div class="actions">
-                <?php if (mysqli_num_rows($data['bien_the']) > 0): ?>
-                    <button type="button" class="btn btn-success btn-lg" onclick="addToCart()">
-                        <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
-                    </button>
-                <?php else: ?>
-                    <button class="btn btn-secondary btn-lg" disabled>
-                        <i class="fas fa-shopping-cart"></i> Tạm hết hàng
-                    </button>
-                <?php endif; ?>
-                
-                <button type="button" class="btn btn-primary btn-lg ml-2">
-                    <i class="fas fa-bolt"></i> Mua ngay
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mt-5">
-        <div class="col-12">
-            <!-- Tab điều hướng -->
-            <ul class="nav nav-tabs" id="productTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="description-tab" data-toggle="tab" href="#description" role="tab">Mô tả sản phẩm</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab">Đánh giá</a>
-                </li>
-            </ul>
-            
-            <div class="tab-content" id="productTabContent">
-                <!-- Mô tả sản phẩm -->
-                <div class="tab-pane fade show active" id="description" role="tabpanel">
-                    <div class="mt-3">
-                        <h5>Thông tin chi tiết sản phẩm</h5>
-                        <p>Đây là phần mô tả chi tiết cho sản phẩm <?php echo $data['san_pham']['ten_san_pham']; ?>. 
-                           Sẽ được cập nhật với thông tin cụ thể về tính năng, thông số kỹ thuật, v.v.</p>
-                    </div>
-                </div>
-                
-                <!-- Đánh giá -->
-                <div class="tab-pane fade" id="reviews" role="tabpanel">
-                    <div class="mt-3">
-                        <h5>Đánh giá sản phẩm</h5>
-                        
-                        <?php if (mysqli_num_rows($data['danh_gia']) > 0): ?>
-                            <?php while ($dg = mysqli_fetch_assoc($data['danh_gia'])): ?>
-                                <div class="review-item mb-3 p-3 border rounded">
-                                    <div class="d-flex justify-content-between">
-                                        <h6><?php echo $dg['full_name']; ?></h6>
-                                        <small class="text-muted"><?php echo $this->formatDate($dg['ngay_danh_gia']); ?></small>
-                                    </div>
-                                    
-                                    <div class="rating mb-2">
-                                        <?php
-                                        for ($i = 1; $i <= 5; $i++) {
-                                            if ($i <= $dg['so_sao']) {
-                                                echo '<span class="star filled">★</span>';
-                                            } else {
-                                                echo '<span class="star">☆</span>';
-                                            }
-                                        }
-                                        ?>
-                                    </div>
-                                    
-                                    <p><?php echo $dg['noi_dung']; ?></p>
-                                </div>
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <p>Chưa có đánh giá nào cho sản phẩm này.</p>
-                        <?php endif; ?>
-                        
-                        <!-- Form đánh giá (chỉ hiển thị nếu đã đăng nhập) -->
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            <div class="mt-4">
-                                <h6>Viết đánh giá của bạn</h6>
-                                <form>
-                                    <div class="form-group">
-                                        <label>Số sao:</label>
-                                        <div>
-                                            <input type="radio" name="rating" value="1"> ★
-                                            <input type="radio" name="rating" value="2"> ★★
-                                            <input type="radio" name="rating" value="3"> ★★★
-                                            <input type="radio" name="rating" value="4"> ★★★★
-                                            <input type="radio" name="rating" value="5"> ★★★★★
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Nội dung đánh giá:</label>
-                                        <textarea class="form-control" rows="3"></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
-                                </form>
-                            </div>
-                        <?php else: ?>
-                            <div class="mt-4">
-                                <p><a href="<?php echo $this->url('Login'); ?>">Đăng nhập</a> để viết đánh giá.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script>
-function addToCart() {
-    // Lấy biến thể được chọn
-    const selectedVariant = document.querySelector('input[name="ma_bien_the"]:checked');
-    
-    if (!selectedVariant) {
-        alert('Vui lòng chọn một phiên bản sản phẩm!');
-        return;
-    }
-    
-    // Chuyển hướng đến trang thêm vào giỏ hàng
-    window.location.href = '<?php echo $this->url('Khachhang/themvaogio/'); ?>' + selectedVariant.value;
-}
-</script>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <i class="fa-brands fa-instalod"></i> TECHZONE
+                    </div>
+                    <ul class="address-list">
+                        <li><strong>Địa chỉ:</strong></li>
+                        <li><strong>Cơ sở 1:</strong> 221 Vũ Tông Phan - Thanh Xuân - Hà Nội</li>
+                        <li><strong>Cơ sở 2:</strong> 17 Nguyễn Phong Sắc - Cầu Giấy - Hà Nội</li>
+                        <li><strong>Cơ sở 3:</strong> 145 Minh Khai - Hai Bà Trưng - Hà Nội</li>
+                        <li><strong>Cơ sở 4:</strong> 142 Quang Trung - Hà Đông - Hà Nội</li>
+                        <li><strong>Gọi mua hàng:</strong> 0825.303.888 (8h00 - 22h00)</li>
+                        <li><strong>Gọi bảo hành:</strong> 0922.702.888 (8h00 - 21h00)</li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Chính sách</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Chính sách mua hàng</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách bảo hành</a></li>
+                        <li><a href="#">Cam kết chất lượng</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Hệ thống cửa hàng</a></li>
+                    </ul>
+                    <h4>Fanpage</h4>
+                    <div class="fanpage-box">
+                        <div class="fp-container">
+                            <div class="fp-avatar">
+                                <img src="https://tse3.mm.bing.net/th/id/OIP.YxmH1xNVNfvD5MlgINYERgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3"
+                                    alt="TechZone">
+                            </div>
+                            <div class="fp-info">
+                                <a href="#" class="fp-name">TechZone - Chính Chủ</a>
+                                <span class="fp-followers">96.598 người theo dõi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                    <div class="contact-info">
+                        <p>Nhận phản hồi, thắc mắc:</p>
+                        <p>anttech.com.vn @gmail.com</p>
+                        <p style="margin-top: 15px;">Tư vấn miễn phí 24/07</p>
+                        <span class="hotline-large">0825.303.888</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // Lấy các phần tử
+        const accountBtn = document.getElementById('accountBtn');
+        const accountMenu = document.getElementById('accountMenu');
+
+        // Toggle Account Menu
+        accountBtn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            accountMenu.classList.toggle('active');
+        });
+
+        // Close when clicking outside
+        window.addEventListener('click', function(event) {
+            if (!accountBtn.contains(event.target)) {
+                accountMenu.classList.remove('active');
+            }
+        });
+
+        // --- 1. BIẾN TOÀN CỤC GIỎ HÀNG ---
+        var cart = []; // Mảng chứa các object sản phẩm
+
+        // --- 2. XỬ LÝ GIAO DIỆN CƠ BẢN ---
+        function selectVariant(element, variantName, imageUrl) {
+            var variants = document.querySelectorAll('.color-btn');
+            variants.forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('variantLabel').innerText = "Phiên bản: " + variantName;
+            document.getElementById('mainImage').src = imageUrl;
+            // Reset active thumb
+            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+
+            // Select the corresponding radio button
+            var radioButton = element.querySelector('input[type="radio"]');
+            if (radioButton) {
+                radioButton.checked = true;
+            }
+
+            // Update price display based on selected variant
+            var priceText = element.querySelector('small').textContent;
+            var priceValue = priceText.replace(/[^\d]/g, ''); // Extract numeric value
+            document.getElementById('currentPrice').innerHTML = formatCurrency(priceValue) + ' ₫';
+        }
+
+        var thumbs = document.querySelectorAll('.thumb-item');
+        thumbs.forEach(function(thumb) {
+            thumb.addEventListener('click', function() {
+                thumbs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                var newSrc = this.querySelector('img').src;
+                document.getElementById('mainImage').src = newSrc;
+            });
+        });
+
+        function decreaseQuantity() {
+            var input = document.getElementById('quantityInput');
+            var value = parseInt(input.value);
+            if (value > 1) input.value = value - 1;
+        }
+
+        function increaseQuantity() {
+            var input = document.getElementById('quantityInput');
+            var value = parseInt(input.value);
+            input.value = value + 1;
+        }
+
+        // --- 3. LOGIC GIỎ HÀNG (MỚI & QUAN TRỌNG) ---
+
+        // Hàm mở/đóng Sidebar
+        function toggleCart() {
+            var overlay = document.querySelector('.cart-overlay');
+            var sidebar = document.querySelector('.cart-sidebar');
+            overlay.classList.toggle('active');
+            sidebar.classList.toggle('active');
+        }
+
+        // Hàm thêm vào giỏ
+        function addToCart() {
+            // Lấy thông tin sản phẩm từ giao diện
+            var img = document.getElementById('mainImage').src;
+            var name = document.getElementById('productTitle').innerText;
+            var variantFull = document.getElementById('variantLabel').innerText;
+            var variant = variantFull.replace("Phiên bản: ", "");
+            var quantity = parseInt(document.getElementById('quantityInput').value);
+            var priceStr = document.getElementById('currentPrice').innerText;
+
+            // Chuyển giá từ chuỗi "11.400.000 ₫" sang số 11400000 để tính toán
+            var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
+
+            // Tạo object sản phẩm
+            var product = {
+                img: img,
+                name: name,
+                variant: variant,
+                quantity: quantity,
+                price: price
+            };
+
+            // Thêm vào mảng (Ở đây làm đơn giản là cứ thêm mới, chưa gộp sản phẩm trùng)
+            cart.push(product);
+
+            // Cập nhật giao diện giỏ hàng
+            renderCart();
+
+            // Mở giỏ hàng cho người dùng thấy
+            var overlay = document.querySelector('.cart-overlay');
+            var sidebar = document.querySelector('.cart-sidebar');
+            if (!sidebar.classList.contains('active')) {
+                toggleCart();
+            }
+        }
+
+        // Hàm xóa sản phẩm
+        function removeFromCart(index) {
+            cart.splice(index, 1); // Xóa 1 phần tử tại vị trí index
+            renderCart(); // Vẽ lại giỏ hàng
+        }
+
+        // Hàm vẽ lại giỏ hàng (Render)
+        function renderCart() {
+            var cartBody = document.getElementById('cartBody');
+            var cartFooter = document.getElementById('cartFooter');
+            var cartBadge = document.getElementById('cartBadge');
+
+            // 1. Cập nhật số lượng trên icon badge
+            var totalQuantity = 0;
+            var totalPrice = 0;
+
+            cart.forEach(item => {
+                totalQuantity += item.quantity;
+                totalPrice += (item.price * item.quantity);
+            });
+            cartBadge.innerText = totalQuantity;
+
+            // 2. Xử lý hiển thị Body
+            if (cart.length === 0) {
+                cartBody.innerHTML = '<div class="empty-cart-msg">Chưa có sản phẩm trong giỏ hàng</div>';
+                cartFooter.innerHTML = ''; // Xóa footer nếu trống
+                return;
+            }
+
+            // Nếu có sản phẩm, tạo HTML
+            var html = '';
+            cart.forEach((item, index) => {
+                var itemTotal = (item.price * item.quantity).toLocaleString('vi-VN');
+                html += `
+                <div class="cart-item">
+                    <div class="cart-item-img">
+                        <img src="${item.img}" alt="">
+                    </div>
+                    <div class="cart-item-info">
+                        <span class="cart-item-name">${item.name}</span>
+                        <span class="cart-item-variant">${item.variant}</span>
+                        <div class="cart-item-price">${item.quantity} x ${item.price.toLocaleString('vi-VN')} ₫</div>
+                    </div>
+                    <div class="cart-remove-btn" onclick="removeFromCart(${index})">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                </div>
+                `;
+            });
+            cartBody.innerHTML = html;
+
+            // 3. Xử lý hiển thị Footer (Tổng tiền & Button)
+            cartFooter.innerHTML = `
+                <div class="cart-total-row">
+                    Tổng số phụ: <span class="cart-total-price">${totalPrice.toLocaleString('vi-VN')} ₫</span>
+                </div>
+                <div class="cart-btn-group">
+                    <button class="btn-view-cart" onclick="location.href='<?php echo $this->url('Khachhang/giohang'); ?>'">XEM GIỎ HÀNG</button>
+                    <button class="btn-checkout" onclick="location.href='<?php echo $this->url('Khachhang/thanhtoan'); ?>'">THANH TOÁN</button>
+                </div>
+            `;
+        }
+
+        // Helper function to format currency
+        function formatCurrency(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+    </script>
+
+</body>
+
+</html>
