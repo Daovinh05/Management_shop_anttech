@@ -37,7 +37,7 @@ class SanPham_m extends connectDB
     function SanPham_update($ma_san_pham, $ten_san_pham, $img_hinh_anh, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)
     {
         $sql = "UPDATE san_pham SET ten_san_pham = '$ten_san_pham', img_hinh_anh = '$img_hinh_anh',
-                ma_danh_muc = '$ma_danh_muc', ma_thuong_hieu = '$ma_thuong_hieu', 
+                ma_danh_muc = '$ma_danh_muc', ma_thuong_hieu = '$ma_thuong_hieu',
                 ma_nha_cung_cap = '$ma_nha_cung_cap' WHERE ma_san_pham = '$ma_san_pham'";
         return mysqli_query($this->con, $sql);
     }
@@ -58,14 +58,14 @@ class SanPham_m extends connectDB
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                 LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
                 LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
-                ORDER BY LENGTH(s.ma_san_pham), s.ma_san_pham";
+                ORDER BY s.ma_san_pham DESC";
         return mysqli_query($this->con, $sql);
     }
 
     // Hàm lấy chi tiết sản phẩm
     function SanPham_getById($ma_san_pham)
     {
-        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap 
+        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                 FROM san_pham s
                 LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
@@ -114,7 +114,7 @@ class SanPham_m extends connectDB
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                 LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
                 $where_clause
-                ORDER BY bt.gia ASC";
+                ORDER BY s.ma_san_pham DESC";
 
         $result = mysqli_query($this->con, $sql);
         return $result;

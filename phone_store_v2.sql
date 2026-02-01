@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th1 30, 2026 lúc 03:32 PM
+-- Thời gian đã tạo: Th2 01, 2026 lúc 03:49 PM
 -- Phiên bản máy phục vụ: 10.4.27-MariaDB
 -- Phiên bản PHP: 7.4.33
 
@@ -43,9 +43,12 @@ CREATE TABLE `bien_the` (
 --
 
 INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `mau_sac`, `ram`, `dung_luong`, `gia`, `so_luong_kho`) VALUES
-('BT01', 'SP01', '16GB RAM', 'Đen', '16GB', '512GB', '25000000.00', 10),
+('BT01', 'SP01', '16GB RAM 512GB ROM', 'Đen', '16GB', '512GB', '25000000.00', 12),
 ('BT02', 'SP02', 'Bản quốc tế', 'Đen', NULL, NULL, '8000000.00', 20),
-('BT03', 'SP03', 'Sạc nhanh', 'Trắng', NULL, '20000mAh', '1200000.00', 30);
+('BT03', 'SP03', 'Sạc nhanh', 'Trắng', NULL, '20000mAh', '1200000.00', 30),
+('BT04', 'Sp04', 'Apple Watch SE 2023 GPS 40mm', 'Trắng', '', '', '200000.00', 10),
+('BT06', 'Sp05', 'Apple Watch SE 2023 GPS 50mm', 'Hồng', '', '', '120000.00', 11),
+('BT07', 'SP01', '64GB RAM 512GB ROM', 'Trắng', '64', '512', '30000000.00', 10);
 
 -- --------------------------------------------------------
 
@@ -88,6 +91,7 @@ CREATE TABLE `chi_tiet_gio_hang` (
 
 INSERT INTO `chi_tiet_gio_hang` (`ma_gio_hang`, `ma_bien_the`, `so_luong`) VALUES
 ('GH01', 'BT01', 1),
+('GH02', 'BT01', 2),
 ('GH02', 'BT02', 2),
 ('GH03', 'BT03', 1);
 
@@ -138,7 +142,8 @@ INSERT INTO `danh_muc` (`ma_danh_muc`, `ten_danh_muc`, `ngay_tao`) VALUES
 ('DM06', 'Macbook', '2026-01-30 14:00:14'),
 ('DM07', 'Laptop Gaming', '2026-01-30 14:31:40'),
 ('DM08', 'Tai nghe', '2026-01-30 14:31:40'),
-('DM09', 'Sạc dự phòng', '2026-01-30 14:31:40');
+('DM09', 'Sạc dự phòng', '2026-01-30 14:31:40'),
+('DM9', 'Iphone', '2026-01-31 17:38:51');
 
 -- --------------------------------------------------------
 
@@ -176,6 +181,7 @@ CREATE TABLE `don_hang` (
   `ma_dia_chi` varchar(20) DEFAULT NULL,
   `ma_khuyen_mai` varchar(20) DEFAULT NULL,
   `tong_tien_hang` decimal(15,2) DEFAULT NULL,
+  `thanh_toan` decimal(15,2) NOT NULL,
   `trang_thai_don_hang` enum('cho_duyet','dang_giao','hoan_thanh','da_huy') DEFAULT NULL,
   `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -184,10 +190,10 @@ CREATE TABLE `don_hang` (
 -- Đang đổ dữ liệu cho bảng `don_hang`
 --
 
-INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`, `tong_tien_hang`, `trang_thai_don_hang`, `ngay_tao`) VALUES
-('DH01', 'U06', 'DC01', 'KM04', '24700000.00', 'cho_duyet', '2026-01-30 21:31:40'),
-('DH02', 'U07', 'DC02', 'KM05', '15600000.00', 'dang_giao', '2026-01-30 21:31:40'),
-('DH03', 'U08', 'DC03', NULL, '1200000.00', 'hoan_thanh', '2026-01-30 21:31:40');
+INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`, `tong_tien_hang`, `thanh_toan`, `trang_thai_don_hang`, `ngay_tao`) VALUES
+('DH01', 'U06', 'DC01', 'KM04', '24700000.00', '0.00', 'cho_duyet', '2026-01-30 21:31:40'),
+('DH02', 'U07', 'DC02', 'KM05', '15600000.00', '0.00', 'dang_giao', '2026-01-30 21:31:40'),
+('DH03', 'U08', 'DC03', NULL, '1200000.00', '0.00', 'hoan_thanh', '2026-01-30 21:31:40');
 
 -- --------------------------------------------------------
 
@@ -231,12 +237,13 @@ CREATE TABLE `khuyen_mai` (
 --
 
 INSERT INTO `khuyen_mai` (`ma_khuyen_mai`, `ten_khuyen_mai`, `tien_khuyen_mai`, `ngay_bat_dau`, `ngay_ket_thuc`, `trang_thai_khuyen_mai`) VALUES
-('KM01', 'Chào Hè 2024', '500000.00', '2024-05-01 00:00:00', '2024-08-31 00:00:00', 'con'),
+('KM01', 'Chào Hè 2024', '500000.00', '2026-01-17 00:00:00', '2024-08-31 00:00:00', 'het'),
 ('KM02', 'Black Friday', '1000000.00', '2024-11-20 00:00:00', '2024-11-30 00:00:00', 'het'),
-('KM03', 'Khách hàng mới', '200000.00', '2024-01-01 00:00:00', '2025-01-01 00:00:00', 'con'),
-('KM04', 'Giảm giá Tết', '300000.00', '2026-01-30 21:31:40', '2026-01-30 21:31:40', 'con'),
-('KM05', 'Sale cuối tuần', '200000.00', '2026-01-30 21:31:40', '2026-01-30 21:31:40', 'con'),
-('KM06', 'Flash Sale', '500000.00', '2026-01-30 21:31:40', '2026-01-30 21:31:40', 'het');
+('KM03', 'Khách hàng mới', '200000.00', '2024-01-01 00:00:00', '2026-01-22 23:00:00', 'het'),
+('KM04', 'Giảm giá Tết', '300000.00', '2026-01-25 00:00:00', '2026-01-31 00:00:00', 'con'),
+('KM05', 'Sale cuối tuần', '200000.00', '2026-01-30 00:00:00', '2026-01-31 00:00:00', 'con'),
+('KM06', 'Flash Sale', '500000.00', '2026-01-30 00:00:00', '2026-06-30 00:00:00', 'con'),
+('KM07', 'tết', '123.00', '1970-01-01 08:00:00', '2026-01-31 09:09:00', 'con');
 
 -- --------------------------------------------------------
 
@@ -256,7 +263,7 @@ CREATE TABLE `nha_cung_cap` (
 --
 
 INSERT INTO `nha_cung_cap` (`ma_nha_cung_cap`, `ten_nha_cung_cap`, `dia_chi`, `dien_thoai`) VALUES
-('NCC01', 'FPT Trading', 'Hà Nội', '0909000001'),
+('NCC01', 'FPT Trading', 'Hà Nội', '0909000009'),
 ('NCC02', 'Thế Giới Số', 'TP HCM', '0909000002'),
 ('NCC03', 'CellphoneS', 'Đà Nẵng', '0909000003');
 
@@ -281,9 +288,13 @@ CREATE TABLE `san_pham` (
 --
 
 INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `img_hinh_anh`, `ma_danh_muc`, `ma_thuong_hieu`, `ma_nha_cung_cap`, `ngay_tao`) VALUES
-('SP01', 'Asus TUF Gaming', NULL, 'DM07', 'TH06', 'NCC01', '2026-01-30 21:31:40'),
-('SP02', 'Tai nghe Sony WH-1000XM5', NULL, 'DM08', 'TH07', 'NCC02', '2026-01-30 21:31:40'),
-('SP03', 'Sạc Anker 20000mAh', NULL, 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40');
+('SP01', 'Asus TUF Gaming', 'anh.jpg', 'DM07', 'TH06', 'NCC01', '2026-01-30 21:31:40'),
+('SP02', 'Tai nghe Sony WH-1000XM5', 'mac_book.jpg', 'DM08', 'TH07', 'NCC02', '2026-01-30 21:31:40'),
+('SP03', 'Sạc Anker 20000mAh', 'ss_25ult.jpg', 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40'),
+('Sp04', 'Apple Watch SE 2023 GPS 40mm', 'Appwatch23_1769883433.jpg', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
+('Sp05', 'Apple Watch SE 2023 GPS 40mm', 'Appwatch23_1769883583.jpg', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:17:41'),
+('Sp06', 'iPhone 17 Pro Max 256GB VN/A', 'iphone17.jpg', 'DM01', 'TH01', 'NCC03', '2026-02-01 01:21:33'),
+('Sp07', 'Ao ma', 'xe_1.jpg', 'DM07', 'TH01', 'NCC02', '2026-02-01 19:19:15');
 
 -- --------------------------------------------------------
 

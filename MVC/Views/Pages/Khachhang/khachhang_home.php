@@ -590,6 +590,160 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         display: block;
     }
 
+    /* Footer Styles */
+    .main-footer {
+        border-top: 4px solid #f4f4f4;
+        padding: 40px 0 20px;
+        margin-top: 0;
+        background: white;
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr 1fr;
+        gap: 40px;
+    }
+
+    .footer-logo {
+        font-size: 24px;
+        font-weight: 800;
+        color: #006a5b;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+    }
+
+    .footer-logo img {
+        height: 40px;
+    }
+
+    .footer-col h4 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .address-list li {
+        font-size: 13px;
+        color: #555;
+        margin-bottom: 8px;
+        line-height: 1.6;
+    }
+
+    .address-list li strong {
+        color: #333;
+    }
+
+    .footer-links li {
+        margin-bottom: 8px;
+    }
+
+    .footer-links li a {
+        font-size: 13px;
+        color: #555;
+    }
+
+    .footer-links li a:hover {
+        color: var(--tet-red);
+    }
+
+    .fanpage-box {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-top: 5px;
+    }
+
+    .fp-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .fp-avatar {
+        width: 50px;
+        height: 50px;
+        border: 1px solid #ddd;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .fp-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .fp-info {
+        display: flex;
+        flex-direction: column;
+        padding-top: 2px;
+    }
+
+    .fp-name {
+        color: var(--fb-blue);
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 3px;
+        text-decoration: none;
+        line-height: 1.2;
+    }
+
+    .fp-name:hover {
+        text-decoration: underline;
+    }
+
+    .fp-followers {
+        color: #4b4f56;
+        font-size: 12px;
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .social-icons a {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #555;
+    }
+
+    .social-icons a:hover {
+        border-color: var(--tet-red);
+        color: var(--tet-red);
+    }
+
+    .contact-info p {
+        font-size: 13px;
+        color: #333;
+        margin-bottom: 5px;
+        font-weight: 700;
+    }
+
+    .contact-info span {
+        font-weight: 400;
+        color: #555;
+    }
+
+    .hotline-large {
+        font-size: 18px;
+        color: #333;
+        font-weight: 700;
+        margin-top: 10px;
+        display: block;
+    }
+
+
     /* Loading indicator */
     .loading {
         grid-column: 1 / -1;
@@ -775,8 +929,72 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     </div>
                 </section>
             </main>
+
         </div>
+
     </div>
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <i class="fa-brands fa-instalod"></i> TECHZONE
+                    </div>
+                    <ul class="address-list">
+                        <li><strong>Địa chỉ:</strong></li>
+                        <li><strong>Cơ sở 1:</strong> 221 Vũ Tông Phan - Thanh Xuân - Hà Nội</li>
+                        <li><strong>Cơ sở 2:</strong> 17 Nguyễn Phong Sắc - Cầu Giấy - Hà Nội</li>
+                        <li><strong>Cơ sở 3:</strong> 145 Minh Khai - Hai Bà Trưng - Hà Nội</li>
+                        <li><strong>Cơ sở 4:</strong> 142 Quang Trung - Hà Đông - Hà Nội</li>
+                        <li><strong>Gọi mua hàng:</strong> 0825.303.888 (8h00 - 22h00)</li>
+                        <li><strong>Gọi bảo hành:</strong> 0922.702.888 (8h00 - 21h00)</li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Chính sách</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Chính sách mua hàng</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách bảo hành</a></li>
+                        <li><a href="#">Cam kết chất lượng</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Hệ thống cửa hàng</a></li>
+                    </ul>
+                    <h4>Fanpage</h4>
+                    <div class="fanpage-box">
+                        <div class="fp-container">
+                            <div class="fp-avatar">
+                                <img src="https://tse3.mm.bing.net/th/id/OIP.YxmH1xNVNfvD5MlgINYERgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3"
+                                    alt="TechZone">
+                            </div>
+                            <div class="fp-info">
+                                <a href="#" class="fp-name">TechZone - Chính Chủ</a>
+                                <span class="fp-followers">96.598 người theo dõi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <div class="social-icons">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                    <div class="contact-info">
+                        <p>Nhận phản hồi, thắc mắc:</p>
+                        <p>anttech.com.vn @gmail.com</p>
+                        <p style="margin-top: 15px;">Tư vấn miễn phí 24/07</p>
+                        <span class="hotline-large">0825.303.888</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
 </div>
 
 <script>
@@ -924,6 +1142,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         }).format(product.gia * product.giam_gia / 100) :
                         'Liên hệ');
 
+                // Create the product link wrapper
+                const productLink = document.createElement('a');
+                productLink.className = 'product-link';
+                productLink.href = `<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>${product.ma_san_pham}`;
+
                 let productHtml = `<span class="sticker-sale">-${product.giam_gia || '0'}%</span>`;
 
                 if (product.img_hinh_anh) {
@@ -949,8 +1172,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             </div>
             <div class="buy-btn">Mua ngay</div>`;
 
-                productCard.innerHTML = productHtml;
-
+                productLink.innerHTML = productHtml;
+                productCard.appendChild(productLink);
                 productGrid.appendChild(productCard);
             });
         } else {
