@@ -47,7 +47,10 @@ class ChiTietDonHang_m extends connectDB
     // Hàm lấy chi tiết đơn hàng theo mã đơn hàng
     function ChiTietDonHang_getByOrderId($ma_don_hang)
     {
-        $sql = "SELECT ctdh.*, bt.ten_bien_the, sp.ten_san_pham, bt.img_hinh_anh
+        // Sử dụng hàm escape string để tránh lỗi SQL Injection
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+
+        $sql = "SELECT ctdh.*, ctdh.gia_luc_mua, bt.ten_bien_the, bt.mau_sac, bt.ram, bt.dung_luong, sp.ten_san_pham, sp.img_hinh_anh
                 FROM chi_tiet_don_hang ctdh
                 LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham

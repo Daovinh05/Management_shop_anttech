@@ -178,6 +178,15 @@
         border: 1px solid #e3e7ef;
         border-radius: var(--radius);
         position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .order-details-table-container {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
     }
 
     table {
@@ -344,14 +353,14 @@
 
     .modal-content {
         background-color: var(--card);
-        margin: 5% auto;
+        margin: 2% auto;
         padding: 0;
         border-radius: var(--radius);
         width: 90%;
-        max-width: 800px;
+        max-width: 1000px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         animation: slideIn 0.3s ease;
-        max-height: 80vh;
+        max-height: 90vh;
         overflow-y: auto;
     }
 
@@ -425,26 +434,49 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .order-details-table th {
-        background: #f8fafc;
-        padding: 10px;
+        background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+        padding: 12px 10px;
         text-align: left;
-        border-bottom: 2px solid #e3e7ef;
+        border-bottom: 2px solid #cbd5e1;
+        font-weight: 600;
+        color: #334155;
+        white-space: nowrap;
     }
 
     .order-details-table td {
-        padding: 10px;
-        border-bottom: 1px solid #e3e7ef;
-        vertical-align: middle;
+        padding: 12px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+
+    .order-details-table th:nth-child(2),
+    .order-details-table td:nth-child(2) {
+        /* Cột tên sản phẩm */
+        min-width: 250px;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .order-details-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .order-details-table tr:hover {
+        background-color: #f8fafc;
     }
 
     .order-details-table img {
-        width: 40px;
-        height: 40px;
+        width: 60px;
+        height: 60px;
         object-fit: cover;
-        border-radius: 6px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
     }
 
     .detail-btn {
@@ -695,15 +727,15 @@
                             // C. BẢNG CHI TIẾT
                             html += `
                             <h3>Danh sách sản phẩm</h3>
-                            <div class="table-container" style="max-height: 300px; margin-top:0;">
+                            <div class="order-details-table-container">
                                 <table class="order-details-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:60px">Ảnh</th>
-                                            <th>Tên sản phẩm & Cấu hình</th>
-                                            <th style="text-align:center; width:60px">SL</th>
-                                            <th style="text-align:right">Đơn giá</th>
-                                            <th style="text-align:right">Thành tiền</th>
+                                            <th style="width:60px; text-align: center;">Ảnh</th>
+                                            <th style="width:160px; text-align: left;">Tên sản phẩm & Cấu hình</th>
+                                            <th style="width:60px; text-align: center;">SL</th>
+                                            <th style="width:60px; text-align: center;">Đơn giá</th>
+                                            <th style="width:60px; text-align: center;">Thành tiền</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
@@ -711,32 +743,33 @@
                             data.order_details.forEach(item => {
                                 let gia = parseFloat(item.gia_tai_thoi_diem_dat || item.gia_luc_mua || 0);
                                 let thanhTien = parseFloat(item.so_luong) * gia;
-                                
+
                                 // Xử lý ảnh (sửa đường dẫn /qlsp/ thành đúng thư mục của bạn nếu cần)
                                 let imgPath = item.hinh_anh || item.img_thuc_don;
-                                let imgHtml = imgPath 
-                                    ? `<img src="/Banhang/Public/Pictures/products/${imgPath}" onerror="this.src='https://placehold.co/40x40?text=No+Img'">`
+                                let imgHtml = imgPath
+                                    ? `<img src="/Banhang/Public/Pictures/products/${imgPath}" onerror="this.src='https://placehold.co/40x40?text=No+Img'" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">`
                                     : `<span style="font-size:10px; color:#999">No IMG</span>`;
 
                                 // Hiển thị màu, ram
                                 let cauhinh = '';
-                                if(item.mau_sac || item.ram) {
-                                    cauhinh = `<div style="font-size:12px; color:#666; margin-top:4px;">
-                                        <span style="background:#f3f4f6; padding:2px 6px; border-radius:4px">${item.mau_sac || ''}</span> 
-                                        ${item.ram ? ` | ${item.ram}/${item.dung_luong}` : ''}
+                                if(item.mau_sac || item.ram || item.dung_luong) {
+                                    cauhinh = `<div style="font-size:12px; color:#666; margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">
+                                        ${item.mau_sac ? `<span style="background:#f3f4f6; padding:2px 6px; border-radius:4px; white-space:nowrap;">${item.mau_sac}</span>` : ''}
+                                        ${item.ram ? `<span style="background:#f3f4f6; padding:2px 6px; border-radius:4px; white-space:nowrap;">${item.ram}</span>` : ''}
+                                        ${item.dung_luong ? `<span style="background:#f3f4f6; padding:2px 6px; border-radius:4px; white-space:nowrap;">${item.dung_luong}</span>` : ''}
                                     </div>`;
                                 }
 
                                 html += `
                                 <tr>
-                                    <td>${imgHtml}</td>
-                                    <td>
-                                        <div style="font-weight:600; color:#253243">${item.ten_san_pham || item.ten_mon}</div>
+                                    <td style="text-align: center; vertical-align: middle;">${imgHtml}</td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="font-weight:600; color:#253243; margin-bottom: 4px;">${item.ten_san_pham || item.ten_mon || 'Sản phẩm không xác định'}</div>
                                         ${cauhinh}
                                     </td>
-                                    <td style="text-align:center">${item.so_luong}</td>
-                                    <td style="text-align:right">${gia.toLocaleString('vi-VN')}</td>
-                                    <td style="text-align:right; font-weight:600">${thanhTien.toLocaleString('vi-VN')}</td>
+                                    <td style="text-align: center; vertical-align: middle; font-weight: 600;">${item.so_luong || 0}</td>
+                                    <td style="text-align: right; vertical-align: middle; font-family: monospace;">${gia.toLocaleString('vi-VN')} ₫</td>
+                                    <td style="text-align: right; vertical-align: middle; font-weight: 600; font-family: monospace;">${thanhTien.toLocaleString('vi-VN')} ₫</td>
                                 </tr>`;
                             });
 

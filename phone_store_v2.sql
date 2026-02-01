@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Máy chủ: localhost
--- Thời gian đã tạo: Th1 30, 2026 lúc 03:32 PM
--- Phiên bản máy phục vụ: 10.4.27-MariaDB
--- Phiên bản PHP: 7.4.33
+-- Máy chủ: 127.0.0.1
+-- Thời gian đã tạo: Th2 01, 2026 lúc 04:01 PM
+-- Phiên bản máy phục vụ: 10.4.32-MariaDB
+-- Phiên bản PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -43,9 +43,12 @@ CREATE TABLE `bien_the` (
 --
 
 INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `mau_sac`, `ram`, `dung_luong`, `gia`, `so_luong_kho`) VALUES
-('BT01', 'SP01', '16GB RAM', 'Đen', '16GB', '512GB', '25000000.00', 10),
-('BT02', 'SP02', 'Bản quốc tế', 'Đen', NULL, NULL, '8000000.00', 20),
-('BT03', 'SP03', 'Sạc nhanh', 'Trắng', NULL, '20000mAh', '1200000.00', 30);
+('BT001', 'SP001', '8GB/256GB/Titan', 'Titan Tự Nhiên', '8GB', '256GB', 29990000.00, 50),
+('BT002', 'SP001', '8GB/512GB/Đen', 'Đen', '8GB', '512GB', 35990000.00, 20),
+('BT003', 'SP002', '12GB/256GB/Xám', 'Xám Titan', '12GB', '256GB', 26990000.00, 30),
+('BT004', 'SP002', '12GB/512GB/Vàng', 'Vàng', '12GB', '512GB', 29990000.00, 15),
+('BT005', 'SP003', '12GB/256GB/Xanh', 'Xanh Lá', '12GB', '256GB', 19990000.00, 100),
+('BT006', 'SP004', '8GB/64GB/Wifi', 'Xám', '8GB', '64GB', 13500000.00, 40);
 
 -- --------------------------------------------------------
 
@@ -66,9 +69,9 @@ CREATE TABLE `chi_tiet_don_hang` (
 --
 
 INSERT INTO `chi_tiet_don_hang` (`ma_ctdh`, `ma_don_hang`, `ma_bien_the`, `so_luong`, `gia_luc_mua`) VALUES
-('CT01', 'DH01', 'BT01', 1, '25000000.00'),
-('CT02', 'DH02', 'BT02', 2, '8000000.00'),
-('CT03', 'DH03', 'BT03', 1, '1200000.00');
+('CTDH001', 'DH001', 'BT001', 1, 29990000.00),
+('CTDH002', 'DH002', 'BT003', 1, 26990000.00),
+('CTDH003', 'DH003', 'BT002', 2, 35990000.00);
 
 -- --------------------------------------------------------
 
@@ -87,9 +90,8 @@ CREATE TABLE `chi_tiet_gio_hang` (
 --
 
 INSERT INTO `chi_tiet_gio_hang` (`ma_gio_hang`, `ma_bien_the`, `so_luong`) VALUES
-('GH01', 'BT01', 1),
-('GH02', 'BT02', 2),
-('GH03', 'BT03', 1);
+('GH001', 'BT005', 2),
+('GH001', 'BT006', 1);
 
 -- --------------------------------------------------------
 
@@ -111,9 +113,9 @@ CREATE TABLE `danh_gia` (
 --
 
 INSERT INTO `danh_gia` (`ma_danh_gia`, `ma_user`, `ma_san_pham`, `so_sao`, `noi_dung`, `ngay_danh_gia`) VALUES
-('DG01', 'U06', 'SP01', 5, 'Sản phẩm rất tốt', '2026-01-30 21:31:40'),
-('DG02', 'U07', 'SP02', 4, 'Âm thanh hay', '2026-01-30 21:31:40'),
-('DG03', 'U08', 'SP03', 5, 'Sạc nhanh, pin trâu', '2026-01-30 21:31:40');
+('DG001', 'US001', 'SP001', 5, 'Máy đẹp, mượt, titan tự nhiên nhìn sang.', '2026-01-30 15:05:58'),
+('DG002', 'US002', 'SP002', 4, 'Chụp ảnh đẹp nhưng máy hơi nóng khi chơi game.', '2026-01-30 15:05:58'),
+('DG003', 'US001', 'SP003', 5, 'Giá rẻ so với cấu hình, sạc siêu nhanh.', '2026-01-30 15:05:58');
 
 -- --------------------------------------------------------
 
@@ -124,7 +126,7 @@ INSERT INTO `danh_gia` (`ma_danh_gia`, `ma_user`, `ma_san_pham`, `so_sao`, `noi_
 CREATE TABLE `danh_muc` (
   `ma_danh_muc` varchar(20) NOT NULL,
   `ten_danh_muc` varchar(255) NOT NULL,
-  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp()
+  `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -132,13 +134,9 @@ CREATE TABLE `danh_muc` (
 --
 
 INSERT INTO `danh_muc` (`ma_danh_muc`, `ten_danh_muc`, `ngay_tao`) VALUES
-('DM01', 'Điện thoại', '2026-01-30 10:27:04'),
-('DM02', 'Máy tính bảng', '2026-01-30 10:27:04'),
-('DM03', 'Phụ kiện 123', '2026-01-30 10:27:04'),
-('DM06', 'Macbook', '2026-01-30 14:00:14'),
-('DM07', 'Laptop Gaming', '2026-01-30 14:31:40'),
-('DM08', 'Tai nghe', '2026-01-30 14:31:40'),
-('DM09', 'Sạc dự phòng', '2026-01-30 14:31:40');
+('DM01', 'Điện thoại', '2026-02-01 14:49:22'),
+('DM02', 'Máy tính bảng', '2026-02-01 14:49:22'),
+('DM03', 'Phụ kiện', '2026-02-01 14:49:22');
 
 -- --------------------------------------------------------
 
@@ -160,9 +158,9 @@ CREATE TABLE `dia_chi_giao_hang` (
 --
 
 INSERT INTO `dia_chi_giao_hang` (`ma_dia_chi`, `ma_user`, `ho_ten`, `so_dien_thoai`, `dia_chi`, `mac_dinh`) VALUES
-('DC01', 'U06', 'Nguyễn Văn Long', '0901111111', 'Hà Nội', 1),
-('DC02', 'U07', 'Trần Văn Minh', '0902222222', 'TP HCM', 1),
-('DC03', 'U08', 'Lê Văn Hùng', '0903333333', 'Đà Nẵng', 1);
+('DC001', 'US001', 'Đào Phúc Dân', '0862757951', '123 Đường Láng, Đống Đa, Hà Nội', 1),
+('DC002', 'US001', 'Dân (Cơ quan)', '0862757951', 'Tòa nhà FPT, Cầu Giấy, Hà Nội', 0),
+('DC003', 'US002', 'Đào Văn Vinh', '0987654321', '456 Lê Lợi, Quận 1, TP.HCM', 1);
 
 -- --------------------------------------------------------
 
@@ -185,9 +183,9 @@ CREATE TABLE `don_hang` (
 --
 
 INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`, `tong_tien_hang`, `trang_thai_don_hang`, `ngay_tao`) VALUES
-('DH01', 'U06', 'DC01', 'KM04', '24700000.00', 'cho_duyet', '2026-01-30 21:31:40'),
-('DH02', 'U07', 'DC02', 'KM05', '15600000.00', 'dang_giao', '2026-01-30 21:31:40'),
-('DH03', 'U08', 'DC03', NULL, '1200000.00', 'hoan_thanh', '2026-01-30 21:31:40');
+('DH001', 'US001', 'DC001', 'KM01', 29490000.00, 'hoan_thanh', '2024-06-15 10:30:00'),
+('DH002', 'US002', 'DC003', NULL, 26990000.00, 'dang_giao', '2024-06-20 14:00:00'),
+('DH003', 'US001', 'DC002', NULL, 71980000.00, 'da_huy', '2024-06-10 09:00:00');
 
 -- --------------------------------------------------------
 
@@ -207,9 +205,8 @@ CREATE TABLE `gio_hang` (
 --
 
 INSERT INTO `gio_hang` (`ma_gio_hang`, `ma_user`, `trang_thai`, `ngay_tao`) VALUES
-('GH01', 'U06', 'active', '2026-01-30 21:31:40'),
-('GH02', 'U07', 'active', '2026-01-30 21:31:40'),
-('GH03', 'U08', 'ordered', '2026-01-30 21:31:40');
+('GH001', 'US001', 'active', '2026-01-30 15:05:58'),
+('GH002', 'US002', 'active', '2026-01-30 15:05:58');
 
 -- --------------------------------------------------------
 
@@ -231,12 +228,9 @@ CREATE TABLE `khuyen_mai` (
 --
 
 INSERT INTO `khuyen_mai` (`ma_khuyen_mai`, `ten_khuyen_mai`, `tien_khuyen_mai`, `ngay_bat_dau`, `ngay_ket_thuc`, `trang_thai_khuyen_mai`) VALUES
-('KM01', 'Chào Hè 2024', '500000.00', '2024-05-01 00:00:00', '2024-08-31 00:00:00', 'con'),
-('KM02', 'Black Friday', '1000000.00', '2024-11-20 00:00:00', '2024-11-30 00:00:00', 'het'),
-('KM03', 'Khách hàng mới', '200000.00', '2024-01-01 00:00:00', '2025-01-01 00:00:00', 'con'),
-('KM04', 'Giảm giá Tết', '300000.00', '2026-01-30 21:31:40', '2026-01-30 21:31:40', 'con'),
-('KM05', 'Sale cuối tuần', '200000.00', '2026-01-30 21:31:40', '2026-01-30 21:31:40', 'con'),
-('KM06', 'Flash Sale', '500000.00', '2026-01-30 21:31:40', '2026-01-30 21:31:40', 'het');
+('KM01', 'Chào Hè 2024', 500000.00, '2024-05-01 00:00:00', '2026-02-13 00:00:00', 'con'),
+('KM02', 'Black Friday', 1000000.00, '2024-11-20 00:00:00', '2024-11-30 00:00:00', 'het'),
+('KM03', 'Khách hàng mới', 200000.00, '2024-01-01 00:00:00', '2025-01-01 00:00:00', 'con');
 
 -- --------------------------------------------------------
 
@@ -256,9 +250,9 @@ CREATE TABLE `nha_cung_cap` (
 --
 
 INSERT INTO `nha_cung_cap` (`ma_nha_cung_cap`, `ten_nha_cung_cap`, `dia_chi`, `dien_thoai`) VALUES
-('NCC01', 'FPT Trading', 'Hà Nội', '0909000001'),
-('NCC02', 'Thế Giới Số', 'TP HCM', '0909000002'),
-('NCC03', 'CellphoneS', 'Đà Nẵng', '0909000003');
+('NCC01', 'FPT Trading', 'Duy Tân, Hà Nội', '02473008888'),
+('NCC02', 'DigiWorld', 'Hoàng Hoa Thám, TP.HCM', '02839290059'),
+('NCC03', 'Viettel Store', 'Giảng Võ, Hà Nội', '18008123');
 
 -- --------------------------------------------------------
 
@@ -281,9 +275,10 @@ CREATE TABLE `san_pham` (
 --
 
 INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `img_hinh_anh`, `ma_danh_muc`, `ma_thuong_hieu`, `ma_nha_cung_cap`, `ngay_tao`) VALUES
-('SP01', 'Asus TUF Gaming', NULL, 'DM07', 'TH06', 'NCC01', '2026-01-30 21:31:40'),
-('SP02', 'Tai nghe Sony WH-1000XM5', NULL, 'DM08', 'TH07', 'NCC02', '2026-01-30 21:31:40'),
-('SP03', 'Sạc Anker 20000mAh', NULL, 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40');
+('SP001', 'iPhone 15 Pro Max', 'iphone15pm.jpg', 'DM01', 'TH01', 'NCC01', '2026-01-30 15:05:58'),
+('SP002', 'Samsung Galaxy S24 Ultra', 's24ultra.jpg', 'DM01', 'TH02', 'NCC02', '2026-01-30 15:05:58'),
+('SP003', 'Xiaomi 14', 'xiaomi14.jpg', 'DM01', 'TH03', 'NCC02', '2026-01-30 15:05:58'),
+('SP004', 'iPad Air 5 M1', 'ipadair5.jpg', 'DM02', 'TH01', 'NCC01', '2026-01-30 15:05:58');
 
 -- --------------------------------------------------------
 
@@ -305,9 +300,9 @@ CREATE TABLE `thanh_toan` (
 --
 
 INSERT INTO `thanh_toan` (`ma_giao_dich`, `ma_don_hang`, `phuong_thuc`, `so_tien_thanh_toan`, `trang_thai_thanh_toan`, `ngay_thanh_toan`) VALUES
-('GD01', 'DH01', 'COD', '24700000.00', 'chua_thanh_toan', NULL),
-('GD02', 'DH02', 'Momo', '15600000.00', 'da_thanh_toan', '2026-01-30 21:31:40'),
-('GD03', 'DH03', 'VNPay', '1200000.00', 'da_thanh_toan', '2026-01-30 21:31:40');
+('TT001', 'DH001', 'MOMO', 29490000.00, 'da_thanh_toan', '2024-06-15 10:35:00'),
+('TT002', 'DH002', 'COD', 26990000.00, 'chua_thanh_toan', NULL),
+('TT003', 'DH003', 'BANKING', 71980000.00, '', NULL);
 
 -- --------------------------------------------------------
 
@@ -318,7 +313,7 @@ INSERT INTO `thanh_toan` (`ma_giao_dich`, `ma_don_hang`, `phuong_thuc`, `so_tien
 CREATE TABLE `thuong_hieu` (
   `ma_thuong_hieu` varchar(20) NOT NULL,
   `ten_thuong_hieu` varchar(255) NOT NULL,
-  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp()
+  `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -326,14 +321,10 @@ CREATE TABLE `thuong_hieu` (
 --
 
 INSERT INTO `thuong_hieu` (`ma_thuong_hieu`, `ten_thuong_hieu`, `ngay_tao`) VALUES
-('TH01', 'Appleee', '2026-01-30 10:29:39'),
-('TH02', 'Samsung', '2026-01-30 10:29:39'),
-('TH03', 'Xiaomi', '2026-01-30 10:29:39'),
-('TH04', 'Oppo', '2026-01-30 10:29:39'),
-('TH05', 'Dellll', '2026-01-30 14:15:48'),
-('TH06', 'Asus', '2026-01-30 14:31:40'),
-('TH07', 'Sony', '2026-01-30 14:31:40'),
-('TH08', 'Anker', '2026-01-30 14:31:40');
+('TH01', 'Apple', '2026-02-01 14:49:22'),
+('TH02', 'Samsung', '2026-02-01 14:49:22'),
+('TH03', 'Xiaomi', '2026-02-01 14:49:22'),
+('TH04', 'Oppo', '2026-02-01 14:49:22');
 
 -- --------------------------------------------------------
 
@@ -344,10 +335,10 @@ INSERT INTO `thuong_hieu` (`ma_thuong_hieu`, `ten_thuong_hieu`, `ngay_tao`) VALU
 CREATE TABLE `users` (
   `ma_user` varchar(20) NOT NULL,
   `ten_user` varchar(55) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `password` varchar(55) NOT NULL,
   `full_name` varchar(255) DEFAULT NULL,
   `email` varchar(55) DEFAULT NULL,
-  `phan_quyen` enum('admin','khach_hang') NOT NULL DEFAULT 'khach_hang',
+  `phan_quyen` enum('admin','khach_hang') DEFAULT NULL,
   `so_dien_thoai` varchar(20) DEFAULT NULL,
   `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -357,14 +348,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`ma_user`, `ten_user`, `password`, `full_name`, `email`, `phan_quyen`, `so_dien_thoai`, `ngay_tao`) VALUES
-('U01', 'vinh', '123', 'Đào Văn Vinh', 'daovinhgm2005@gmail.com', 'admin', '0389783619', '2026-01-30 13:32:56'),
-('U02', 'dan', '123', 'Đào Phúc Dân', 'dan@gmail.com', 'khach_hang', '12312312', '2026-01-30 13:32:56'),
-('U03', 'thanh', '123', 'Hoàng Văn Thành', 'thanh@gmail.com', 'admin', '0389783619', '2026-01-30 13:34:04'),
-('U04', 'qa', '123', 'Đỗ Quanh Anh', 'qa@gmail.com', 'khach_hang', '12312312', '2026-01-30 13:34:04'),
-('U05', 'chuong', '123', 'Phạm Văn Chương', 'chuong@gmail.com', 'khach_hang', '0389783611', '2026-01-30 15:32:13'),
-('U06', 'long', '123', 'Nguyễn Văn Long', 'long@gmail.com', 'khach_hang', '0901111111', '2026-01-30 21:31:40'),
-('U07', 'minh', '123', 'Trần Văn Minh', 'minh@gmail.com', 'khach_hang', '0902222222', '2026-01-30 21:31:40'),
-('U08', 'hung', '123', 'Lê Văn Hùng', 'hung@gmail.com', 'admin', '0903333333', '2026-01-30 21:31:40');
+('ADMIN01', 'admin', '123', 'Quản Trị Viên', 'admin@phonestore.com', 'admin', '0909000000', '2026-01-30 15:05:58'),
+('US001', 'dan', '123', 'Đào Phúc Dân', 'phucdan@gmail.com', 'khach_hang', '0862757951', '2026-01-30 15:05:58'),
+('US002', 'vinh', '123', 'Đào Văn Vinh', 'vanvinh@gmail.com', 'khach_hang', '0987654321', '2026-01-30 15:05:58'),
+('US003', 'thanh', '123', 'Hoàng Văn Thành', 'hoangthanh@gmail.com', 'khach_hang', '0123456789', '2026-02-01 21:50:15');
 
 --
 -- Chỉ mục cho các bảng đã đổ

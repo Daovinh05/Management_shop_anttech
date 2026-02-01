@@ -5,6 +5,7 @@ class Donhang extends controller
     private $user;
     private $dc;
     private $km;
+    private $ctdh;
 
     function __construct()
     {
@@ -12,6 +13,7 @@ class Donhang extends controller
         $this->user = $this->model("Users_m");
         $this->dc = $this->model("DiaChiGiaoHang_m");
         $this->km = $this->model("KhuyenMai_m");
+        $this->ctdh = $this->model("ChiTietDonHang_m");
     }
 
     function Get_data()
@@ -221,26 +223,30 @@ class Donhang extends controller
     // FILE: controllers/Donhang.php
 
     public function get_order_details($id) {
-        // 1. SỬA LỖI QUAN TRỌNG: Dùng $this->dh thay vì $this->donhang_model
-        // 2. SỬA LỖI TÊN HÀM: Dùng DonHang_getById thay vì getThongTinDonHang
-        
         // Lấy thông tin chi tiết món
-        $raw_details = $this->dh->getChiTietDonHang($id); 
-        
+        $raw_details = $this->ctdh->ChiTietDonHang_getByOrderId($id);
+
         // Lấy thông tin chung đơn hàng (để lấy ghi chú)
-        $raw_order = $this->dh->DonHang_getById($id); 
+        $raw_order = $this->dh->DonHang_getById($id);
 
         // --- Chuyển dữ liệu sang mảng ---
         $details_arr = [];
-        if ($raw_details) {
+        $error_message = null;
+
+        if ($raw_details === false) {
+            // Nếu truy vấn thất bại, lưu lỗi
+            $error_message = mysqli_error($this->ctdh->con);
+        } else if ($raw_details) {
             while ($row = mysqli_fetch_assoc($raw_details)) {
                 // Map dữ liệu để JavaScript dễ đọc
-                $row['ten_mon'] = $row['ten_san_pham']; 
-                $row['img_thuc_don'] = $row['hinh_anh'];
-                // Lấy giá lúc mua nếu có, không thì lấy giá hiện tại
-                if (!isset($row['gia_tai_thoi_diem_dat']) && isset($row['gia_luc_mua'])) {
-                    $row['gia_tai_thoi_diem_dat'] = $row['gia_luc_mua'];
-                }
+                $row['ten_san_pham'] = $row['ten_san_pham'] ?? $row['ten_bien_the'] ?? 'Sản phẩm không xác định';
+                $row['ten_mon'] = $row['ten_san_pham'];
+                $row['img_san_pham'] = $row['img_hinh_anh'] ?? '';
+
+                // Đảm bảo các trường giá trị luôn có mặt
+                $row['gia_tai_thoi_diem_dat'] = $row['gia_luc_mua'] ?? 0;
+                $row['so_luong'] = $row['so_luong'] ?? 0;
+
                 $details_arr[] = $row;
             }
         }
@@ -248,20 +254,67 @@ class Donhang extends controller
         $order_note = '';
         if ($raw_order && mysqli_num_rows($raw_order) > 0) {
             $order_data = mysqli_fetch_assoc($raw_order);
-            $order_note = $order_data['ghi_chu'] ?? ''; 
+            $order_note = $order_data['ghi_chu'] ?? '';
         }
 
         // --- Trả về JSON ---
         $result = [
-            'order_details' => $details_arr, 
-            'order_notes'   => $order_note
+            'order_details' => $details_arr,
+            'order_notes'   => $order_note,
+            'debug_info' => [
+                'order_id' => $id,
+                'details_count' => count($details_arr),
+                'has_raw_details' => $raw_details !== false,
+                'has_order' => $raw_order !== false && mysqli_num_rows($raw_order) > 0,
+                'error_message' => $error_message,
+                'query_success' => $raw_details !== false
+            ]
         ];
 
         // Xóa bộ nhớ đệm để tránh lỗi JSON
         if (ob_get_length()) ob_clean();
-        
+
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($result);
-        exit(); 
+        exit();
+    }
+
+    // Phương thức in hóa đơn
+    public function InHoaDon($id) {
+        // Lấy thông tin chi tiết đơn hàng
+        $raw_details = $this->ctdh->ChiTietDonHang_getByOrderId($id);
+        $raw_order = $this->dh->DonHang_getById($id);
+
+        // Chuyển dữ liệu chi tiết sang mảng
+        $details_arr = [];
+        if ($raw_details) {
+            while ($row = mysqli_fetch_assoc($raw_details)) {
+                $row['ten_san_pham'] = $row['ten_san_pham'] ?? $row['ten_bien_the'] ?? 'Sản phẩm không xác định';
+                $row['img_thuc_don'] = $row['img_hinh_anh'] ?? '';
+                $row['gia_tai_thoi_diem_dat'] = $row['gia_luc_mua'] ?? 0;
+                $row['so_luong'] = $row['so_luong'] ?? 0;
+                $details_arr[] = $row;
+            }
+        }
+
+        // Lấy thông tin đơn hàng
+        $order_info = null;
+        if ($raw_order && mysqli_num_rows($raw_order) > 0) {
+            $order_info = mysqli_fetch_assoc($raw_order);
+        }
+
+        // Tính tổng tiền
+        $tong_tien = 0;
+        foreach ($details_arr as $item) {
+            $tong_tien += ($item['so_luong'] * $item['gia_luc_mua']);
+        }
+
+        // Truyền dữ liệu vào view
+        $this->view('Master', [
+            'page' => 'InHoaDon_v',
+            'order_info' => $order_info,
+            'order_details' => $details_arr,
+            'tong_tien' => $tong_tien
+        ]);
     }
 }

@@ -214,7 +214,7 @@ class DonHang_m extends connectDB
     // Lấy top sản phẩm bán chạy
     function DonHang_TopSanPham($limit = 10)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     sp.ten_san_pham,
                     bt.ten_bien_the,
                     bt.mau_sac,
