@@ -46,7 +46,7 @@ class ChiTietGioHang_m extends connectDB
     // Hàm lấy chi tiết giỏ hàng theo mã giỏ hàng
     function ChiTietGioHang_getByCartId($ma_gio_hang)
     {
-        $sql = "SELECT ctgh.*, bt.ten_bien_the, sp.ten_san_pham, bt.gia, bt.so_luong_kho
+        $sql = "SELECT ctgh.*, bt.ten_bien_the, bt.img_bien_the, sp.ten_san_pham, bt.gia, bt.so_luong_kho
                 FROM chi_tiet_gio_hang ctgh
                 LEFT JOIN bien_the bt ON ctgh.ma_bien_the = bt.ma_bien_the
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
