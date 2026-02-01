@@ -748,6 +748,228 @@
             margin-top: 2px;
         }
 
+        /* Phần đánh giá 
+         /* --- CSS CHO PHẦN ĐÁNH GIÁ (REVIEW SECTION) --- */
+        .review-section {
+            background: #fff;
+            padding: 2px 0;
+            margin-bottom: 30px;
+            border-top: 4px solid #f4f4f4;
+            /* Ngăn cách với phần trên */
+        }
+
+        .review-header {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            display: inline-block;
+            background-color: #e0f2fe;
+            /* Nền xanh nhạt tiêu đề */
+            padding: 5px 15px;
+            color: #0284c7;
+            border-radius: 4px;
+        }
+
+        /* Khung tổng quan đánh giá (3 cột) */
+        .rating-overview-box {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            padding: 3px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        /* Cột 1: Điểm số to */
+        .rating-left {
+            width: 20%;
+            text-align: center;
+            border-right: 1px solid #eee;
+        }
+
+        .score-big {
+            font-size: 36px;
+            font-weight: 700;
+            color: #d7912a;
+            /* Màu vàng cam */
+            line-height: 1;
+        }
+
+        .star-big {
+            color: #d7912a;
+            font-size: 24px;
+            margin: 5px 0;
+        }
+
+        .rating-count-text {
+            font-size: 13px;
+            color: #555;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Cột 2: Thanh tiến trình (Progress bars) */
+        .rating-middle {
+            width: 50%;
+            padding: 0 30px;
+            border-right: 1px solid #eee;
+        }
+
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .rating-bar-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .star-label {
+            width: 45px;
+            font-weight: 600;
+            display: flex;
+            /* Quan trọng: Giúp số và sao nằm ngang hàng */
+            align-items: center;
+            justify-content: flex-start;
+            white-space: nowrap;
+            /* Cấm xuống dòng */
+        }
+
+        .star-icon-small {
+            color: #d7912a;
+            margin-left: 5px;
+            /* Cách số ra 1 chút cho đẹp */
+            font-size: 12px;
+        }
+
+        .star-icon-small {
+            color: #d7912a;
+            margin-right: 10px;
+            font-size: 12px;
+        }
+
+        .progress-bg {
+            flex: 1;
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #d7912a;
+            border-radius: 5px;
+        }
+
+        .rating-percent-text {
+            width: 110px;
+            text-align: right;
+            color: #0284c7;
+            /* Màu xanh chữ */
+            font-size: 13px;
+        }
+
+        /* Cột 3: Nút đánh giá */
+        .rating-right {
+            width: 30%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-write-review {
+            background-color: #2d72d2;
+            /* Màu xanh nút */
+            color: white;
+            font-weight: 700;
+            padding: 12px 30px;
+            border-radius: 4px;
+            border: none;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-write-review:hover {
+            background-color: #1e4bd1;
+        }
+
+        /* --- DANH SÁCH REVIEW CHI TIẾT --- */
+        .review-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .review-content {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .verified-badge {
+            color: #2ea868;
+            /* Màu xanh lá */
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .verified-badge i {
+            margin-right: 3px;
+        }
+
+        .user-rating-stars {
+            color: #d7912a;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        .review-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .review-actions {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .review-actions a {
+            color: #2d72d2;
+            margin-right: 5px;
+            font-weight: 500;
+        }
+
         /* --- 6. SIMILAR PRODUCTS --- */
         .similar-section {
             background: white;
@@ -1481,7 +1703,7 @@
                     </div>
 
                     <div class="action-area">
-                        <button class="buy-now-btn">
+                        <button class="buy-now-btn" onclick="buyNow()">
                             MUA NGAY
                             <span class="buy-now-sub">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
                         </button>
@@ -1544,6 +1766,165 @@
         </div>
     </div>
 
+    <div class="container">
+        <div class="review-section">
+            <div class="review-header">5 đánh giá cho iPhone 13 Pro – 99% LikeNew</div>
+
+            <div class="rating-overview-box">
+                <div class="rating-left">
+                    <div class="score-big">4.20 <i class="fa-solid fa-star" style="font-size: 24px;"></i></div>
+                    <div class="rating-count-text">Đánh giá trung bình</div>
+                </div>
+
+                <div class="rating-middle">
+                    <div class="rating-bar-row">
+                        <div class="star-label">5 <i class="fa-solid fa-star star-icon-small"></i></div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: 40%;"></div>
+                        </div>
+                        <div class="rating-percent-text">40% | 2 đánh giá</div>
+                    </div>
+                    <div class="rating-bar-row">
+                        <div class="star-label">4 <i class="fa-solid fa-star star-icon-small"></i></div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: 40%;"></div>
+                        </div>
+                        <div class="rating-percent-text">40% | 2 đánh giá</div>
+                    </div>
+                    <div class="rating-bar-row">
+                        <div class="star-label">3 <i class="fa-solid fa-star star-icon-small"></i></div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: 20%;"></div>
+                        </div>
+                        <div class="rating-percent-text">20% | 1 đánh giá</div>
+                    </div>
+                    <div class="rating-bar-row">
+                        <div class="star-label">2 <i class="fa-solid fa-star star-icon-small"></i></div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="rating-percent-text">0% | 0 đánh giá</div>
+                    </div>
+                    <div class="rating-bar-row">
+                        <div class="star-label">1 <i class="fa-solid fa-star star-icon-small"></i></div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="rating-percent-text">0% | 0 đánh giá</div>
+                    </div>
+                </div>
+
+                <div class="rating-right">
+                    <button class="btn-write-review">ĐÁNH GIÁ NGAY</button>
+                </div>
+            </div>
+
+            <div class="review-list">
+
+                <div class="review-item">
+                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="review-content">
+                        <div>
+                            <span class="user-name">Hải Anh</span>
+                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
+                                anttech.com.vn</span>
+                        </div>
+                        <div class="user-rating-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-regular fa-star-half-stroke"></i><i
+                                class="fa-regular fa-star"></i>
+                        </div>
+                        <div class="review-text">Goood</div>
+                        <div class="review-actions">
+                            <a href="#">Trả lời</a> • 20/11/2021
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-item">
+                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="review-content">
+                        <div>
+                            <span class="user-name">Quang Anh</span>
+                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
+                                anttech.com.vn</span>
+                        </div>
+                        <div class="user-rating-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i
+                                class="fa-regular fa-star"></i>
+                        </div>
+                        <div class="review-text">Good</div>
+                        <div class="review-actions">
+                            <a href="#">Trả lời</a> • 20/11/2021
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-item">
+                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="review-content">
+                        <div>
+                            <span class="user-name">Khánh Linh</span>
+                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
+                                anttech.com.vn</span>
+                        </div>
+                        <div class="user-rating-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="review-text">Nhân viên ở đây nhiệt tình quá</div>
+                        <div class="review-actions">
+                            <a href="#">Trả lời</a> • 20/11/2021
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-item">
+                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="review-content">
+                        <div>
+                            <span class="user-name">Khánh Duy</span>
+                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
+                                anttech.com.vn</span>
+                        </div>
+                        <div class="user-rating-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-regular fa-star-half-stroke"></i>
+                        </div>
+                        <div class="review-text">Tuyệt vời</div>
+                        <div class="review-actions">
+                            <a href="#">Trả lời</a> • 20/11/2021
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-item">
+                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="review-content">
+                        <div>
+                            <span class="user-name">Khánh Duy</span>
+                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
+                                anttech.com.vn</span>
+                        </div>
+                        <div class="user-rating-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="review-text">Sản phẩm oke trong tầm giá</div>
+                        <div class="review-actions">
+                            <a href="#">Trả lời</a> • 20/11/2021
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="similar-section">
         <div class="container">
             <h3 class="similar-heading">SẢN PHẨM TƯƠNG TỰ <i class="fa-solid fa-circle-check"
@@ -1560,7 +1941,7 @@
                         echo '<img src="' . $img_src . '" alt="' . $sp['ten_san_pham'] . '">';
                         echo '</a>';
                         echo '<div class="sim-title">' . $sp['ten_san_pham'] . '</div>';
-                        echo '<span class="sim-price">' . number_format(isset($sp['gia']) ? $sp['gia'] : 0, 0, ',', '.') . ' ₫</span>';
+                        echo '<span class="sim-price">' . number_format(isset($sp['gia']) ? $sp['gia'] : (isset($sp['gia_cu']) ? $sp['gia_cu'] : 0), 0, ',', '.') . ' ₫</span>';
                         echo '</div>';
                     }
                 } else {
@@ -1581,6 +1962,7 @@
             </div>
         </div>
     </div>
+
 
     <footer class="main-footer">
         <div class="container">
@@ -1831,6 +2213,40 @@
         // Helper function to format currency
         function formatCurrency(number) {
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // Hàm mua ngay - thêm sản phẩm vào giỏ hàng và chuyển sang trang thanh toán
+        function buyNow() {
+            // Lấy thông tin sản phẩm từ giao diện
+            var img = document.getElementById('mainImage').src;
+            var name = document.getElementById('productTitle').innerText;
+            var variantFull = document.getElementById('variantLabel').innerText;
+            var variant = variantFull.replace("Phiên bản: ", "");
+            var quantity = parseInt(document.getElementById('quantityInput').value);
+            var priceStr = document.getElementById('currentPrice').innerText;
+
+            // Chuyển giá từ chuỗi "11.400.000 ₫" sang số để tính toán
+            var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
+
+            // Tạo object sản phẩm
+            var product = {
+                img: img,
+                name: name,
+                variant: variant,
+                quantity: quantity,
+                price: price
+            };
+
+            // Thêm vào mảng giỏ hàng
+            cart.push(product);
+
+            // Cập nhật giao diện giỏ hàng
+            renderCart();
+
+            // Chuyển hướng sang trang thanh toán
+            setTimeout(function() {
+                window.location.href = '<?php echo $this->url('Khachhang/thanhtoan'); ?>';
+            }, 500); // Delay nhỏ để đảm bảo sản phẩm được thêm vào giỏ
         }
     </script>
 

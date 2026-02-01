@@ -374,3 +374,236 @@ tr:hover td {
   object-fit: initial;
   display: block;
 }
+
+/* ====== ORDER HISTORY STYLES ====== */
+.order-history-wrapper {
+    padding: 40px 0;
+    min-height: 600px;
+    background-color: #f9f9f9;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* Tabs Style */
+.order-tabs {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+    overflow-x: auto;
+}
+
+.tab-item {
+    padding: 15px 20px;
+    font-size: 15px;
+    color: #777;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.tab-item:hover {
+    color: #2d72d2;
+}
+
+.tab-item.active {
+    color: #2d72d2;
+    font-weight: 600;
+}
+
+.tab-item.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #2d72d2;
+    border-radius: 3px 3px 0 0;
+}
+
+/* Order Card Style */
+.order-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: 0.2s;
+}
+
+.order-card:hover {
+    border-color: #dbeaff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.order-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.order-id {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.order-date {
+    font-size: 13px;
+    color: #888;
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-confirmed {
+    background-color: #e3f9e5;
+    color: #1f8b24;
+} /* Xanh lá nhạt */
+
+.status-shipping {
+    background-color: #e0f2fe;
+    color: #0284c7;
+} /* Xanh dương nhạt */
+
+.status-cancelled {
+    background-color: #fee2e2;
+    color: #dc2626;
+} /* Đỏ nhạt */
+
+/* --- SỬA CẤU TRÚC BODY: CHIA 2 CỘT NGANG HÀNG --- */
+.order-body-flex {
+    display: flex;
+    justify-content: space-between; /* Đẩy sản phẩm sang trái, tiền sang phải */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    padding: 20px;
+}
+
+/* Cột bên trái: Danh sách sản phẩm */
+.order-product-list {
+    flex: 1; /* Chiếm hết khoảng trống còn lại */
+    margin-right: 20px; /* Cách cột tiền một chút */
+}
+
+.order-product {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.order-product:last-child {
+    margin-bottom: 0;
+}
+
+.product-thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    object-fit: contain;
+    padding: 5px;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.product-meta {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.product-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d72d2;
+}
+
+/* Cột bên phải: Tiền và Nút (Nằm ngang hàng với sản phẩm) */
+.order-actions-right {
+    display: flex;
+    flex-direction: column; /* Xếp dọc nội bộ cột phải */
+    align-items: flex-end;  /* Căn lề phải */
+    gap: 10px;              /* Khoảng cách giữa tiền và nút */
+    min-width: 150px;       /* Đảm bảo không bị co quá nhỏ */
+}
+
+.total-money {
+    text-align: right;
+}
+
+.total-label {
+    font-size: 14px;
+    color: #555;
+}
+
+.total-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d72d2;
+    display: block; /* Xuống dòng cho đẹp */
+    margin-top: 2px;
+}
+
+.btn-detail {
+    background-color: #2d72d2;
+    color: white;
+    border: none;
+    padding: 8px 25px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-detail:hover {
+    opacity: 0.9;
+    box-shadow: 0 2px 8px rgba(45, 114, 210, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .order-body-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .order-actions-right {
+        width: 100%;
+        align-items: flex-end;
+        margin-top: 15px;
+        border-top: 1px dashed #eee;
+        padding-top: 10px;
+    }
+}

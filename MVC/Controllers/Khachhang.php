@@ -85,15 +85,18 @@ class Khachhang extends controller
         $avg_rating = $this->dg->DanhGia_getAvgRatingByProduct($ma_san_pham);
 
         // Lấy sản phẩm tương tự
-        $sql_similar = "SELECT s.*, COALESCE(bt.img_bien_the, s.img_hinh_anh) as img_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+        $sql_similar = "SELECT s.*,
+                               (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL LIMIT 1) as img_bien_the,
+                               (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL LIMIT 1) as gia,
+                               dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
                         FROM san_pham s
                         LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
                         LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                         LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
-                        LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
-                        WHERE s.ma_danh_muc = '" . $san_pham['ma_danh_muc'] . "'
-                        AND s.ma_san_pham != '" . $ma_san_pham . "'
+                        WHERE s.ma_danh_muc = '" . mysqli_real_escape_string($this->sp->con, $san_pham['ma_danh_muc']) . "'
+                        AND s.ma_san_pham != '" . mysqli_real_escape_string($this->sp->con, $ma_san_pham) . "'
                         GROUP BY s.ma_san_pham
+                        ORDER BY s.ma_san_pham DESC
                         LIMIT 4";
         $similar_products = mysqli_query($this->sp->con, $sql_similar);
 
@@ -250,22 +253,118 @@ class Khachhang extends controller
 
         if (isset($_POST['btnDatHang'])) {
             $ma_user = $_SESSION['user_id'];
-            $ma_dia_chi = $_POST['ddlDiaChi'];
-            $ma_khuyen_mai = $_POST['ddlKhuyenMai'] ?: null;
-            $ghi_chu = $_POST['txtGhiChu'] ?? '';
+            $ma_dia_chi = trim($_POST['ddlDiaChi']);
+            $ma_khuyen_mai = trim($_POST['ddlKhuyenMai']) ?: null;
+            $ghi_chu = trim($_POST['txtGhiChu']) ?? '';
+            $payment_method = trim($_POST['payment_method']) ?? 'cod'; // cod (cash on delivery) or bank (online payment)
+            $ho_ten = trim($_POST['txtHoTen']);
+            $so_dien_thoai = trim($_POST['txtSoDienThoai']);
+            $email = trim($_POST['txtEmail']);
+
+            // Validate required fields
+            $errors = [];
+
+            if (empty($ma_dia_chi)) {
+                $errors[] = "Vui lòng chọn địa chỉ giao hàng.";
+            }
+
+            if (empty($ho_ten)) {
+                $errors[] = "Vui lòng nhập họ và tên.";
+            } elseif (strlen($ho_ten) < 2) {
+                $errors[] = "Họ và tên phải có ít nhất 2 ký tự.";
+            }
+
+            if (empty($so_dien_thoai)) {
+                $errors[] = "Vui lòng nhập số điện thoại.";
+            } elseif (!preg_match('/^0[0-9]{9,10}$/', $so_dien_thoai)) {
+                $errors[] = "Số điện thoại không hợp lệ.";
+            }
+
+            if (empty($email)) {
+                $errors[] = "Vui lòng nhập email.";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "Email không hợp lệ.";
+            }
+
+            // Check if payment method is valid
+            if (!in_array($payment_method, ['cod', 'bank'])) {
+                $errors[] = "Phương thức thanh toán không hợp lệ.";
+            }
 
             // Lấy giỏ hàng của người dùng
             $gio_hang = $this->gh->GioHang_getByUser($ma_user);
             $row = mysqli_fetch_assoc($gio_hang);
 
+            if (!$row) {
+                $errors[] = "Giỏ hàng của bạn đang trống.";
+            }
+
+            if (!empty($errors)) {
+                // Return to checkout page with errors
+                $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang'] ?? '');
+                $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+
+                $this->view('Khachhang_Master', [
+                    'page' => 'Khachhang/khachhang_thanhtoan',
+                    'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
+                    'dia_chi' => $dia_chi,
+                    'errors' => $errors,
+                    'old_data' => [
+                        'ho_ten' => $ho_ten,
+                        'so_dien_thoai' => $so_dien_thoai,
+                        'email' => $email,
+                        'ghi_chu' => $ghi_chu,
+                        'dia_chi_selected' => $ma_dia_chi,
+                        'payment_method' => $payment_method
+                    ]
+                ]);
+                return;
+            }
+
             if ($row) {
                 $ma_gio_hang = $row['ma_gio_hang'];
                 $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
 
-                // Tính tổng tiền
+                // Tính tổng tiền và kiểm tra số lượng tồn kho
                 $tong_tien = 0;
+                $chi_tiet_gio_hang_array = []; // Store cart items for later use
+                $out_of_stock_items = [];
+
                 while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
-                    $tong_tien += $ct['gia'] * $ct['so_luong'];
+                    // Kiểm tra số lượng tồn kho
+                    $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
+                    $bt_info = mysqli_fetch_assoc($bien_the);
+
+                    if ($ct['so_luong'] > $bt_info['so_luong_kho']) {
+                        $out_of_stock_items[] = $bt_info['ten_bien_the'];
+                    } else {
+                        $chi_tiet_gio_hang_array[] = $ct;
+                        $tong_tien += $ct['gia'] * $ct['so_luong'];
+                    }
+                }
+
+                // Nếu có sản phẩm hết hàng
+                if (!empty($out_of_stock_items)) {
+                    $errors[] = "Một số sản phẩm đã hết hàng: " . implode(', ', $out_of_stock_items);
+
+                    $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang']);
+                    $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+
+                    $this->view('Khachhang_Master', [
+                        'page' => 'Khachhang/khachhang_thanhtoan',
+                        'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
+                        'dia_chi' => $dia_chi,
+                        'errors' => $errors,
+                        'old_data' => [
+                            'ho_ten' => $ho_ten,
+                            'so_dien_thoai' => $so_dien_thoai,
+                            'email' => $email,
+                            'ghi_chu' => $ghi_chu,
+                            'dia_chi_selected' => $ma_dia_chi,
+                            'payment_method' => $payment_method
+                        ]
+                    ]);
+                    return;
                 }
 
                 // Tạo mã đơn hàng
@@ -275,8 +374,7 @@ class Khachhang extends controller
                 $this->dh->donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien, 'cho_duyet');
 
                 // Thêm chi tiết đơn hàng
-                $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-                while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
+                foreach ($chi_tiet_gio_hang_array as $ct) {
                     $ma_ctdh = 'CTDH' . time() . rand(1000, 9999);
                     $this->ctdh->chitietdonhang_ins($ma_ctdh, $ma_don_hang, $ct['ma_bien_the'], $ct['so_luong'], $ct['gia']);
 
@@ -290,12 +388,143 @@ class Khachhang extends controller
                 // Cập nhật trạng thái giỏ hàng thành 'ordered'
                 $this->gh->GioHang_update($ma_gio_hang, $ma_user, 'ordered');
 
-                // Chuyển hướng đến trang cảm ơn
+                // Nếu là thanh toán online (VNPAY), chuyển hướng đến cổng thanh toán
+                if ($payment_method === 'bank') {
+                    // Chuyển hướng đến cổng thanh toán VNPAY
+                    $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+                    $vnp_Returnurl = "http://localhost/Banhang/Khachhang/xulythanhtoan";
+
+                    $vnp_TmnCode = 'YOUR_VNP_TMNCODE'; // Mã website tại VNPAY
+                    $vnp_HashSecret = 'YOUR_VNP_HASHSECRET'; // Chuỗi bí mật
+
+                    $vnp_TxnRef = $ma_don_hang; // Mã đơn hàng
+                    $vnp_OrderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
+                    $vnp_OrderType = 'billpayment';
+                    $vnp_Amount = $tong_tien * 100; // Số tiền cần nhân với 100 để đúng định dạng
+                    $vnp_Locale = 'vn';
+                    $vnp_BankCode = 'NCB';
+                    $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+                    $inputData = array(
+                        "vnp_Version" => "2.1.0",
+                        "vnp_TmnCode" => $vnp_TmnCode,
+                        "vnp_Amount" => $vnp_Amount,
+                        "vnp_Command" => "pay",
+                        "vnp_CreateDate" => date('YmdHis'),
+                        "vnp_CurrCode" => "VND",
+                        "vnp_IpAddr" => $vnp_IpAddr,
+                        "vnp_Locale" => $vnp_Locale,
+                        "vnp_OrderInfo" => $vnp_OrderInfo,
+                        "vnp_OrderType" => $vnp_OrderType,
+                        "vnp_ReturnUrl" => $vnp_Returnurl,
+                        "vnp_TxnRef" => $vnp_TxnRef,
+                    );
+
+                    if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+                        $inputData['vnp_BankCode'] = $vnp_BankCode;
+                    }
+
+                    ksort($inputData);
+                    $query = "";
+                    $i = 0;
+                    $hashdata = "";
+                    foreach ($inputData as $key => $value) {
+                        if ($i == 1) {
+                            $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+                        } else {
+                            $hashdata .= urlencode($key) . "=" . urlencode($value);
+                            $i = 1;
+                        }
+                        $query .= urlencode($key) . "=" . urlencode($value) . '&';
+                    }
+
+                    $vnp_Url = $vnp_Url . "?" . $query;
+                    if (isset($vnp_HashSecret)) {
+                        $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret); //
+                        $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+                    }
+
+                    header('Location: ' . $vnp_Url);
+                    die();
+                } else {
+                    // COD - Thanh toán khi nhận hàng, chuyển đến trang cảm ơn
+                    $this->view('Khachhang_Master', [
+                        'page' => 'Khachhang/khachhang_camon',
+                        'ma_don_hang' => $ma_don_hang
+                    ]);
+                }
+            }
+        }
+    }
+
+    // Xử lý kết quả thanh toán từ VNPAY
+    function xulythanhtoan()
+    {
+        $vnp_HashSecret = 'YOUR_VNP_HASHSECRET'; // Chuỗi bí mật
+
+        $vnp_SecureHash = $_GET['vnp_SecureHash'];
+        $inputData = array();
+        foreach ($_GET as $key => $value) {
+            if (substr($key, 0, 4) == "vnp_") {
+                $inputData[$key] = $value;
+            }
+        }
+
+        unset($inputData['vnp_SecureHash']);
+        ksort($inputData);
+        $i = 0;
+        $hashData = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+        }
+
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        $vnp_ResponeCode = $_GET['vnp_ResponseCode'];
+        $vnp_TxnRef = $_GET['vnp_TxnRef'];
+
+        if ($vnp_SecureHash == $secureHash) {
+            if ($vnp_ResponeCode == '00') {
+                // Thanh toán thành công
+                // Cập nhật trạng thái đơn hàng thành 'da_thanh_toan'
+                $don_hang_model = $this->model("DonHang_m");
+                $don_hang = $don_hang_model->DonHang_getById($vnp_TxnRef);
+                $dh_info = mysqli_fetch_assoc($don_hang);
+
+                if ($dh_info) {
+                    // Cập nhật trạng thái đơn hàng
+                    $don_hang_model->DonHang_update($vnp_TxnRef, $dh_info['ma_user'], $dh_info['ma_dia_chi'], $dh_info['ma_khuyen_mai'], $dh_info['tong_tien_hang'], 'da_thanh_toan');
+
+                    // Thêm thông tin thanh toán
+                    $thanh_toan_model = $this->model("ThanhToan_m");
+                    $ma_thanh_toan = 'TT' . time();
+                    $so_tien = $dh_info['tong_tien_hang'];
+                    $thanh_toan_model->thanh_toan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'thanh_cong', date('Y-m-d H:i:s'));
+                }
+
                 $this->view('Khachhang_Master', [
                     'page' => 'Khachhang/khachhang_camon',
-                    'ma_don_hang' => $ma_don_hang
+                    'ma_don_hang' => $vnp_TxnRef,
+                    'success_message' => 'Thanh toán thành công!'
+                ]);
+            } else {
+                // Thanh toán thất bại
+                $this->view('Khachhang_Master', [
+                    'page' => 'Khachhang/khachhang_thanhtoan_thatbai',
+                    'error_message' => 'Thanh toán thất bại. Vui lòng thử lại.'
                 ]);
             }
+        } else {
+            // Lỗi xác thực
+            $this->view('Khachhang_Master', [
+                'page' => 'Khachhang/khachhang_thanhtoan_thatbai',
+                'error_message' => 'Lỗi xác thực thanh toán. Vui lòng thử lại.'
+            ]);
         }
     }
 
@@ -317,9 +546,22 @@ class Khachhang extends controller
                 ORDER BY dh.ngay_tao DESC";
         $don_hang = mysqli_query($this->dh->con, $sql);
 
+        // Lấy chi tiết sản phẩm cho từng đơn hàng
+        $don_hang_with_details = [];
+        while ($dh = mysqli_fetch_assoc($don_hang)) {
+            $chi_tiet_don_hang = $this->dh->getChiTietDonHang($dh['ma_don_hang']);
+            // Convert mysqli_result to array to allow multiple iterations
+            $chi_tiet_array = [];
+            while ($ct = mysqli_fetch_assoc($chi_tiet_don_hang)) {
+                $chi_tiet_array[] = $ct;
+            }
+            $dh['chi_tiet'] = $chi_tiet_array;
+            $don_hang_with_details[] = $dh;
+        }
+
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_lichsu',
-            'don_hang' => $don_hang
+            'don_hang' => $don_hang_with_details
         ]);
     }
 

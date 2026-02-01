@@ -265,18 +265,19 @@ class DonHang_m extends connectDB
     // Thêm hàm này vào cuối file Model
     function getChiTietDonHang($ma_don_hang) {
         // Sử dụng LEFT JOIN để đảm bảo nếu sản phẩm bị xóa thì vẫn hiện đơn hàng
-        $sql = "SELECT 
-                    ct.*, 
-                    sp.ten_san_pham, 
-                    sp.hinh_anh, 
-                    bt.mau_sac, 
-                    bt.ram, 
-                    bt.dung_luong 
+        $sql = "SELECT
+                    ct.*,
+                    sp.ten_san_pham,
+                    bt.img_bien_the as hinh_anh,
+                    bt.ten_bien_the,
+                    bt.mau_sac,
+                    bt.ram,
+                    bt.dung_luong
                 FROM chi_tiet_don_hang ct
                 LEFT JOIN bien_the bt ON ct.ma_bien_the = bt.ma_bien_the
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
                 WHERE ct.ma_don_hang = '$ma_don_hang'";
-                
+
         return mysqli_query($this->con, $sql);
     }
 }

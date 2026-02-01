@@ -86,44 +86,57 @@ class SanPham_m extends connectDB
     // Hàm lọc sản phẩm theo danh mục và mức giá
     function SanPham_filterByCategoryAndPrice($category_id = '', $price_range = '')
     {
-        $conditions = array();
+        // Nếu cả hai điều kiện đều rỗng hoặc category_id là "tat-ca" (tức là chọn "Tất cả"), áp dụng logic giống SanPham_getAll()
+        if ((empty($category_id) || $category_id === 'tat-ca') && empty($price_range)) {
+            $sql = "SELECT s.*,
+                           (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as gia_moi,
+                           (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
+                           dm.ten_danh_muc, th.ten_thuong_hieu
+                    FROM san_pham s
+                    LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                    LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                    ORDER BY s.ma_san_pham DESC";
+        } else {
+            $conditions = array();
 
-        // Thêm điều kiện lọc theo danh mục nếu có
-        if (!empty($category_id) && $category_id !== 'tat-ca') {
-            $conditions[] = "s.ma_danh_muc = '$category_id'";
-        }
-
-        // Thêm điều kiện lọc theo mức giá nếu có
-        if (!empty($price_range)) {
-            switch ($price_range) {
-                case 'duoi-2-trieu':
-                    $conditions[] = "bt.gia < 2000000";
-                    break;
-                case '2-4-trieu':
-                    $conditions[] = "bt.gia >= 2000000 AND bt.gia < 4000000";
-                    break;
-                case '4-7-trieu':
-                    $conditions[] = "bt.gia >= 4000000 AND bt.gia < 7000000";
-                    break;
-                case '7-13-trieu':
-                    $conditions[] = "bt.gia >= 7000000 AND bt.gia < 13000000";
-                    break;
-                case 'tren-13-trieu':
-                    $conditions[] = "bt.gia >= 13000000";
-                    break;
+            // Thêm điều kiện lọc theo danh mục nếu có
+            if (!empty($category_id) && $category_id !== 'tat-ca') {
+                $conditions[] = "s.ma_danh_muc = '$category_id'";
             }
+
+            // Thêm điều kiện lọc theo mức giá nếu có
+            if (!empty($price_range)) {
+                switch ($price_range) {
+                    case 'duoi-2-trieu':
+                        $conditions[] = "bt.gia < 2000000";
+                        break;
+                    case '2-4-trieu':
+                        $conditions[] = "bt.gia >= 2000000 AND bt.gia < 4000000";
+                        break;
+                    case '4-7-trieu':
+                        $conditions[] = "bt.gia >= 4000000 AND bt.gia < 7000000";
+                        break;
+                    case '7-13-trieu':
+                        $conditions[] = "bt.gia >= 7000000 AND bt.gia < 13000000";
+                        break;
+                    case 'tren-13-trieu':
+                        $conditions[] = "bt.gia >= 13000000";
+                        break;
+                }
+            }
+
+            // Tạo câu truy vấn
+            $where_clause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
+
+            $sql = "SELECT s.*, bt.gia AS gia_moi, bt.img_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu
+                    FROM san_pham s
+                    LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                    LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                    LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
+                    $where_clause
+                    GROUP BY s.ma_san_pham
+                    ORDER BY s.ma_san_pham DESC";
         }
-
-        // Tạo câu truy vấn
-        $where_clause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
-
-        $sql = "SELECT s.*, bt.gia AS gia_moi, bt.img_bien_the, dm.ten_danh_muc, th.ten_thuong_hieu
-                FROM san_pham s
-                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
-                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
-                LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
-                $where_clause
-                ORDER BY s.ma_san_pham DESC";
 
         $result = mysqli_query($this->con, $sql);
         return $result;

@@ -624,15 +624,35 @@
                                 class="currency"><?php echo number_format($row['tong_tien_hang'] - ($row['tien_khuyen_mai'] ?? 0), 0, ',', '.') ?>
                                 ₫</span></td>
                         <td>
-                            <?php 
+                            <?php
                             $status = $row['trang_thai_don_hang'];
-                            [$bg, $color, $label] = match($status) {
-                                'cho_duyet'  => ['#fef3c7', '#92400e', 'Chờ duyệt'],
-                                'dang_giao'  => ['#dbeafe', '#1e40af', 'Đang giao'],
-                                'hoan_thanh' => ['#d1fae5', '#065f46', 'Hoàn thành'],
-                                'da_huy'     => ['#fee2e2', '#991b1b', 'Đã hủy'],
-                                default      => ['#f3f4f6', '#374151', 'Không rõ'],
-                            };
+                            switch($status) {
+                                case 'cho_duyet':
+                                    $bg = '#fef3c7';
+                                    $color = '#92400e';
+                                    $label = 'Chờ duyệt';
+                                    break;
+                                case 'dang_giao':
+                                    $bg = '#dbeafe';
+                                    $color = '#1e40af';
+                                    $label = 'Đang giao';
+                                    break;
+                                case 'hoan_thanh':
+                                    $bg = '#d1fae5';
+                                    $color = '#065f46';
+                                    $label = 'Hoàn thành';
+                                    break;
+                                case 'da_huy':
+                                    $bg = '#fee2e2';
+                                    $color = '#991b1b';
+                                    $label = 'Đã hủy';
+                                    break;
+                                default:
+                                    $bg = '#f3f4f6';
+                                    $color = '#374151';
+                                    $label = 'Không rõ';
+                                    break;
+                            }
                             ?>
                             <span style="background:<?= $bg ?>; color:<?= $color ?>; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600">
                                 <?= $label ?>

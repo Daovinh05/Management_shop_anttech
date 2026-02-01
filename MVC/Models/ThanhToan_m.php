@@ -2,9 +2,13 @@
 class ThanhToan_m extends connectDB
 {
     // Hàm thêm thanh toán
-    function thanhtoan_ins($ma_giao_dich, $ma_don_hang, $phuong_thuc, $so_tien_thanh_toan, $trang_thai_thanh_toan)
+    function thanhtoan_ins($ma_giao_dich, $ma_don_hang, $phuong_thuc, $so_tien_thanh_toan, $trang_thai_thanh_toan, $ngay_thanh_toan = null)
     {
-        $sql = "INSERT INTO thanh_toan VALUES ('$ma_giao_dich', '$ma_don_hang', '$phuong_thuc', '$so_tien_thanh_toan', '$trang_thai_thanh_toan', NOW())";
+        if ($ngay_thanh_toan === null) {
+            $sql = "INSERT INTO thanh_toan VALUES ('$ma_giao_dich', '$ma_don_hang', '$phuong_thuc', '$so_tien_thanh_toan', '$trang_thai_thanh_toan', NOW())";
+        } else {
+            $sql = "INSERT INTO thanh_toan VALUES ('$ma_giao_dich', '$ma_don_hang', '$phuong_thuc', '$so_tien_thanh_toan', '$trang_thai_thanh_toan', '$ngay_thanh_toan')";
+        }
         return mysqli_query($this->con, $sql);
     }
 
