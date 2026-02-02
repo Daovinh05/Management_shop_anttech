@@ -1133,20 +1133,101 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
 
     <script>
-        // Lấy các phần tử
-        const accountBtn = document.getElementById('accountBtn');
-        const accountMenu = document.getElementById('accountMenu');
+        // Các hàm xử lý modal riêng biệt để tránh xung đột với các phần khác
+        const modal = document.getElementById('updateModal');
+        const passwordModal = document.getElementById('passwordModal');
 
-        // Toggle Account Menu
-        accountBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            accountMenu.classList.toggle('active');
-        });
+        function openModal() {
+            modal.classList.add('active');
+        }
 
-        // Close when clicking outside
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        function openPasswordModal() {
+            passwordModal.classList.add('active');
+        }
+
+        function closePasswordModal() {
+            passwordModal.classList.remove('active');
+        }
+
+        // Function to save changes
+        function saveChanges() {
+            // Get updated values from the modal form
+            const fullname = document.getElementById('modal-fullname').value;
+            const phone = document.getElementById('modal-phone').value;
+
+            // Update the hidden form fields
+            document.getElementById('form-fullname').value = fullname;
+            document.getElementById('form-phone').value = phone;
+
+            // Submit the form
+            document.getElementById('updateUserInfoForm').submit();
+        }
+
+        // Function to change password
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            // Basic validation
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                alert('Vui lòng điền đầy đủ thông tin!');
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
+                return;
+            }
+
+            // Create form data to send to server
+            const formData = new FormData();
+            formData.append('txtMaUser', '<?php echo $user['ma_user']; ?>');
+            formData.append('txtCurrentPassword', currentPassword); // Mật khẩu hiện tại người dùng nhập
+            formData.append('txtNewPassword', newPassword); // Mật khẩu mới
+
+            // Send AJAX request to update password
+            fetch('http://localhost/Banhang/Khachhang/doimatkhau', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    const result = JSON.parse(data);
+                    if (result.success) {
+                        alert('Đổi mật khẩu thành công!');
+                        // Clear the password fields
+                        document.getElementById('currentPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmNewPassword').value = '';
+                        // Close the modal
+                        closePasswordModal();
+                    } else {
+                        alert(result.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi đổi mật khẩu!');
+                });
+        }
+
+        // Đóng modal khi click ra ngoài (riêng cho các modal của trang này)
         window.addEventListener('click', function(event) {
-            if (!accountBtn.contains(event.target)) {
-                accountMenu.classList.remove('active');
+            if (event.target == modal) {
+                closeModal();
+            }
+            if (event.target == passwordModal) {
+                closePasswordModal();
             }
         });
 
@@ -1251,31 +1332,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             `;
         }
 
-        // --- 3. SCRIPT MODAL CẬP NHẬT (NEW) ---
-        const modal = document.getElementById('updateModal');
-
-        function openModal() {
-            modal.classList.add('active');
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
-        }
-
-        // Function to save changes
-        function saveChanges() {
-            // Get updated values from the modal form
-            const fullname = document.getElementById('modal-fullname').value;
-            const phone = document.getElementById('modal-phone').value;
-
-            // Update the hidden form fields
-            document.getElementById('form-fullname').value = fullname;
-            document.getElementById('form-phone').value = phone;
-
-            // Submit the form
-            document.getElementById('updateUserInfoForm').submit();
-        }
-
         // Function to open password change modal
         function openPasswordModal() {
             document.getElementById('passwordModal').classList.add('active');
@@ -1284,60 +1340,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         // Function to close password change modal
         function closePasswordModal() {
             document.getElementById('passwordModal').classList.remove('active');
-        }
-
-        // Function to change password
-        function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-
-            // Basic validation
-            if (!currentPassword || !newPassword || !confirmNewPassword) {
-                alert('Vui lòng điền đầy đủ thông tin!');
-                return;
-            }
-
-            if (newPassword !== confirmNewPassword) {
-                alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
-                return;
-            }
-
-            // if (newPassword.length < 6) {
-            //     alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
-            //     return;
-            // }
-
-            // Create form data to send to server
-            const formData = new FormData();
-            formData.append('txtMaUser', '<?php echo $user['ma_user']; ?>');
-            formData.append('txtCurrentPassword', currentPassword); // Mật khẩu hiện tại người dùng nhập
-            formData.append('txtNewPassword', newPassword); // Mật khẩu mới
-
-            // Send AJAX request to update password
-            fetch('http://localhost/Banhang/Khachhang/doimatkhau', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    const result = JSON.parse(data);
-                    if (result.success) {
-                        alert('Đổi mật khẩu thành công!');
-                        // Clear the password fields
-                        document.getElementById('currentPassword').value = '';
-                        document.getElementById('newPassword').value = '';
-                        document.getElementById('confirmNewPassword').value = '';
-                        // Close the modal
-                        closePasswordModal();
-                    } else {
-                        alert(result.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi đổi mật khẩu!');
-                });
         }
 
         // Đóng khi click ra ngoài

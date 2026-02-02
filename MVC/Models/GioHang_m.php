@@ -67,7 +67,7 @@ class GioHang_m extends connectDB
     // Hàm lấy giỏ hàng theo người dùng
     function GioHang_getByUser($ma_user)
     {
-        $sql = "SELECT * FROM gio_hang WHERE ma_user = '$ma_user' AND trang_thai = 'active'";
+        $sql = "SELECT * FROM gio_hang WHERE ma_user = '$ma_user'";
         return mysqli_query($this->con, $sql);
     }
 }
