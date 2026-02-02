@@ -767,61 +767,8 @@
         <div class="cart-footer-box" id="cartFooter"></div>
     </div>
 
-    <div class="top-banner">
-        <div class="container">
-            <div class="top-banner-left">
-                <span><i class="fa-solid fa-circle-check"></i>SẢN PHẨM CHÍNH HÃNG</span>
-                <span><i class="fa-solid fa-rotate-left"></i>CAM KẾT LỖI ĐỔI LIỀN</span>
-                <span><i class="fa-solid fa-phone-volume"></i>HOTLINE 1900.2091</span>
-            </div>
-            <div class="top-banner-right">
-                <span><i class="fa-solid fa-truck-fast"></i>MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC</span>
-            </div>
-        </div>
-    </div>
 
-    <header class="main-header">
-        <div class="container">
-            <a href="." class="logo"><i class="fa-brands fa-instalod"></i> TECHZONE</a>
 
-            <div class="middle-section">
-                <div class="category-dropdown">
-                    <button><i class="fa-solid fa-bars"></i> Danh mục</button>
-                </div>
-                <div class="search-box">
-                    <input type="text" placeholder="Hôm nay bạn muốn tìm kiếm gì?">
-                    <button><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
-                </div>
-            </div>
-
-            <div class="header-actions">
-                <div class="action-item" id="accountBtn">
-                    <i class="fa-regular fa-user"></i>
-                    <span>
-                        <?php
-                        if (isset($_SESSION['user_name'])) {
-                            echo $_SESSION['user_name'];
-                        } else {
-                            echo 'Tài khoản';
-                        }
-                        ?>
-                    </span>
-                    <div class="account-dropdown-menu" id="accountMenu">
-                        <a href="Khachhang/taikhoan"><i class="fa-solid fa-user-gear"></i> Quản lý tài khoản</a>
-                        <a href="Khachhang/lichsumuahang"><i class="fa-solid fa-box-open"></i> Đơn hàng của tôi</a>
-                        <div class="divider"></div>
-                        <a href="Logout" style="color: #d70018;"><i class="fa-solid fa-right-from-bracket"></i> Đăng
-                            xuất</a>
-                    </div>
-                </div>
-
-                <div class="action-item cart-icon-wrap" onclick="toggleCart()">
-                    <i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span><span class="cart-badge"
-                        id="cartBadge">0</span>
-                </div>
-            </div>
-        </div>
-    </header>
 
     <div class="container">
         <div class="checkout-wrapper">
@@ -1015,68 +962,6 @@
         </div>
     </div>
 
-    <footer class="main-footer">
-        <div class="container">
-            <div class="footer-grid">
-
-                <div class="footer-col">
-                    <div class="footer-logo">
-                        <i class="fa-brands fa-instalod"></i> TECHZONE
-                    </div>
-                    <ul class="address-list">
-                        <li><strong>Địa chỉ:</strong></li>
-                        <li><strong>Cơ sở 1:</strong> 221 Vũ Tông Phan - Thanh Xuân - Hà Nội</li>
-                        <li><strong>Cơ sở 2:</strong> 17 Nguyễn Phong Sắc - Cầu Giấy - Hà Nội</li>
-                        <li><strong>Cơ sở 3:</strong> 145 Minh Khai - Hai Bà Trưng - Hà Nội</li>
-                        <li><strong>Cơ sở 4:</strong> 142 Quang Trung - Hà Đông - Hà Nội</li>
-                        <li><strong>Gọi mua hàng:</strong> 0825.303.888 (8h00 - 22h00)</li>
-                        <li><strong>Gọi bảo hành:</strong> 0922.702.888 (8h00 - 21h00)</li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h4>Chính sách</h4>
-                    <ul class="footer-links">
-                        <li><a href="#">Chính sách mua hàng</a></li>
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">Chính sách bảo hành</a></li>
-                        <li><a href="#">Cam kết chất lượng</a></li>
-                        <li><a href="#">Điều khoản sử dụng</a></li>
-                        <li><a href="#">Chính sách bảo mật</a></li>
-                        <li><a href="#">Hệ thống cửa hàng</a></li>
-                    </ul>
-                    <h4>Fanpage</h4>
-                    <div class="fanpage-box">
-                        <div class="fp-container">
-                            <div class="fp-avatar">
-                                <img src="https://tse3.mm.bing.net/th/id/OIP.YxmH1xNVNfvD5MlgINYERgHaEB?rs=1&pid=ImgDetMain&o=7&rm=3"
-                                    alt="TechZone">
-                            </div>
-                            <div class="fp-info">
-                                <a href="#" class="fp-name">TechZone - Chính Chủ</a>
-                                <span class="fp-followers">96.598 người theo dõi</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer-col">
-                    <div class="social-icons">
-                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
-                        <a href="#"><i class="fa-brands fa-youtube"></i></a>
-                    </div>
-                    <div class="contact-info">
-                        <p>Nhận phản hồi, thắc mắc:</p>
-                        <p>anttech.com.vn @gmail.com</p>
-                        <p style="margin-top: 15px;">Tư vấn miễn phí 24/07</p>
-                        <span class="hotline-large">0825.303.888</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </footer>
 
     <script>
         // Lấy các phần tử

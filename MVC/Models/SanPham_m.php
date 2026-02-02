@@ -107,6 +107,9 @@ class SanPham_m extends connectDB
             // Thêm điều kiện lọc theo mức giá nếu có
             if (!empty($price_range)) {
                 switch ($price_range) {
+                    case 'tat-ca':
+                        // Không áp dụng điều kiện lọc giá nào cả
+                        break;
                     case 'duoi-2-trieu':
                         $conditions[] = "bt.gia < 2000000";
                         break;
@@ -121,6 +124,9 @@ class SanPham_m extends connectDB
                         break;
                     case 'tren-13-trieu':
                         $conditions[] = "bt.gia >= 13000000";
+                        break;
+                    default:
+                        // Nếu có giá trị không hợp lệ, không áp dụng điều kiện
                         break;
                 }
             }

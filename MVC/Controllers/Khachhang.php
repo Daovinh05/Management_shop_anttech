@@ -28,6 +28,37 @@ class Khachhang extends controller
         $this->user = $this->model("Users_m");
     }
 
+    // Helper method to get cart data for logged-in users
+    private function getCartData()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            return null;
+        }
+
+        $ma_user = $_SESSION['user_id'];
+
+        // Lấy giỏ hàng của người dùng
+        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+        $row = mysqli_fetch_assoc($gio_hang);
+
+        if ($row) {
+            $ma_gio_hang = $row['ma_gio_hang'];
+            $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+            return $chi_tiet_gio_hang;
+        } else {
+            return null;
+        }
+    }
+
+    // Override the view method to always include cart data
+    public function view($view, $data = [])
+    {
+        // Add cart data to all views for logged-in users
+        $data['chi_tiet_gio_hang'] = $this->getCartData();
+
+        parent::view($view, $data);
+    }
+
     function Get_data()
     {
         // Hiển thị trang chủ cho khách hàng
