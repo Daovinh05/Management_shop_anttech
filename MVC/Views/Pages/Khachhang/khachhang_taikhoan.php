@@ -1,3 +1,8 @@
+<?php
+// Include necessary helpers
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -892,14 +897,51 @@
 
 
 
+    <?php
+    // Access the variables passed from the controller
+    $user = isset($data['user']) ? $data['user'] : null;
+    $dia_chi = isset($data['dia_chi']) ? $data['dia_chi'] : null;
+
+    // Extract user information
+    $full_name = $user ? $user['full_name'] : 'Khách hàng';
+    $email = $user ? $user['email'] : '';
+    $so_dien_thoai = $user ? $user['so_dien_thoai'] : '';
+    $ten_user = $user ? $user['ten_user'] : '';
+    $ngay_tao = $user && isset($user['ngay_tao'])
+        ? TimezoneHelper::formatForDisplay($user['ngay_tao'], 'H:i:s d/m/Y')
+        : date('H:i:s d/m/Y');
+
+
+    // Extract address information (using default address if available)
+    $dia_chi_text = '';
+    if ($dia_chi && mysqli_num_rows($dia_chi) > 0) {
+        mysqli_data_seek($dia_chi, 0); // Reset pointer to beginning
+        while ($dc = mysqli_fetch_assoc($dia_chi)) {
+            if ($dc['mac_dinh'] == 1) { // Default address
+                $dia_chi_text = $dc['dia_chi'] . ', ' . $dc['ho_ten'] . ', ' . $dc['so_dien_thoai'];
+                break;
+            }
+        }
+
+        // If no default address found, use the first one
+        if (empty($dia_chi_text)) {
+            mysqli_data_seek($dia_chi, 0); // Reset pointer to beginning
+            $first_dc = mysqli_fetch_assoc($dia_chi);
+            $dia_chi_text = $first_dc['dia_chi'] . ', ' . $first_dc['ho_ten'] . ', ' . $first_dc['so_dien_thoai'];
+        }
+    } else {
+        $dia_chi_text = 'Chưa có địa chỉ giao hàng';
+    }
+    ?>
+
 
     <div class="container">
         <div class="profile-wrapper">
 
             <div class="profile-header-card">
                 <div class="welcome-text">
-                    <h1>Chào Hoàng Văn Thành</h1>
-                    <div class="member-date">Tài khoản được tạo vào ngày 02/02/2026</div>
+                    <h1>Chào <?php echo htmlspecialchars($full_name); ?></h1>
+                    <div class="member-date">Tài khoản được tạo vào ngày <?php echo $ngay_tao; ?></div>
                 </div>
                 <img src="https://cdn-icons-png.flaticon.com/512/4710/4710926.png" alt="Mascot" class="mascot-img2">
             </div>
@@ -910,15 +952,15 @@
 
                     <div class="info-row">
                         <span class="info-label">Họ và tên</span>
-                        <span class="info-value">Hoàng Văn Thành</span>
+                        <span class="info-value"><?php echo htmlspecialchars($full_name); ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Số điện thoại</span>
-                        <span class="info-value">087363535151</span>
+                        <span class="info-value"><?php echo htmlspecialchars($so_dien_thoai); ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Địa chỉ</span>
-                        <span class="info-value">số 100, Cẩm Thạch, Cẩm Phả, Quảng Ninh</span>
+                        <span class="info-value"><?php echo htmlspecialchars($dia_chi_text); ?></span>
                     </div>
 
                     <button class="btn-black-outline" onclick="openModal()">CẬP NHẬT</button>
@@ -930,7 +972,8 @@
                     <div class="info-row">
                         <span class="info-label">Tài khoản</span>
                         <div style="flex: 1;">
-                            <input type="text" class="readonly-input" value="thanh@gmail.com" readonly>
+                            <input type="text" class="readonly-input" value="<?php echo htmlspecialchars($ten_user); ?>"
+                                readonly>
                         </div>
                     </div>
                     <div class="info-row">
@@ -938,10 +981,56 @@
                         <span class="info-value">........</span>
                     </div>
 
-                    <button class="btn-black-outline"><i class="fa-solid fa-key"></i> ĐỔI MẬT KHẨU</button>
+                    <button class="btn-black-outline" onclick="openPasswordModal()"><i class="fa-solid fa-key"></i> ĐỔI
+                        MẬT KHẨU</button>
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Hidden form for updating user info -->
+    <form id="updateUserInfoForm" action="http://localhost/Banhang/Khachhang/capnhatTaikhoan" method="post"
+        style="display: none;">
+        <input type="hidden" name="txtMaUser" value="<?php echo $user ? $user['ma_user'] : ''; ?>">
+        <input type="hidden" name="txtTenUser" value="<?php echo $user ? $user['ten_user'] : ''; ?>">
+        <input type="hidden" name="txtEmail" value="<?php echo $user ? $user['email'] : ''; ?>">
+        <input type="hidden" name="txtOldPassword" value="<?php echo $user ? $user['password'] : ''; ?>">
+        <input type="text" name="txtFullName" id="form-fullname" value="">
+        <input type="text" name="txtSoDienThoai" id="form-phone" value="">
+        <input type="password" name="txtPassword" id="form-password" value="">
+    </form>
+
+    <!-- Password Change Modal -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">Đổi mật khẩu</div>
+                <div class="close-btn" onclick="closePasswordModal()"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-section">
+                    <div class="modal-form-group">
+                        <label class="modal-label">MẬT KHẨU CŨ</label>
+                        <input type="password" class="modal-input" id="currentPassword"
+                            placeholder="Nhập mật khẩu hiện tại">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label class="modal-label">MẬT KHẨU MỚI</label>
+                        <input type="password" class="modal-input" id="newPassword" placeholder="Nhập mật khẩu mới">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label class="modal-label">XÁC NHẬN MẬT KHẨU MỚI</label>
+                        <input type="password" class="modal-input" id="confirmNewPassword"
+                            placeholder="Nhập lại mật khẩu mới">
+                    </div>
+
+                    <button class="btn-save" onclick="changePassword()">LƯU THAY ĐỔI</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -955,7 +1044,17 @@
             <div class="modal-body">
                 <div class="avatar-section">
                     <div class="avatar-circle">
-                        <img src="https://cdn-icons-png.flaticon.com/512/4710/4710926.png" alt="Avatar">
+                        <?php
+                        $avatar_url = '/Banhang/Public/Images/avatar.png';
+                        $full_avatar_path = $_SERVER['DOCUMENT_ROOT'] . $avatar_url;
+
+                        if (file_exists($full_avatar_path)):
+                        ?>
+                            <img src="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $avatar_url; ?>"
+                                alt="Avatar">
+                        <?php else: ?>
+                            <img src="https://cdn-icons-png.flaticon.com/512/4710/4710926.png" alt="Avatar">
+                        <?php endif; ?>
                         <div class="camera-btn"><i class="fa-solid fa-camera"></i></div>
                     </div>
                     <div class="avatar-label">ẢNH ĐẠI DIỆN</div>
@@ -965,12 +1064,14 @@
                 <div class="form-section">
                     <div class="modal-form-group">
                         <label class="modal-label">HỌ VÀ TÊN</label>
-                        <input type="text" class="modal-input" value="Nguyễn Hữu Giang">
+                        <input type="text" class="modal-input" id="modal-fullname"
+                            value="<?php echo htmlspecialchars($full_name); ?>">
                     </div>
 
                     <div class="modal-form-group">
                         <label class="modal-label">SỐ ĐIỆN THOẠI</label>
-                        <input type="text" class="modal-input" value="087363535151">
+                        <input type="text" class="modal-input" id="modal-phone"
+                            value="<?php echo htmlspecialchars($so_dien_thoai); ?>">
                     </div>
 
                     <div class="modal-form-group">
@@ -978,23 +1079,41 @@
                         <div class="address-row">
                             <div>
                                 <label class="modal-label" style="font-weight:400; font-size:10px;">TỈNH / THÀNH</label>
-                                <select class="modal-select">
-                                    <option>Quảng Ninh</option>
-                                    <option>Hà Nội</option>
+                                <select class="modal-select" id="modal-province">
+                                    <option value="">Chọn tỉnh/thành</option>
+                                    <option value="Quảng Ninh"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'quảng ninh') !== false) ? 'selected' : ''; ?>>
+                                        Quảng Ninh</option>
+                                    <option value="Hà Nội"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'hà nội') !== false) ? 'selected' : ''; ?>>
+                                        Hà Nội</option>
+                                    <option value="TP.HCM"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'hồ chí minh') !== false) ? 'selected' : ''; ?>>
+                                        TP.HCM</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="modal-label" style="font-weight:400; font-size:10px;">QUẬN / HUYỆN</label>
-                                <select class="modal-select">
-                                    <option>Cẩm Phả</option>
-                                    <option>Hạ Long</option>
+                                <select class="modal-select" id="modal-district">
+                                    <option value="">Chọn quận/huyện</option>
+                                    <option value="Cẩm Phả"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'cẩm phả') !== false) ? 'selected' : ''; ?>>
+                                        Cẩm Phả</option>
+                                    <option value="Hạ Long"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'hạ long') !== false) ? 'selected' : ''; ?>>
+                                        Hạ Long</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="modal-label" style="font-weight:400; font-size:10px;">PHƯỜNG / XÃ</label>
-                                <select class="modal-select">
-                                    <option>Cẩm Thạch</option>
-                                    <option>Cẩm Bình</option>
+                                <select class="modal-select" id="modal-ward">
+                                    <option value="">Chọn phường/xã</option>
+                                    <option value="Cẩm Thạch"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'cẩm thạch') !== false) ? 'selected' : ''; ?>>
+                                        Cẩm Thạch</option>
+                                    <option value="Cẩm Bình"
+                                        <?php echo (strpos(strtolower($dia_chi_text), 'cẩm bình') !== false) ? 'selected' : ''; ?>>
+                                        Cẩm Bình</option>
                                 </select>
                             </div>
                         </div>
@@ -1002,10 +1121,11 @@
 
                     <div class="modal-form-group">
                         <label class="modal-label">ĐỊA CHỈ CHI TIẾT</label>
-                        <input type="text" class="modal-input" value="số 100">
+                        <input type="text" class="modal-input" id="modal-address-detail"
+                            value="<?php echo htmlspecialchars($dia_chi_text); ?>">
                     </div>
 
-                    <button class="btn-save">LƯU THAY ĐỔI</button>
+                    <button class="btn-save" onclick="saveChanges()">LƯU THAY ĐỔI</button>
                 </div>
             </div>
         </div>
@@ -1142,10 +1262,91 @@
             modal.classList.remove('active');
         }
 
+        // Function to save changes
+        function saveChanges() {
+            // Get updated values from the modal form
+            const fullname = document.getElementById('modal-fullname').value;
+            const phone = document.getElementById('modal-phone').value;
+
+            // Update the hidden form fields
+            document.getElementById('form-fullname').value = fullname;
+            document.getElementById('form-phone').value = phone;
+
+            // Submit the form
+            document.getElementById('updateUserInfoForm').submit();
+        }
+
+        // Function to open password change modal
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.add('active');
+        }
+
+        // Function to close password change modal
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        // Function to change password
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            // Basic validation
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                alert('Vui lòng điền đầy đủ thông tin!');
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+                return;
+            }
+
+            // if (newPassword.length < 6) {
+            //     alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
+            //     return;
+            // }
+
+            // Create form data to send to server
+            const formData = new FormData();
+            formData.append('txtMaUser', '<?php echo $user['ma_user']; ?>');
+            formData.append('txtCurrentPassword', currentPassword); // Mật khẩu hiện tại người dùng nhập
+            formData.append('txtNewPassword', newPassword); // Mật khẩu mới
+
+            // Send AJAX request to update password
+            fetch('http://localhost/Banhang/Khachhang/doimatkhau', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    const result = JSON.parse(data);
+                    if (result.success) {
+                        alert('Đổi mật khẩu thành công!');
+                        // Clear the password fields
+                        document.getElementById('currentPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmNewPassword').value = '';
+                        // Close the modal
+                        closePasswordModal();
+                    } else {
+                        alert(result.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi đổi mật khẩu!');
+                });
+        }
+
         // Đóng khi click ra ngoài
         window.addEventListener('click', function(event) {
             if (event.target == modal) {
                 closeModal();
+            }
+            if (event.target == document.getElementById('passwordModal')) {
+                closePasswordModal();
             }
             // Đóng menu tài khoản khi click ra ngoài
             if (!accountBtn.contains(event.target)) {

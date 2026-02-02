@@ -674,6 +674,46 @@ class Khachhang extends controller
         }
     }
 
+    // Đổi mật khẩu
+    function doimatkhau()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $ma_user = $_POST['txtMaUser'];
+            $current_password = $_POST['txtCurrentPassword'];
+            $new_password = $_POST['txtNewPassword'];
+
+            // Lấy thông tin người dùng hiện tại
+            $user_info = $this->user->Users_getById($ma_user);
+            $user = mysqli_fetch_assoc($user_info);
+
+            if ($user) {
+                // Kiểm tra mật khẩu hiện tại có đúng không (mật khẩu không được mã hóa)
+                if ($current_password === $user['password']) {
+                    // Cập nhật mật khẩu mới (không mã hóa)
+                    $result = $this->user->Users_update(
+                        $ma_user,
+                        $user['ten_user'],
+                        $user['full_name'],
+                        $new_password,
+                        $user['email'],
+                        $user['phan_quyen'],
+                        $user['so_dien_thoai']
+                    );
+
+                    if ($result) {
+                        echo json_encode(['success' => true, 'message' => 'Đổi mật khẩu thành công!']);
+                    } else {
+                        echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật mật khẩu!']);
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Mật khẩu hiện tại không đúng!']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy người dùng!']);
+            }
+        }
+    }
+
     // Thêm địa chỉ giao hàng
     function themDiaChi()
     {
