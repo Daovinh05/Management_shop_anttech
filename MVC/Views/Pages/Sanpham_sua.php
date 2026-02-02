@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Cập nhật món ăn</title>
+    <title>Cập nhật sản phẩm</title>
 
     <!-- FONT + ICON -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -112,7 +112,7 @@
 <body>
 
     <div class="card">
-        <h1>Cập nhật Món ăn</h1>
+        <h1>Cập nhật sản phẩm</h1>
         <p class="lead">Chỉnh sửa thông tin sản phẩm.</p>
         <form method="post" action="http://localhost/Banhang/Sanpham/update" enctype="multipart/form-data">
             <div>

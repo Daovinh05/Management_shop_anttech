@@ -799,8 +799,7 @@
                         <?php else: ?>
                             <a href="<?php echo UrlHelper::url('Login'); ?>"><i class="fa-solid fa-user"></i> Đăng nhập</a>
                             <a href="<?php echo UrlHelper::url('Login/register'); ?>"><i class="fa-solid fa-user-plus"></i>
-                                Đăng
-                                ký</a>
+                                Đăng ký</a>
                         <?php endif; ?>
                     </div>
                 </div>
