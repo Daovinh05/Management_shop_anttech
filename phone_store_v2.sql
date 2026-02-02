@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th2 02, 2026 lúc 03:27 PM
+-- Thời gian đã tạo: Th2 02, 2026 lúc 07:26 PM
 -- Phiên bản máy phục vụ: 10.4.27-MariaDB
 -- Phiên bản PHP: 7.4.33
 
@@ -166,7 +166,7 @@ CREATE TABLE `danh_gia` (
 --
 
 INSERT INTO `danh_gia` (`ma_danh_gia`, `ma_user`, `ma_san_pham`, `so_sao`, `noi_dung`, `phan_hoi`, `ngay_danh_gia`) VALUES
-('DG01', 'U06', 'SP01', 5, 'Sản phẩm rất tốt', '123', '2026-01-30 21:31:40'),
+('DG01', 'U06', 'SP01', 5, 'Sản phẩm rất tốt', '1233', '2026-01-30 21:31:40'),
 ('DG02', 'U07', 'SP02', 4, 'Âm thanh hay', '', '2026-01-30 21:31:40'),
 ('DG03', 'U08', 'SP03', 5, 'Sạc nhanh, pin trâu', '', '2026-01-30 21:31:40');
 
@@ -359,7 +359,7 @@ INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `ma_danh_muc`, `ma_thuong
 ('SP023', 'Tai nghe Bluetooth Apple AirPods', 'DM03', 'TH01', 'NCC03', '2026-02-02 15:23:26'),
 ('SP024', 'IPhone 17 promax', 'DM01', 'TH01', 'NCC04', '2026-02-02 13:25:50'),
 ('SP03', 'Sạc Anker 20000mAh', 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40'),
-('SP04', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
+('SP04', 'Macbook m2', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
 ('SP05', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:17:41'),
 ('SP06', 'iPhone 17 Pro Max 256GB VN/A', 'DM01', 'TH01', 'NCC03', '2026-02-01 01:21:33'),
 ('SP07', 'Ao ma', 'DM07', 'TH01', 'NCC02', '2026-02-01 19:19:15'),
@@ -447,7 +447,7 @@ INSERT INTO `users` (`ma_user`, `ten_user`, `password`, `full_name`, `email`, `p
 ('U04', 'qa', '123', 'Đỗ Quanh Anh', 'qa@gmail.com', 'khach_hang', '12312312', '2026-01-30 13:34:04'),
 ('U05', 'chuong', '123', 'Phạm Văn Chương', 'chuong@gmail.com', 'khach_hang', '0389783611', '2026-01-30 15:32:13'),
 ('U06', 'long', '123', 'Nguyễn Văn Long', 'long@gmail.com', 'khach_hang', '0901111111', '2026-01-30 21:31:40'),
-('U07', 'minh', '123', 'Trần Văn Minh', 'minh@gmail.com', 'khach_hang', '0902222222', '2026-01-30 21:31:40'),
+('U07', 'minh', '1234', 'Trần Văn Minh', 'minh@gmail.com', 'khach_hang', '0902222222', '2026-01-30 21:31:40'),
 ('U08', 'hung', '123', 'Lê Văn Hùng', 'hung@gmail.com', 'admin', '0903333333', '2026-01-30 21:31:40');
 
 --
