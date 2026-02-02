@@ -2,9 +2,9 @@
 class DanhGia_m extends connectDB
 {
     // Hàm thêm đánh giá
-    function danhgia_ins($ma_danh_gia, $ma_user, $ma_san_pham, $so_sao, $noi_dung)
+    function danhgia_ins($ma_danh_gia, $ma_user, $ma_san_pham, $so_sao, $noi_dung, $phan_hoi)
     {
-        $sql = "INSERT INTO danh_gia VALUES ('$ma_danh_gia', '$ma_user', '$ma_san_pham', '$so_sao', '$noi_dung', NOW())";
+        $sql = "INSERT INTO danh_gia VALUES ('$ma_danh_gia', '$ma_user', '$ma_san_pham', '$so_sao', '$noi_dung','$phan_hoi', NOW())";
         return mysqli_query($this->con, $sql);
     }
 
@@ -19,23 +19,40 @@ class DanhGia_m extends connectDB
             return false; // Không trùng mã đánh giá
     }
 
-    // Hàm tìm kiếm đánh giá
-    function DanhGia_find($ma_danh_gia, $ma_san_pham)
+    // Hàm tìm kiếm đánh giá (kèm tên khách hàng, tên sản phẩm)
+    function DanhGia_find($ma_danh_gia, $ten_khach_hang, $ten_san_pham)
     {
         $sql = "SELECT dg.*, u.full_name, sp.ten_san_pham
                 FROM danh_gia dg
                 LEFT JOIN users u ON dg.ma_user = u.ma_user
                 LEFT JOIN san_pham sp ON dg.ma_san_pham = sp.ma_san_pham
-                WHERE dg.ma_danh_gia LIKE '%$ma_danh_gia%' AND dg.ma_san_pham LIKE '%$ma_san_pham%'
-                ORDER BY dg.ngay_danh_gia DESC";
+                WHERE 1=1";
+
+        if (!empty($ma_danh_gia)) {
+            $sql .= " AND dg.ma_danh_gia LIKE '%$ma_danh_gia%'";
+        }
+
+        if (!empty($ten_khach_hang)) {
+            $sql .= " AND u.full_name LIKE '%$ten_khach_hang%'";
+        }
+
+        if (!empty($ten_san_pham)) {
+            $sql .= " AND sp.ten_san_pham LIKE '%$ten_san_pham%'";
+        }
+
+        $sql .= " ORDER BY dg.ngay_danh_gia DESC";
         return mysqli_query($this->con, $sql);
     }
 
     // Hàm sửa đánh giá
-    function DanhGia_update($ma_danh_gia, $ma_user, $ma_san_pham, $so_sao, $noi_dung)
+    function DanhGia_update($ma_danh_gia, $so_sao, $noi_dung, $phan_hoi)
     {
-        $sql = "UPDATE danh_gia SET ma_user = '$ma_user', ma_san_pham = '$ma_san_pham',
-                so_sao = '$so_sao', noi_dung = '$noi_dung' WHERE ma_danh_gia = '$ma_danh_gia'";
+        // Extract numeric value from so_sao if it contains text like "5 sao"
+        if (preg_match('/(\d+)/', $so_sao, $matches)) {
+            $so_sao = $matches[1];
+        }
+
+        $sql = "UPDATE danh_gia SET so_sao = '$so_sao', noi_dung = '$noi_dung', phan_hoi = '$phan_hoi' WHERE ma_danh_gia = '$ma_danh_gia'";
         return mysqli_query($this->con, $sql);
     }
 
@@ -81,7 +98,7 @@ class DanhGia_m extends connectDB
 
     // Hàm tính trung bình đánh giá của sản phẩm
     function DanhGia_getAvgRatingByProduct($ma_san_pham)
-        {
+    {
         $sql = "SELECT AVG(so_sao) as avg_rating FROM danh_gia WHERE ma_san_pham = '$ma_san_pham'";
         $result = mysqli_query($this->con, $sql);
         $row = mysqli_fetch_assoc($result);

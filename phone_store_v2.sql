@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th2 01, 2026 lúc 04:01 PM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.0.30
+-- Máy chủ: localhost
+-- Thời gian đã tạo: Th2 02, 2026 lúc 03:27 PM
+-- Phiên bản máy phục vụ: 10.4.27-MariaDB
+-- Phiên bản PHP: 7.4.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -43,13 +43,62 @@ CREATE TABLE `bien_the` (
 -- Đang đổ dữ liệu cho bảng `bien_the`
 --
 
-INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `mau_sac`, `ram`, `dung_luong`, `gia`, `so_luong_kho`) VALUES
-('BT001', 'SP001', '8GB/256GB/Titan', 'Titan Tự Nhiên', '8GB', '256GB', 29990000.00, 50),
-('BT002', 'SP001', '8GB/512GB/Đen', 'Đen', '8GB', '512GB', 35990000.00, 20),
-('BT003', 'SP002', '12GB/256GB/Xám', 'Xám Titan', '12GB', '256GB', 26990000.00, 30),
-('BT004', 'SP002', '12GB/512GB/Vàng', 'Vàng', '12GB', '512GB', 29990000.00, 15),
-('BT005', 'SP003', '12GB/256GB/Xanh', 'Xanh Lá', '12GB', '256GB', 19990000.00, 100),
-('BT006', 'SP004', '8GB/64GB/Wifi', 'Xám', '8GB', '64GB', 13500000.00, 40);
+INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `img_bien_the`, `mau_sac`, `ram`, `dung_luong`, `gia`, `so_luong_kho`) VALUES
+('BT0050', 'SP01', '8GB/512GB/Titan', 'iphone_17_pro_max_2.webp', 'Titan Tự Nhiên', '8GB', '256GB', '29990000.00', 50),
+('BT008', 'SP04', '16GB/256GB/Xám', 'macbook_air_m2_1_1_1_8.webp', 'Xám tro', '16GB', '256GB', '24900000.00', 8),
+('BT009', 'SP04', '16GB/256GB/Vàng', 'vn0d33_1_1770016506.webp', 'Vàng sa mạc', '16GB', '256GB', '251990000.00', 8),
+('BT01', 'SP01', '16GB RAM 512GB ROM', 'tuf_den.jpg', 'Đen', '16GB', '512GB', '25000000.00', 12),
+('BT010', 'SP04', '16GB/256GB/Bạc', 'macbook_air_m2_2_1_1_7.webp', 'Bạc Titan', '16GB', '256GB', '2490000.00', 8),
+('BT011', 'SP04', '16GB/256GB/Xám', 'macbook_air_m2_4_1_1_6.webp', 'Xám ', '16GB', '256GB', '25490000.00', 8),
+('BT012', 'SP05', '8GB/256GB/Xanh', 'oppo_reno_15f_1.webp', 'Xanh Dương', '8GB', '256GB', '11670000.00', 11),
+('BT013', 'SP05', '8GB/256GB/Xanh', 'oppo_reno15f_5g.webp', 'Xanh nhạt', '8GB', '256GB', '11567000.00', 10),
+('BT014', 'SP05', '8GB/256GB/Hồng', 'oppo_reno_15f_2.webp', 'Hồng cánh sen', '8GB', '256GB', '11490000.00', 9),
+('BT015', 'SP06', '6GB/256GB/Đen', 'redmi_note_15_series_2_3.webp', 'Đen', '6GB', '256GB', '4930000.00', 49),
+('BT016', 'SP06', '6GB/128GB/Tím', 'redmi_note_15_series_1_3_1770018150.webp', 'Tím', '6GB', '128GB', '4990000.00', 9),
+('BT017', 'SP06', '6GB/128GB/Xanh', 'redmi_note_15_series_3.webp', 'Xanh da trời', '6GB', '128GB', '4990000.00', 9),
+('BT018', 'SP07', 'VGA 6GB RTX3050 - CORE 5-210H - 8GB/512GB/Đen', 'text_ng_n_7__4_146_1770018135.webp', 'Đen', '8GB', '512GB', '20900000.00', 11),
+('BT019', 'SP07', 'VGA 4GB RTX2050 - R7-7435HS - 16GB/512GB/Đen', 'text_ng_n_7__4_146_2.webp', 'Đen', '16GB', '512GB', '21990000.00', 4),
+('BT02', 'SP02', 'Bản quốc tế', 'mac_book_1769963800.jpg', 'Đen', '', '', '8000000.00', 20),
+('BT020', 'SP07', 'VGA 8GB RTX5050 - i5-13450HX - 32GB/1TB/Đen', 'text_ng_n_7__4_146_3.webp', 'Đen', '32GB', '1TB', '24900000.00', 3),
+('BT021', 'SP07', 'VGA 8GB RTX5070 -  i7-14650HX - 16GB/1TB/Đen', 'text_ng_n_7__4_146_4.webp', 'Đen', '16GB', '1TB', '41990000.00', 1),
+('BT022', 'SP08', 'VGA 6GB RTX3050 -  R7-7735HS - 16GB/512GB/Xám', 'text_ng_n_6__4_24_1770019902.webp', 'Xám', '16GB', '512GB', '20990000.00', 4),
+('BT023', 'SP08', 'VGA 6GB RTX4050 - R7-7735HS - 16GB/512GB/Xám', 'text_ng_n_6__4_24.webp', 'Xám', '16GB', '512GB', '24990000.00', 3),
+('BT024', 'SP08', 'VGA 8GB RTX5050 - i7-13650HX - 16GB/512GB/Xám', 'text_ng_n_6__4_24_1.webp', 'Xám', '16GB', '512GB', '33990000.00', 2),
+('BT025', 'SP09', 'Intel UHD Graphics - I5-12450H/16GB/512GB/Đen', 'text_ng_n_13__8_27.webp', 'Đen', '16GB', '512GB', '19990000.00', 4),
+('BT026', 'SP09', 'VGA 4GB RTX2050 - I5-12450H/16GB/512GB/Đen', 'text_ng_n_13__8_27_1.webp', 'Đen', '16GB', '512GB', '21990000.00', 5),
+('BT027', 'SP09', 'VGA 6GB RTX3050 - i7-12650H/16GB/512GB/Đen', 'text_ng_n_13__8_27_2.webp', 'Đen', '16GB', '512GB', '24090000.00', 6),
+('BT028', 'SP010', ' VGA 2GB MX570A - CORE 7-150U/16GB/512GB/Đen', 'text_ng_n_3__7_221_1770019887.webp', 'Đen', '16GB', '512GB', '16490000.00', 5),
+('BT029', 'SP010', 'I5-1334U/24GB/512GB/Đen', 'text_ng_n_3__7_221_1.webp', 'Đen', '24GB', '512GB', '17990000.00', 5),
+('BT03', 'SP03', 'Sạc nhanh', '', 'Trắng', NULL, '20000mAh', '1200000.00', 30),
+('BT030', 'SP010', 'Snapdragon X PLUS X1P - 16GB/1TB/Đen', 'text_ng_n_3__7_221_1770019929.webp', 'Đen', '16GB', '1TB', '19990000.00', 5),
+('BT031', 'SP011', '44mm/Đen', 'dh_2__5.webp', 'Đen', '', '', '8500000.00', 0),
+('BT032', 'SP011', '48mm/Đen', 'dh_2__5_1.webp', 'Đen', '', '', '7990000.00', 5),
+('BT033', 'SP011', '44mm/Vàng', 't_rex_3_pro_vang.webp', 'Vàng', '', '', '8490000.00', 10),
+('BT034', 'SP011', '48mm/Vàng', 't_rex_3_pro_vang_1.webp', 'Vàng', '', '', '7990000.00', 0),
+('BT035', 'SP012', 'Polyme/ Đen', 'text_ng_n_32__7_31_3.webp', 'Đen', '', '', '690000.00', 10),
+('BT039', 'SP013', 'AirPods Pro 3 2025', 'airpods_pro_3_sep25_pdp_image_position_2__vn_vi_1.webp', 'AirPods Pro 3 2025', '', '', '6590000.00', 12),
+('BT04', 'SP01', '8GB/256GB/Cam', 'iphone_17_pro_max_3.webp', 'Cam vũ trụ', '8GB', '256GB', '29990000.00', 17),
+('BT051', 'SP01', '8GB/512GB/Đen', 'iphone_17_pro_max_1.webp', 'Đen', '8GB', '512GB', '35990000.00', 20),
+('BT052', 'SP03', '12GB/256GB/Xám', 'dien_thoai_samsung_galaxy_s25_ultra.webp', 'Xám tro', '12GB', '256GB', '26990000.00', 30),
+('BT053', 'SP02', '12GB/512GB/Vàng', 'iphone_17_256gb_5.webp', 'Vàng', '12GB', '512GB', '29990000.00', 15),
+('BT054', 'SP02', '8GB/64GB/Xanh', 'iphone_air_3_2.webp', 'Xanh Sky', '8GB', '128GB', '13500000.00', 40),
+('BT055', 'SP02', '12GB/256GB/Đen', 'iphone_air_2.webp', 'Đen', '12GB', '256GB', '19990000.00', 100),
+('BT056', 'SP03', '6GB/256GB/Đen', 'dien_thoai_samsung_galaxy_s25_ultra_3__6.webp', 'Đen', '6GB', '256GB', '27900000.00', 25),
+('BT06', 'SP02', '4/256GB/Trắng', 'iphone_17_256gb_4.webp', 'Trắng nt', '4GB', '256GB', '24990000.00', 14),
+('BT07', 'SP01', '64GB RAM 512GB ROM', 'zenbook.jpg', 'Trắng', '64', '512', '30000000.00', 10),
+('BT36', 'SP012', 'Hợp kim nhôm/ Đen', 'text_ng_n_32__7_31_3_1.webp', 'Đen', '', '', '690000.00', 11),
+('BT37', 'SP012', 'Hợp kim nhôm/Hồng', 'text_ng_n_28__8_31_4.webp', 'Hồng', '', '', '649000.00', 9),
+('BT38', 'SP012', 'Polyme/Hồng', 'text_ng_n_28__8_31_4_1.webp', 'Hồng', '', '', '649000.00', 8),
+('BT40', 'SP013', 'AirPods Pro 2 2023', 'airpods_pro_2_sep24_pdp_image_position_2__vn_vi.webp', 'AirPods Pro 2 2023', '', '', '4950000.00', 14),
+('BT41', 'SP013', 'AirPods Pro 2022/ Lighting', '4_197.webp', 'AirPods Pro 2022', '', '', '5690000.00', 15),
+('BT42', 'SP014', 'Free chip 2', 'freeclip_2.webp', 'Đen', '', '', '3790000.00', 12),
+('BT43', 'SP014', 'Free chip 2', 'huawei_freeclip_2_12_.webp', 'Xanh dương', '', '', '3790000.00', 8),
+('BT44', 'SP014', 'Free chip 2', '_.webp', 'Trắng', '', '', '3790000.00', 7),
+('BT45', 'SP015', 'Trắng', 'frame_2_54_.webp', 'Trắng', '', '', '1250000.00', 25),
+('BT46', 'SP015', 'Đen', 'frame_2_53_.webp', 'Đen', '', '', '1250000.00', 30),
+('BT47', 'SP016', '12GB/ 256GB/ Đen', 'samsung_galaxy_z_fold_7_1_1770022664.webp', 'Đen', '12GB', '256GB', '39500000.00', 4),
+('BT48', 'SP016', '12GB/ 256GB/ Xám bóng', 'samsung_galaxy_z_fold_7_2_1770022677.webp', 'Xám bóng', '12GB', '512GB', '45990000.00', 2),
+('BT49', 'SP016', '12GB/ 256GB/ Xanh bóng', 'samsung_galaxy_z_fold_7_xanh_1.webp', 'Xanh bóng', '12GB', '256GB', '39500000.00', 5);
 
 -- --------------------------------------------------------
 
@@ -70,9 +119,9 @@ CREATE TABLE `chi_tiet_don_hang` (
 --
 
 INSERT INTO `chi_tiet_don_hang` (`ma_ctdh`, `ma_don_hang`, `ma_bien_the`, `so_luong`, `gia_luc_mua`) VALUES
-('CTDH001', 'DH001', 'BT001', 1, 29990000.00),
-('CTDH002', 'DH002', 'BT003', 1, 26990000.00),
-('CTDH003', 'DH003', 'BT002', 2, 35990000.00);
+('CT01', 'DH01', 'BT01', 1, '25000000.00'),
+('CT02', 'DH02', 'BT02', 2, '8000000.00'),
+('CT03', 'DH03', 'BT03', 1, '1200000.00');
 
 -- --------------------------------------------------------
 
@@ -91,8 +140,10 @@ CREATE TABLE `chi_tiet_gio_hang` (
 --
 
 INSERT INTO `chi_tiet_gio_hang` (`ma_gio_hang`, `ma_bien_the`, `so_luong`) VALUES
-('GH001', 'BT005', 2),
-('GH001', 'BT006', 1);
+('GH01', 'BT01', 1),
+('GH02', 'BT01', 2),
+('GH02', 'BT02', 2),
+('GH03', 'BT03', 1);
 
 -- --------------------------------------------------------
 
@@ -106,6 +157,7 @@ CREATE TABLE `danh_gia` (
   `ma_san_pham` varchar(20) NOT NULL,
   `so_sao` int(11) DEFAULT NULL CHECK (`so_sao` >= 1 and `so_sao` <= 5),
   `noi_dung` text DEFAULT NULL,
+  `phan_hoi` text NOT NULL,
   `ngay_danh_gia` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -113,10 +165,10 @@ CREATE TABLE `danh_gia` (
 -- Đang đổ dữ liệu cho bảng `danh_gia`
 --
 
-INSERT INTO `danh_gia` (`ma_danh_gia`, `ma_user`, `ma_san_pham`, `so_sao`, `noi_dung`, `ngay_danh_gia`) VALUES
-('DG001', 'US001', 'SP001', 5, 'Máy đẹp, mượt, titan tự nhiên nhìn sang.', '2026-01-30 15:05:58'),
-('DG002', 'US002', 'SP002', 4, 'Chụp ảnh đẹp nhưng máy hơi nóng khi chơi game.', '2026-01-30 15:05:58'),
-('DG003', 'US001', 'SP003', 5, 'Giá rẻ so với cấu hình, sạc siêu nhanh.', '2026-01-30 15:05:58');
+INSERT INTO `danh_gia` (`ma_danh_gia`, `ma_user`, `ma_san_pham`, `so_sao`, `noi_dung`, `phan_hoi`, `ngay_danh_gia`) VALUES
+('DG01', 'U06', 'SP01', 5, 'Sản phẩm rất tốt', '123', '2026-01-30 21:31:40'),
+('DG02', 'U07', 'SP02', 4, 'Âm thanh hay', '', '2026-01-30 21:31:40'),
+('DG03', 'U08', 'SP03', 5, 'Sạc nhanh, pin trâu', '', '2026-01-30 21:31:40');
 
 -- --------------------------------------------------------
 
@@ -127,7 +179,7 @@ INSERT INTO `danh_gia` (`ma_danh_gia`, `ma_user`, `ma_san_pham`, `so_sao`, `noi_
 CREATE TABLE `danh_muc` (
   `ma_danh_muc` varchar(20) NOT NULL,
   `ten_danh_muc` varchar(255) NOT NULL,
-  `ngay_tao` datetime DEFAULT current_timestamp()
+  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -135,9 +187,14 @@ CREATE TABLE `danh_muc` (
 --
 
 INSERT INTO `danh_muc` (`ma_danh_muc`, `ten_danh_muc`, `ngay_tao`) VALUES
-('DM01', 'Điện thoại', '2026-02-01 14:49:22'),
-('DM02', 'Máy tính bảng', '2026-02-01 14:49:22'),
-('DM03', 'Phụ kiện', '2026-02-01 14:49:22');
+('DM01', 'Điện thoại', '2026-01-30 10:27:04'),
+('DM02', 'Máy tính bảng', '2026-01-30 10:27:04'),
+('DM03', 'Phụ kiện 123', '2026-01-30 10:27:04'),
+('DM06', 'Macbook', '2026-01-30 14:00:14'),
+('DM07', 'Laptop Gaming', '2026-01-30 14:31:40'),
+('DM08', 'Tai nghe', '2026-01-30 14:31:40'),
+('DM09', 'Sạc dự phòng', '2026-01-30 14:31:40'),
+('DM9', 'Iphone', '2026-01-31 17:38:51');
 
 -- --------------------------------------------------------
 
@@ -159,9 +216,9 @@ CREATE TABLE `dia_chi_giao_hang` (
 --
 
 INSERT INTO `dia_chi_giao_hang` (`ma_dia_chi`, `ma_user`, `ho_ten`, `so_dien_thoai`, `dia_chi`, `mac_dinh`) VALUES
-('DC001', 'US001', 'Đào Phúc Dân', '0862757951', '123 Đường Láng, Đống Đa, Hà Nội', 1),
-('DC002', 'US001', 'Dân (Cơ quan)', '0862757951', 'Tòa nhà FPT, Cầu Giấy, Hà Nội', 0),
-('DC003', 'US002', 'Đào Văn Vinh', '0987654321', '456 Lê Lợi, Quận 1, TP.HCM', 1);
+('DC01', 'U06', 'Nguyễn Văn Long', '0901111111', 'Hà Nội', 1),
+('DC02', 'U07', 'Trần Văn Minh', '0902222222', 'TP HCM', 1),
+('DC03', 'U08', 'Lê Văn Hùng', '0903333333', 'Đà Nẵng', 1);
 
 -- --------------------------------------------------------
 
@@ -184,10 +241,10 @@ CREATE TABLE `don_hang` (
 -- Đang đổ dữ liệu cho bảng `don_hang`
 --
 
-INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`, `tong_tien_hang`, `trang_thai_don_hang`, `ngay_tao`) VALUES
-('DH001', 'US001', 'DC001', 'KM01', 29490000.00, 'hoan_thanh', '2024-06-15 10:30:00'),
-('DH002', 'US002', 'DC003', NULL, 26990000.00, 'dang_giao', '2024-06-20 14:00:00'),
-('DH003', 'US001', 'DC002', NULL, 71980000.00, 'da_huy', '2024-06-10 09:00:00');
+INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`, `tong_tien_hang`, `thanh_toan`, `trang_thai_don_hang`, `ngay_tao`) VALUES
+('DH01', 'U06', 'DC01', 'KM04', '24700000.00', '0.00', 'cho_duyet', '2026-01-30 21:31:40'),
+('DH02', 'U07', 'DC02', 'KM05', '15600000.00', '0.00', 'dang_giao', '2026-01-30 21:31:40'),
+('DH03', 'U08', 'DC03', NULL, '1200000.00', '0.00', 'hoan_thanh', '2026-01-30 21:31:40');
 
 -- --------------------------------------------------------
 
@@ -207,8 +264,9 @@ CREATE TABLE `gio_hang` (
 --
 
 INSERT INTO `gio_hang` (`ma_gio_hang`, `ma_user`, `trang_thai`, `ngay_tao`) VALUES
-('GH001', 'US001', 'active', '2026-01-30 15:05:58'),
-('GH002', 'US002', 'active', '2026-01-30 15:05:58');
+('GH01', 'U06', 'active', '2026-01-30 21:31:40'),
+('GH02', 'U07', 'active', '2026-01-30 21:31:40'),
+('GH03', 'U08', 'ordered', '2026-01-30 21:31:40');
 
 -- --------------------------------------------------------
 
@@ -230,9 +288,13 @@ CREATE TABLE `khuyen_mai` (
 --
 
 INSERT INTO `khuyen_mai` (`ma_khuyen_mai`, `ten_khuyen_mai`, `tien_khuyen_mai`, `ngay_bat_dau`, `ngay_ket_thuc`, `trang_thai_khuyen_mai`) VALUES
-('KM01', 'Chào Hè 2024', 500000.00, '2024-05-01 00:00:00', '2026-02-13 00:00:00', 'con'),
-('KM02', 'Black Friday', 1000000.00, '2024-11-20 00:00:00', '2024-11-30 00:00:00', 'het'),
-('KM03', 'Khách hàng mới', 200000.00, '2024-01-01 00:00:00', '2025-01-01 00:00:00', 'con');
+('KM01', 'Chào Hè 2024', '500000.00', '2026-01-17 00:00:00', '2024-08-31 00:00:00', 'het'),
+('KM02', 'Black Friday', '1000000.00', '2024-11-20 00:00:00', '2024-11-30 00:00:00', 'het'),
+('KM03', 'Khách hàng mới', '200000.00', '2024-01-01 00:00:00', '2026-01-22 23:00:00', 'het'),
+('KM04', 'Giảm giá Tết', '300000.00', '2026-01-25 00:00:00', '2026-01-31 00:00:00', 'con'),
+('KM05', 'Sale cuối tuần', '200000.00', '2026-01-30 00:00:00', '2026-01-31 00:00:00', 'con'),
+('KM06', 'Flash Sale', '500000.00', '2026-01-30 00:00:00', '2026-06-30 00:00:00', 'con'),
+('KM07', 'tết', '123.00', '1970-01-01 08:00:00', '2026-06-30 09:09:00', 'con');
 
 -- --------------------------------------------------------
 
@@ -252,9 +314,12 @@ CREATE TABLE `nha_cung_cap` (
 --
 
 INSERT INTO `nha_cung_cap` (`ma_nha_cung_cap`, `ten_nha_cung_cap`, `dia_chi`, `dien_thoai`) VALUES
-('NCC01', 'FPT Trading', 'Duy Tân, Hà Nội', '02473008888'),
-('NCC02', 'DigiWorld', 'Hoàng Hoa Thám, TP.HCM', '02839290059'),
-('NCC03', 'Viettel Store', 'Giảng Võ, Hà Nội', '18008123');
+('NCC01', 'FPT Trading', 'Hà Nội', '0909000009'),
+('NCC02', 'Thế Giới Số', 'TP HCM', '0909000002'),
+('NCC03', 'CellphoneS', 'Đà Nẵng', '0909000003'),
+('NCC04', 'FPT Trading', 'Hà nội', '0987654345'),
+('NCC05', 'DigiWorld', 'Hà nội', '0913818387'),
+('NCC06', 'Clickbuy', 'HCM', '0192823874');
 
 -- --------------------------------------------------------
 
@@ -275,11 +340,31 @@ CREATE TABLE `san_pham` (
 -- Đang đổ dữ liệu cho bảng `san_pham`
 --
 
-INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `img_hinh_anh`, `ma_danh_muc`, `ma_thuong_hieu`, `ma_nha_cung_cap`, `ngay_tao`) VALUES
-('SP001', 'iPhone 15 Pro Max', 'iphone15pm.jpg', 'DM01', 'TH01', 'NCC01', '2026-01-30 15:05:58'),
-('SP002', 'Samsung Galaxy S24 Ultra', 's24ultra.jpg', 'DM01', 'TH02', 'NCC02', '2026-01-30 15:05:58'),
-('SP003', 'Xiaomi 14', 'xiaomi14.jpg', 'DM01', 'TH03', 'NCC02', '2026-01-30 15:05:58'),
-('SP004', 'iPad Air 5 M1', 'ipadair5.jpg', 'DM02', 'TH01', 'NCC01', '2026-01-30 15:05:58');
+INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `ma_danh_muc`, `ma_thuong_hieu`, `ma_nha_cung_cap`, `ngay_tao`) VALUES
+('SP01', 'Asus TUF Gaming', 'DM07', 'TH06', 'NCC01', '2026-01-30 21:31:40'),
+('SP010', 'Laptop Dell Inspiron 14', 'DM02', 'TH07', 'NCC02', '2026-02-02 15:00:40'),
+('SP011', 'Amazfit T-Rex 3 Pro', 'DM03', 'TH10', 'NCC01', '2026-02-02 15:07:02'),
+('SP012', 'Vòng đeo tay thông minh Huawei Band 10', 'DM03', 'TH09', 'NCC01', '2026-02-02 15:16:27'),
+('SP013', 'Aripod', 'DM9', 'TH01', 'NCC06', '2026-02-02 21:06:01'),
+('SP014', 'Tai nghe không dây HUAWEI FreeClip 2', 'DM03', 'TH09', 'NCC05', '2026-02-02 15:32:59'),
+('SP015', 'Sạc Anker Zolo 3C1A 140W', 'DM03', 'TH11', 'NCC06', '2026-02-02 15:38:35'),
+('SP016', 'Samsung Galaxy Z Fold7', 'DM01', 'TH02', 'NCC05', '2026-02-02 15:54:36'),
+('SP017', 'Laptop ASUS TUF Gaming F16', 'DM02', 'TH08', 'NCC03', '2026-02-02 14:39:45'),
+('SP018', 'Xiaomi Redmi Note 15 ', 'DM01', 'TH03', 'NCC03', '2026-02-02 14:32:38'),
+('SP019', 'Oppo Reno 15F', 'DM01', 'TH04', 'NCC01', '2026-02-02 14:28:59'),
+('SP02', 'Tai nghe Sony WH-1000XM5', 'DM08', 'TH07', 'NCC02', '2026-01-30 21:31:40'),
+('SP020', 'Macbook Air M2', 'DM02', 'TH01', 'NCC02', '2026-02-02 14:09:27'),
+('SP021', 'Samsung s25 Ultra', 'DM01', 'TH02', 'NCC02', '2026-02-02 13:53:56'),
+('SP022', 'Iphone Air', 'DM01', 'TH01', 'NCC05', '2026-02-02 13:52:58'),
+('SP023', 'Tai nghe Bluetooth Apple AirPods', 'DM03', 'TH01', 'NCC03', '2026-02-02 15:23:26'),
+('SP024', 'IPhone 17 promax', 'DM01', 'TH01', 'NCC04', '2026-02-02 13:25:50'),
+('SP03', 'Sạc Anker 20000mAh', 'DM09', 'TH08', 'NCC03', '2026-01-30 21:31:40'),
+('SP04', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
+('SP05', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:17:41'),
+('SP06', 'iPhone 17 Pro Max 256GB VN/A', 'DM01', 'TH01', 'NCC03', '2026-02-01 01:21:33'),
+('SP07', 'Ao ma', 'DM07', 'TH01', 'NCC02', '2026-02-01 19:19:15'),
+('SP08', 'Laptop Lenovo LOQ', 'DM02', 'TH06', 'NCC03', '2026-02-02 14:48:38'),
+('SP09', 'Laptop Acer Gaming Aspire 7', 'DM02', 'TH05', 'NCC04', '2026-02-02 14:54:30');
 
 -- --------------------------------------------------------
 
@@ -301,9 +386,9 @@ CREATE TABLE `thanh_toan` (
 --
 
 INSERT INTO `thanh_toan` (`ma_giao_dich`, `ma_don_hang`, `phuong_thuc`, `so_tien_thanh_toan`, `trang_thai_thanh_toan`, `ngay_thanh_toan`) VALUES
-('TT001', 'DH001', 'MOMO', 29490000.00, 'da_thanh_toan', '2024-06-15 10:35:00'),
-('TT002', 'DH002', 'COD', 26990000.00, 'chua_thanh_toan', NULL),
-('TT003', 'DH003', 'BANKING', 71980000.00, '', NULL);
+('GD01', 'DH01', 'COD', '24700000.00', 'chua_thanh_toan', NULL),
+('GD02', 'DH02', 'Momo', '15600000.00', 'da_thanh_toan', '2026-01-30 21:31:40'),
+('GD03', 'DH03', 'VNPay', '1200000.00', 'da_thanh_toan', '2026-01-30 21:31:40');
 
 -- --------------------------------------------------------
 
@@ -314,7 +399,7 @@ INSERT INTO `thanh_toan` (`ma_giao_dich`, `ma_don_hang`, `phuong_thuc`, `so_tien
 CREATE TABLE `thuong_hieu` (
   `ma_thuong_hieu` varchar(20) NOT NULL,
   `ten_thuong_hieu` varchar(255) NOT NULL,
-  `ngay_tao` datetime DEFAULT current_timestamp()
+  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -322,10 +407,17 @@ CREATE TABLE `thuong_hieu` (
 --
 
 INSERT INTO `thuong_hieu` (`ma_thuong_hieu`, `ten_thuong_hieu`, `ngay_tao`) VALUES
-('TH01', 'Apple', '2026-02-01 14:49:22'),
-('TH02', 'Samsung', '2026-02-01 14:49:22'),
-('TH03', 'Xiaomi', '2026-02-01 14:49:22'),
-('TH04', 'Oppo', '2026-02-01 14:49:22');
+('TH01', 'Appleee', '2026-01-30 10:29:39'),
+('TH02', 'Samsung', '2026-01-30 10:29:39'),
+('TH03', 'Xiaomi', '2026-01-30 10:29:39'),
+('TH04', 'Oppo', '2026-01-30 10:29:39'),
+('TH05', 'Dellll', '2026-01-30 14:15:48'),
+('TH06', 'Asus', '2026-01-30 14:31:40'),
+('TH07', 'Sony', '2026-01-30 14:31:40'),
+('TH08', 'Anker', '2026-01-30 14:31:40'),
+('TH09', 'Huawei', '2026-02-02 06:16:45'),
+('TH10', 'Amazfit', '2026-02-02 06:17:03'),
+('TH11', 'Anker', '2026-02-02 08:38:07');
 
 -- --------------------------------------------------------
 
@@ -336,10 +428,10 @@ INSERT INTO `thuong_hieu` (`ma_thuong_hieu`, `ten_thuong_hieu`, `ngay_tao`) VALU
 CREATE TABLE `users` (
   `ma_user` varchar(20) NOT NULL,
   `ten_user` varchar(55) NOT NULL,
-  `password` varchar(55) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `full_name` varchar(255) DEFAULT NULL,
   `email` varchar(55) DEFAULT NULL,
-  `phan_quyen` enum('admin','khach_hang') DEFAULT NULL,
+  `phan_quyen` enum('admin','khach_hang') NOT NULL DEFAULT 'khach_hang',
   `so_dien_thoai` varchar(20) DEFAULT NULL,
   `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -349,10 +441,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`ma_user`, `ten_user`, `password`, `full_name`, `email`, `phan_quyen`, `so_dien_thoai`, `ngay_tao`) VALUES
-('ADMIN01', 'admin', '123', 'Quản Trị Viên', 'admin@phonestore.com', 'admin', '0909000000', '2026-01-30 15:05:58'),
-('US001', 'dan', '123', 'Đào Phúc Dân', 'phucdan@gmail.com', 'khach_hang', '0862757951', '2026-01-30 15:05:58'),
-('US002', 'vinh', '123', 'Đào Văn Vinh', 'vanvinh@gmail.com', 'khach_hang', '0987654321', '2026-01-30 15:05:58'),
-('US003', 'thanh', '123', 'Hoàng Văn Thành', 'hoangthanh@gmail.com', 'khach_hang', '0123456789', '2026-02-01 21:50:15');
+('U01', 'vinh', '123', 'Đào Văn Vinh', 'daovinhgm2005@gmail.com', 'admin', '0389783619', '2026-01-30 13:32:56'),
+('U02', 'dan', '123', 'Đào Phúc Dân', 'dan@gmail.com', 'khach_hang', '12312312', '2026-01-30 13:32:56'),
+('U03', 'thanh', '123', 'Hoàng Văn Thành', 'thanh@gmail.com', 'admin', '0389783619', '2026-01-30 13:34:04'),
+('U04', 'qa', '123', 'Đỗ Quanh Anh', 'qa@gmail.com', 'khach_hang', '12312312', '2026-01-30 13:34:04'),
+('U05', 'chuong', '123', 'Phạm Văn Chương', 'chuong@gmail.com', 'khach_hang', '0389783611', '2026-01-30 15:32:13'),
+('U06', 'long', '123', 'Nguyễn Văn Long', 'long@gmail.com', 'khach_hang', '0901111111', '2026-01-30 21:31:40'),
+('U07', 'minh', '123', 'Trần Văn Minh', 'minh@gmail.com', 'khach_hang', '0902222222', '2026-01-30 21:31:40'),
+('U08', 'hung', '123', 'Lê Văn Hùng', 'hung@gmail.com', 'admin', '0903333333', '2026-01-30 21:31:40');
 
 --
 -- Chỉ mục cho các bảng đã đổ
