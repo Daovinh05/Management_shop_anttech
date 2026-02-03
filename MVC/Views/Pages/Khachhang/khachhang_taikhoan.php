@@ -1184,10 +1184,10 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                 return;
             }
 
-            if (newPassword.length < 6) {
-                alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
-                return;
-            }
+            // if (newPassword.length < 6) {
+            //     alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
+            //     return;
+            // }
 
             // Create form data to send to server
             const formData = new FormData();
