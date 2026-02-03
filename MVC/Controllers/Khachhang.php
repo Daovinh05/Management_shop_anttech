@@ -262,15 +262,21 @@ class Khachhang extends controller
 
             // Lấy địa chỉ giao hàng của người dùng
             $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+
+            // Lấy danh sách khuyến mãi còn hiệu lực
+            $khuyen_mai = $this->model("KhuyenMai_m");
+            $ds_khuyen_mai = $khuyen_mai->KhuyenMai_getAvailable();
         } else {
             $chi_tiet_gio_hang = null;
             $dia_chi = null;
+            $ds_khuyen_mai = null;
         }
 
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_thanhtoan',
             'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
-            'dia_chi' => $dia_chi
+            'dia_chi' => $dia_chi,
+            'ds_khuyen_mai' => $ds_khuyen_mai
         ]);
     }
 
@@ -590,9 +596,26 @@ class Khachhang extends controller
             $don_hang_with_details[] = $dh;
         }
 
+        // Count orders by status
+        $status_counts = [
+            'cho_duyet' => 0,
+            'da_duyet' => 0,
+            'dang_giao' => 0,
+            'hoan_thanh' => 0,
+            'da_huy' => 0
+        ];
+
+        foreach ($don_hang_with_details as $dh) {
+            $status = $dh['trang_thai_don_hang'];
+            if (isset($status_counts[$status])) {
+                $status_counts[$status]++;
+            }
+        }
+
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_lichsu',
-            'don_hang' => $don_hang_with_details
+            'don_hang' => $don_hang_with_details,
+            'status_counts' => $status_counts
         ]);
     }
 

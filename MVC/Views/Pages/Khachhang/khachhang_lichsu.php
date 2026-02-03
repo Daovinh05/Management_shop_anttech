@@ -247,16 +247,16 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
         <div class="order-tabs">
             <div class="tab-item active">Tất cả (<?php echo count($data['don_hang']); ?>)</div>
-            <div class="tab-item">Chờ xác nhận (0)</div>
-            <div class="tab-item">Đã xác nhận (0)</div>
-            <div class="tab-item">Đang giao (0)</div>
-            <div class="tab-item">Hoàn thành (0)</div>
-            <div class="tab-item">Đã hủy (0)</div>
+            <div class="tab-item">Chờ xác nhận (<?php echo $data['status_counts']['cho_duyet']; ?>)</div>
+            <div class="tab-item">Đã xác nhận (<?php echo $data['status_counts']['da_duyet']; ?>)</div>
+            <div class="tab-item">Đang giao (<?php echo $data['status_counts']['dang_giao']; ?>)</div>
+            <div class="tab-item">Hoàn thành (<?php echo $data['status_counts']['hoan_thanh']; ?>)</div>
+            <div class="tab-item">Đã hủy (<?php echo $data['status_counts']['da_huy']; ?>)</div>
         </div>
 
         <?php if ($data['don_hang'] && count($data['don_hang']) > 0): ?>
             <?php foreach ($data['don_hang'] as $dh): ?>
-                <div class="order-card">
+                <div class="order-card" data-status="<?php echo $dh['trang_thai_don_hang']; ?>">
                     <div class="order-header">
                         <div>
                             <span class="order-id">Đơn hàng #<?php echo $dh['ma_don_hang']; ?></span>
@@ -266,6 +266,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <?php
                         switch ($dh['trang_thai_don_hang']) {
                             case 'cho_duyet':
+                            case 'da_duyet':
                                 echo 'status-confirmed';
                                 break;
                             case 'dang_giao':
@@ -285,6 +286,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                             switch ($dh['trang_thai_don_hang']) {
                                 case 'cho_duyet':
                                     echo 'Chờ xác nhận';
+                                    break;
+                                case 'da_duyet':
+                                    echo 'Đã xác nhận';
                                     break;
                                 case 'dang_giao':
                                     echo 'Đang giao hàng';
@@ -362,14 +366,41 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 </div>
 
 <script>
-    // Tab functionality
+    // Tab functionality with order filtering
     document.addEventListener('DOMContentLoaded', function() {
         const tabItems = document.querySelectorAll('.tab-item');
-        tabItems.forEach(tab => {
+        const orderCards = document.querySelectorAll('.order-card');
+
+        // Map tab indices to status values based on the order in the HTML
+        // 0: "Tất cả", 1: "Chờ xác nhận", 2: "Đã xác nhận", 3: "Đang giao", 4: "Hoàn thành", 5: "Đã hủy"
+        const tabStatusMap = {
+            0: 'all', // Tất cả
+            1: 'cho_duyet', // Chờ xác nhận
+            2: 'da_duyet', // Đã xác nhận (same as cho_duyet in DB)
+            3: 'dang_giao', // Đang giao
+            4: 'hoan_thanh', // Hoàn thành
+            5: 'da_huy' // Đã hủy
+        };
+
+        tabItems.forEach((tab, index) => {
             tab.addEventListener('click', function() {
                 // Remove active class from all tabs
                 tabItems.forEach(item => item.classList.remove('active'));
                 this.classList.add('active');
+
+                // Get the status to filter by
+                const filterStatus = tabStatusMap[index];
+
+                // Show/hide order cards based on status
+                orderCards.forEach(card => {
+                    const cardStatus = card.getAttribute('data-status');
+
+                    if (filterStatus === 'all' || cardStatus === filterStatus) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
             });
         });
     });
