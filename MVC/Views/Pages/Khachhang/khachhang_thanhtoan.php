@@ -922,15 +922,36 @@
                                             <?php echo number_format($tong_tien, 0, ',', '.') . '₫'; ?></td>
                                     </tr>
 
-                                    <tr class="discount-row">
+                                    <tr class="voucher-row">
                                         <td>Khuyến mãi (Voucher)</td>
-                                        <td class="price-col">0₫</td>
+                                        <td class="price-col">
+                                            <select name="ddlKhuyenMai" id="ddlKhuyenMai" class="form-control">
+                                                <option value="">-- Chọn voucher --</option>
+                                                <?php if ($data['ds_khuyen_mai'] && mysqli_num_rows($data['ds_khuyen_mai']) > 0): ?>
+                                                    <?php while ($km = mysqli_fetch_assoc($data['ds_khuyen_mai'])): ?>
+                                                        <option value="<?php echo $km['ma_khuyen_mai']; ?>"
+                                                                data-discount="<?php echo $km['tien_khuyen_mai']; ?>">
+                                                            <?php echo $km['ten_khuyen_mai']; ?> (-<?php echo number_format($km['tien_khuyen_mai'], 0, ',', '.'); ?>₫)
+                                                        </option>
+                                                    <?php endwhile; ?>
+                                                <?php else: ?>
+                                                    <option value="" disabled>Không có voucher nào</option>
+                                                <?php endif; ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="discount-row">
+                                        <td>Giảm giá</td>
+                                        <td class="price-col" id="discountAmount">0₫</td>
                                     </tr>
 
                                     <tr class="total-row">
                                         <td>Tổng</td>
                                         <td class="price-col">
-                                            <?php echo number_format($tong_tien, 0, ',', '.') . '₫'; ?></td>
+                                            <span id="finalTotal"><?php echo number_format($tong_tien, 0, ',', '.') . '₫'; ?></span>
+                                            <input type="hidden" name="final_total" id="finalTotalInput" value="<?php echo $tong_tien; ?>">
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1023,6 +1044,44 @@
 
         // Gọi render lần đầu (để set số lượng = 0)
         renderCart();
+
+        // --- LOGIC KHUYẾN MÃI ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const voucherSelect = document.getElementById('ddlKhuyenMai');
+            const discountAmountElement = document.getElementById('discountAmount');
+            const finalTotalElement = document.getElementById('finalTotal');
+            const finalTotalInput = document.getElementById('finalTotalInput');
+            const subtotalValue = <?php echo $tong_tien; ?>; // Giá trị tạm tính
+
+            // Hàm tính toán lại tổng sau khi áp dụng khuyến mãi
+            function updateTotal() {
+                const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+                let discount = 0;
+
+                if (selectedOption && selectedOption.dataset.discount) {
+                    discount = parseFloat(selectedOption.dataset.discount);
+                }
+
+                // Tính tổng mới sau khi trừ khuyến mãi
+                let newTotal = subtotalValue - discount;
+
+                // Đảm bảo tổng không âm
+                if (newTotal < 0) {
+                    newTotal = 0;
+                }
+
+                // Cập nhật hiển thị
+                discountAmountElement.textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
+                finalTotalElement.textContent = newTotal.toLocaleString('vi-VN') + '₫';
+                finalTotalInput.value = newTotal;
+            }
+
+            // Gắn sự kiện thay đổi cho dropdown voucher
+            voucherSelect.addEventListener('change', updateTotal);
+
+            // Gọi hàm cập nhật ban đầu
+            updateTotal();
+        });
     </script>
 
 </body>

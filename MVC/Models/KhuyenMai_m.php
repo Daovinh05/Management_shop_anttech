@@ -38,7 +38,7 @@ class KhuyenMai_m extends connectDB
     function KhuyenMai_update($ma_khuyen_mai, $ten_khuyen_mai, $tien_khuyen_mai, $ngay_bat_dau, $ngay_ket_thuc, $trang_thai_khuyen_mai)
     {
         $sql = "UPDATE khuyen_mai SET ten_khuyen_mai = '$ten_khuyen_mai', tien_khuyen_mai = '$tien_khuyen_mai',
-                ngay_bat_dau = '$ngay_bat_dau', ngay_ket_thuc = '$ngay_ket_thuc', 
+                ngay_bat_dau = '$ngay_bat_dau', ngay_ket_thuc = '$ngay_ket_thuc',
                 trang_thai_khuyen_mai = '$trang_thai_khuyen_mai' WHERE ma_khuyen_mai = '$ma_khuyen_mai'";
         return mysqli_query($this->con, $sql);
     }
@@ -75,6 +75,17 @@ class KhuyenMai_m extends connectDB
                        END AS trang_thai_khuyen_mai
                 FROM khuyen_mai
                 WHERE ma_khuyen_mai = '$ma_khuyen_mai'";
+        return mysqli_query($this->con, $sql);
+    }
+
+    // Hàm lấy danh sách khuyến mãi còn hiệu lực
+    function KhuyenMai_getAvailable()
+    {
+        $current_date = date('Y-m-d');
+        $sql = "SELECT *
+                FROM khuyen_mai
+                WHERE ngay_bat_dau <= '$current_date' AND ngay_ket_thuc >= '$current_date' AND trang_thai_khuyen_mai = 'con'
+                ORDER BY LENGTH(ma_khuyen_mai), ma_khuyen_mai";
         return mysqli_query($this->con, $sql);
     }
 }
