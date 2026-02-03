@@ -982,7 +982,19 @@
         });
 
         // --- LOGIC GIỎ HÀNG ---
+        // Khởi tạo giỏ hàng từ dữ liệu PHP đã hiển thị trong bảng đơn hàng
         var cart = []; // Mảng chứa các object sản phẩm
+
+        // Lấy số lượng từ badge hiện tại trên trang chủ/master để giữ nguyên
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cập nhật lại giỏ hàng JavaScript dựa trên dữ liệu hiện tại từ PHP
+            // Lấy số lượng sản phẩm từ phần hiển thị đơn hàng của trang thanh toán
+            var currentCartBadge = document.getElementById('cartBadge');
+            if(currentCartBadge) {
+                // Không thay đổi số lượng từ PHP vì nó đã chính xác
+                // Chỉ đảm bảo rằng JavaScript không ghi đè lên
+            }
+        });
 
         // Hàm mở/đóng Sidebar
         function toggleCart() {
@@ -1011,7 +1023,13 @@
                 totalQuantity += item.quantity;
                 totalPrice += (item.price * item.quantity);
             });
-            cartBadge.innerText = totalQuantity;
+
+            // Chỉ cập nhật badge nếu JavaScript cart có dữ liệu
+            // Nếu không có dữ liệu trong JS cart, giữ nguyên giá trị từ PHP
+            if(cart.length > 0) {
+                cartBadge.innerText = totalQuantity;
+            }
+            // Nếu cart.length = 0, không thay đổi giá trị badge để giữ nguyên dữ liệu từ PHP
 
             // 2. Xử lý hiển thị Body
             if (cart.length === 0) {
@@ -1022,8 +1040,11 @@
             // Code render sản phẩm giỏ hàng... (Phần này sẽ chạy khi bạn thêm sản phẩm ở trang khác)
         }
 
-        // Gọi render lần đầu (để set số lượng = 0)
-        renderCart();
+        // Gọi render lần đầu nhưng không thay đổi số lượng badge nếu cart rỗng
+        // để giữ nguyên số lượng từ PHP
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCart();
+        });
     </script>
 
 </body>

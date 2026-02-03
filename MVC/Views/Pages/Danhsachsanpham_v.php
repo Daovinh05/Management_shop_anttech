@@ -259,15 +259,13 @@
         }
 
         // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu']) && $data['dulieu'] !== false) {
+        if (isset($data['dulieu'])) {
             if (is_object($data['dulieu'])) {
                 $count = mysqli_num_rows($data['dulieu']);
                 mysqli_data_seek($data['dulieu'], 0);
             } else {
                 $count = 0;
             }
-        } else {
-            $count = 0; // Trường hợp dữ liệu không tồn tại hoặc truy vấn thất bại
         ?>
         <div style="margin:10px 0">
             <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
@@ -294,7 +292,7 @@
                 <tbody id="spBody">
                     <?php
 
-                        if ($count > 0 && isset($data['dulieu']) && is_object($data['dulieu'])) {
+                        if ($count > 0) {
                             $serial = 1;
                             while ($row = mysqli_fetch_array($data['dulieu'])) {
                         ?>
@@ -357,7 +355,7 @@
         </script>
         <?php
         }
-        if (isset($data['dulieu']) && $data['dulieu'] !== false && mysqli_num_rows($data['dulieu']) === 0):
+        if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0):
         ?>
         <div class="hint">Không có kết quả phù hợp.</div>
         <?php endif; ?>
