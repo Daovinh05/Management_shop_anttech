@@ -590,9 +590,26 @@ class Khachhang extends controller
             $don_hang_with_details[] = $dh;
         }
 
+        // Count orders by status
+        $status_counts = [
+            'cho_duyet' => 0,
+            'da_duyet' => 0,
+            'dang_giao' => 0,
+            'hoan_thanh' => 0,
+            'da_huy' => 0
+        ];
+
+        foreach ($don_hang_with_details as $dh) {
+            $status = $dh['trang_thai_don_hang'];
+            if (isset($status_counts[$status])) {
+                $status_counts[$status]++;
+            }
+        }
+
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_lichsu',
-            'don_hang' => $don_hang_with_details
+            'don_hang' => $don_hang_with_details,
+            'status_counts' => $status_counts
         ]);
     }
 

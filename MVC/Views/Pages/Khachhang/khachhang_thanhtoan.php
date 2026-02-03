@@ -990,7 +990,6 @@
             var sidebar = document.querySelector('.cart-sidebar');
             // Cần kiểm tra xem phần tử có tồn tại không để tránh lỗi
             if (overlay && sidebar) {
-                overlay.classList.toggle('active');
                 sidebar.classList.toggle('active');
             }
         }
