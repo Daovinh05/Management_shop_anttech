@@ -773,6 +773,7 @@
     <div class="container">
         <div class="checkout-wrapper">
             <form action="<?php echo $this->url('Khachhang/datHang'); ?>" method="POST">
+                <input type="hidden" name="selected_items_str" value="<?php echo htmlspecialchars($_GET['items'] ?? ''); ?>">
                 <div class="checkout-grid">
 
                     <div class="billing-details">
@@ -879,10 +880,11 @@
                                     $tong_tien = 0;
                                     $tong_san_pham = 0;
 
-                                    if ($data['chi_tiet_gio_hang'] && mysqli_num_rows($data['chi_tiet_gio_hang']) > 0):
-                                        mysqli_data_seek($data['chi_tiet_gio_hang'], 0); // Reset con trỏ để duyệt lại
-
-                                        while ($item = mysqli_fetch_assoc($data['chi_tiet_gio_hang'])):
+                                        // Kiểm tra nếu là mảng và có dữ liệu
+                                        if ($data['ds_sp_thanh_toan'] && count($data['ds_sp_thanh_toan']) > 0):
+                                            
+                                            // Dùng foreach để duyệt mảng thay vì while
+                                            foreach ($data['ds_sp_thanh_toan'] as $item):
                                             $thanh_tien = $item['gia'] * $item['so_luong'];
                                             $tong_tien += $thanh_tien;
                                             $tong_san_pham += $item['so_luong'];
@@ -908,7 +910,7 @@
                                                     <?php echo number_format($thanh_tien, 0, ',', '.') . '₫'; ?></td>
                                             </tr>
                                         <?php
-                                        endwhile;
+                                            endforeach;
                                     else:
                                         ?>
                                         <tr>

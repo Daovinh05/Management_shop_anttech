@@ -123,6 +123,10 @@
             outline: none;
         }
 
+        .currency.discount {
+            color: #dc2626;
+        }
+
         input:focus {
             box-shadow: 0 0 0 4px rgba(36, 99, 255, 0.08);
             border-color: var(--accent);
@@ -539,8 +543,8 @@
                         <th>Phương thức TT</th>
                         <th>Trạng thái TT</th>
                         <th>Tổng tiền</th>
+                        <th>Khuyến mãi</th>
                         <th>Lợi nhuận</th>
-                        <th>Tỷ lệ (%)</th>
                     </tr>
                 </thead>
                 <tbody id="dhBody">
@@ -628,10 +632,16 @@
                                 <td><span
                                         class="currency"><?php echo number_format($order['tong_tien_hang'] ?? 0, 0, ',', '.'); ?>
                                         ₫</span></td>
+
+                                         <td><span
+                                class="currency discount ">-<?php echo number_format($order['tien_khuyen_mai'] ?? 0, 0, ',', '.') ?>
+                                ₫</span></td>
+                                <!-- <td><span
+                                        class="currency <?php echo ($order['tien_khuyen_mai'] ?? 0) < 0 ? 'loss' : ''; ?>"><?php echo number_format($order['tien_khuyen_mai'] ?? 0, 0, ',', '.'); ?>
+                                        ₫</span></td> -->
                                 <td><span
-                                        class="currency <?php echo ($order['loi_nhuan'] ?? 0) < 0 ? 'loss' : ''; ?>"><?php echo number_format($order['loi_nhuan'] ?? 0, 0, ',', '.'); ?>
-                                        ₫</span></td>
-                                <td><?php echo number_format($order['ty_le_lai'] ?? 0, 2); ?>%</td>
+                                        class="currency"><?php echo number_format($order['thanh_toan'] ?? 0, 0, ',', '.'); ?>
+                                        ₫</span></td>                            
                             </tr>
                         <?php
                         endforeach;

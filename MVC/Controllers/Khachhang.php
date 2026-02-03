@@ -202,16 +202,46 @@ class Khachhang extends controller
         $gio_hang = $this->gh->GioHang_getByUser($ma_user);
         $row = mysqli_fetch_assoc($gio_hang);
 
+        $detailed_cart = []; // Mảng chứa dữ liệu đầy đủ chi tiết
+
         if ($row) {
             $ma_gio_hang = $row['ma_gio_hang'];
-            $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-        } else {
-            $chi_tiet_gio_hang = null;
+            // Lấy danh sách sản phẩm thô trong giỏ
+            $result = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+            
+            if ($result) {
+                while ($ct = mysqli_fetch_assoc($result)) {
+                    // 1. Lấy chi tiết BIẾN THỂ (để có Màu, RAM, Dung lượng...)
+                    $bt_query = $this->bt->BienThe_getById($ct['ma_bien_the']);
+                    $bt_info = mysqli_fetch_assoc($bt_query);
+
+                    // 2. Lấy chi tiết SẢN PHẨM (để có Tên, Ảnh gốc)
+                    $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
+                    $sp_info = mysqli_fetch_assoc($sp_query);
+
+                    // 3. Gộp dữ liệu vào mảng item
+                    $item = $ct; // Bắt đầu với dữ liệu giỏ hàng (số lượng...)
+                    
+                    // Bổ sung thông tin từ bảng Sản Phẩm
+                    $item['ten_san_pham'] = $sp_info['ten_san_pham'];
+                    
+                    // Bổ sung thông tin từ bảng Biến Thể (QUAN TRỌNG)
+                    $item['ten_bien_the'] = $bt_info['ten_bien_the'];
+                    $item['mau_sac'] = $bt_info['mau_sac'];
+                    $item['dung_luong'] = $bt_info['dung_luong'];
+                    $item['ram'] = $bt_info['ram'];
+                    $item['gia'] = $bt_info['gia']; // Lấy giá hiện tại
+                    $item['img_bien_the'] = $bt_info['img_bien_the']; // Ảnh riêng của biến thể
+
+                    $detailed_cart[] = $item;
+                }
+            }
         }
 
+        // Truyền biến 'detailed_cart' sang View
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_giohang',
-            'chi_tiet_gio_hang' => $chi_tiet_gio_hang
+            'detailed_cart' => $detailed_cart 
         ]);
     }
 
@@ -252,6 +282,11 @@ class Khachhang extends controller
 
         $ma_user = $_SESSION['user_id'];
 
+        $selected_items = [];
+        if (isset($_GET['items']) && !empty($_GET['items'])) {
+            $selected_items = explode(',', $_GET['items']);
+        }
+
         // Lấy giỏ hàng của người dùng
         $gio_hang = $this->gh->GioHang_getByUser($ma_user);
         $row = mysqli_fetch_assoc($gio_hang);
@@ -259,6 +294,20 @@ class Khachhang extends controller
         if ($row) {
             $ma_gio_hang = $row['ma_gio_hang'];
             $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+
+            $filtered_cart_items = [];
+            $tong_tien_thanh_toan = 0; // Biến tính lại tổng tiền
+            
+            if ($chi_tiet_gio_hang) {
+                while ($item = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
+                    // Nếu có danh sách items được chọn thì chỉ lấy những món đó
+                    // Nếu không có items nào trên URL (trường hợp vào thẳng link) thì có thể lấy hết hoặc báo lỗi tùy logic
+                    if (empty($selected_items) || in_array($item['ma_bien_the'], $selected_items)) {
+                        $filtered_cart_items[] = $item;
+                        $tong_tien_thanh_toan += ($item['gia'] * $item['so_luong']);
+                    }
+                }
+            }
 
             // Lấy địa chỉ giao hàng của người dùng
             $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
@@ -270,13 +319,15 @@ class Khachhang extends controller
             $chi_tiet_gio_hang = null;
             $dia_chi = null;
             $ds_khuyen_mai = null;
+            $tong_tien_thanh_toan = 0;
         }
 
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_thanhtoan',
-            'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
+            'ds_sp_thanh_toan' => $filtered_cart_items,
             'dia_chi' => $dia_chi,
-            'ds_khuyen_mai' => $ds_khuyen_mai
+            'ds_khuyen_mai' => $ds_khuyen_mai,
+            'tong_tien_du kien' => $tong_tien_thanh_toan
         ]);
     }
 
@@ -362,12 +413,21 @@ class Khachhang extends controller
                 $ma_gio_hang = $row['ma_gio_hang'];
                 $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
 
+                $selected_items_filter = [];
+                if (isset($_POST['selected_items_str']) && !empty($_POST['selected_items_str'])) {
+                    $selected_items_filter = explode(',', $_POST['selected_items_str']);
+                }
+
                 // Tính tổng tiền và kiểm tra số lượng tồn kho
                 $tong_tien = 0;
                 $chi_tiet_gio_hang_array = []; // Store cart items for later use
                 $out_of_stock_items = [];
 
                 while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
+
+                    if (!empty($selected_items_filter) && !in_array($ct['ma_bien_the'], $selected_items_filter)) {
+                        continue; // Bỏ qua sản phẩm không được chọn
+                    }
                     // Kiểm tra số lượng tồn kho
                     $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
                     $bt_info = mysqli_fetch_assoc($bien_the);
@@ -952,8 +1012,8 @@ class Khachhang extends controller
                     'img' => $img_url,
                     'name' => $sp_info['ten_san_pham'],
                     'variant' => $variant_name,
-                    'quantity' => $ct['so_luong'],
-                    'price' => $bt_info['gia']
+                    'quantity' => (int)$ct['so_luong'], // <-- Thêm (int) để ép kiểu số
+                    'price' => (int)$bt_info['gia']     // <-- Nên ép kiểu giá tiền luôn cho chắc
                 ];
             }
 

@@ -88,20 +88,23 @@ class DonHang_m extends connectDB
                     dh.ngay_tao,
                     dh.tong_tien_hang,
                     dh.trang_thai_don_hang,
+                    dh.thanh_toan,
                     tt.phuong_thuc,
                     tt.trang_thai_thanh_toan,
                     u.full_name as ten_khach_hang,
                     u.so_dien_thoai,
                     dc.dia_chi,
+                    km.tien_khuyen_mai,
                     COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
-                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)), 0) as loi_nhuan,
-                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)) / NULLIF(dh.tong_tien_hang, 0) * 100, 0) as ty_le_lai
+                    COALESCE((dh.tong_tien_hang - km.tien_khuyen_mai), 0) as thanh_toan
+                    
                 FROM don_hang dh
                 INNER JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
                 LEFT JOIN chi_tiet_don_hang ctdh ON dh.ma_don_hang = ctdh.ma_don_hang
                 LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
                 GROUP BY dh.ma_don_hang
                 ORDER BY dh.ngay_tao DESC";
         return mysqli_query($this->con, $sql);
@@ -130,19 +133,21 @@ class DonHang_m extends connectDB
                     dh.tong_tien_hang,
                     dh.trang_thai_don_hang,
                     tt.phuong_thuc,
+                    hd.thanh_toan,
                     tt.trang_thai_thanh_toan,
                     u.full_name as ten_khach_hang,
                     u.so_dien_thoai,
                     dc.dia_chi,
+                    km.tien_khuyen_mai,
                     COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
-                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)), 0) as loi_nhuan,
-                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)) / NULLIF(dh.tong_tien_hang, 0) * 100, 0) as ty_le_lai
+                    COALESCE((dh.tong_tien_hang - km.tien_khuyen_mai), 0) as thanh_toan
                 FROM don_hang dh
                 INNER JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
                 LEFT JOIN chi_tiet_don_hang ctdh ON dh.ma_don_hang = ctdh.ma_don_hang
                 LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
                 WHERE DATE(dh.ngay_tao) BETWEEN '$tuNgay' AND '$denNgay'
                 GROUP BY dh.ma_don_hang
                 ORDER BY dh.ngay_tao DESC";
@@ -167,20 +172,22 @@ class DonHang_m extends connectDB
                     dh.ngay_tao,
                     dh.tong_tien_hang,
                     dh.trang_thai_don_hang,
+                    dh.thanh_toan,
                     tt.phuong_thuc,
                     tt.trang_thai_thanh_toan,
                     u.full_name as ten_khach_hang,
                     u.so_dien_thoai,
                     dc.dia_chi,
+                    km.tien_khuyen_mai,
                     COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
-                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)), 0) as loi_nhuan,
-                    COALESCE((dh.tong_tien_hang - SUM(ctdh.so_luong * bt.gia)) / NULLIF(dh.tong_tien_hang, 0) * 100, 0) as ty_le_lai
+                    COALESCE((dh.tong_tien_hang - km.tien_khuyen_mai), 0) as thanh_toan
                 FROM don_hang dh
                 INNER JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
                 LEFT JOIN chi_tiet_don_hang ctdh ON dh.ma_don_hang = ctdh.ma_don_hang
                 LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
                 WHERE 1=1";
         
         if (!empty($maDonHang)) {

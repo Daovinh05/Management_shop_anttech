@@ -2022,7 +2022,8 @@
                     // Cập nhật số lượng trên badge trong header
                     var totalQuantity = 0;
                     cart.forEach(item => {
-                        totalQuantity += item.quantity;
+                        totalQuantity += parseInt(item.quantity); 
+                        totalPrice += (item.price * parseInt(item.quantity));
                     });
 
                     // Cập nhật badge trong header (sử dụng ID duy nhất)
