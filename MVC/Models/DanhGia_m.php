@@ -4,7 +4,14 @@ class DanhGia_m extends connectDB
     // Hàm thêm đánh giá
     function danhgia_ins($ma_danh_gia, $ma_user, $ma_san_pham, $so_sao, $noi_dung, $phan_hoi)
     {
-        $sql = "INSERT INTO danh_gia VALUES ('$ma_danh_gia', '$ma_user', '$ma_san_pham', '$so_sao', '$noi_dung','$phan_hoi', NOW())";
+        $ma_danh_gia = mysqli_real_escape_string($this->con, $ma_danh_gia);
+        $ma_user = mysqli_real_escape_string($this->con, $ma_user);
+        $ma_san_pham = mysqli_real_escape_string($this->con, $ma_san_pham);
+        $so_sao = (int)$so_sao;
+        $noi_dung = mysqli_real_escape_string($this->con, $noi_dung);
+        $phan_hoi = mysqli_real_escape_string($this->con, $phan_hoi);
+
+        $sql = "INSERT INTO danh_gia (ma_danh_gia, ma_user, ma_san_pham, so_sao, noi_dung, phan_hoi, ngay_danh_gia) VALUES ('$ma_danh_gia', '$ma_user', '$ma_san_pham', $so_sao, '$noi_dung', '$phan_hoi', NOW())";
         return mysqli_query($this->con, $sql);
     }
 
@@ -103,5 +110,27 @@ class DanhGia_m extends connectDB
         $result = mysqli_query($this->con, $sql);
         $row = mysqli_fetch_assoc($result);
         return $row['avg_rating'];
+    }
+
+    // Hàm lấy phân bố đánh giá theo số sao
+    function DanhGia_getStarDistribution($ma_san_pham)
+    {
+        $sql = "SELECT so_sao, COUNT(*) as count FROM danh_gia WHERE ma_san_pham = '$ma_san_pham' GROUP BY so_sao ORDER BY so_sao DESC";
+        $result = mysqli_query($this->con, $sql);
+
+        // Initialize all stars from 5 to 1
+        $distribution = [
+            5 => 0,
+            4 => 0,
+            3 => 0,
+            2 => 0,
+            1 => 0
+        ];
+
+        while ($row = mysqli_fetch_assoc($result)) {
+            $distribution[$row['so_sao']] = $row['count'];
+        }
+
+        return $distribution;
     }
 }

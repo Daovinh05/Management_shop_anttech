@@ -970,6 +970,61 @@
             font-weight: 500;
         }
 
+        /* --- MODAL FOR REVIEW --- */
+        .review-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .review-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+        }
+
+        /* --- SELLER RESPONSE STYLING --- */
+        .seller-response {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-left: 3px solid #2d72d2;
+            border-radius: 0 4px 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .response-header {
+            font-weight: 600;
+            color: #2d72d2;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .response-content {
+            font-size: 13px;
+            color: #333;
+            flex: 1;
+        }
+
         /* --- 6. SIMILAR PRODUCTS --- */
         .similar-section {
             background: white;
@@ -1683,159 +1738,113 @@
 
     <div class="container">
         <div class="review-section">
-            <div class="review-header">5 đánh giá cho iPhone 13 Pro – 99% LikeNew</div>
+            <div class="review-header"><?php echo mysqli_num_rows($data['danh_gia']); ?> đánh giá cho <?php echo $data['san_pham']['ten_san_pham']; ?></div>
 
             <div class="rating-overview-box">
                 <div class="rating-left">
-                    <div class="score-big">4.20 <i class="fa-solid fa-star" style="font-size: 24px;"></i></div>
+                    <div class="score-big"><?php echo $data['avg_rating'] ? number_format($data['avg_rating'], 2) : '0.00'; ?> <i class="fa-solid fa-star" style="font-size: 24px;"></i></div>
                     <div class="rating-count-text">Đánh giá trung bình</div>
                 </div>
 
                 <div class="rating-middle">
+                    <?php
+                    $total_reviews = mysqli_num_rows($data['danh_gia']);
+                    $star_dist = $data['star_distribution'];
+
+                    // Calculate percentages
+                    $percentages = [];
+                    foreach($star_dist as $stars => $count) {
+                        $percentages[$stars] = $total_reviews > 0 ? round(($count / $total_reviews) * 100, 0) : 0;
+                    }
+                    ?>
+
                     <div class="rating-bar-row">
                         <div class="star-label">5 <i class="fa-solid fa-star star-icon-small"></i></div>
                         <div class="progress-bg">
-                            <div class="progress-fill" style="width: 40%;"></div>
+                            <div class="progress-fill" style="width: <?php echo $percentages[5]; ?>%;"></div>
                         </div>
-                        <div class="rating-percent-text">40% | 2 đánh giá</div>
+                        <div class="rating-percent-text"><?php echo $percentages[5]; ?>% | <?php echo $star_dist[5]; ?> đánh giá</div>
                     </div>
                     <div class="rating-bar-row">
                         <div class="star-label">4 <i class="fa-solid fa-star star-icon-small"></i></div>
                         <div class="progress-bg">
-                            <div class="progress-fill" style="width: 40%;"></div>
+                            <div class="progress-fill" style="width: <?php echo $percentages[4]; ?>%;"></div>
                         </div>
-                        <div class="rating-percent-text">40% | 2 đánh giá</div>
+                        <div class="rating-percent-text"><?php echo $percentages[4]; ?>% | <?php echo $star_dist[4]; ?> đánh giá</div>
                     </div>
                     <div class="rating-bar-row">
                         <div class="star-label">3 <i class="fa-solid fa-star star-icon-small"></i></div>
                         <div class="progress-bg">
-                            <div class="progress-fill" style="width: 20%;"></div>
+                            <div class="progress-fill" style="width: <?php echo $percentages[3]; ?>%;"></div>
                         </div>
-                        <div class="rating-percent-text">20% | 1 đánh giá</div>
+                        <div class="rating-percent-text"><?php echo $percentages[3]; ?>% | <?php echo $star_dist[3]; ?> đánh giá</div>
                     </div>
                     <div class="rating-bar-row">
                         <div class="star-label">2 <i class="fa-solid fa-star star-icon-small"></i></div>
                         <div class="progress-bg">
-                            <div class="progress-fill" style="width: 0%;"></div>
+                            <div class="progress-fill" style="width: <?php echo $percentages[2]; ?>%;"></div>
                         </div>
-                        <div class="rating-percent-text">0% | 0 đánh giá</div>
+                        <div class="rating-percent-text"><?php echo $percentages[2]; ?>% | <?php echo $star_dist[2]; ?> đánh giá</div>
                     </div>
                     <div class="rating-bar-row">
                         <div class="star-label">1 <i class="fa-solid fa-star star-icon-small"></i></div>
                         <div class="progress-bg">
-                            <div class="progress-fill" style="width: 0%;"></div>
+                            <div class="progress-fill" style="width: <?php echo $percentages[1]; ?>%;"></div>
                         </div>
-                        <div class="rating-percent-text">0% | 0 đánh giá</div>
+                        <div class="rating-percent-text"><?php echo $percentages[1]; ?>% | <?php echo $star_dist[1]; ?> đánh giá</div>
                     </div>
                 </div>
 
                 <div class="rating-right">
-                    <button class="btn-write-review">ĐÁNH GIÁ NGAY</button>
+                    <button class="btn-write-review" onclick="openReviewModal()">ĐÁNH GIÁ NGAY</button>
                 </div>
             </div>
 
             <div class="review-list">
+                <?php
+                if (mysqli_num_rows($data['danh_gia']) > 0) {
+                    mysqli_data_seek($data['danh_gia'], 0); // Reset pointer to beginning
+                    while ($review = mysqli_fetch_assoc($data['danh_gia'])) {
+                        echo '<div class="review-item">';
+                        echo '<div class="user-avatar"><i class="fa-solid fa-user"></i></div>';
+                        echo '<div class="review-content">';
+                        echo '<div>';
+                        echo '<span class="user-name">' . htmlspecialchars($review['full_name']) . '</span>';
+                        echo '<span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại TechZone</span>';
+                        echo '</div>';
 
-                <div class="review-item">
-                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
-                    <div class="review-content">
-                        <div>
-                            <span class="user-name">Hải Anh</span>
-                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
-                                anttech.com.vn</span>
-                        </div>
-                        <div class="user-rating-stars">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-regular fa-star-half-stroke"></i><i
-                                class="fa-regular fa-star"></i>
-                        </div>
-                        <div class="review-text">Goood</div>
-                        <div class="review-actions">
-                            <a href="#">Trả lời</a> • 20/11/2021
-                        </div>
-                    </div>
-                </div>
+                        // Generate star rating
+                        echo '<div class="user-rating-stars">';
+                        for ($i = 1; $i <= 5; $i++) {
+                            if ($i <= $review['so_sao']) {
+                                echo '<i class="fa-solid fa-star"></i>';
+                            } else {
+                                if ($i - $review['so_sao'] < 1) {
+                                    echo '<i class="fa-regular fa-star-half-stroke"></i>';
+                                } else {
+                                    echo '<i class="fa-regular fa-star"></i>';
+                                }
+                            }
+                        }
+                        echo '</div>';
 
-                <div class="review-item">
-                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
-                    <div class="review-content">
-                        <div>
-                            <span class="user-name">Quang Anh</span>
-                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
-                                anttech.com.vn</span>
-                        </div>
-                        <div class="user-rating-stars">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i
-                                class="fa-regular fa-star"></i>
-                        </div>
-                        <div class="review-text">Good</div>
-                        <div class="review-actions">
-                            <a href="#">Trả lời</a> • 20/11/2021
-                        </div>
-                    </div>
-                </div>
+                        echo '<div class="review-text">' . htmlspecialchars($review['noi_dung']) . '</div>';
 
-                <div class="review-item">
-                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
-                    <div class="review-content">
-                        <div>
-                            <span class="user-name">Khánh Linh</span>
-                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
-                                anttech.com.vn</span>
-                        </div>
-                        <div class="user-rating-stars">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
-                        </div>
-                        <div class="review-text">Nhân viên ở đây nhiệt tình quá</div>
-                        <div class="review-actions">
-                            <a href="#">Trả lời</a> • 20/11/2021
-                        </div>
-                    </div>
-                </div>
+                        // Display seller's response if available
+                        if (!empty($review['phan_hoi'])) {
+                            echo '<div class="seller-response"><div class="response-header">Phản hồi từ người bán:</div><div class="response-content">' . htmlspecialchars($review['phan_hoi']) . '</div></div>';
+                        }
 
-                <div class="review-item">
-                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
-                    <div class="review-content">
-                        <div>
-                            <span class="user-name">Khánh Duy</span>
-                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
-                                anttech.com.vn</span>
-                        </div>
-                        <div class="user-rating-stars">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-regular fa-star-half-stroke"></i>
-                        </div>
-                        <div class="review-text">Tuyệt vời</div>
-                        <div class="review-actions">
-                            <a href="#">Trả lời</a> • 20/11/2021
-                        </div>
-                    </div>
-                </div>
-
-                <div class="review-item">
-                    <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
-                    <div class="review-content">
-                        <div>
-                            <span class="user-name">Khánh Duy</span>
-                            <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại
-                                anttech.com.vn</span>
-                        </div>
-                        <div class="user-rating-stars">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                class="fa-solid fa-star"></i>
-                        </div>
-                        <div class="review-text">Sản phẩm oke trong tầm giá</div>
-                        <div class="review-actions">
-                            <a href="#">Trả lời</a> • 20/11/2021
-                        </div>
-                    </div>
-                </div>
-
+                        echo '<div class="review-actions">';
+                        echo '<a href="#">Trả lời</a> • ' . date('d/m/Y', strtotime($review['ngay_danh_gia']));
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<div class="no-reviews">Chưa có đánh giá nào cho sản phẩm này.</div>';
+                }
+                ?>
             </div>
         </div>
     </div>
@@ -2141,6 +2150,133 @@
                 window.location.href = '<?php echo $this->url('Khachhang/thanhtoan'); ?>';
             }, 500); // Delay nhỏ để đảm bảo sản phẩm được thêm vào giỏ
         }
+
+        // Function to open review modal
+        function openReviewModal() {
+            // Check if user is logged in
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                alert('Bạn cần đăng nhập để đánh giá sản phẩm!');
+                window.location.href = '<?php echo $this->url('Login'); ?>';
+                return;
+            <?php else: ?>
+                // Create modal HTML
+                var modalHtml = `
+                    <div id="reviewModal" class="review-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+                        <div class="review-modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 500px; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 style="margin: 0;">Đánh giá sản phẩm</h3>
+                                <button onclick="closeReviewModal()" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+                            </div>
+
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Số sao:</label>
+                                <div id="starRating" style="display: flex; gap: 5px;">
+                                    <i class="fa-regular fa-star star-option" data-value="1" style="font-size: 24px; cursor: pointer;" onclick="selectStar(1)"></i>
+                                    <i class="fa-regular fa-star star-option" data-value="2" style="font-size: 24px; cursor: pointer;" onclick="selectStar(2)"></i>
+                                    <i class="fa-regular fa-star star-option" data-value="3" style="font-size: 24px; cursor: pointer;" onclick="selectStar(3)"></i>
+                                    <i class="fa-regular fa-star star-option" data-value="4" style="font-size: 24px; cursor: pointer;" onclick="selectStar(4)"></i>
+                                    <i class="fa-regular fa-star star-option" data-value="5" style="font-size: 24px; cursor: pointer;" onclick="selectStar(5)"></i>
+                                </div>
+                                <input type="hidden" id="selectedRating" value="0">
+                            </div>
+
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nội dung đánh giá:</label>
+                                <textarea id="reviewContent" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Viết đánh giá của bạn về sản phẩm..."></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="submitReview()" style="flex: 1; background: var(--tet-red); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Gửi đánh giá</button>
+                                <button onclick="closeReviewModal()" style="flex: 1; background: #f0f0f0; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Hủy</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add modal to body
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            <?php endif; ?>
+        }
+
+        // Function to close review modal
+        function closeReviewModal() {
+            var modal = document.getElementById('reviewModal');
+            if(modal) {
+                modal.remove();
+            }
+        }
+
+        // Function to select star rating
+        function selectStar(rating) {
+            // Reset all stars
+            var stars = document.querySelectorAll('.star-option');
+            stars.forEach(star => {
+                star.className = 'fa-regular fa-star star-option';
+            });
+
+            // Fill selected stars
+            for(var i = 1; i <= rating; i++) {
+                var star = document.querySelector(`.star-option[data-value="${i}"]`);
+                if(star) {
+                    star.className = 'fa-solid fa-star star-option';
+                }
+            }
+
+            // Update hidden input
+            document.getElementById('selectedRating').value = rating;
+        }
+
+        // Function to submit review
+        function submitReview() {
+            var rating = document.getElementById('selectedRating').value;
+            var content = document.getElementById('reviewContent').value.trim();
+            var productId = '<?php echo $data['san_pham']['ma_san_pham']; ?>';
+
+            if(rating == 0) {
+                alert('Vui lòng chọn số sao đánh giá!');
+                return;
+            }
+
+            if(content == '') {
+                alert('Vui lòng nhập nội dung đánh giá!');
+                return;
+            }
+
+            // Prepare form data
+            var formData = new FormData();
+            formData.append('ma_san_pham', productId);
+            formData.append('so_sao', rating);
+            formData.append('noi_dung', content);
+
+            // Send AJAX request
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '<?php echo $this->url('Khachhang/themdanhgia'); ?>', true);
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState === 4) {
+                    if(xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if(response.success) {
+                            alert('Đánh giá của bạn đã được gửi thành công!');
+                            closeReviewModal();
+                            // Reload the page to show the new review
+                            location.reload();
+                        } else {
+                            alert('Có lỗi xảy ra khi gửi đánh giá: ' + response.message);
+                        }
+                    } else {
+                        alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.');
+                    }
+                }
+            };
+            xhr.send(formData);
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if(e.target.id === 'reviewModal') {
+                closeReviewModal();
+            }
+        });
     </script>
 
 </body>

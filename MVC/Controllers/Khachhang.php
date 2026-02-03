@@ -115,6 +115,9 @@ class Khachhang extends controller
         // Tính điểm trung bình
         $avg_rating = $this->dg->DanhGia_getAvgRatingByProduct($ma_san_pham);
 
+        // Lấy phân bố đánh giá theo số sao
+        $star_distribution = $this->dg->DanhGia_getStarDistribution($ma_san_pham);
+
         // Lấy sản phẩm tương tự
         $sql_similar = "SELECT s.*,
                                (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL LIMIT 1) as img_bien_the,
@@ -138,6 +141,7 @@ class Khachhang extends controller
             'bien_the_first' => $bien_the_first,
             'danh_gia' => $danh_gia,
             'avg_rating' => $avg_rating,
+            'star_distribution' => $star_distribution,
             'similar_products' => $similar_products
         ]);
     }
@@ -1022,6 +1026,58 @@ class Khachhang extends controller
             echo json_encode(['cart' => $cart_items]);
         } else {
             echo json_encode(['cart' => []]);
+        }
+    }
+
+    // Thêm đánh giá cho sản phẩm
+    function themdanhgia()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!isset($_SESSION['user_id'])) {
+                echo json_encode(['success' => false, 'message' => 'Bạn cần đăng nhập để đánh giá sản phẩm']);
+                return;
+            }
+
+            $ma_san_pham = $_POST['ma_san_pham'];
+            $so_sao = (int)$_POST['so_sao'];
+            $noi_dung = trim($_POST['noi_dung']);
+            $ma_user = $_SESSION['user_id'];
+
+            // Validate input
+            if ($so_sao < 1 || $so_sao > 5) {
+                echo json_encode(['success' => false, 'message' => 'Số sao phải từ 1 đến 5']);
+                return;
+            }
+
+            if (empty($noi_dung)) {
+                echo json_encode(['success' => false, 'message' => 'Nội dung đánh giá không được để trống']);
+                return;
+            }
+
+            // Generate unique review ID in format DG01, DG02, etc.
+            $last_review = mysqli_query($this->dg->con, "SELECT MAX(ma_danh_gia) as max_id FROM danh_gia WHERE ma_danh_gia LIKE 'DG%'");
+            $last_row = mysqli_fetch_assoc($last_review);
+            $last_id = $last_row['max_id'];
+
+            if ($last_id) {
+                $number = intval(substr($last_id, 2)); // Extract number after 'DG'
+                $new_number = $number + 1;
+            } else {
+                $new_number = 1; // Start from 1 if no previous reviews
+            }
+
+            $ma_danh_gia = 'DG' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as DG01, DG02, etc.
+
+            // Insert review into database
+            $result = $this->dg->danhgia_ins($ma_danh_gia, $ma_user, $ma_san_pham, $so_sao, $noi_dung, '');
+
+            if ($result) {
+                echo json_encode(['success' => true, 'message' => 'Đánh giá đã được gửi thành công']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi gửi đánh giá']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Phương thức không hợp lệ']);
         }
     }
 }
