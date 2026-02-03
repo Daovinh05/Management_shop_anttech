@@ -536,7 +536,7 @@
                     } else {
                         $orders = $danhSachDonHang;
                     }
-                    
+
                     if (!empty($orders)):
                         foreach ($orders as $order):
                     ?>
@@ -550,13 +550,34 @@
                         <td>
                             <?php
                             $status = $order['trang_thai_don_hang'] ?? '';
-                            [$bg, $color, $label] = match($status) {
-                                'cho_duyet'  => ['#fef3c7', '#92400e', 'Chờ duyệt'],
-                                'dang_giao'  => ['#dbeafe', '#1e40af', 'Đang giao'],
-                                'hoan_thanh' => ['#d1fae5', '#065f46', 'Hoàn thành'],
-                                'da_huy'     => ['#fee2e2', '#991b1b', 'Đã hủy'],
-                                default      => ['#f3f4f6', '#374151', 'Không rõ'],
-                            };
+                            switch($status) {
+                                case 'cho_duyet':
+                                case 'da_duyet':
+                                    $bg = '#fef3c7';
+                                    $color = '#92400e';
+                                    $label = $status === 'cho_duyet' ? 'Chờ xác nhận' : 'Đã xác nhận';
+                                    break;
+                                case 'dang_giao':
+                                    $bg = '#dbeafe';
+                                    $color = '#1e40af';
+                                    $label = 'Đang giao';
+                                    break;
+                                case 'hoan_thanh':
+                                    $bg = '#d1fae5';
+                                    $color = '#065f46';
+                                    $label = 'Hoàn thành';
+                                    break;
+                                case 'da_huy':
+                                    $bg = '#fee2e2';
+                                    $color = '#991b1b';
+                                    $label = 'Đã hủy';
+                                    break;
+                                default:
+                                    $bg = '#f3f4f6';
+                                    $color = '#374151';
+                                    $label = 'Không rõ';
+                                    break;
+                            }
                             ?>
                             <span class="status-badge status-<?php echo str_replace('_', '-', $status); ?>" style="background:<?php echo $bg; ?>; color:<?php echo $color; ?>">
                                 <?php echo $label; ?>
@@ -585,7 +606,7 @@
                         <td><span class="currency <?php echo ($order['loi_nhuan'] ?? 0) < 0 ? 'loss' : ''; ?>"><?php echo number_format($order['loi_nhuan'] ?? 0, 0, ',', '.'); ?> ₫</span></td>
                         <td><?php echo number_format($order['ty_le_lai'] ?? 0, 2); ?>%</td>
                     </tr>
-                    <?php 
+                    <?php
                         endforeach;
                     else:
                     ?>
