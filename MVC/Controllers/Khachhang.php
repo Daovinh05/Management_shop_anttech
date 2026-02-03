@@ -904,4 +904,62 @@ class Khachhang extends controller
             'count' => count($products)
         ]);
     }
+
+    // Lấy dữ liệu giỏ hàng dưới dạng JSON
+    function getgiohang()
+    {
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['cart' => []]);
+            return;
+        }
+
+        $ma_user = $_SESSION['user_id'];
+
+        // Lấy giỏ hàng của người dùng
+        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+        $row = mysqli_fetch_assoc($gio_hang);
+
+        if ($row) {
+            $ma_gio_hang = $row['ma_gio_hang'];
+            $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+
+            $cart_items = [];
+            while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
+                // Lấy thông tin biến thể và sản phẩm
+                $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
+                $bt_info = mysqli_fetch_assoc($bien_the);
+
+                $san_pham = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
+                $sp_info = mysqli_fetch_assoc($san_pham);
+
+                // Tạo đường dẫn hình ảnh
+                $img_url = !empty($bt_info['img_bien_the'])
+                    ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt_info['img_bien_the'])
+                    : (!empty($sp_info['img_hinh_anh'])
+                        ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp_info['img_hinh_anh'])
+                        : '/Banhang/Public/Images/no-image.png');
+
+                // Tạo tên biến thể
+                $variant_parts = [];
+                if (!empty($bt_info['mau_sac'])) $variant_parts[] = $bt_info['mau_sac'];
+                if (!empty($bt_info['dung_luong'])) $variant_parts[] = $bt_info['dung_luong'];
+                if (!empty($bt_info['ram'])) $variant_parts[] = $bt_info['ram'];
+                $variant_name = !empty($variant_parts) ? implode(' - ', $variant_parts) : $bt_info['ten_bien_the'];
+
+                $cart_items[] = [
+                    'img' => $img_url,
+                    'name' => $sp_info['ten_san_pham'],
+                    'variant' => $variant_name,
+                    'quantity' => $ct['so_luong'],
+                    'price' => $bt_info['gia']
+                ];
+            }
+
+            echo json_encode(['cart' => $cart_items]);
+        } else {
+            echo json_encode(['cart' => []]);
+        }
+    }
 }
