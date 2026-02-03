@@ -240,6 +240,177 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         opacity: 0.9;
         box-shadow: 0 2px 8px rgba(45, 114, 210, 0.3);
     }
+
+    /* --- 8. MODAL / POPUP CSS (MỚI THÊM) --- */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(3px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-container {
+        background: white;
+        width: 850px;
+        max-width: 95%;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        animation: slideUp 0.3s ease;
+    }
+
+    .modal-header {
+        background-color: var(--primary-green);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
+
+    .modal-title {
+        font-size: 18px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 25px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 25px;
+    }
+
+    .detail-box h3 {
+        font-size: 16px;
+        color: var(--primary-green);
+        border-bottom: 2px solid #eee;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .info-label {
+        width: 120px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .info-value {
+        flex: 1;
+        color: #333;
+        font-weight: 600;
+    }
+
+    /* Table trong Modal */
+    .modal-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .modal-table th {
+        background: #f5f5f7;
+        padding: 12px;
+        text-align: left;
+        font-size: 13px;
+        color: #555;
+        font-weight: 700;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-table td {
+        padding: 15px 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        color: #333;
+        vertical-align: middle;
+    }
+
+    .modal-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .modal-footer-sum {
+        background: #f9f9f9;
+        padding: 20px;
+        text-align: right;
+        border-top: 1px solid #eee;
+    }
+
+    .sum-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .sum-label {
+        width: 150px;
+        color: #666;
+        margin-top: 9px;
+    }
+
+    .sum-value {
+        width: 150px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .sum-total {
+        font-size: 18px;
+        color: var(--tet-red);
+        font-weight: 800;
+        margin-top: 5px;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
 </style>
 <div class="container">
     <div class="order-history-wrapper">
@@ -336,7 +507,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         </div>
                         <div class="order-actions-right">
                             <div class="total-money"><span class="total-label">Số tiền thanh toán</span><span
-                                    class="total-value"><?php echo number_format($dh['tong_tien_hang'], 0, ',', '.');
+                                    class="total-value"><?php echo number_format($dh['thanh_toan'], 0, ',', '.');
                                                         ?>₫</span></div><button type="button" class="btn-detail"
                                 data-id="<?php echo $dh['ma_don_hang']; ?>"
                                 data-date="<?php echo $this->formatDate($dh['ngay_tao']); ?>" data-status="<?php
@@ -381,8 +552,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                 }
 
 ?>" data-total="<?php echo number_format($dh['tong_tien_hang'], 0, ',', '.');
-                ?>₫"
-                                data-receiver="<?php echo htmlspecialchars($dh['ten_nguoi_nhan'] ?? 'N/A'); ?>"
+                ?>₫" data-receiver="<?php echo htmlspecialchars($dh['ten_nguoi_nhan'] ?? 'N/A'); ?>"
                                 data-phone="<?php echo htmlspecialchars($dh['so_dien_thoai'] ?? 'N/A'); ?>"
                                 data-address="<?php echo htmlspecialchars($dh['dia_chi'] ?? 'N/A'); ?>"
                                 data-payment-method="<?php echo htmlspecialchars($dh['phuong_thuc'] ?? 'N/A'); ?>"
@@ -416,192 +586,234 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         ?>
     </div>
 </div>
-< !-- Modal for Order Details -->
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title"><i class="fa-solid fa-file-invoice"></i>Chi tiết đơn hàng <span
-                        id="modalOrderId">#DH02</span></div><button class="btn-close" onclick="closeModal()"><i
-                        class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="detail-grid">
-                    <div class="detail-box">
-                        <h3>Thông tin đơn hàng</h3>
-                        <div class="info-row"><span class="info-label">Mã đơn hàng:</span><span class="info-value"
-                                id="modalCode">DH02</span></div>
-                        <div class="info-row"><span class="info-label">Ngày đặt:</span><span class="info-value"
-                                id="modalDate">30/01/2026 21:31:40</span></div>
-                        <div class="info-row"><span class="info-label">Trạng thái:</span><span class="info-value"><span
-                                    id="modalStatus" class="status-badge status-shipping">Đang giao hàng</span></span>
-                        </div>
-                        <div class="info-row"><span class="info-label">Tổng tiền:</span><span class="info-value"
-                                id="modalTotalTop" style="color: var(--tet-red);">15.600.000 VNĐ</span></div>
+<!-- Modal for Order Details  -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div class="modal-title"><i class="fa-solid fa-file-invoice"></i>Chi tiết đơn hàng <span
+                    id="modalOrderId">#DH02</span></div><button class="btn-close" onclick="closeModal()"><i
+                    class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-grid">
+                <div class="detail-box">
+                    <h3>Thông tin đơn hàng</h3>
+                    <div class="info-row"><span class="info-label">Mã đơn hàng:</span><span class="info-value"
+                            id="modalCode">DH02</span></div>
+                    <div class="info-row"><span class="info-label">Ngày đặt:</span><span class="info-value"
+                            id="modalDate">30/01/2026 21:31:40</span></div>
+                    <div class="info-row"><span class="info-label">Trạng thái:</span><span class="info-value"><span
+                                id="modalStatus" class="status-badge status-shipping">Đang giao hàng</span></span>
                     </div>
-                    <div class="detail-box">
-                        <h3>Thông tin giao hàng</h3>
-                        <div class="info-row"><span class="info-label">Người nhận:</span><span class="info-value"
-                                id="modalReceiver">Hoàng Văn Thành</span></div>
-                        <div class="info-row"><span class="info-label">Số điện thoại:</span><span class="info-value"
-                                id="modalPhone">0912345678</span></div>
-                        <div class="info-row"><span class="info-label">Địa chỉ:</span><span class="info-value"
-                                id="modalAddress">Số 1 Đại Cồ Việt,
-                                Hai Bà Trưng,
-                                Hà Nội</span></div>
-                        <div class="info-row"><span class="info-label">Phương thức:</span><span class="info-value"
-                                id="modalPaymentMethod">Thanh toán khi nhận hàng (COD)</span></div>
-                    </div>
+                    <div class="info-row"><span class="info-label">Thanh toán:</span><span class="info-value"
+                            id="modalTotalTop" style="color: var(--tet-red);">15.600.000 VNĐ</span></div>
                 </div>
                 <div class="detail-box">
-                    <h3>Chi tiết sản phẩm</h3>
-                    <table class="modal-table">
-                        <thead>
-                            <tr>
-                                <th>Sản phẩm</th>
-                                <th style="width: 150px;">Đơn giá</th>
-                                <th style="width: 100px; text-align: center;">Số lượng</th>
-                                <th style="width: 150px; text-align: right;">Thành tiền</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modalProductList"></tbody>
-                    </table>
+                    <h3>Thông tin giao hàng</h3>
+                    <div class="info-row"><span class="info-label">Người nhận:</span><span class="info-value"
+                            id="modalReceiver">Hoàng Văn Thành</span></div>
+                    <div class="info-row"><span class="info-label">Số điện thoại:</span><span class="info-value"
+                            id="modalPhone">0912345678</span></div>
+                    <div class="info-row"><span class="info-label">Địa chỉ:</span><span class="info-value"
+                            id="modalAddress">Số 1 Đại Cồ Việt,
+                            Hai Bà Trưng,
+                            Hà Nội</span></div>
+                    <div class="info-row"><span class="info-label">Phương thức:</span><span class="info-value"
+                            id="modalPaymentMethod">Thanh toán khi nhận hàng (COD)</span></div>
                 </div>
             </div>
-            <div class="modal-footer-sum">
-                <div class="sum-row"><span class="sum-label">Tạm tính:</span><span class="sum-value"
-                        id="modalSubTotal">15.600.000 VNĐ</span></div>
-                <div class="sum-row"><span class="sum-label">Khuyến mãi:</span><span class="sum-value"
-                        id="modalDiscount">0 VNĐ</span></div>
-                <div class="sum-row"><span class="sum-label" style="font-weight: 700;">Tổng cộng:</span><span
-                        class="sum-value sum-total" id="modalTotalBottom">15.600.000 VNĐ</span></div>
+            <div class="detail-box">
+                <h3>Chi tiết sản phẩm</h3>
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th style="width: 150px;">Đơn giá</th>
+                            <th style="width: 100px; text-align: center;">Số lượng</th>
+                            <th style="width: 150px; text-align: right;">Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalProductList"></tbody>
+                </table>
             </div>
         </div>
+        <div class="modal-footer-sum">
+            <div class="sum-row"><span class="sum-label">Tạm tính:</span><span class="sum-value"
+                    id="modalSubTotal">15.600.000 VNĐ</span></div>
+            <!-- <div class="sum-row"><span class="sum-label">Khuyến mãi:</span><span class="sum-value" id="modalDiscount">0
+                    VNĐ</span></div> -->
+            <div class="sum-row">
+                <span class="sum-label">Khuyến mãi:</span>
+                <span class="sum-value" id="modalDiscount">
+                    <?php
+                    if ($khuyen_mai > 0) {
+                        echo '-' . number_format($khuyen_mai, 0, ',', '.') . 'đ';
+                    } else {
+                        echo '0đ';
+                    }
+                    ?>
+                </span>
+
+            </div>
+
+            <div class="sum-row"><span class="sum-label" style="font-weight: 700;">Số tiền cần thanh toán:</span><span
+                    class="sum-value sum-total" id="modalTotalBottom">15.600.000 VNĐ</span></div>
+        </div>
     </div>
-    <script>
-        // Tab functionality with order filtering
+</div>
+<script>
+    // Tab functionality with order filtering
 
-        document.addEventListener('DOMContentLoaded', function() {
-                const tabItems = document.querySelectorAll('.tab-item');
-                const orderCards = document.querySelectorAll('.order-card');
+    document.addEventListener('DOMContentLoaded', function() {
+            const tabItems = document.querySelectorAll('.tab-item');
+            const orderCards = document.querySelectorAll('.order-card');
 
-                // Map tab indices to status values based on the order in the HTML
-                // 0: "Tất cả", 1: "Chø xác nhận", 2: "Đã xác nhận", 3: "Đang giao", 4: "Hoàn thành", 5: "Đã hủy"
-                const tabStatusMap = {
-                    0: 'all', // Tất cả
-                    1: 'cho_duyet', // Chờ xác nhận
-                    2: 'da_duyet', // Đã xác nhận (same as cho_duyet in DB)
-                    3: 'dang_giao', // Đang giao
-                    4: 'hoan_thanh', // Hoàn thành
-                    5: 'da_huy' // Đã hủy
+            // Map tab indices to status values based on the order in the HTML
+            // 0: "Tất cả", 1: "Chø xác nhận", 2: "Đã xác nhận", 3: "Đang giao", 4: "Hoàn thành", 5: "Đã hủy"
+            const tabStatusMap = {
+                0: 'all', // Tất cả
+                1: 'cho_duyet', // Chờ xác nhận
+                2: 'da_duyet', // Đã xác nhận (same as cho_duyet in DB)
+                3: 'dang_giao', // Đang giao
+                4: 'hoan_thanh', // Hoàn thành
+                5: 'da_huy' // Đã hủy
+            }
+
+            ;
+
+            tabItems.forEach((tab, index) => {
+                    tab.addEventListener('click', function() {
+                            // Remove active class from all tabs
+                            tabItems.forEach(item => item.classList.remove('active'));
+                            this.classList.add('active');
+
+                            // Get the status to filter by
+                            const filterStatus = tabStatusMap[index];
+
+                            // Show/hide order cards based on status
+                            orderCards.forEach(card => {
+                                    const cardStatus = card.getAttribute('data-status');
+
+                                    if (filterStatus === 'all' || cardStatus === filterStatus) {
+                                        card.style.display = 'block';
+                                    } else {
+                                        card.style.display = 'none';
+                                    }
+                                }
+
+                            );
+                        }
+
+                    );
                 }
 
-                ;
-
-                tabItems.forEach((tab, index) => {
-                        tab.addEventListener('click', function() {
-                                // Remove active class from all tabs
-                                tabItems.forEach(item => item.classList.remove('active'));
-                                this.classList.add('active');
-
-                                // Get the status to filter by
-                                const filterStatus = tabStatusMap[index];
-
-                                // Show/hide order cards based on status
-                                orderCards.forEach(card => {
-                                        const cardStatus = card.getAttribute('data-status');
-
-                                        if (filterStatus === 'all' || cardStatus === filterStatus) {
-                                            card.style.display = 'block';
-                                        } else {
-                                            card.style.display = 'none';
-                                        }
-                                    }
-
-                                );
-                            }
-
-                        );
-                    }
-
-                );
-            }
-
-        );
-
-        // Modal functionality
-        const modal = document.getElementById('detailModal');
-        const btns = document.querySelectorAll('.btn-detail');
-
-        // Hàm mở Modal và điền dữ liệu
-        btns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                        e.preventDefault(); // Ngăn load lại trang
-
-                        // 1. Lấy dữ liệu từ attribute data- của nút bấm
-                        const id = this.getAttribute('data-id');
-                        const date = this.getAttribute('data-date');
-                        const status = this.getAttribute('data-status');
-                        const statusClass = this.getAttribute('data-status-class');
-                        const total = this.getAttribute('data-total');
-                        const receiver = this.getAttribute('data-receiver');
-                        const phone = this.getAttribute('data-phone');
-                        const address = this.getAttribute('data-address');
-                        const paymentMethod = this.getAttribute('data-payment-method');
-                        const discount = this.getAttribute('data-discount');
-                        const subtotal = this.getAttribute('data-subtotal');
-                        const items = JSON.parse(this.getAttribute('data-items'));
-
-                        // 2. Điền dữ liệu vào Modal
-                        document.getElementById('modalOrderId').innerText = '#' + id;
-                        document.getElementById('modalCode').innerText = id;
-                        document.getElementById('modalDate').innerText = date;
-
-                        const statusEl = document.getElementById('modalStatus');
-                        statusEl.innerText = status;
-                        statusEl.className = 'status-badge ' + statusClass;
-
-                        document.getElementById('modalTotalTop').innerText = total;
-                        document.getElementById('modalSubTotal').innerText = subtotal;
-                        document.getElementById('modalTotalBottom').innerText = total;
-                        document.getElementById('modalDiscount').innerText = discount;
-
-                        // Fill shipping information
-                        document.getElementById('modalReceiver').innerText = receiver;
-                        document.getElementById('modalPhone').innerText = phone;
-                        document.getElementById('modalAddress').innerText = address;
-                        document.getElementById('modalPaymentMethod').innerText = paymentMethod;
-
-                        // 3. Render danh sách sản phẩm
-                        const tbody = document.getElementById('modalProductList');
-                        tbody.innerHTML = ''; // Xóa cũ
-
-                        items.forEach(item => {
-                                const tr = document.createElement('tr');
-
-                                tr.innerHTML = `<td>${item.name}</td><td>${item.price}</td><td style="text-align: center;">${item.qty}</td><td style="text-align: right; font-weight: bold; color: var(--blue-btn);">${item.subtotal}</td>`;
-                                tbody.appendChild(tr);
-                            }
-
-                        );
-
-                        // 4. Hiển thị Modal
-                        modal.style.display = 'flex';
-                    }
-
-                );
-            }
-
-        );
-
-        // Hàm đóng Modal
-        function closeModal() {
-            modal.style.display = 'none';
+            );
         }
 
-        // Đóng khi click ra ngoài vùng trắng
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
+    );
+
+    // Modal functionality
+    const modal = document.getElementById('detailModal');
+    const btns = document.querySelectorAll('.btn-detail');
+
+    // Hàm mở Modal và điền dữ liệu
+    btns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                    e.preventDefault(); // Ngăn load lại trang
+
+                    // 1. Lấy dữ liệu từ attribute data- của nút bấm
+                    const id = this.getAttribute('data-id');
+                    const date = this.getAttribute('data-date');
+                    const status = this.getAttribute('data-status');
+                    const statusClass = this.getAttribute('data-status-class');
+                    const total = this.getAttribute('data-total');
+                    const receiver = this.getAttribute('data-receiver');
+                    const phone = this.getAttribute('data-phone');
+                    const address = this.getAttribute('data-address');
+                    const paymentMethod = this.getAttribute('data-payment-method');
+                    const discount = this.getAttribute('data-discount');
+                    const subtotal = this.getAttribute('data-subtotal');
+                    const items = JSON.parse(this.getAttribute('data-items'));
+
+                    // Calculate subtotal from items if available
+                    let calculatedSubtotal = 0;
+                    if (items && items.length > 0) {
+                        calculatedSubtotal = items.reduce((sum, item) => {
+                            // Extract numeric value from formatted price string (remove dots and currency)
+                            const priceStr = item.subtotal.replace(/[^\d]/g, ''); // Keep only digits
+                            return sum + parseInt(priceStr);
+                        }, 0);
+
+                        // Format the calculated subtotal
+                        calculatedSubtotal = calculatedSubtotal.toLocaleString('vi-VN') + ' ₫';
+                    } else {
+                        calculatedSubtotal = subtotal;
+                    }
+
+                    // Calculate final amount (subtotal - discount)
+                    // Extract numeric values from formatted strings
+                    const subtotalValue = parseInt(calculatedSubtotal.replace(/[^\d]/g, '')) || 0;
+                    // Extract discount value (without currency symbols)
+                    const discountValueStr = discount.replace(/[^\d]/g, ''); // Keep only digits
+                    const discountValue = parseInt(discountValueStr) || 0;
+                    const finalAmount = subtotalValue - discountValue; // Subtract discount
+                    const formattedFinalAmount = finalAmount.toLocaleString('vi-VN') + ' ₫';
+
+                    // Format discount to show with negative sign
+                    const formattedDiscount = '-' + discountValue.toLocaleString('vi-VN') + ' ₫';
+
+                    // 2. Điền dữ liệu vào Modal
+                    document.getElementById('modalOrderId').innerText = '#' + id;
+                    document.getElementById('modalCode').innerText = id;
+                    document.getElementById('modalDate').innerText = date;
+
+                    const statusEl = document.getElementById('modalStatus');
+                    statusEl.innerText = status;
+                    statusEl.className = 'status-badge ' + statusClass;
+
+                    document.getElementById('modalTotalTop').innerText = formattedFinalAmount;
+                    document.getElementById('modalSubTotal').innerText = calculatedSubtotal;
+                    document.getElementById('modalTotalBottom').innerText = formattedFinalAmount;
+                    document.getElementById('modalDiscount').innerText = formattedDiscount;
+
+                    // Fill shipping information
+                    document.getElementById('modalReceiver').innerText = receiver;
+                    document.getElementById('modalPhone').innerText = phone;
+                    document.getElementById('modalAddress').innerText = address;
+                    document.getElementById('modalPaymentMethod').innerText = paymentMethod;
+
+                    // 3. Render danh sách sản phẩm
+                    const tbody = document.getElementById('modalProductList');
+                    tbody.innerHTML = ''; // Xóa cũ
+
+                    items.forEach(item => {
+                            const tr = document.createElement('tr');
+
+                            tr.innerHTML =
+                                `<td>${item.name}</td><td>${item.price}</td><td style="text-align: center;">${item.qty}</td><td style="text-align: right; font-weight: bold; color: var(--blue-btn);">${item.subtotal}</td>`;
+                            tbody.appendChild(tr);
+                        }
+
+                    );
+
+                    // 4. Hiển thị Modal
+                    modal.style.display = 'flex';
+                }
+
+            );
         }
-    </script>
+
+    );
+
+    // Hàm đóng Modal
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    // Đóng khi click ra ngoài vùng trắng
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>

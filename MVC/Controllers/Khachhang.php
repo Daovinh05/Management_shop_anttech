@@ -635,10 +635,12 @@ class Khachhang extends controller
 
         $ma_user = $_SESSION['user_id'];
 
-        // Lấy các đơn hàng của người dùng
-        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai
+        // Lấy các đơn hàng của người dùng cùng với phương thức thanh toán và thông tin khuyến mãi
+        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai, tt.phuong_thuc, km.tien_khuyen_mai
                 FROM don_hang dh
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
+                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
                 WHERE dh.ma_user = '$ma_user'
                 ORDER BY dh.ngay_tao DESC";
         $don_hang = mysqli_query($this->dh->con, $sql);

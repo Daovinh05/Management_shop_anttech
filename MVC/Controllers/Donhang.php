@@ -222,7 +222,8 @@ class Donhang extends controller
 
     // FILE: controllers/Donhang.php
 
-    public function get_order_details($id) {
+    public function get_order_details($id)
+    {
         // Lấy thông tin chi tiết món
         $raw_details = $this->ctdh->ChiTietDonHang_getByOrderId($id);
 
@@ -280,7 +281,8 @@ class Donhang extends controller
     }
 
     // Phương thức in hóa đơn
-    public function InHoaDon($id) {
+    public function InHoaDon($id)
+    {
         // Lấy thông tin chi tiết đơn hàng
         $raw_details = $this->ctdh->ChiTietDonHang_getByOrderId($id);
         $raw_order = $this->dh->DonHang_getById($id);
