@@ -7,360 +7,364 @@
     <title>Thống Kê Doanh Thu - Phone Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-    :root {
-        --bg: #f5f7fb;
-        --card: #ffffff;
-        --accent: #2463ff;
-        --muted: #6b7280;
-        --radius: 12px;
-        --gap: 16px;
-        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
+        :root {
+            --bg: #f5f7fb;
+            --card: #ffffff;
+            --accent: #2463ff;
+            --muted: #6b7280;
+            --radius: 12px;
+            --gap: 16px;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
 
-    * {
-        box-sizing: border-box
-    }
+        * {
+            box-sizing: border-box
+        }
 
-    body {
-        background: var(--bg);
-        margin: 0;
-        padding: 20px;
-        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
+        body {
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
 
-    .card {
-        width: 100%;
-        background: var(--card);
-        border-radius: var(--radius);
-        box-shadow: 0 8px 30px rgba(24, 99, 255, 0.08);
-        padding: 28px;
-        margin-bottom: 20px;
-    }
+        .card {
+            width: 100%;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 30px rgba(24, 99, 255, 0.08);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
 
-    h1 {
-        margin: 0 0 6px;
-        font-size: 20px
-    }
+        h1 {
+            margin: 0 0 6px;
+            font-size: 20px
+        }
 
-    p.lead {
-        margin: 0 0 20px;
-        color: var(--muted);
-        font-size: 14px
-    }
+        p.lead {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 14px
+        }
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: var(--gap);
-        margin-bottom: 30px;
-    }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--gap);
+            margin-bottom: 30px;
+        }
 
-    .stat-card {
-        background: var(--card);
-        border-radius: var(--radius);
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        border-left: 4px solid var(--accent);
-    }
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent);
+        }
 
-    .stat-value {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--accent);
-        margin: 10px 0;
-    }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 10px 0;
+        }
 
-    .stat-label {
-        font-size: 14px;
-        color: var(--muted);
-    }
+        .stat-label {
+            font-size: 14px;
+            color: var(--muted);
+        }
 
-    .form-search {
-        display: flex;
-        gap: var(--gap);
-        align-items: flex-end;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-        padding: 20px;
-        border: 1px dashed #cbd5e1;
-        border-radius: 12px;
-        background: #f8fafc;
-    }
+        .form-search {
+            display: flex;
+            gap: var(--gap);
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
 
-    .search-fields {
-        display: flex;
-        gap: var(--gap);
-        flex: 1;
-    }
+        .search-fields {
+            display: flex;
+            gap: var(--gap);
+            flex: 1;
+        }
 
-    .search-fields>div {
-        flex: 1 1 200px;
-    }
+        .search-fields>div {
+            flex: 1 1 200px;
+        }
 
-    .form-search>.actions {
-        flex: 0 0 auto;
-        display: flex;
-        gap: 12px;
-    }
+        .form-search>.actions {
+            flex: 0 0 auto;
+            display: flex;
+            gap: 12px;
+        }
 
-    label {
-        display: block;
-        font-size: 15px;
-        color: #253243;
-        margin-bottom: 6px;
-        font-weight: bold;
-    }
+        label {
+            display: block;
+            font-size: 15px;
+            color: #253243;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
 
-    input[type="text"],
-    input[type="date"] {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #e3e7ef;
-        border-radius: 10px;
-        background: #fbfdff;
-        font-size: 14px;
-        outline: none;
-    }
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e3e7ef;
+            border-radius: 10px;
+            background: #fbfdff;
+            font-size: 14px;
+            outline: none;
+        }
 
-    input:focus {
-        box-shadow: 0 0 0 4px rgba(36, 99, 255, 0.08);
-        border-color: var(--accent);
-    }
+        input:focus {
+            box-shadow: 0 0 0 4px rgba(36, 99, 255, 0.08);
+            border-color: var(--accent);
+        }
 
-    .actions {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-    }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
 
-    .actions-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
+        .actions-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-    button {
-        padding: 10px 16px;
-        border-radius: 10px;
-        border: 0;
-        font-size: 14px;
-        cursor: pointer
-    }
+        button {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 0;
+            font-size: 14px;
+            cursor: pointer
+        }
 
-    .btn-primary {
-        background: var(--accent);
-        color: #fff;
-        transition: 0.2s;
-    }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            transition: 0.2s;
+        }
 
-    .btn-ghost {
-        background: transparent;
-        border: 1px solid #e6e9f2;
-        color: var(--muted);
-        padding: 10px 16px;
-        border-radius: 10px;
-        text-decoration: none;
-        display: inline-block;
-        line-height: 1;
-    }
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid #e6e9f2;
+            color: var(--muted);
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            line-height: 1;
+        }
 
-    .btn-excel {
-        background: #e34ae5ff;
-        padding: 10px 16px;
-        border-radius: 10px;
-        color: #fff;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
+        .btn-excel {
+            background: #e34ae5ff;
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .btn-excel:hover {
-        background: #e50f9aff;
-    }
+        .btn-excel:hover {
+            background: #e50f9aff;
+        }
 
-    .table-container {
-        max-height: 500px;
-        overflow-x: auto;
-        overflow-y: auto;
-        margin-top: 20px;
-        border: 1px solid #e3e7ef;
-        border-radius: var(--radius);
-        position: relative;
-    }
+        .table-container {
+            max-height: 500px;
+            overflow-x: auto;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #e3e7ef;
+            border-radius: var(--radius);
+            position: relative;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border-spacing: 0;
-        table-layout: auto;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            table-layout: auto;
+        }
 
-    thead th {
-        position: sticky;
-        top: 0;
-        background: #f8fafc;
-        z-index: 10;
-        border-bottom: 2px solid #e3e7ef;
-        font-weight: 600;
-        padding: 9px;
-        text-align: left;
-        vertical-align: middle;
-    }
+        thead th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            z-index: 10;
+            border-bottom: 2px solid #e3e7ef;
+            font-weight: 600;
+            padding: 9px;
+            text-align: left;
+            vertical-align: middle;
+        }
 
-    th,
-    td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #e3e7ef;
-        vertical-align: top;
-        word-wrap: break-word;
-    }
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e3e7ef;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
 
-    .currency {
-        font-weight: 600;
-        color: #059669;
-    }
+        .currency {
+            font-weight: 600;
+            color: #059669;
+        }
 
-    .currency.loss {
-        color: #dc2626;
-    }
+        .currency.loss {
+            color: #dc2626;
+        }
 
-    tbody tr:hover {
-        background-color: #f8fafc;
-    }
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
 
-    .hint {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 6px
-    }
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px
+        }
 
-    .status-badge {
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-    }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-    .status-cho-duyet {
-        background: #fef3c7;
-        color: #92400e;
-    }
+        .status-cho-duyet {
+            background: #fef3c7;
+            color: #92400e;
+        }
 
-    .status-dang-giao {
-        background: #dbeafe;
-        color: #1e40af;
-    }
+        .status-dang-giao {
+            background: #dbeafe;
+            color: #1e40af;
+        }
 
-    .status-hoan-thanh {
-        background: #d1fae5;
-        color: #065f46;
-    }
+        .status-hoan-thanh {
+            background: #d1fae5;
+            color: #065f46;
+        }
 
-    .status-da-huy {
-        background: #fee2e2;
-        color: #991b1b;
-    }
+        .status-da-huy {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
-    .payment-cod {
-        background: #ffedd5;
-        color: #c2410c;
-    }
+        .payment-cod {
+            background: #ffedd5;
+            color: #c2410c;
+        }
 
-    .payment-momo {
-        background: #dbeafe;
-        color: #1e40af;
-    }
+        .payment-momo {
+            background: #dbeafe;
+            color: #1e40af;
+        }
 
-    .payment-banking {
-        background: #ddd6fe;
-        color: #7c3aed;
-    }
+        .payment-vnpay {
+            background: #ddd6fe;
+            color: #7c3aed;
+        }
 
-    .chart-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin: 30px 0;
-    }
+        .payment-banking {
+            background: #f0fdf4;
+            color: #166534;
+        }
 
-    .chart-card {
-        background: var(--card);
-        border-radius: var(--radius);
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
 
-    .chart-title {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #253243;
-    }
+        .chart-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
 
-    .chart-data {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #253243;
+        }
 
-    .chart-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #e2e8f0;
-    }
+        .chart-data {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-    .chart-item:last-child {
-        border-bottom: none;
-    }
+        .chart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-    .chart-item-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+        .chart-item:last-child {
+            border-bottom: none;
+        }
 
-    .chart-color {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
+        .chart-item-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .revenue-chart {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
+        .chart-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
 
-    .revenue-bar-container {
-        width: 100%;
-        background: #e2e8f0;
-        border-radius: 4px;
-        overflow: hidden;
-        height: 20px;
-    }
+        .revenue-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-    .revenue-bar {
-        height: 100%;
-        background: var(--accent);
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding-right: 8px;
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-    }
+        .revenue-bar-container {
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            height: 20px;
+        }
 
+        .revenue-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -402,25 +406,30 @@
             <div class="search-fields">
                 <div>
                     <label for="txtTuNgay">Từ ngày</label>
-                    <input type="date" id="txtTuNgay" name="txtTuNgay" value="<?php echo $data['tungay'] ?? date('Y-m-d'); ?>" />
+                    <input type="date" id="txtTuNgay" name="txtTuNgay"
+                        value="<?php echo $data['tungay'] ?? date('Y-m-d'); ?>" />
                 </div>
                 <div>
                     <label for="txtDenNgay">Đến ngày</label>
-                    <input type="date" id="txtDenNgay" name="txtDenNgay" value="<?php echo $data['denngay'] ?? date('Y-m-d'); ?>" />
+                    <input type="date" id="txtDenNgay" name="txtDenNgay"
+                        value="<?php echo $data['denngay'] ?? date('Y-m-d'); ?>" />
                 </div>
                 <div>
                     <label for="txtMaDonHang">Mã đơn hàng</label>
-                    <input type="text" id="txtMaDonHang" name="txtMaDonHang" placeholder="Nhập mã đơn hàng..." value="<?php echo $data['madonhang'] ?? ''; ?>" />
+                    <input type="text" id="txtMaDonHang" name="txtMaDonHang" placeholder="Nhập mã đơn hàng..."
+                        value="<?php echo $data['madonhang'] ?? ''; ?>" />
                 </div>
                 <div>
                     <label for="txtTenKhachHang">Tên khách hàng</label>
-                    <input type="text" id="txtTenKhachHang" name="txtTenKhachHang" placeholder="Nhập tên khách hàng..." value="<?php echo $data['tenkhachhang'] ?? ''; ?>" />
+                    <input type="text" id="txtTenKhachHang" name="txtTenKhachHang" placeholder="Nhập tên khách hàng..."
+                        value="<?php echo $data['tenkhachhang'] ?? ''; ?>" />
                 </div>
             </div>
 
             <div class="actions" style="margin-top:0;">
                 <button type="submit" class="btn-primary" name="btnLoc"><i class="fa-solid fa-filter"></i> Lọc</button>
-                <button type="submit" class="btn-ghost" name="btnTimKiem"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
+                <button type="submit" class="btn-ghost" name="btnTimKiem"><i class="fa-solid fa-search"></i> Tìm
+                    kiếm</button>
                 <a href="http://localhost/Banhang/Thongke/thongke" class="btn-ghost">Làm mới</a>
                 <a href="http://localhost/Banhang/Thongke/xuatExcel" class="btn-excel">
                     <i class="fa-solid fa-file-excel"></i> Xuất Excel
@@ -440,21 +449,27 @@
                         <span>Thanh toán khi nhận (COD)</span>
                     </div>
                     <div>
-                        <span class="status-badge payment-cod"><?php echo ($data['thongkephuongthuc']['cod']['so_don'] ?? 0) . ' đơn'; ?></span>
-                        <span class="currency"><?php echo number_format($data['thongkephuongthuc']['cod']['doanh_thu'] ?? 0, 0, ',', '.'); ?> ₫</span>
+                        <span
+                            class="status-badge payment-cod"><?php echo ($data['thongkephuongthuc']['cod']['so_don'] ?? 0) . ' đơn'; ?></span>
+                        <span
+                            class="currency"><?php echo number_format($data['thongkephuongthuc']['cod']['doanh_thu'] ?? 0, 0, ',', '.'); ?>
+                            ₫</span>
                     </div>
                 </div>
                 <div class="chart-item">
                     <div class="chart-item-label">
-                        <div class="chart-color" style="background: #3b82f6;"></div>
-                        <span>Ví điện tử MoMo</span>
+                        <div class="chart-color" style="background: #8b5cf6;"></div>
+                        <span>Ví VN_Pay</span>
                     </div>
                     <div>
-                        <span class="status-badge payment-momo"><?php echo ($data['thongkephuongthuc']['momo']['so_don'] ?? 0) . ' đơn'; ?></span>
-                        <span class="currency"><?php echo number_format($data['thongkephuongthuc']['momo']['doanh_thu'] ?? 0, 0, ',', '.'); ?> ₫</span>
+                        <span
+                            class="status-badge payment-vnpay"><?php echo ($data['thongkephuongthuc']['vnpay']['so_don'] ?? 0) . ' đơn'; ?></span>
+                        <span
+                            class="currency"><?php echo number_format($data['thongkephuongthuc']['vnpay']['doanh_thu'] ?? 0, 0, ',', '.'); ?>
+                            ₫</span>
                     </div>
                 </div>
-                <div class="chart-item">
+                <!-- <div class="chart-item">
                     <div class="chart-item-label">
                         <div class="chart-color" style="background: #8b5cf6;"></div>
                         <span>Chuyển khoản ngân hàng</span>
@@ -463,7 +478,7 @@
                         <span class="status-badge payment-banking"><?php echo ($data['thongkephuongthuc']['banking']['so_don'] ?? 0) . ' đơn'; ?></span>
                         <span class="currency"><?php echo number_format($data['thongkephuongthuc']['banking']['doanh_thu'] ?? 0, 0, ',', '.'); ?> ₫</span>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -484,21 +499,22 @@
                 if (!empty($products) && is_array($products)):
                     foreach (array_slice($products, 0, 5) as $index => $product):
                 ?>
-                <div class="chart-item">
-                    <div class="chart-item-label">
-                        <span style="font-weight: 600; color: #4f46e5;"><?php echo ($index + 1); ?>.</span>
-                        <span><?php echo htmlspecialchars($product['ten_san_pham'] ?? $product['ten_bien_the'] ?? 'N/A'); ?></span>
-                    </div>
-                    <div>
-                        <span style="color: #6b7280;"><?php echo $product['tong_ban'] ?? 0; ?> cái</span>
-                        <span class="currency"><?php echo number_format($product['doanh_thu'] ?? 0, 0, ',', '.'); ?> ₫</span>
-                    </div>
-                </div>
-                <?php
+                        <div class="chart-item">
+                            <div class="chart-item-label">
+                                <span style="font-weight: 600; color: #4f46e5;"><?php echo ($index + 1); ?>.</span>
+                                <span><?php echo htmlspecialchars($product['ten_san_pham'] ?? $product['ten_bien_the'] ?? 'N/A'); ?></span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280;"><?php echo $product['tong_ban'] ?? 0; ?> cái</span>
+                                <span class="currency"><?php echo number_format($product['doanh_thu'] ?? 0, 0, ',', '.'); ?>
+                                    ₫</span>
+                            </div>
+                        </div>
+                    <?php
                     endforeach;
                 else:
-                ?>
-                <div style="text-align: center; padding: 20px; color: #6b7280;">Không có dữ liệu</div>
+                    ?>
+                    <div style="text-align: center; padding: 20px; color: #6b7280;">Không có dữ liệu</div>
                 <?php endif; ?>
             </div>
         </div>
@@ -508,7 +524,9 @@
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Thống Kê Đơn Hàng Chi Tiết</h2>
         <div style="margin:10px 0">
-            <strong>Kết quả: <span id="resultCount" class="hint"><?php echo is_array($data['danhsachdonhang']) ? count($data['danhsachdonhang']) : 0; ?> đơn hàng</span></strong>
+            <strong>Kết quả: <span id="resultCount"
+                    class="hint"><?php echo is_array($data['danhsachdonhang']) ? count($data['danhsachdonhang']) : 0; ?>
+                    đơn hàng</span></strong>
         </div>
         <div class="table-container">
             <table>
@@ -540,79 +558,88 @@
                     if (!empty($orders)):
                         foreach ($orders as $order):
                     ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($order['ma_don_hang'] ?? 'N/A'); ?></td>
-                        <td>
-                            <div style="font-weight: 500;"><?php echo htmlspecialchars($order['ten_khach_hang'] ?? 'N/A'); ?></div>
-                            <div style="font-size: 13px; color: #666; margin-top: 2px;"><?php echo htmlspecialchars($order['so_dien_thoai'] ?? 'N/A'); ?></div>
-                        </td>
-                        <td><?php echo isset($order['ngay_tao']) ? date('d/m/Y H:i', strtotime($order['ngay_tao'])) : 'N/A'; ?></td>
-                        <td>
-                            <?php
-                            $status = $order['trang_thai_don_hang'] ?? '';
-                            switch($status) {
-                                case 'cho_duyet':
-                                case 'da_duyet':
-                                    $bg = '#fef3c7';
-                                    $color = '#92400e';
-                                    $label = $status === 'cho_duyet' ? 'Chờ xác nhận' : 'Đã xác nhận';
-                                    break;
-                                case 'dang_giao':
-                                    $bg = '#dbeafe';
-                                    $color = '#1e40af';
-                                    $label = 'Đang giao';
-                                    break;
-                                case 'hoan_thanh':
-                                    $bg = '#d1fae5';
-                                    $color = '#065f46';
-                                    $label = 'Hoàn thành';
-                                    break;
-                                case 'da_huy':
-                                    $bg = '#fee2e2';
-                                    $color = '#991b1b';
-                                    $label = 'Đã hủy';
-                                    break;
-                                default:
-                                    $bg = '#f3f4f6';
-                                    $color = '#374151';
-                                    $label = 'Không rõ';
-                                    break;
-                            }
-                            ?>
-                            <span class="status-badge status-<?php echo str_replace('_', '-', $status); ?>" style="background:<?php echo $bg; ?>; color:<?php echo $color; ?>">
-                                <?php echo $label; ?>
-                            </span>
-                        </td>
-                        <td>
-                            <?php if ($order['phuong_thuc']): ?>
-                                <span class="status-badge payment-<?php echo strtolower($order['phuong_thuc']); ?>">
-                                    <?php echo $order['phuong_thuc']; ?>
-                                </span>
-                            <?php else: ?>
-                                <span style="color: #9ca3af;">N/A</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($order['trang_thai_thanh_toan']): ?>
-                                <span class="status-badge" style="background: <?php echo $order['trang_thai_thanh_toan'] === 'da_thanh_toan' ? '#d1fae5' : '#fef3c7'; ?>;
+                            <tr>
+                                <td><?php echo htmlspecialchars($order['ma_don_hang'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <div style="font-weight: 500;">
+                                        <?php echo htmlspecialchars($order['ten_khach_hang'] ?? 'N/A'); ?></div>
+                                    <div style="font-size: 13px; color: #666; margin-top: 2px;">
+                                        <?php echo htmlspecialchars($order['so_dien_thoai'] ?? 'N/A'); ?></div>
+                                </td>
+                                <td><?php echo isset($order['ngay_tao']) ? date('d/m/Y H:i', strtotime($order['ngay_tao'])) : 'N/A'; ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $status = $order['trang_thai_don_hang'] ?? '';
+                                    switch ($status) {
+                                        case 'cho_duyet':
+                                        case 'da_duyet':
+                                            $bg = '#fef3c7';
+                                            $color = '#92400e';
+                                            $label = $status === 'cho_duyet' ? 'Chờ xác nhận' : 'Đã xác nhận';
+                                            break;
+                                        case 'dang_giao':
+                                            $bg = '#dbeafe';
+                                            $color = '#1e40af';
+                                            $label = 'Đang giao';
+                                            break;
+                                        case 'hoan_thanh':
+                                            $bg = '#d1fae5';
+                                            $color = '#065f46';
+                                            $label = 'Hoàn thành';
+                                            break;
+                                        case 'da_huy':
+                                            $bg = '#fee2e2';
+                                            $color = '#991b1b';
+                                            $label = 'Đã hủy';
+                                            break;
+                                        default:
+                                            $bg = '#f3f4f6';
+                                            $color = '#374151';
+                                            $label = 'Không rõ';
+                                            break;
+                                    }
+                                    ?>
+                                    <span class="status-badge status-<?php echo str_replace('_', '-', $status); ?>"
+                                        style="background:<?php echo $bg; ?>; color:<?php echo $color; ?>">
+                                        <?php echo $label; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($order['phuong_thuc']): ?>
+                                        <span class="status-badge payment-<?php echo strtolower($order['phuong_thuc']); ?>">
+                                            <?php echo $order['phuong_thuc']; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="color: #9ca3af;">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($order['trang_thai_thanh_toan']): ?>
+                                        <span class="status-badge"
+                                            style="background: <?php echo $order['trang_thai_thanh_toan'] === 'da_thanh_toan' ? '#d1fae5' : '#fef3c7'; ?>;
                                       color: <?php echo $order['trang_thai_thanh_toan'] === 'da_thanh_toan' ? '#065f46' : '#92400e'; ?>">
-                                    <?php echo $order['trang_thai_thanh_toan'] === 'da_thanh_toan' ? 'Đã thanh toán' : 'Chưa thanh toán'; ?>
-                                </span>
-                            <?php else: ?>
-                                <span style="color: #9ca3af;">N/A</span>
-                            <?php endif; ?>
-                        </td>
-                        <td><span class="currency"><?php echo number_format($order['tong_tien_hang'] ?? 0, 0, ',', '.'); ?> ₫</span></td>
-                        <td><span class="currency <?php echo ($order['loi_nhuan'] ?? 0) < 0 ? 'loss' : ''; ?>"><?php echo number_format($order['loi_nhuan'] ?? 0, 0, ',', '.'); ?> ₫</span></td>
-                        <td><?php echo number_format($order['ty_le_lai'] ?? 0, 2); ?>%</td>
-                    </tr>
-                    <?php
+                                            <?php echo $order['trang_thai_thanh_toan'] === 'da_thanh_toan' ? 'Đã thanh toán' : 'Chưa thanh toán'; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="color: #9ca3af;">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><span
+                                        class="currency"><?php echo number_format($order['tong_tien_hang'] ?? 0, 0, ',', '.'); ?>
+                                        ₫</span></td>
+                                <td><span
+                                        class="currency <?php echo ($order['loi_nhuan'] ?? 0) < 0 ? 'loss' : ''; ?>"><?php echo number_format($order['loi_nhuan'] ?? 0, 0, ',', '.'); ?>
+                                        ₫</span></td>
+                                <td><?php echo number_format($order['ty_le_lai'] ?? 0, 2); ?>%</td>
+                            </tr>
+                        <?php
                         endforeach;
                     else:
-                    ?>
-                    <tr>
-                        <td colspan="9" style="text-align: center; color: #6b7280;">Không có đơn hàng nào</td>
-                    </tr>
+                        ?>
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: #6b7280;">Không có đơn hàng nào</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>

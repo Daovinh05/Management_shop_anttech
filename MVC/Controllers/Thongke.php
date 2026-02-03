@@ -3,19 +3,19 @@ class Thongke extends controller
 {
     private $dh;
     private $ctdh;
-    
+
     function __construct()
     {
         $this->dh = $this->model("DonHang_m");
         $this->ctdh = $this->model("ChiTietDonHang_m");
     }
-    
+
     function Get_data()
     {
         // Hàm mặc định - hiển thị thống kê doanh thu
         $this->thongke();
     }
-    
+
     function thongke()
     {
         // Lấy ngày hiện tại
@@ -42,12 +42,12 @@ class Thongke extends controller
             'ngayhientai' => $ngayHienTai
         ]);
     }
-    
+
     private function layThongKeTongQuan()
     {
         // Lấy thống kê tổng quan về đơn hàng
         $result = $this->dh->DonHang_ThongKeTongQuan();
-        
+
         $data = [
             'cho_duyet' => 0,
             'dang_giao' => 0,
@@ -55,12 +55,12 @@ class Thongke extends controller
             'da_huy' => 0,
             'tong_don' => 0
         ];
-        
+
         if ($result && mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $trangThai = $row['trang_thai_don_hang'];
                 $soLuong = $row['so_luong'];
-                
+
                 switch ($trangThai) {
                     case 'cho_duyet':
                         $data['cho_duyet'] = $soLuong;
@@ -77,32 +77,32 @@ class Thongke extends controller
                 }
             }
         }
-        
+
         $data['tong_don'] = $data['cho_duyet'] + $data['dang_giao'] + $data['hoan_thanh'];
-        
+
         return $data;
     }
-    
+
     private function layDanhSachDonHangChiTiet()
     {
         // Lấy danh sách đơn hàng với thông tin chi tiết
         $result = $this->dh->DonHang_ThongKeChiTiet();
         $danhSach = [];
-        
+
         if ($result && mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $danhSach[] = $row;
             }
         }
-        
+
         return $danhSach;
     }
-    
+
     private function layThongKePhuongThucThanhToan()
     {
         // Lấy thống kê theo phương thức thanh toán
         $result = $this->dh->DonHang_ThongKePhuongThuc();
-        
+
         $data = [
             'cod' => [
                 'so_don' => 0,
@@ -118,29 +118,32 @@ class Thongke extends controller
             ],
             'tong_so_don' => 0
         ];
-        
+
         if ($result && mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $phuongThuc = strtolower($row['phuong_thuc']);
-                
+
                 if ($phuongThuc == 'cod') {
                     $data['cod']['so_don'] = $row['so_don'];
                     $data['cod']['doanh_thu'] = $row['tong_tien'];
                 } else if ($phuongThuc == 'momo') {
                     $data['momo']['so_don'] = $row['so_don'];
                     $data['momo']['doanh_thu'] = $row['tong_tien'];
+                } else if ($phuongThuc == 'vnpay') {
+                    $data['vnpay']['so_don'] = $row['so_don'];
+                    $data['vnpay']['doanh_thu'] = $row['tong_tien'];
                 } else if ($phuongThuc == 'banking') {
                     $data['banking']['so_don'] = $row['so_don'];
                     $data['banking']['doanh_thu'] = $row['tong_tien'];
                 }
             }
         }
-        
+
         $data['tong_so_don'] = $data['cod']['so_don'] + $data['momo']['so_don'] + $data['banking']['so_don'];
-        
+
         return $data;
     }
-    
+
     // Hàm lọc theo ngày
     function locTheoNgay()
     {
@@ -170,7 +173,7 @@ class Thongke extends controller
             ]);
         }
     }
-    
+
     // Hàm tìm kiếm đơn hàng
     function timKiem()
     {
@@ -237,7 +240,7 @@ class Thongke extends controller
         $sheet->setCellValue('L1', 'Tỷ lệ lãi (%)');
 
         // Thiết lập độ rộng cột
-        foreach(range('A', 'L') as $col) {
+        foreach (range('A', 'L') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -281,5 +284,4 @@ class Thongke extends controller
         $objWriter->save('php://output');
         exit;
     }
-
 }
