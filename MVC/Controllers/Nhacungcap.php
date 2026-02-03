@@ -91,6 +91,44 @@ class Nhacungcap extends controller
 
         $result = $this->ncc->NhaCungCap_find($ma_nha_cung_cap, $ten_nha_cung_cap);
 
+        // ====== XUẤT EXCEL ======
+        if (isset($_POST['btnXuatexcel'])) {
+
+            $objExcel = new PHPExcel();
+            $objExcel->setActiveSheetIndex(0);
+            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachNhacungcap');
+
+            // Header tương ứng với ảnh CSDL
+            $sheet->setCellValue('A1', 'Mã Nhà Cung Cấp');
+            $sheet->setCellValue('B1', 'Tên Nhà Cung Cấp');
+            $sheet->setCellValue('C1', 'Địa Chỉ');
+            $sheet->setCellValue('D1', 'Điện Thoại');
+
+
+            $rowCount = 2; // Starting from row 2 since row 1 is headers
+            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Mapping field according to database table
+                $sheet->setCellValue('A' . $rowCount, $row['ma_nha_cung_cap']);
+                $sheet->setCellValue('B' . $rowCount, $row['ten_nha_cung_cap']);
+                $sheet->setCellValue('C' . $rowCount, $row['dia_chi']);
+                $sheet->setCellValue('D' . $rowCount, $row['dien_thoai']);
+                $rowCount++;
+            }
+
+            foreach (range('A', 'D') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            if (ob_get_length()) ob_end_clean();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="DanhSachNhaCungCap.xlsx"');
+            header('Cache-Control: max-age=0');
+
+            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+            $writer->save('php://output');
+            exit;
+        }
         // DISPLAY VIEW
         $this->view('Master', [
             'page' => 'Danhsachnhacungcap_v',

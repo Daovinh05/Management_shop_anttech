@@ -81,6 +81,12 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                         </a>
                     </li>
                     <li>
+                        <a href="http://localhost/Banhang/Danhgia/danhsach"
+                            class="<?php echo (strpos($current, 'danhsachkhuyenmai_v') !== false) ? 'active' : ''; ?>">
+                            <i class="fa-solid fa-percentage"></i> Quản lý đánh giá
+                        </a>
+                    </li>
+                    <li>
                         <a href="http://localhost/Banhang/Donhang/danhsach"
                             class="<?php echo (strpos($current, 'danhsachdonhang_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-shopping-cart"></i> Quản lý đơn hàng

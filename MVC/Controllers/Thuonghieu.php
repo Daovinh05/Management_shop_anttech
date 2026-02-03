@@ -83,6 +83,42 @@ class Thuonghieu extends controller
 
         $result = $this->th->ThuongHieu_find($ma_thuong_hieu, $ten_thuong_hieu);
 
+        // ====== XUẤT EXCEL ======
+        if (isset($_POST['btnXuatexcel'])) {
+
+            $objExcel = new PHPExcel();
+            $objExcel->setActiveSheetIndex(0);
+            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachThuonghieu');
+
+            // Header tương ứng với ảnh CSDL
+            $sheet->setCellValue('A1', 'Mã Thuơng Hiệu');
+            $sheet->setCellValue('B1', 'Tên Thương Hiệu');
+            $sheet->setCellValue('C1', 'Ngày Tạo');
+
+
+            $rowCount = 2; // Starting from row 2 since row 1 is headers
+            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Mapping field according to database table
+                $sheet->setCellValue('A' . $rowCount, $row['ma_thuong_hieu']);
+                $sheet->setCellValue('B' . $rowCount, $row['ten_thuong_hieu']);
+                $sheet->setCellValue('C' . $rowCount, $row['ngay_tao']);
+                $rowCount++;
+            }
+
+            foreach (range('A', 'C') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            if (ob_get_length()) ob_end_clean();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="DanhSachThuongHieu.xlsx"');
+            header('Cache-Control: max-age=0');
+
+            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+            $writer->save('php://output');
+            exit;
+        }
         // DISPLAY VIEW
         $this->view('Master', [
             'page' => 'danhsachthuonghieu_v',

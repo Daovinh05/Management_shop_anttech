@@ -370,6 +370,16 @@
                     </div>
                 </a>
 
+                <a href="http://localhost/Banhang/Danhgia/danhsach" class="action-card">
+                    <div class="action-icon bg-pink">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <div class="action-content">
+                        <h3>Đánh giá</h3>
+                        <p>Quản lý đánh giá</p>
+                    </div>
+                </a>
+
                 <a href="http://localhost/Banhang/Donhang/danhsach" class="action-card">
                     <div class="action-icon bg-orange">
                         <i class="fa-solid fa-cart-shopping"></i>
