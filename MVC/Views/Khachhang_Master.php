@@ -830,11 +830,56 @@
     <div class="breadcrumb">
         <div class="container">
             <a href="<?php echo $this->url('Khachhang'); ?>">Trang chủ</a> /
-            <?php if (isset($data['breadcrumb'])): ?>
-                <?php echo $data['breadcrumb']; ?>
-            <?php else: ?>
-                <span>Trang hiện tại</span>
-            <?php endif; ?>
+            <?php
+            // Xác định trang hiện tại dựa trên tên view được truyền vào
+            $currentPage = '';
+            if (isset($data['page'])) {
+                $pageName = basename($data['page'], '.php');
+
+                switch($pageName) {
+                    case 'khachhang_home':
+                        $currentPage = 'Trang chủ';
+                        break;
+                    case 'khachhang_sanpham':
+                        $currentPage = 'Danh sách sản phẩm';
+                        break;
+                    case 'khachhang_chitietsp':
+                        $currentPage = 'Chi tiết sản phẩm';
+                        break;
+                    case 'khachhang_giohang':
+                        $currentPage = 'Giỏ hàng';
+                        break;
+                    case 'khachhang_thanhtoan':
+                        $currentPage = 'Thanh toán';
+                        break;
+                    case 'khachhang_lichsu':
+                        $currentPage = 'Lịch sử mua hàng';
+                        break;
+                    case 'khachhang_chitietdh':
+                        $currentPage = 'Chi tiết đơn hàng';
+                        break;
+                    case 'khachhang_taikhoan':
+                        $currentPage = 'Quản lý tài khoản';
+                        break;
+                    case 'khachhang_camon':
+                        $currentPage = 'Thanh toán thành công';
+                        break;
+                    case 'khachhang_thanhtoan_thatbai':
+                        $currentPage = 'Thanh toán thất bại';
+                        break;
+                    default:
+                        $currentPage = ucfirst(str_replace('khachhang_', '', $pageName));
+                        $currentPage = str_replace('_', ' ', $currentPage);
+                        break;
+                }
+            }
+
+            if (isset($data['breadcrumb'])):
+                echo $data['breadcrumb'];
+            else:
+                echo '<span>' . $currentPage . '</span>';
+            endif;
+            ?>
         </div>
     </div>
 
