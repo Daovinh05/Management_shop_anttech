@@ -83,11 +83,11 @@ class SanPham_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
-    // Hàm lọc sản phẩm theo danh mục và mức giá
-    function SanPham_filterByCategoryAndPrice($category_id = '', $price_range = '')
+    // Hàm lọc sản phẩm theo danh mục, mức giá và thương hiệu
+    function SanPham_filterByCategoryAndPrice($category_id = '', $price_range = '', $brand_id = '')
     {
-        // Nếu cả hai điều kiện đều rỗng hoặc category_id là "tat-ca" (tức là chọn "Tất cả"), áp dụng logic giống SanPham_getAll()
-        if ((empty($category_id) || $category_id === 'tat-ca') && empty($price_range)) {
+        // Nếu cả ba điều kiện đều rỗng hoặc category_id là "tat-ca" (tức là chọn "Tất cả"), áp dụng logic giống SanPham_getAll()
+        if ((empty($category_id) || $category_id === 'tat-ca') && empty($price_range) && (empty($brand_id) || $brand_id === 'tat-ca')) {
             $sql = "SELECT s.*,
                            (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as gia_moi,
                            (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
@@ -129,6 +129,11 @@ class SanPham_m extends connectDB
                         // Nếu có giá trị không hợp lệ, không áp dụng điều kiện
                         break;
                 }
+            }
+
+            // Thêm điều kiện lọc theo thương hiệu nếu có
+            if (!empty($brand_id) && $brand_id !== 'tat-ca') {
+                $conditions[] = "s.ma_thuong_hieu = '$brand_id'";
             }
 
             // Tạo câu truy vấn

@@ -796,6 +796,20 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <label class="filter-option"><input type="radio" name="price" value="tren-13-trieu"><span
                                 class="checkmark"></span>Trên 13 triệu</label>
                     </div>
+                    <div class="filter-group">
+                        <h4 class="filter-group-title">Thương hiệu</h4>
+                        <label class="filter-option"><input type="radio" name="brand" value="" checked><span
+                                class="checkmark"></span>Tất cả</label>
+                        <?php
+                        // Lấy danh sách thương hiệu từ model
+                        $thuong_hieu_model = $this->model("ThuongHieu_m");
+                        $dsth = $thuong_hieu_model->ThuongHieu_getAll();
+                        foreach ($dsth as $th): ?>
+                            <label class="filter-option"><input type="radio" name="brand"
+                                    value="<?php echo $th['ma_thuong_hieu']; ?>"><span
+                                    class="checkmark"></span><?php echo htmlspecialchars($th['ten_thuong_hieu']); ?></label>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </aside>
 
@@ -877,6 +891,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
     // Variables to store current filter selections
     let currentCategory = '';
     let currentPriceRange = '';
+    let currentBrand = '';
 
     // Handle price filter selection
     const priceFilters = document.querySelectorAll('input[name="price"]');
@@ -884,8 +899,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         filter.addEventListener('change', function() {
             if (this.checked && this.value) {
                 currentPriceRange = this.value;
-                // Filter products based on selected price range and current category
-                filterProductsByBoth(currentCategory, currentPriceRange);
+                // Filter products based on selected price range, current category and current brand
+                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
             }
         });
     });
@@ -901,14 +916,31 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     // If "Tất cả" is selected (no value), set category to empty
                     currentCategory = '';
                 }
-                // Filter products based on selected category and current price range
-                filterProductsByBoth(currentCategory, currentPriceRange);
+                // Filter products based on selected category, current price range and current brand
+                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
             }
         });
     });
 
-    // Function to filter products by both category and price range
-    function filterProductsByBoth(categoryId, priceRange) {
+    // Handle brand filter selection
+    const brandFilters = document.querySelectorAll('input[name="brand"]');
+    brandFilters.forEach(filter => {
+        filter.addEventListener('change', function() {
+            if (this.checked) {
+                if (this.value && this.value !== '') {
+                    currentBrand = this.value;
+                } else {
+                    // If "Tất cả" is selected (no value), set brand to empty
+                    currentBrand = '';
+                }
+                // Filter products based on selected brand, current category and current price range
+                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+            }
+        });
+    });
+
+    // Function to filter products by category, price range and brand
+    function filterProductsByBoth(categoryId, priceRange, brandId) {
         // Show loading indicator
         const productGrid = document.querySelector('.product-grid');
         productGrid.innerHTML = '<div class="loading">Đang tải sản phẩm...</div>';
@@ -921,10 +953,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         if (priceRange) {
             formData.append('price_range', priceRange);
         }
+        if (brandId) {
+            formData.append('brand_id', brandId);
+        }
 
         // Log the URL for debugging
         console.log('Request URL:', '<?php echo UrlHelper::url("Khachhang/filter_by_both"); ?>');
-        console.log('Category ID:', categoryId, 'Price Range:', priceRange);
+        console.log('Category ID:', categoryId, 'Price Range:', priceRange, 'Brand ID:', brandId);
 
         // Make an AJAX request to get filtered products
         fetch('<?php echo UrlHelper::url("Khachhang/filter_by_both"); ?>', {

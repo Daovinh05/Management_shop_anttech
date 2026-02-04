@@ -940,9 +940,10 @@ class Khachhang extends controller
 
         if (isset($_POST['price_range'])) {
             $price_range = $_POST['price_range'];
+            $brand_id = isset($_POST['brand_id']) ? $_POST['brand_id'] : '';
 
             // Gọi phương thức từ model để lọc sản phẩm theo mức giá
-            $result = $this->sp->SanPham_filterByCategoryAndPrice('', $price_range);
+            $result = $this->sp->SanPham_filterByCategoryAndPrice('', $price_range, $brand_id);
 
             // Check if query was successful
             if (!$result) {
@@ -978,9 +979,10 @@ class Khachhang extends controller
 
         if (isset($_POST['category_id'])) {
             $category_id = $_POST['category_id'];
+            $brand_id = isset($_POST['brand_id']) ? $_POST['brand_id'] : '';
 
             // Gọi phương thức từ model để lọc sản phẩm theo danh mục
-            $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, '');
+            $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, '', $brand_id);
 
             // Check if query was successful
             if (!$result) {
@@ -1016,9 +1018,10 @@ class Khachhang extends controller
 
         $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : '';
         $price_range = isset($_POST['price_range']) ? $_POST['price_range'] : '';
+        $brand_id = isset($_POST['brand_id']) ? $_POST['brand_id'] : '';
 
         // Gọi phương thức từ model để lọc sản phẩm
-        $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, $price_range);
+        $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, $price_range, $brand_id);
 
         // Check if query was successful
         if (!$result) {
