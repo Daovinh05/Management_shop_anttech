@@ -1347,4 +1347,34 @@ class Khachhang extends controller
             echo json_encode(['success' => false, 'message' => 'Không tìm thấy giỏ hàng']);
         }
     }
+
+    // Tìm kiếm sản phẩm
+    function timkiem()
+    {
+        $search_query = isset($_GET['q']) ? trim($_GET['q']) : '';
+
+        if (!empty($search_query)) {
+            // Lấy danh sách sản phẩm theo từ khóa tìm kiếm
+            $result = $this->sp->SanPham_searchByName($search_query);
+
+            // Chuyển kết quả thành mảng để sử dụng trong view
+            $dssp = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $dssp[] = $row;
+            }
+
+            // Lấy danh sách danh mục để hiển thị
+            $dsdm = $this->dm->DanhMuc_getAll();
+
+            $this->view('Khachhang_Master', [
+                'page' => 'Khachhang/khachhang_sanpham_timkiem',
+                'dssp' => $dssp,
+                'dsdm' => $dsdm,
+                'search_query' => $search_query
+            ]);
+        } else {
+            // Nếu không có từ khóa tìm kiếm, chuyển hướng về trang chủ
+            header('Location: ' . $this->url('Khachhang'));
+        }
+    }
 }
