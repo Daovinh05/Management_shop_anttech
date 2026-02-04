@@ -551,8 +551,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                         </th>
                                         <th>SẢN PHẨM</th>
                                         <th>GIÁ</th>
-                                        <th>SỐ LƯỢNG</th>
-                                        <th>TẠM TÍNH</th>
+                                        <th style="text-align: center;">SỐ LƯỢNG</th>
+                                        <th style="text-align: center;">TẠM TÍNH</th>
                                         <th>XÓA</th>
                                     </tr>
                                 </thead>
@@ -622,26 +622,29 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                             <td class="col-price"><?php echo number_format($item['gia'], 0, ',', '.') . ' ₫'; ?>
                                             </td>
                                             <td>
-                                                <form method="post"
-                                                    action="<?php echo $this->url('Khachhang/capnhatgiohang'); ?>"
-                                                    class="d-inline">
-                                                    <input type="hidden" name="ma_gio_hang"
-                                                        value="<?php echo $item['ma_gio_hang']; ?>">
-                                                    <input type="hidden" name="ma_bien_the"
-                                                        value="<?php echo $item['ma_bien_the']; ?>">
-                                                    <div class="qty-box">
-                                                        <button type="submit" class="qty-btn" name="update_quantity"
-                                                            value="-1">-</button>
-                                                        <input type="number" name="so_luong"
-                                                            value="<?php echo $item['so_luong']; ?>" class="qty-input" min="1"
-                                                            readonly>
-                                                        <button type="submit" class="qty-btn" name="update_quantity"
-                                                            value="1">+</button>
-                                                    </div>
-                                                </form>
+                                                <div class="qty-box">
+                                                    <button type="button" class="qty-btn" 
+                                                            onclick="updateCartItem(this, -1, '<?php echo $item['ma_bien_the']; ?>', <?php echo $item['gia']; ?>)">
+                                                        -
+                                                    </button>
+                                                    
+                                                    <input type="number" 
+                                                        id="qty_<?php echo $item['ma_bien_the']; ?>" 
+                                                        value="<?php echo $item['so_luong']; ?>" 
+                                                        class="qty-input" 
+                                                        min="1" 
+                                                        onchange="updateCartItem(this, 0, '<?php echo $item['ma_bien_the']; ?>', <?php echo $item['gia']; ?>)">
+                                                    
+                                                    <button type="button" class="qty-btn" 
+                                                            onclick="updateCartItem(this, 1, '<?php echo $item['ma_bien_the']; ?>', <?php echo $item['gia']; ?>)">
+                                                        +
+                                                    </button>
+                                                </div>
                                             </td>
-                                            <td class="col-subtotal">
-                                                <?php echo number_format($thanh_tien, 0, ',', '.') . ' ₫'; ?></td>
+                                            <td class="col-subtotal" style="text-align: center;" id="subtotal_<?php echo $item['ma_bien_the']; ?>">
+                                                <?php echo number_format($thanh_tien, 0, ',', '.') . ' ₫'; ?>
+                                            </td>
+                                            
                                             <td class="col-actions" style="text-align: center;">
                                                 <a href="<?php echo $this->url('Khachhang/xoakhoigio/' . $item['ma_gio_hang'] . '/' . $item['ma_bien_the']); ?>"
                                                 class="btn-remove-item"
@@ -672,8 +675,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     <h3 class="summary-title">TỔNG CỘNG GIỎ HÀNG</h3>
 
                     <div class="summary-row">
-                        <span>Đã chọn</span>
-                        <span id="selectedCount">0 sản phẩm</span>
+                        <span>Đã chọn :</span>
+                        <span id="selectedCount">0 loại sản phẩm</span>
                     </div>
 
                     <div id="selectedItemsList" class="selected-items-container">
@@ -694,25 +697,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
 
     <script>
-        // Update quantity buttons to submit form
-        document.querySelectorAll('.qty-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const form = this.closest('form');
-                const currentValue = parseInt(form.querySelector('.qty-input').value);
-                const operation = this.getAttribute('value');
-
-                if (operation === '1') {
-                    form.querySelector('.qty-input').value = currentValue + 1;
-                } else if (operation === '-1') {
-                    if (currentValue > 1) {
-                        form.querySelector('.qty-input').value = currentValue - 1;
-                    }
-                }
-
-                form.submit();
-            });
-        });
+        
 
         // Hàm format tiền tệ VNĐ
         function formatCurrency(amount) {
@@ -760,7 +745,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
             // Cập nhật giao diện
             document.getElementById('displayTotal').innerText = formatCurrency(total);
-            document.getElementById('selectedCount').innerText = count + " sản phẩm";
+            document.getElementById('selectedCount').innerText = count + " loại sản phẩm";
             document.getElementById('selectedItemsList').innerHTML = listHtml;
             
             // Cập nhật trạng thái checkbox tổng
@@ -791,9 +776,87 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             window.location.href = url;
         }
 
+        updateTotal();
+
+        // Hàm xử lý cập nhật số lượng (AJAX)
+        function updateCartItem(element, change, ma_bien_the, don_gia) {
+            var input;
+            
+            // Xác định thẻ input dựa vào element người dùng click
+            if (change === 0) {
+                // Nếu người dùng nhập trực tiếp vào input
+                input = element;
+            } else {
+                // Nếu người dùng bấm nút + hoặc -
+                // Tìm thẻ input trong cùng cha (div.qty-box)
+                input = element.parentElement.querySelector('.qty-input');
+            }
+
+            var currentQty = parseInt(input.value);
+            var newQty = currentQty;
+
+            if (change !== 0) {
+                newQty = currentQty + change;
+            }
+
+            // Kiểm tra số lượng tối thiểu là 1
+            if (newQty < 1) {
+                alert("Số lượng tối thiểu là 1");
+                input.value = 1; 
+                newQty = 1;
+                // Nếu bạn muốn cho phép xóa khi về 0 thì xử lý logic xóa ở đây
+                return;
+            }
+
+            // Cập nhật giá trị hiển thị trên input ngay lập tức cho mượt
+            input.value = newQty;
+
+            // Gửi AJAX lên server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "<?php echo $this->url('Khachhang/capnhatgiohang_ajax'); ?>", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // 1. Cập nhật thành tiền của dòng sản phẩm đó
+                            var newSubtotal = newQty * don_gia;
+                            var subtotalCell = document.getElementById('subtotal_' + ma_bien_the);
+                            if (subtotalCell) {
+                                subtotalCell.innerText = formatCurrency(newSubtotal);
+                            }
+
+                            // 2. Cập nhật dữ liệu trong Checkbox (để hàm updateTotal tính toán đúng)
+                            var checkbox = document.querySelector(`.item-checkbox[value="${ma_bien_the}"]`);
+                            if (checkbox) {
+                                checkbox.setAttribute('data-quantity', newQty);
+                            }
+
+                            // 3. Gọi lại hàm tính tổng giỏ hàng
+                            updateTotal();
+
+                            var headerBadge = document.getElementById('cartBadge');
+                            if (headerBadge && response.new_total_qty !== undefined) {
+                                headerBadge.innerText = response.new_total_qty;
+                            }
+                            
+                        } else {
+                            alert("Lỗi: " + response.message);
+                            // Reset lại số lượng cũ nếu lỗi
+                            input.value = currentQty; 
+                        }
+                    }
+                }
+            };
+            
+            xhr.send("ma_bien_the=" + ma_bien_the + "&so_luong=" + newQty);
+        }
+
         // Chạy tính tổng lần đầu khi trang tải xong (nếu muốn mặc định check all thì thêm code check ở đây)
         // Hiện tại để mặc định là 0
-        updateTotal();
+        
     </script>
 
 </body>

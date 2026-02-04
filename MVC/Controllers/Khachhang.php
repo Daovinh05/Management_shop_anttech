@@ -157,6 +157,8 @@ class Khachhang extends controller
 
         $ma_user = $_SESSION['user_id'];
 
+        $so_luong_them = isset($_POST['so_luong']) ? (int)$_POST['so_luong'] : 1;
+
         // Kiểm tra xem đã có giỏ hàng chưa, nếu chưa thì tạo mới
         $gio_hang = $this->gh->GioHang_getByUser($ma_user);
         $row = mysqli_fetch_assoc($gio_hang);
@@ -176,7 +178,7 @@ class Khachhang extends controller
         while ($ct_row = mysqli_fetch_assoc($ctgh_check)) {
             if ($ct_row['ma_bien_the'] == $ma_bien_the) {
                 // Nếu đã có, tăng số lượng lên 1
-                $new_so_luong = $ct_row['so_luong'] + 1;
+                $new_so_luong = $ct_row['so_luong'] + $so_luong_them;
                 $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $new_so_luong);
                 $found = true;
                 break;
@@ -185,11 +187,13 @@ class Khachhang extends controller
 
         // Nếu chưa có, thêm mới vào giỏ hàng
         if (!$found) {
-            $this->ctgh->chitietgiohang_ins($ma_gio_hang, $ma_bien_the, 1);
+            $this->ctgh->chitietgiohang_ins($ma_gio_hang, $ma_bien_the, $so_luong_them);
         }
 
         // Quay lại trang trước đó
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        if (!isset($_POST['so_luong'])) {
+            header('Location: ' . $_SERVER['HTTP_REFERER']);
+        }
     }
 
     // Hiển thị giỏ hàng
@@ -285,46 +289,76 @@ class Khachhang extends controller
         }
 
         $ma_user = $_SESSION['user_id'];
+        
+        $is_buy_now = isset($_GET['buynow']) && $_GET['buynow'] == 1;
+        
+        $filtered_cart_items = [];
+        $tong_tien_thanh_toan = 0;
 
-        $selected_items = [];
-        if (isset($_GET['items']) && !empty($_GET['items'])) {
-            $selected_items = explode(',', $_GET['items']);
-        }
+        if ($is_buy_now && isset($_GET['items']) && isset($_GET['qty'])) {
+            // --- TRƯỜNG HỢP MUA NGAY: Tự dựng dữ liệu không qua giỏ hàng ---
+            $ma_bien_the = $_GET['items']; // Lấy 1 sản phẩm
+            $so_luong = (int)$_GET['qty'];
+            
+            // Lấy thông tin biến thể và sản phẩm trực tiếp
+            $bt_query = $this->bt->BienThe_getById($ma_bien_the);
+            $bt_info = mysqli_fetch_assoc($bt_query);
+            
+            if ($bt_info) {
+                $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
+                $sp_info = mysqli_fetch_assoc($sp_query);
 
-        // Lấy giỏ hàng của người dùng
-        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-        $row = mysqli_fetch_assoc($gio_hang);
+                // Tạo mảng item giả lập giống cấu trúc giỏ hàng
+                $item = [];
+                $item['ma_bien_the'] = $ma_bien_the;
+                $item['ten_san_pham'] = $sp_info['ten_san_pham'];
+                $item['ten_bien_the'] = $bt_info['ten_bien_the'];
+                $item['mau_sac'] = $bt_info['mau_sac'];
+                $item['dung_luong'] = $bt_info['dung_luong'];
+                $item['gia'] = $bt_info['gia'];
+                $item['so_luong'] = $so_luong; // Dùng số lượng từ URL
+                
+                $filtered_cart_items[] = $item;
+                $tong_tien_thanh_toan = $item['gia'] * $item['so_luong'];
+            }
+        } 
+        else {
+            // --- TRƯỜNG HỢP THANH TOÁN GIỎ HÀNG BÌNH THƯỜNG (Code cũ) ---
+            $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+            $row = mysqli_fetch_assoc($gio_hang);
 
-        if ($row) {
-            $ma_gio_hang = $row['ma_gio_hang'];
-            $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+            if ($row) {
+                $ma_gio_hang = $row['ma_gio_hang'];
+                $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+                
+                $selected_items = isset($_GET['items']) ? explode(',', $_GET['items']) : [];
 
-            $filtered_cart_items = [];
-            $tong_tien_thanh_toan = 0; // Biến tính lại tổng tiền
+                if ($chi_tiet_gio_hang) {
+                    while ($item = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
+                        // Lấy thêm thông tin chi tiết (như bạn đã sửa ở các bước trước)
+                        $bt_query = $this->bt->BienThe_getById($item['ma_bien_the']);
+                        $bt_info = mysqli_fetch_assoc($bt_query);
+                        $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
+                        $sp_info = mysqli_fetch_assoc($sp_query);
 
-            if ($chi_tiet_gio_hang) {
-                while ($item = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
-                    // Nếu có danh sách items được chọn thì chỉ lấy những món đó
-                    // Nếu không có items nào trên URL (trường hợp vào thẳng link) thì có thể lấy hết hoặc báo lỗi tùy logic
-                    if (empty($selected_items) || in_array($item['ma_bien_the'], $selected_items)) {
-                        $filtered_cart_items[] = $item;
-                        $tong_tien_thanh_toan += ($item['gia'] * $item['so_luong']);
+                        $item['ten_san_pham'] = $sp_info['ten_san_pham'];
+                        $item['ten_bien_the'] = $bt_info['ten_bien_the'];
+                        $item['mau_sac'] = $bt_info['mau_sac'];
+                        $item['dung_luong'] = $bt_info['dung_luong'];
+                        $item['gia'] = $bt_info['gia'];
+
+                        if (empty($selected_items) || in_array($item['ma_bien_the'], $selected_items)) {
+                            $filtered_cart_items[] = $item;
+                            $tong_tien_thanh_toan += ($item['gia'] * $item['so_luong']);
+                        }
                     }
                 }
             }
-
-            // Lấy địa chỉ giao hàng của người dùng
-            $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
-
-            // Lấy danh sách khuyến mãi còn hiệu lực
-            $khuyen_mai = $this->model("KhuyenMai_m");
-            $ds_khuyen_mai = $khuyen_mai->KhuyenMai_getAvailable();
-        } else {
-            $chi_tiet_gio_hang = null;
-            $dia_chi = null;
-            $ds_khuyen_mai = null;
-            $tong_tien_thanh_toan = 0;
         }
+
+        // Lấy thông tin phụ (Địa chỉ, Khuyến mãi...)
+        $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+        $ds_khuyen_mai = $this->model("KhuyenMai_m")->KhuyenMai_getAvailable();
 
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_thanhtoan',
@@ -442,32 +476,74 @@ class Khachhang extends controller
                 $ma_gio_hang = $row['ma_gio_hang'];
                 $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
 
-                // --- 1. LỌC SẢN PHẨM ---
+                // 1. Lấy danh sách ID sản phẩm cần mua
                 $selected_items_filter = [];
                 if (isset($_POST['selected_items_str']) && !empty($_POST['selected_items_str'])) {
                     $selected_items_filter = explode(',', $_POST['selected_items_str']);
                 }
 
                 // --- 2. KHỞI TẠO BIẾN TỔNG TIỀN (FIX LỖI UNDEFINED VARIABLE) ---
+                $is_buy_now = isset($_POST['is_buy_now']) && $_POST['is_buy_now'] == '1';
                 $tong_tien_hang = 0; // Quan trọng: Phải khởi tạo ở đây
                 $chi_tiet_gio_hang_array = [];
                 $out_of_stock_items = [];
 
-                while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
-                    if (!empty($selected_items_filter) && !in_array($ct['ma_bien_the'], $selected_items_filter)) {
-                        continue;
-                    }
-
-                    $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
-                    $bt_info = mysqli_fetch_assoc($bien_the);
-
-                    if ($ct['so_luong'] > $bt_info['so_luong_kho']) {
+                if ($is_buy_now) {
+                    // --- LOGIC MUA NGAY: Lấy dữ liệu từ form, KHÔNG lấy từ giỏ hàng ---
+                    $ma_bien_the = $_POST['selected_items_str']; // ID sản phẩm
+                    $so_luong = (int)$_POST['forced_qty'];       // Số lượng khách chọn (ví dụ: 2)
+                    
+                    $bt_query = $this->bt->BienThe_getById($ma_bien_the);
+                    $bt_info = mysqli_fetch_assoc($bt_query);
+                    
+                    // Kiểm tra tồn kho
+                    if ($so_luong > $bt_info['so_luong_kho']) {
                         $out_of_stock_items[] = $bt_info['ten_bien_the'];
                     } else {
+                        // Tạo item để lát nữa insert vào đơn hàng
+                        $ct = [];
+                        $ct['ma_bien_the'] = $ma_bien_the;
+                        $ct['so_luong'] = $so_luong; // Đảm bảo số lượng là 2
+                        $ct['gia'] = $bt_info['gia'];
+                        
                         $chi_tiet_gio_hang_array[] = $ct;
-                        $tong_tien_hang += $ct['gia'] * $ct['so_luong']; // Cộng dồn tiền hàng
+                        $tong_tien_hang = $ct['gia'] * $ct['so_luong'];
+                    }
+
+                } else {
+                    // --- LOGIC GIỎ HÀNG BÌNH THƯỜNG (Giữ nguyên logic cũ) ---
+                    $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+                    $row = mysqli_fetch_assoc($gio_hang);
+                    
+                    if ($row) {
+                        $ma_gio_hang = $row['ma_gio_hang'];
+                        // ... Copy lại đoạn while loop lấy từ DB như code cũ của bạn ...
+                        // Lưu ý: Đoạn này dùng để xử lý khi mua từ Giỏ Hàng
+                        while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
+                            if (!empty($selected_items_filter) && !in_array($ct['ma_bien_the'], $selected_items_filter)) {
+                                continue;
+                            }
+
+                            $ct['qty_in_db'] = $ct['so_luong'];
+
+                            if ($forced_qty !== null) {
+                                $ct['so_luong'] = $forced_qty;
+                            }
+
+                            $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
+                            $bt_info = mysqli_fetch_assoc($bien_the);
+
+                            if ($ct['so_luong'] > $bt_info['so_luong_kho']) {
+                                $out_of_stock_items[] = $bt_info['ten_bien_the'];
+                            } else {
+                                $chi_tiet_gio_hang_array[] = $ct;
+                                $tong_tien_hang += $ct['gia'] * $ct['so_luong']; // Tính tiền theo số lượng mới
+                            }
+                        }
                     }
                 }
+
+                
 
                 // Nếu có sản phẩm hết hàng
                 if (!empty($out_of_stock_items)) {
@@ -595,9 +671,21 @@ class Khachhang extends controller
                 );
 
                 // Xóa món đã mua khỏi giỏ
-                foreach ($chi_tiet_gio_hang_array as $ct) {
-                     $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ct['ma_bien_the']);
+                if (!$is_buy_now) {
+                    // Logic xóa sản phẩm khỏi giỏ hàng sau khi mua thành công
+                    foreach ($chi_tiet_gio_hang_array as $ct) {
+                        if (isset($ct['qty_in_db']) && $ct['qty_in_db'] > $ct['so_luong']) {
+                            $so_luong_con_lai = $ct['qty_in_db'] - $ct['so_luong'];
+                            $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ct['ma_bien_the'], $so_luong_con_lai);
+                        } else {
+                            // Nếu mua hết số lượng đang có -> Xóa khỏi giỏ
+                            $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ct['ma_bien_the']);
+                        }
+                        // ... Logic xóa cũ của bạn ...
+                        
+                    }
                 }
+
 
                 // Cập nhật trạng thái giỏ hàng thành 'ordered'
                 $this->gh->GioHang_update($ma_gio_hang, $ma_user, 'ordered');
@@ -1112,6 +1200,7 @@ class Khachhang extends controller
                 $variant_name = !empty($variant_parts) ? implode(' - ', $variant_parts) : $bt_info['ten_bien_the'];
 
                 $cart_items[] = [
+                    'ma_bien_the' => $ct['ma_bien_the'],
                     'img' => $img_url,
                     'name' => $sp_info['ten_san_pham'],
                     'variant' => $variant_name,
@@ -1178,33 +1267,84 @@ class Khachhang extends controller
         }
     }
 
-    // Tìm kiếm sản phẩm
-    function timkiem()
+
+    function capnhatgiohang_ajax()
     {
-        $search_query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        header('Content-Type: application/json');
 
-        if (!empty($search_query)) {
-            // Lấy danh sách sản phẩm theo từ khóa tìm kiếm
-            $result = $this->sp->SanPham_searchByName($search_query);
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
+            return;
+        }
 
-            // Chuyển kết quả thành mảng để sử dụng trong view
-            $dssp = [];
-            while ($row = mysqli_fetch_assoc($result)) {
-                $dssp[] = $row;
+        if (isset($_POST['ma_bien_the']) && isset($_POST['so_luong'])) {
+            $ma_user = $_SESSION['user_id'];
+            $ma_bien_the = $_POST['ma_bien_the'];
+            $so_luong = (int)$_POST['so_luong'];
+
+            $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+            $row = mysqli_fetch_assoc($gio_hang);
+
+            if ($row) {
+                $ma_gio_hang = $row['ma_gio_hang'];
+
+                if ($so_luong <= 0) {
+                     echo json_encode(['success' => false, 'message' => 'Số lượng phải lớn hơn 0']);
+                     return;
+                } else {
+                    // Cập nhật số lượng mới vào DB
+                    $result = $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $so_luong);
+                    
+                    if($result) {
+                        // --- [THÊM ĐOẠN NÀY] Tính lại tổng số lượng trong giỏ ---
+                        $total_qty = 0;
+                        $items = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+                        if ($items) {
+                            while ($item = mysqli_fetch_assoc($items)) {
+                                $total_qty += $item['so_luong'];
+                            }
+                        }
+                        // Trả về thêm 'new_total_qty'
+                        echo json_encode(['success' => true, 'new_total_qty' => $total_qty]);
+                        // --------------------------------------------------------
+                    } else {
+                         echo json_encode(['success' => false, 'message' => 'Lỗi khi cập nhật database']);
+                    }
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy giỏ hàng']);
             }
-
-            // Lấy danh sách danh mục để hiển thị
-            $dsdm = $this->dm->DanhMuc_getAll();
-
-            $this->view('Khachhang_Master', [
-                'page' => 'Khachhang/khachhang_sanpham_timkiem',
-                'dssp' => $dssp,
-                'dsdm' => $dsdm,
-                'search_query' => $search_query
-            ]);
         } else {
-            // Nếu không có từ khóa tìm kiếm, chuyển hướng về trang chủ
-            header('Location: ' . $this->url('Khachhang'));
+            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu']);
+        }
+    }
+
+
+    function xoakhoigio_ajax($ma_bien_the)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
+            return;
+        }
+
+        $ma_user = $_SESSION['user_id'];
+        
+        // Lấy giỏ hàng của user
+        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+        $row = mysqli_fetch_assoc($gio_hang);
+
+        if ($row) {
+            $ma_gio_hang = $row['ma_gio_hang'];
+            // Gọi model để xóa
+            $result = $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ma_bien_the);
+            
+            if ($result) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Lỗi database']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy giỏ hàng']);
         }
     }
 }

@@ -2046,9 +2046,26 @@
         }
 
         // Hàm xóa sản phẩm
-        function removeFromCart(index) {
-            cart.splice(index, 1); // Xóa 1 phần tử tại vị trí index
-            renderCart(); // Vẽ lại giỏ hàng
+        function removeFromCart(ma_bien_the) {
+            if(!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+
+            // Gọi AJAX để xóa trong Database
+            var xhr = new XMLHttpRequest();
+            // Gọi đến hàm mới chúng ta vừa tạo ở Controller
+            xhr.open("POST", "<?php echo $this->url('Khachhang/xoakhoigio_ajax/'); ?>" + ma_bien_the, true);
+            
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // Xóa thành công trên server -> Cập nhật lại giao diện client
+                        // Gọi hàm updateCartFromServer() để load lại danh sách mới nhất từ DB
+                        updateCartFromServer();
+                    } else {
+                        alert("Có lỗi xảy ra khi xóa sản phẩm.");
+                    }
+                }
+            };
+            xhr.send();
         }
 
         // Hàm vẽ lại giỏ hàng (Render)
@@ -2092,7 +2109,7 @@
                         <span class="cart-item-variant">${item.variant}</span>
                         <div class="cart-item-price">${item.quantity} x ${item.price.toLocaleString('vi-VN')} ₫</div>
                     </div>
-                    <div class="cart-remove-btn" onclick="removeFromCart(${index})">
+                    <div class="cart-remove-btn" onclick="removeFromCart('${item.ma_bien_the}')">
                         <i class="fa-solid fa-xmark"></i>
                     </div>
                 </div>
@@ -2119,36 +2136,51 @@
 
         // Hàm mua ngay - thêm sản phẩm vào giỏ hàng và chuyển sang trang thanh toán
         function buyNow() {
-            // Lấy thông tin sản phẩm từ giao diện
-            var img = document.getElementById('mainImage').src;
-            var name = document.getElementById('productTitle').innerText;
-            var variantFull = document.getElementById('variantLabel').innerText;
-            var variant = variantFull.replace("Phiên bản: ", "");
+
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                alert('Bạn cần đăng nhập để mua hàng!');
+                window.location.href = '<?php echo $this->url('Login'); ?>';
+                return;
+            <?php endif; ?>
+
+            var selectedVariantInput = document.querySelector('input[name="ma_bien_the"]:checked');
+            if (!selectedVariantInput) {
+                alert("Vui lòng chọn phiên bản sản phẩm!");
+                return;
+            }
+
+            var ma_bien_the = selectedVariantInput.value;
             var quantity = parseInt(document.getElementById('quantityInput').value);
-            var priceStr = document.getElementById('currentPrice').innerText;
+
+            // var img = document.getElementById('mainImage').src;
+            // var name = document.getElementById('productTitle').innerText;
+            // var variantFull = document.getElementById('variantLabel').innerText;
+            // var variant = variantFull.replace("Phiên bản: ", "");
+            // var quantity = parseInt(document.getElementById('quantityInput').value);
+            // var priceStr = document.getElementById('currentPrice').innerText;
 
             // Chuyển giá từ chuỗi "11.400.000 ₫" sang số để tính toán
-            var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
+            var url = '<?php echo $this->url('Khachhang/thanhtoan'); ?>?items=' + ma_bien_the + '&qty=' + quantity + '&buynow=1';
+            window.location.href = url;
 
-            // Tạo object sản phẩm
-            var product = {
-                img: img,
-                name: name,
-                variant: variant,
-                quantity: quantity,
-                price: price
-            };
+            //var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
 
-            // Thêm vào mảng giỏ hàng
-            cart.push(product);
+            
+            // var product = {
+            //     img: img,
+            //     name: name,
+            //     variant: variant,
+            //     quantity: quantity,
+            //     price: price
+            // };
 
-            // Cập nhật giao diện giỏ hàng
-            renderCart();
+            // cart.push(product);
 
-            // Chuyển hướng sang trang thanh toán
-            setTimeout(function() {
-                window.location.href = '<?php echo $this->url('Khachhang/thanhtoan'); ?>';
-            }, 500); // Delay nhỏ để đảm bảo sản phẩm được thêm vào giỏ
+            // renderCart();
+
+            // setTimeout(function() {
+            //     window.location.href = '<?php echo $this->url('Khachhang/thanhtoan'); ?>';
+            // }, 500); 
         }
 
         // Function to open review modal
