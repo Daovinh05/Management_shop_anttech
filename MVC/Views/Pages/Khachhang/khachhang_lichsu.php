@@ -400,6 +400,34 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         margin-top: 5px;
     }
 
+    /* Custom button style for "Mua sắm ngay" */
+    .btn-shopping {
+        background-color: #c93c4d; /* Màu đỏ đặc trưng */
+        color: white;
+        border: 2px solid #d70018; /* Viền đỏ */
+        padding: 12px 30px;
+        border-radius: 30px; /* Bo tròn góc */
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-block;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+    }
+
+    .btn-shopping:hover {
+        background-color: #b30014; /* Màu đỏ đậm hơn khi hover */
+        border-color: #b30014;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(215, 0, 24, 0.3);
+    }
+
+    .btn-shopping:active {
+        transform: translateY(0);
+    }
+
     @keyframes slideUp {
         from {
             transform: translateY(20px);
@@ -577,13 +605,19 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         </div>
                     </div>
                 </div><?php endforeach;
-                        ?><?php else: ?><div class="text-center py-5"><i
-                        class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
-                    <h4>Bạn chưa có đơn hàng nào</h4>
-                    <p>Hãy bắt đầu mua sắm để có đơn hàng đầu tiên</p><a href="<?php echo $this->url('Khachhang'); ?>"
-                        class="btn btn-primary">Mua sắm ngay</a>
+                        ?><?php else: ?><div class="text-center py-5">
+                    <h4>Chưa có đơn hàng ở giai đoạn này</h4>
                 </div><?php endif;
                         ?>
+
+                <!-- Empty state message for filtered tabs -->
+                <div class="text-center py-5" id="no-orders-message" style="display: none;">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <h4>Chưa có đơn hàng ở giai đoạn này</h4>
+                        <p>Hãy bắt đầu mua sắm để có đơn hàng đầu tiên</p>
+                        <a href="<?php echo $this->url('Khachhang'); ?>" class="btn-shopping">Mua sắm ngay</a>
+                    </div>
+                </div>
     </div>
 </div>
 <!-- Modal for Order Details  -->
@@ -667,6 +701,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
     document.addEventListener('DOMContentLoaded', function() {
             const tabItems = document.querySelectorAll('.tab-item');
             const orderCards = document.querySelectorAll('.order-card');
+            const noOrdersMessage = document.getElementById('no-orders-message');
 
             // Map tab indices to status values based on the order in the HTML
             // 0: "Tất cả", 1: "Chø xác nhận", 2: "Đã xác nhận", 3: "Đang giao", 4: "Hoàn thành", 5: "Đã hủy"
@@ -690,18 +725,29 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                             // Get the status to filter by
                             const filterStatus = tabStatusMap[index];
 
+                            // Counter to track visible cards
+                            let visibleCardCount = 0;
+
                             // Show/hide order cards based on status
                             orderCards.forEach(card => {
                                     const cardStatus = card.getAttribute('data-status');
 
                                     if (filterStatus === 'all' || cardStatus === filterStatus) {
                                         card.style.display = 'block';
+                                        visibleCardCount++;
                                     } else {
                                         card.style.display = 'none';
                                     }
                                 }
 
                             );
+
+                            // Show/hide the "no orders" message based on visible cards
+                            if (visibleCardCount === 0) {
+                                noOrdersMessage.style.display = 'block';
+                            } else {
+                                noOrdersMessage.style.display = 'none';
+                            }
                         }
 
                     );
