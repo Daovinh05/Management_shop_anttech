@@ -294,4 +294,25 @@ class DonHang_m extends connectDB
 
         return mysqli_query($this->con, $sql);
     }
+
+    // Hàm lấy mã đơn hàng tiếp theo theo thứ tự tăng dần
+    function getNextOrderId() {
+        $sql = "SELECT ma_don_hang FROM don_hang WHERE ma_don_hang LIKE 'DH%' ORDER BY LENGTH(ma_don_hang), ma_don_hang DESC LIMIT 1";
+        $result = mysqli_query($this->con, $sql);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $last_id = $row['ma_don_hang'];
+
+            // Extract the numeric part after 'DH'
+            $number = intval(substr($last_id, 2));
+            $next_number = $number + 1;
+        } else {
+            // If no previous order exists, start from 1
+            $next_number = 1;
+        }
+
+        // Format as DH with leading zeros (e.g., DH01, DH02, ..., DH10, DH11, etc.)
+        return 'DH' . str_pad($next_number, 2, '0', STR_PAD_LEFT);
+    }
 }

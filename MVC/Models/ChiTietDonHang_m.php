@@ -64,4 +64,25 @@ class ChiTietDonHang_m extends connectDB
         $sql = "DELETE FROM chi_tiet_don_hang WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
+
+    // Hàm lấy mã chi tiết đơn hàng tiếp theo theo thứ tự tăng dần
+    function getNextDetailOrderId() {
+        $sql = "SELECT ma_ctdh FROM chi_tiet_don_hang WHERE ma_ctdh LIKE 'CT%' ORDER BY LENGTH(ma_ctdh), ma_ctdh DESC LIMIT 1";
+        $result = mysqli_query($this->con, $sql);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $last_id = $row['ma_ctdh'];
+
+            // Extract the numeric part after 'CT'
+            $number = intval(substr($last_id, 2));
+            $next_number = $number + 1;
+        } else {
+            // If no previous detail order exists, start from 1
+            $next_number = 1;
+        }
+
+        // Format as CT with leading zeros (e.g., CT01, CT02, ..., CT10, CT11, etc.)
+        return 'CT' . str_pad($next_number, 2, '0', STR_PAD_LEFT);
+    }
 }

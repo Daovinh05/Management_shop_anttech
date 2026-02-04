@@ -163,7 +163,7 @@ class Khachhang extends controller
 
         if (!$row) {
             // Tạo giỏ hàng mới
-            $ma_gio_hang = 'GH' . rand(0, 99); // Tạo mã giỏ hàng duy nhất
+            $ma_gio_hang = $this->gh->getNextCartId(); // Tạo mã giỏ hàng duy nhất theo thứ tự tăng dần
             $this->gh->giohang_ins($ma_gio_hang, $ma_user);
         } else {
             $ma_gio_hang = $row['ma_gio_hang'];
@@ -481,15 +481,15 @@ class Khachhang extends controller
                 $so_tien_thanh_toan = $tong_tien_hang - $tien_giam;
                 if ($so_tien_thanh_toan < 0) $so_tien_thanh_toan = 0;
 
-                // Tạo mã đơn hàng
-                $ma_don_hang = 'DH' . rand(0, 99);
+                // Tạo mã đơn hàng theo thứ tự tăng dần
+                $ma_don_hang = $this->dh->getNextOrderId();
 
                 // Thêm đơn hàng vào cơ sở dữ liệu
                 $this->dh->donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $so_tien_thanh_toan, 'cho_duyet');
 
                 // Thêm chi tiết đơn hàng
                 foreach ($chi_tiet_gio_hang_array as $ct) {
-                    $ma_ctdh = 'CT'  . rand(0, 99);
+                    $ma_ctdh = $this->ctdh->getNextDetailOrderId();
                     $this->ctdh->chitietdonhang_ins($ma_ctdh, $ma_don_hang, $ct['ma_bien_the'], $ct['so_luong'], $ct['gia']);
 
                     // Cập nhật kho
@@ -514,7 +514,20 @@ class Khachhang extends controller
 
                 // Insert thanh toán
                 $thanh_toan_model = $this->model("ThanhToan_m");
-                $ma_giao_dich = 'GD' . rand(0, 99);
+
+                // Generate sequential transaction ID
+                $last_transaction = mysqli_query($thanh_toan_model->con, "SELECT MAX(ma_giao_dich) as max_id FROM thanh_toan WHERE ma_giao_dich LIKE 'GD%'");
+                $last_row = mysqli_fetch_assoc($last_transaction);
+                $last_id = $last_row['max_id'];
+
+                if ($last_id) {
+                    $number = intval(substr($last_id, 2)); // Extract number after 'GD'
+                    $new_number = $number + 1;
+                } else {
+                    $new_number = 1; // Start from 1 if no previous transactions
+                }
+                $ma_giao_dich = 'GD' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as GD01, GD02, etc.
+
                 $phuong_thuc_luu = ($payment_method == 'bank') ? 'VNPAY' : 'COD';
 
                 $this->model("ThanhToan_m")->thanhtoan_ins(
@@ -647,7 +660,20 @@ class Khachhang extends controller
 
                     // Thêm thông tin thanh toán
                     $thanh_toan_model = $this->model("ThanhToan_m");
-                    $ma_thanh_toan = 'GD' . rand(0, 99);
+
+                    // Generate sequential transaction ID
+                    $last_transaction = mysqli_query($thanh_toan_model->con, "SELECT MAX(ma_giao_dich) as max_id FROM thanh_toan WHERE ma_giao_dich LIKE 'GD%'");
+                    $last_row = mysqli_fetch_assoc($last_transaction);
+                    $last_id = $last_row['max_id'];
+
+                    if ($last_id) {
+                        $number = intval(substr($last_id, 2)); // Extract number after 'GD'
+                        $new_number = $number + 1;
+                    } else {
+                        $new_number = 1; // Start from 1 if no previous transactions
+                    }
+                    $ma_thanh_toan = 'GD' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as GD01, GD02, etc.
+
                     $so_tien = $dh_info['tong_tien_hang'];
                     $thanh_toan_model->thanh_toan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'thanh_cong', date('Y-m-d H:i:s'));
                 }

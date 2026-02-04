@@ -70,4 +70,25 @@ class GioHang_m extends connectDB
         $sql = "SELECT * FROM gio_hang WHERE ma_user = '$ma_user'";
         return mysqli_query($this->con, $sql);
     }
+
+    // Hàm lấy mã giỏ hàng tiếp theo theo thứ tự tăng dần
+    function getNextCartId() {
+        $sql = "SELECT ma_gio_hang FROM gio_hang WHERE ma_gio_hang LIKE 'GH%' ORDER BY LENGTH(ma_gio_hang), ma_gio_hang DESC LIMIT 1";
+        $result = mysqli_query($this->con, $sql);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $last_id = $row['ma_gio_hang'];
+
+            // Extract the numeric part after 'GH'
+            $number = intval(substr($last_id, 2));
+            $next_number = $number + 1;
+        } else {
+            // If no previous cart exists, start from 1
+            $next_number = 1;
+        }
+
+        // Format as GH with leading zeros (e.g., GH01, GH02, ..., GH10, GH11, etc.)
+        return 'GH' . str_pad($next_number, 2, '0', STR_PAD_LEFT);
+    }
 }
