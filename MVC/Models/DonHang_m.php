@@ -315,4 +315,16 @@ class DonHang_m extends connectDB
         // Format as DH with leading zeros (e.g., DH01, DH02, ..., DH10, DH11, etc.)
         return 'DH' . str_pad($next_number, 2, '0', STR_PAD_LEFT);
     }
+
+    // Hàm cập nhật trạng thái đơn hàng thành hoàn thành sau khi thanh toán thành công
+    function DonHang_updateStatusToComplete($ma_don_hang) {
+        $sql = "UPDATE don_hang SET trang_thai_don_hang = 'hoan_thanh' WHERE ma_don_hang = '$ma_don_hang'";
+        return mysqli_query($this->con, $sql);
+    }
+
+    // Hàm cập nhật trạng thái thanh toán của đơn hàng
+    function DonHang_updatePaymentStatus($ma_don_hang, $trang_thai_thanh_toan) {
+        $sql = "UPDATE don_hang SET thanh_toan = '$trang_thai_thanh_toan' WHERE ma_don_hang = '$ma_don_hang'";
+        return mysqli_query($this->con, $sql);
+    }
 }

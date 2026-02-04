@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán thành công</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+        .icon { font-size: 60px; color: #4CAF50; margin-bottom: 20px; }
+        h1 { color: #333; margin-bottom: 10px; }
+        p { color: #666; line-height: 1.6; }
+        .btn { display: inline-block; margin-top: 25px; padding: 12px 25px; background: #00483d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon"><i class="fa-solid fa-circle-check"></i></div>
+        <h1>THÀNH CÔNG!</h1>
+        <p>Cảm ơn bạn. Đơn hàng của bạn đã được thanh toán hoàn tất qua VNPAY.</p>
+        <p>Mã giao dịch: <strong id="malo"></strong></p>
+        <p>Số tiền: <strong id="tien"></strong> VND</p>
+        <!-- Note: This page is not used in the main application flow.
+             VNPAY redirects to http://localhost/Banhang/Khachhang/xulythanhtoan -->
+        <a href="http://localhost/Banhang/Khachhang" class="btn">Quay lại cửa hàng</a>
+    </div>
+
+    <script>
+        // Lấy thông tin từ URL mà Server vừa gửi về
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('malo').innerText = urlParams.get('vnp_TransactionNo');
+        document.getElementById('tien').innerText = Number(urlParams.get('vnp_Amount')).toLocaleString();
+
+        // Tự động chuyển hướng về thanh toán thành công sau 3 giây
+        setTimeout(function() {
+            window.location.href = 'http://localhost/Banhang/Khachhang/datHang';
+        }, 3000);
+    </script>
+</body>
+</html>

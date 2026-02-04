@@ -390,12 +390,40 @@ class Khachhang extends controller
 
             if (!empty($errors)) {
                 // Trả về view báo lỗi (giữ nguyên logic cũ của bạn)
-                $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang'] ?? '');
+                $gio_hang_chi_tiet = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang'] ?? '');
+
+                // Chuyển đổi giỏ hàng chi tiết thành định dạng phù hợp với view
+                $filtered_cart_items = [];
+                $tong_tien_thanh_toan = 0;
+
+                if ($gio_hang_chi_tiet) {
+                    while ($item = mysqli_fetch_assoc($gio_hang_chi_tiet)) {
+                        // Lấy thông tin biến thể và sản phẩm
+                        $bt_query = $this->bt->BienThe_getById($item['ma_bien_the']);
+                        $bt_info = mysqli_fetch_assoc($bt_query);
+
+                        $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
+                        $sp_info = mysqli_fetch_assoc($sp_query);
+
+                        // Gộp dữ liệu vào mảng item
+                        $item['ten_san_pham'] = $sp_info['ten_san_pham'];
+                        $item['ten_bien_the'] = $bt_info['ten_bien_the'];
+                        $item['mau_sac'] = $bt_info['mau_sac'];
+                        $item['dung_luong'] = $bt_info['dung_luong'];
+                        $item['ram'] = $bt_info['ram'];
+                        $item['gia'] = $bt_info['gia'];
+                        $item['img_bien_the'] = $bt_info['img_bien_the'];
+
+                        $filtered_cart_items[] = $item;
+                        $tong_tien_thanh_toan += ($item['gia'] * $item['so_luong']);
+                    }
+                }
+
                 $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
 
                 $this->view('Khachhang_Master', [
                     'page' => 'Khachhang/khachhang_thanhtoan',
-                    'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
+                    'ds_sp_thanh_toan' => $filtered_cart_items,
                     'dia_chi' => $dia_chi,
                     'errors' => $errors,
                     'old_data' => [
@@ -445,12 +473,40 @@ class Khachhang extends controller
                 if (!empty($out_of_stock_items)) {
                     $errors[] = "Một số sản phẩm đã hết hàng: " . implode(', ', $out_of_stock_items);
 
-                    $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang']);
+                    $gio_hang_chi_tiet = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang']);
+
+                    // Chuyển đổi giỏ hàng chi tiết thành định dạng phù hợp với view
+                    $filtered_cart_items = [];
+                    $tong_tien_thanh_toan = 0;
+
+                    if ($gio_hang_chi_tiet) {
+                        while ($item = mysqli_fetch_assoc($gio_hang_chi_tiet)) {
+                            // Lấy thông tin biến thể và sản phẩm
+                            $bt_query = $this->bt->BienThe_getById($item['ma_bien_the']);
+                            $bt_info = mysqli_fetch_assoc($bt_query);
+
+                            $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
+                            $sp_info = mysqli_fetch_assoc($sp_query);
+
+                            // Gộp dữ liệu vào mảng item
+                            $item['ten_san_pham'] = $sp_info['ten_san_pham'];
+                            $item['ten_bien_the'] = $bt_info['ten_bien_the'];
+                            $item['mau_sac'] = $bt_info['mau_sac'];
+                            $item['dung_luong'] = $bt_info['dung_luong'];
+                            $item['ram'] = $bt_info['ram'];
+                            $item['gia'] = $bt_info['gia'];
+                            $item['img_bien_the'] = $bt_info['img_bien_the'];
+
+                            $filtered_cart_items[] = $item;
+                            $tong_tien_thanh_toan += ($item['gia'] * $item['so_luong']);
+                        }
+                    }
+
                     $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
 
                     $this->view('Khachhang_Master', [
                         'page' => 'Khachhang/khachhang_thanhtoan',
-                        'chi_tiet_gio_hang' => $chi_tiet_gio_hang,
+                        'ds_sp_thanh_toan' => $filtered_cart_items,
                         'dia_chi' => $dia_chi,
                         'errors' => $errors,
                         'old_data' => [
@@ -548,62 +604,34 @@ class Khachhang extends controller
 
                 // Nếu là thanh toán online (VNPAY), chuyển hướng đến cổng thanh toán
                 if ($payment_method === 'bank') {
-                    // Chuyển hướng đến cổng thanh toán VNPAY
-                    $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-                    $vnp_Returnurl = "http://localhost/Banhang/Khachhang/xulythanhtoan";
+                    // Include VNPAY helper
+                    require_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/MVC/Core/VnPayHelper.php';
 
-                    $vnp_TmnCode = 'YOUR_VNP_TMNCODE'; // Mã website tại VNPAY
-                    $vnp_HashSecret = 'YOUR_VNP_HASHSECRET'; // Chuỗi bí mật
+                    try {
+                        $orderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
+                        $paymentUrl = VnPayHelper::createPaymentUrl($orderInfo, $so_tien_thanh_toan, $ma_don_hang, 'NCB', 'vn');
 
-                    $vnp_TxnRef = $ma_don_hang; // Mã đơn hàng
-                    $vnp_OrderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
-                    $vnp_OrderType = 'billpayment';
-                    $vnp_Amount = $so_tien_thanh_toan * 100; // Số tiền cần nhân với 100 để đúng định dạng
-                    $vnp_Locale = 'vn';
-                    $vnp_BankCode = 'NCB';
-                    $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+                        header('Location: ' . $paymentUrl);
+                        die();
+                    } catch (Exception $e) {
+                        // Log the error
+                        error_log("VNPAY Error: " . $e->getMessage());
 
-                    $inputData = array(
-                        "vnp_Version" => "2.1.0",
-                        "vnp_TmnCode" => $vnp_TmnCode,
-                        "vnp_Amount" => $vnp_Amount,
-                        "vnp_Command" => "pay",
-                        "vnp_CreateDate" => date('YmdHis'),
-                        "vnp_CurrCode" => "VND",
-                        "vnp_IpAddr" => $vnp_IpAddr,
-                        "vnp_Locale" => $vnp_Locale,
-                        "vnp_OrderInfo" => $vnp_OrderInfo,
-                        "vnp_OrderType" => $vnp_OrderType,
-                        "vnp_ReturnUrl" => $vnp_Returnurl,
-                        "vnp_TxnRef" => $vnp_TxnRef,
-                    );
-
-                    if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-                        $inputData['vnp_BankCode'] = $vnp_BankCode;
+                        // Show error to user and fallback to COD
+                        $this->view('Khachhang_Master', [
+                            'page' => 'Khachhang/khachhang_thanhtoan',
+                            'errors' => ['Có lỗi xảy ra khi kết nối với cổng thanh toán VNPAY. Vui lòng thử lại sau.'],
+                            'old_data' => [
+                                'ho_ten' => $ho_ten,
+                                'so_dien_thoai' => $so_dien_thoai,
+                                'email' => $email,
+                                'ghi_chu' => $ghi_chu,
+                                'dia_chi_selected' => $ma_dia_chi,
+                                'payment_method' => $payment_method
+                            ]
+                        ]);
+                        return;
                     }
-
-                    ksort($inputData);
-                    $query = "";
-                    $i = 0;
-                    $hashdata = "";
-                    foreach ($inputData as $key => $value) {
-                        if ($i == 1) {
-                            $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-                        } else {
-                            $hashdata .= urlencode($key) . "=" . urlencode($value);
-                            $i = 1;
-                        }
-                        $query .= urlencode($key) . "=" . urlencode($value) . '&';
-                    }
-
-                    $vnp_Url = $vnp_Url . "?" . $query;
-                    if (isset($vnp_HashSecret)) {
-                        $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret); //
-                        $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
-                    }
-
-                    header('Location: ' . $vnp_Url);
-                    die();
                 } else {
                     // COD - Thanh toán khi nhận hàng, chuyển đến trang cảm ơn
                     $this->view('Khachhang_Master', [
@@ -618,35 +646,15 @@ class Khachhang extends controller
     // Xử lý kết quả thanh toán từ VNPAY
     function xulythanhtoan()
     {
-        $vnp_HashSecret = 'YOUR_VNP_HASHSECRET'; // Chuỗi bí mật
+        // Include VNPAY helper
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/MVC/Core/VnPayHelper.php';
 
         $vnp_SecureHash = $_GET['vnp_SecureHash'];
-        $inputData = array();
-        foreach ($_GET as $key => $value) {
-            if (substr($key, 0, 4) == "vnp_") {
-                $inputData[$key] = $value;
-            }
-        }
-
-        unset($inputData['vnp_SecureHash']);
-        ksort($inputData);
-        $i = 0;
-        $hashData = "";
-        foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
-            } else {
-                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
-                $i = 1;
-            }
-        }
-
-        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-
         $vnp_ResponeCode = $_GET['vnp_ResponseCode'];
         $vnp_TxnRef = $_GET['vnp_TxnRef'];
 
-        if ($vnp_SecureHash == $secureHash) {
+        // Verify payment return
+        if (VnPayHelper::verifyPaymentReturn($_GET)) {
             if ($vnp_ResponeCode == '00') {
                 // Thanh toán thành công
                 // Cập nhật trạng thái đơn hàng thành 'da_thanh_toan'
@@ -655,33 +663,49 @@ class Khachhang extends controller
                 $dh_info = mysqli_fetch_assoc($don_hang);
 
                 if ($dh_info) {
-                    // Cập nhật trạng thái đơn hàng
-                    $don_hang_model->DonHang_update($vnp_TxnRef, $dh_info['ma_user'], $dh_info['ma_dia_chi'], $dh_info['ma_khuyen_mai'], $dh_info['tong_tien_hang'], 'cho_duyet');
+                    // Cập nhật trạng thái đơn hàng thành hoàn thành
+                    
+                    // $don_hang_model->DonHang_updateStatusToComplete($vnp_TxnRef);
 
-                    // Thêm thông tin thanh toán
+                    // Cập nhật trạng thái thanh toán của đơn hàng thành 'da_thanh_toan'
+                    $don_hang_model->DonHang_updatePaymentStatus($vnp_TxnRef, 'da_thanh_toan');
+
+                    // Cập nhật trạng thái thanh toán trong bảng thanh_toan
                     $thanh_toan_model = $this->model("ThanhToan_m");
 
-                    // Generate sequential transaction ID
-                    $last_transaction = mysqli_query($thanh_toan_model->con, "SELECT MAX(ma_giao_dich) as max_id FROM thanh_toan WHERE ma_giao_dich LIKE 'GD%'");
-                    $last_row = mysqli_fetch_assoc($last_transaction);
-                    $last_id = $last_row['max_id'];
+                    // Cập nhật giao dịch thanh toán hiện có thay vì tạo mới
+                    $existing_payment = $thanh_toan_model->ThanhToan_getByOrder($vnp_TxnRef);
+                    if ($existing_payment && mysqli_num_rows($existing_payment) > 0) {
+                        // Lấy mã giao dịch hiện có
+                        $payment_row = mysqli_fetch_assoc($existing_payment);
+                        $ma_giao_dich = $payment_row['ma_giao_dich'];
 
-                    if ($last_id) {
-                        $number = intval(substr($last_id, 2)); // Extract number after 'GD'
-                        $new_number = $number + 1;
+                        // Cập nhật trạng thái thanh toán
+                        $thanh_toan_model->ThanhToan_update($ma_giao_dich, $vnp_TxnRef, 'VNPAY', $dh_info['tong_tien_hang'], 'da_thanh_toan');
                     } else {
-                        $new_number = 1; // Start from 1 if no previous transactions
-                    }
-                    $ma_thanh_toan = 'GD' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as GD01, GD02, etc.
+                        // Nếu không có giao dịch hiện có, tạo mới (trường hợp hiếm)
+                        // Generate sequential transaction ID
+                        $last_transaction = mysqli_query($thanh_toan_model->con, "SELECT MAX(ma_giao_dich) as max_id FROM thanh_toan WHERE ma_giao_dich LIKE 'GD%'");
+                        $last_row = mysqli_fetch_assoc($last_transaction);
+                        $last_id = $last_row['max_id'];
 
-                    $so_tien = $dh_info['tong_tien_hang'];
-                    $thanh_toan_model->thanh_toan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'thanh_cong', date('Y-m-d H:i:s'));
+                        if ($last_id) {
+                            $number = intval(substr($last_id, 2)); // Extract number after 'GD'
+                            $new_number = $number + 1;
+                        } else {
+                            $new_number = 1; // Start from 1 if no previous transactions
+                        }
+                        $ma_thanh_toan = 'GD' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as GD01, GD02, etc.
+
+                        $so_tien = $dh_info['tong_tien_hang'];
+                        $thanh_toan_model->thanhtoan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'da_thanh_toan', date('Y-m-d H:i:s'));
+                    }
                 }
 
                 $this->view('Khachhang_Master', [
                     'page' => 'Khachhang/khachhang_camon',
                     'ma_don_hang' => $vnp_TxnRef,
-                    'success_message' => 'Thanh toán thành công!'
+                    'success_message' => 'Thanh toán bằng VNPAY thành công!'
                 ]);
             } else {
                 // Thanh toán thất bại
