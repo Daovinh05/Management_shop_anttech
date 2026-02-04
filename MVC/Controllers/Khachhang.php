@@ -212,7 +212,7 @@ class Khachhang extends controller
             $ma_gio_hang = $row['ma_gio_hang'];
             // Lấy danh sách sản phẩm thô trong giỏ
             $result = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-            
+
             if ($result) {
                 while ($ct = mysqli_fetch_assoc($result)) {
                     // 1. Lấy chi tiết BIẾN THỂ (để có Màu, RAM, Dung lượng...)
@@ -225,10 +225,10 @@ class Khachhang extends controller
 
                     // 3. Gộp dữ liệu vào mảng item
                     $item = $ct; // Bắt đầu với dữ liệu giỏ hàng (số lượng...)
-                    
+
                     // Bổ sung thông tin từ bảng Sản Phẩm
                     $item['ten_san_pham'] = $sp_info['ten_san_pham'];
-                    
+
                     // Bổ sung thông tin từ bảng Biến Thể (QUAN TRỌNG)
                     $item['ten_bien_the'] = $bt_info['ten_bien_the'];
                     $item['mau_sac'] = $bt_info['mau_sac'];
@@ -245,7 +245,7 @@ class Khachhang extends controller
         // Truyền biến 'detailed_cart' sang View
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_giohang',
-            'detailed_cart' => $detailed_cart 
+            'detailed_cart' => $detailed_cart
         ]);
     }
 
@@ -301,7 +301,7 @@ class Khachhang extends controller
 
             $filtered_cart_items = [];
             $tong_tien_thanh_toan = 0; // Biến tính lại tổng tiền
-            
+
             if ($chi_tiet_gio_hang) {
                 while ($item = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
                     // Nếu có danh sách items được chọn thì chỉ lấy những món đó
@@ -422,12 +422,12 @@ class Khachhang extends controller
 
                 // --- 2. KHỞI TẠO BIẾN TỔNG TIỀN (FIX LỖI UNDEFINED VARIABLE) ---
                 $tong_tien_hang = 0; // Quan trọng: Phải khởi tạo ở đây
-                $chi_tiet_gio_hang_array = []; 
+                $chi_tiet_gio_hang_array = [];
                 $out_of_stock_items = [];
 
                 while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
                     if (!empty($selected_items_filter) && !in_array($ct['ma_bien_the'], $selected_items_filter)) {
-                        continue; 
+                        continue;
                     }
 
                     $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
@@ -471,13 +471,13 @@ class Khachhang extends controller
 
                 if ($ma_khuyen_mai) {
                     $km_model = $this->model("KhuyenMai_m");
-                    $km_info_result = $km_model->KhuyenMai_getById($ma_khuyen_mai); 
+                    $km_info_result = $km_model->KhuyenMai_getById($ma_khuyen_mai);
                     if($km_info_result && mysqli_num_rows($km_info_result) > 0){
                          $km_info = mysqli_fetch_assoc($km_info_result);
                          $tien_giam = $km_info['tien_khuyen_mai'];
                     }
                 }
-                
+
                 $so_tien_thanh_toan = $tong_tien_hang - $tien_giam;
                 if ($so_tien_thanh_toan < 0) $so_tien_thanh_toan = 0;
 
@@ -516,12 +516,12 @@ class Khachhang extends controller
                 $thanh_toan_model = $this->model("ThanhToan_m");
                 $ma_giao_dich = 'GD' . rand(0, 99);
                 $phuong_thuc_luu = ($payment_method == 'bank') ? 'VNPAY' : 'COD';
-                
+
                 $this->model("ThanhToan_m")->thanhtoan_ins(
-                    $ma_giao_dich, 
-                    $ma_don_hang, 
-                    $phuong_thuc_luu, 
-                    $so_tien_thanh_toan, 
+                    $ma_giao_dich,
+                    $ma_don_hang,
+                    $phuong_thuc_luu,
+                    $so_tien_thanh_toan,
                     'chua_thanh_toan'
                 );
 
@@ -643,7 +643,7 @@ class Khachhang extends controller
 
                 if ($dh_info) {
                     // Cập nhật trạng thái đơn hàng
-                    $don_hang_model->DonHang_update($vnp_TxnRef, $dh_info['ma_user'], $dh_info['ma_dia_chi'], $dh_info['ma_khuyen_mai'], $dh_info['tong_tien_hang'], 'da_thanh_toan');
+                    $don_hang_model->DonHang_update($vnp_TxnRef, $dh_info['ma_user'], $dh_info['ma_dia_chi'], $dh_info['ma_khuyen_mai'], $dh_info['tong_tien_hang'], 'cho_duyet');
 
                     // Thêm thông tin thanh toán
                     $thanh_toan_model = $this->model("ThanhToan_m");

@@ -4,7 +4,11 @@ class DonHang_m extends connectDB
     // Hàm thêm đơn hàng
     function donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $thanh_toan, $trang_thai_don_hang)
     {
-        $sql = "INSERT INTO don_hang VALUES ('$ma_don_hang', '$ma_user', '$ma_dia_chi', '$ma_khuyen_mai', '$tong_tien_hang', '$thanh_toan', '$trang_thai_don_hang', NOW())";
+        // Handle empty promotion code by converting to NULL for proper foreign key constraint
+        $ma_khuyen_mai_value = !empty($ma_khuyen_mai) ? "'$ma_khuyen_mai'" : 'NULL';
+
+        $sql = "INSERT INTO don_hang (ma_don_hang, ma_user, ma_dia_chi, ma_khuyen_mai, tong_tien_hang, thanh_toan, trang_thai_don_hang, ngay_tao)
+                VALUES ('$ma_don_hang', '$ma_user', '$ma_dia_chi', $ma_khuyen_mai_value, '$tong_tien_hang', '$thanh_toan', '$trang_thai_don_hang', NOW())";
         return mysqli_query($this->con, $sql);
     }
 
@@ -34,8 +38,11 @@ class DonHang_m extends connectDB
     // Hàm sửa đơn hàng
     function DonHang_update($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $trang_thai_don_hang)
     {
+        // Handle empty promotion code by converting to NULL for proper foreign key constraint
+        $ma_khuyen_mai_value = !empty($ma_khuyen_mai) ? "'$ma_khuyen_mai'" : 'NULL';
+
         $sql = "UPDATE don_hang SET ma_user = '$ma_user', ma_dia_chi = '$ma_dia_chi',
-                ma_khuyen_mai = '$ma_khuyen_mai', tong_tien_hang = '$tong_tien_hang', 
+                ma_khuyen_mai = $ma_khuyen_mai_value, tong_tien_hang = '$tong_tien_hang',
                 trang_thai_don_hang = '$trang_thai_don_hang' WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
@@ -74,16 +81,16 @@ class DonHang_m extends connectDB
     // Lấy thống kê tổng quan về trạng thái đơn hàng
     function DonHang_ThongKeTongQuan()
     {
-        $sql = "SELECT trang_thai_don_hang, COUNT(*) as so_luong 
-                FROM don_hang 
+        $sql = "SELECT trang_thai_don_hang, COUNT(*) as so_luong
+                FROM don_hang
                 GROUP BY trang_thai_don_hang";
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lấy danh sách đơn hàng chi tiết với tính toán lợi nhuận
     function DonHang_ThongKeChiTiet()
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     dh.ma_don_hang,
                     dh.ngay_tao,
                     dh.tong_tien_hang,
@@ -97,7 +104,7 @@ class DonHang_m extends connectDB
                     km.tien_khuyen_mai,
                     COALESCE(SUM(ctdh.so_luong * bt.gia), 0) as gia_von,
                     COALESCE((dh.tong_tien_hang - km.tien_khuyen_mai), 0) as thanh_toan
-                    
+
                 FROM don_hang dh
                 INNER JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
@@ -109,11 +116,11 @@ class DonHang_m extends connectDB
                 ORDER BY dh.ngay_tao DESC";
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lấy thống kê theo phương thức thanh toán
     function DonHang_ThongKePhuongThuc()
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     tt.phuong_thuc,
                     COUNT(DISTINCT dh.ma_don_hang) as so_don,
                     SUM(dh.tong_tien_hang) as tong_tien
@@ -123,11 +130,11 @@ class DonHang_m extends connectDB
                 GROUP BY tt.phuong_thuc";
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lọc đơn hàng theo khoảng thời gian
     function DonHang_LocTheoNgay($tuNgay, $denNgay)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     dh.ma_don_hang,
                     dh.ngay_tao,
                     dh.tong_tien_hang,
@@ -151,23 +158,23 @@ class DonHang_m extends connectDB
                 WHERE DATE(dh.ngay_tao) BETWEEN '$tuNgay' AND '$denNgay'
                 GROUP BY dh.ma_don_hang
                 ORDER BY dh.ngay_tao DESC";
-        
+
         $result = mysqli_query($this->con, $sql);
         $danhSach = [];
-        
+
         if ($result && mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $danhSach[] = $row;
             }
         }
-        
+
         return $danhSach;
     }
-    
+
     // Tìm kiếm đơn hàng theo mã đơn hàng hoặc tên khách hàng
     function DonHang_TimKiem($maDonHang, $tenKhachHang)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     dh.ma_don_hang,
                     dh.ngay_tao,
                     dh.tong_tien_hang,
@@ -189,24 +196,24 @@ class DonHang_m extends connectDB
                 LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
                 LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
                 WHERE 1=1";
-        
+
         if (!empty($maDonHang)) {
             $sql .= " AND dh.ma_don_hang LIKE '%$maDonHang%'";
         }
-        
+
         if (!empty($tenKhachHang)) {
             $sql .= " AND u.full_name LIKE '%$tenKhachHang%'";
         }
-        
+
         $sql .= " GROUP BY dh.ma_don_hang ORDER BY dh.ngay_tao DESC";
-        
+
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lấy thống kê doanh thu theo tháng
     function DonHang_ThongKeTheoThang($nam)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     MONTH(ngay_tao) as thang,
                     COUNT(*) as so_don,
                     SUM(tong_tien_hang) as doanh_thu
@@ -217,7 +224,7 @@ class DonHang_m extends connectDB
                 ORDER BY thang";
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lấy top sản phẩm bán chạy
     function DonHang_TopSanPham($limit = 10)
     {
@@ -239,11 +246,11 @@ class DonHang_m extends connectDB
                 LIMIT $limit";
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lấy tổng doanh thu theo khoảng thời gian
     function DonHang_TongDoanhThu($tuNgay, $denNgay)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     COUNT(*) as tong_don,
                     SUM(tong_tien_hang) as tong_doanh_thu,
                     AVG(tong_tien_hang) as trung_binh_don
@@ -252,11 +259,11 @@ class DonHang_m extends connectDB
                 AND trang_thai_don_hang != 'da_huy'";
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Lấy thống kê theo trạng thái thanh toán
     function DonHang_ThongKeThanhToan()
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     tt.trang_thai_thanh_toan,
                     COUNT(*) as so_luong,
                     SUM(tt.so_tien_thanh_toan) as tong_tien
