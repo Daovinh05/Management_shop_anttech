@@ -774,7 +774,10 @@
         <div class="checkout-wrapper">
             <form action="<?php echo $this->url('Khachhang/datHang'); ?>" method="POST">
                 <input type="hidden" name="selected_items_str" value="<?php echo htmlspecialchars($_GET['items'] ?? ''); ?>">
-                <div class="checkout-grid">
+                <input type="hidden" name="forced_qty" value="<?php echo isset($_GET['qty']) ? htmlspecialchars($_GET['qty']) : ''; ?>">
+                
+                <input type="hidden" name="is_buy_now" value="<?php echo isset($_GET['buynow']) ? '1' : '0'; ?>">
+                    <div class="checkout-grid">
 
                     <div class="billing-details">
                         <h3 class="section-title">Thông tin thanh toán</h3>
