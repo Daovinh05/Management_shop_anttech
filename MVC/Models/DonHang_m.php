@@ -2,9 +2,9 @@
 class DonHang_m extends connectDB
 {
     // Hàm thêm đơn hàng
-    function donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $trang_thai_don_hang)
+    function donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $thanh_toan, $trang_thai_don_hang)
     {
-        $sql = "INSERT INTO don_hang VALUES ('$ma_don_hang', '$ma_user', '$ma_dia_chi', '$ma_khuyen_mai', '$tong_tien_hang', '$trang_thai_don_hang', NOW())";
+        $sql = "INSERT INTO don_hang VALUES ('$ma_don_hang', '$ma_user', '$ma_dia_chi', '$ma_khuyen_mai', '$tong_tien_hang', '$thanh_toan', '$trang_thai_don_hang', NOW())";
         return mysqli_query($this->con, $sql);
     }
 

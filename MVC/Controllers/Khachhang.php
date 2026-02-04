@@ -159,7 +159,7 @@ class Khachhang extends controller
 
         if (!$row) {
             // Tạo giỏ hàng mới
-            $ma_gio_hang = 'GH' . time(); // Tạo mã giỏ hàng duy nhất
+            $ma_gio_hang = 'GH' . rand(0, 99); // Tạo mã giỏ hàng duy nhất
             $this->gh->giohang_ins($ma_gio_hang, $ma_user);
         } else {
             $ma_gio_hang = $row['ma_gio_hang'];
@@ -342,19 +342,16 @@ class Khachhang extends controller
         if (isset($_POST['btnDatHang'])) {
             $ma_user = $_SESSION['user_id'];
             $ma_dia_chi = trim($_POST['ddlDiaChi']);
-            $ma_khuyen_mai = trim($_POST['ddlKhuyenMai']) ?: null;
+            $ma_khuyen_mai = !empty($_POST['ddlKhuyenMai']) ? trim($_POST['ddlKhuyenMai']) : null;
             $ghi_chu = trim($_POST['txtGhiChu']) ?? '';
-            $payment_method = trim($_POST['payment_method']) ?? 'cod'; // cod (cash on delivery) or bank (online payment)
+            $payment_method = trim($_POST['payment_method']) ?? 'cod';
             $ho_ten = trim($_POST['txtHoTen']);
             $so_dien_thoai = trim($_POST['txtSoDienThoai']);
             $email = trim($_POST['txtEmail']);
 
-            // Validate required fields
+            // Validate cơ bản
             $errors = [];
-
-            if (empty($ma_dia_chi)) {
-                $errors[] = "Vui lòng chọn địa chỉ giao hàng.";
-            }
+            if (empty($ma_dia_chi)) $errors[] = "Vui lòng chọn địa chỉ giao hàng.";
 
             if (empty($ho_ten)) {
                 $errors[] = "Vui lòng nhập họ và tên.";
@@ -388,7 +385,7 @@ class Khachhang extends controller
             }
 
             if (!empty($errors)) {
-                // Return to checkout page with errors
+                // Trả về view báo lỗi (giữ nguyên logic cũ của bạn)
                 $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang'] ?? '');
                 $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
 
@@ -413,22 +410,22 @@ class Khachhang extends controller
                 $ma_gio_hang = $row['ma_gio_hang'];
                 $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
 
+                // --- 1. LỌC SẢN PHẨM ---
                 $selected_items_filter = [];
                 if (isset($_POST['selected_items_str']) && !empty($_POST['selected_items_str'])) {
                     $selected_items_filter = explode(',', $_POST['selected_items_str']);
                 }
 
-                // Tính tổng tiền và kiểm tra số lượng tồn kho
-                $tong_tien = 0;
-                $chi_tiet_gio_hang_array = []; // Store cart items for later use
+                // --- 2. KHỞI TẠO BIẾN TỔNG TIỀN (FIX LỖI UNDEFINED VARIABLE) ---
+                $tong_tien_hang = 0; // Quan trọng: Phải khởi tạo ở đây
+                $chi_tiet_gio_hang_array = []; 
                 $out_of_stock_items = [];
 
                 while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
-
                     if (!empty($selected_items_filter) && !in_array($ct['ma_bien_the'], $selected_items_filter)) {
-                        continue; // Bỏ qua sản phẩm không được chọn
+                        continue; 
                     }
-                    // Kiểm tra số lượng tồn kho
+
                     $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
                     $bt_info = mysqli_fetch_assoc($bien_the);
 
@@ -436,7 +433,7 @@ class Khachhang extends controller
                         $out_of_stock_items[] = $bt_info['ten_bien_the'];
                     } else {
                         $chi_tiet_gio_hang_array[] = $ct;
-                        $tong_tien += $ct['gia'] * $ct['so_luong'];
+                        $tong_tien_hang += $ct['gia'] * $ct['so_luong']; // Cộng dồn tiền hàng
                     }
                 }
 
@@ -464,22 +461,69 @@ class Khachhang extends controller
                     return;
                 }
 
+                // --- 3. TÍNH TIỀN THANH TOÁN ---
+                $so_tien_thanh_toan = $tong_tien_hang;
+                $tien_giam = 0;
+
+                if ($ma_khuyen_mai) {
+                    $km_model = $this->model("KhuyenMai_m");
+                    $km_info_result = $km_model->KhuyenMai_getById($ma_khuyen_mai); 
+                    if($km_info_result && mysqli_num_rows($km_info_result) > 0){
+                         $km_info = mysqli_fetch_assoc($km_info_result);
+                         $tien_giam = $km_info['tien_khuyen_mai'];
+                    }
+                }
+                
+                $so_tien_thanh_toan = $tong_tien_hang - $tien_giam;
+                if ($so_tien_thanh_toan < 0) $so_tien_thanh_toan = 0;
+
                 // Tạo mã đơn hàng
-                $ma_don_hang = 'DH' . time();
+                $ma_don_hang = 'DH' . rand(0, 99);
 
                 // Thêm đơn hàng vào cơ sở dữ liệu
-                $this->dh->donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien, 'cho_duyet');
+                $this->dh->donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $so_tien_thanh_toan, 'cho_duyet');
 
                 // Thêm chi tiết đơn hàng
                 foreach ($chi_tiet_gio_hang_array as $ct) {
-                    $ma_ctdh = 'CTDH' . time() . rand(1000, 9999);
+                    $ma_ctdh = 'CT'  . rand(0, 99);
                     $this->ctdh->chitietdonhang_ins($ma_ctdh, $ma_don_hang, $ct['ma_bien_the'], $ct['so_luong'], $ct['gia']);
 
-                    // Cập nhật số lượng kho
+                    // Cập nhật kho
                     $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
                     $bt_info = mysqli_fetch_assoc($bien_the);
                     $new_so_luong_kho = $bt_info['so_luong_kho'] - $ct['so_luong'];
-                    $this->bt->BienThe_update($ct['ma_bien_the'], $bt_info['ma_san_pham'], $bt_info['ten_bien_the'], $bt_info['mau_sac'], $bt_info['ram'], $bt_info['dung_luong'], $bt_info['gia'], $new_so_luong_kho);
+
+                    // --- FIX LỖI ARGUMENT COUNT ERROR ---
+                    // Thêm tham số $bt_info['img_bien_the'] vào vị trí thứ 4
+                    $this->bt->BienThe_update(
+                        $ct['ma_bien_the'],         // 1. Mã biến thể
+                        $bt_info['ma_san_pham'],    // 2. Mã sản phẩm
+                        $bt_info['ten_bien_the'],   // 3. Tên biến thể
+                        $bt_info['img_bien_the'],   // 4. Hình ảnh (Đã thêm mới)
+                        $bt_info['mau_sac'],        // 5. Màu sắc
+                        $bt_info['ram'],            // 6. RAM
+                        $bt_info['dung_luong'],     // 7. Dung lượng
+                        $bt_info['gia'],            // 8. Giá
+                        $new_so_luong_kho           // 9. Số lượng kho
+                    );
+                }
+
+                // Insert thanh toán
+                $thanh_toan_model = $this->model("ThanhToan_m");
+                $ma_giao_dich = 'GD' . rand(0, 99);
+                $phuong_thuc_luu = ($payment_method == 'bank') ? 'VNPAY' : 'COD';
+                
+                $this->model("ThanhToan_m")->thanhtoan_ins(
+                    $ma_giao_dich, 
+                    $ma_don_hang, 
+                    $phuong_thuc_luu, 
+                    $so_tien_thanh_toan, 
+                    'chua_thanh_toan'
+                );
+
+                // Xóa món đã mua khỏi giỏ
+                foreach ($chi_tiet_gio_hang_array as $ct) {
+                     $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ct['ma_bien_the']);
                 }
 
                 // Cập nhật trạng thái giỏ hàng thành 'ordered'
@@ -497,7 +541,7 @@ class Khachhang extends controller
                     $vnp_TxnRef = $ma_don_hang; // Mã đơn hàng
                     $vnp_OrderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
                     $vnp_OrderType = 'billpayment';
-                    $vnp_Amount = $tong_tien * 100; // Số tiền cần nhân với 100 để đúng định dạng
+                    $vnp_Amount = $so_tien_thanh_toan * 100; // Số tiền cần nhân với 100 để đúng định dạng
                     $vnp_Locale = 'vn';
                     $vnp_BankCode = 'NCB';
                     $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
@@ -599,7 +643,7 @@ class Khachhang extends controller
 
                     // Thêm thông tin thanh toán
                     $thanh_toan_model = $this->model("ThanhToan_m");
-                    $ma_thanh_toan = 'TT' . time();
+                    $ma_thanh_toan = 'GD' . rand(0, 99);
                     $so_tien = $dh_info['tong_tien_hang'];
                     $thanh_toan_model->thanh_toan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'thanh_cong', date('Y-m-d H:i:s'));
                 }

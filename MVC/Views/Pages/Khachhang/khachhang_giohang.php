@@ -680,7 +680,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     </div>
 
                     <div class="summary-row">
-                        <span>Tổng thanh toán</span>
+                        <span>Tổng tiền :</span>
                         <span class="summary-total" id="displayTotal">0 ₫</span>
                     </div>
 
