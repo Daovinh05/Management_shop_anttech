@@ -29,7 +29,7 @@ class ThuongHieu_m extends connectDB
         $ten_thuong_hieu = mysqli_real_escape_string($this->con, $ten_thuong_hieu);
         $sql = "SELECT * FROM thuong_hieu
                 WHERE ma_thuong_hieu LIKE '%$ma_thuong_hieu%' AND ten_thuong_hieu LIKE '%$ten_thuong_hieu%'
-                ORDER BY LENGTH(ma_thuong_hieu), ma_thuong_hieu";
+                ORDER BY CAST(SUBSTRING(ma_thuong_hieu, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -54,7 +54,7 @@ class ThuongHieu_m extends connectDB
     function ThuongHieu_getAll()
     {
         $sql = "SELECT * FROM thuong_hieu
-                ORDER BY LENGTH(ma_thuong_hieu), ma_thuong_hieu";
+                ORDER BY CAST(SUBSTRING(ma_thuong_hieu, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 

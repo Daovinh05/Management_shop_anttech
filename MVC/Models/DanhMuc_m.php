@@ -29,7 +29,7 @@ class DanhMuc_m extends connectDB
         $ten_danh_muc = mysqli_real_escape_string($this->con, $ten_danh_muc);
         $sql = "SELECT * FROM danh_muc
                 WHERE ma_danh_muc LIKE '%$ma_danh_muc%' AND ten_danh_muc LIKE '%$ten_danh_muc%'
-                ORDER BY LENGTH(ma_danh_muc), ma_danh_muc";
+                ORDER BY CAST(SUBSTRING(ma_danh_muc, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -54,7 +54,7 @@ class DanhMuc_m extends connectDB
     function DanhMuc_getAll()
     {
         $sql = "SELECT * FROM danh_muc
-                ORDER BY LENGTH(ma_danh_muc), ma_danh_muc";
+                ORDER BY CAST(SUBSTRING(ma_danh_muc, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 

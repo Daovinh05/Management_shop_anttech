@@ -31,7 +31,7 @@ class DonHang_m extends connectDB
                 LEFT JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 WHERE dh.ma_don_hang LIKE '%$ma_don_hang%' AND u.full_name LIKE '%$full_name%'
-                ORDER BY dh.ngay_tao DESC";
+                ORDER BY CAST(SUBSTRING(dh.ma_don_hang, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -62,7 +62,7 @@ class DonHang_m extends connectDB
                 LEFT JOIN users u ON dh.ma_user = u.ma_user
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
-                ORDER BY dh.ngay_tao DESC";
+                ORDER BY CAST(SUBSTRING(dh.ma_don_hang, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 

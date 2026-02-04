@@ -33,7 +33,7 @@ class Users_m extends connectDB
 
     function Users_find($ma_user, $ten_user)
     {
-        $sql = "SELECT * FROM users WHERE ma_user LIKE '%$ma_user%' AND ten_user LIKE '%$ten_user%' ORDER BY LENGTH(ma_user), ma_user";
+        $sql = "SELECT * FROM users WHERE ma_user LIKE '%$ma_user%' AND ten_user LIKE '%$ten_user%' ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -54,7 +54,7 @@ class Users_m extends connectDB
 
     function Users_getAll()
     {
-        $sql = "SELECT * FROM users ORDER BY LENGTH(ma_user), ma_user";
+        $sql = "SELECT * FROM users ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 

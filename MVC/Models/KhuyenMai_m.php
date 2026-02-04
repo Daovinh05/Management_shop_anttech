@@ -30,7 +30,7 @@ class KhuyenMai_m extends connectDB
                        END AS trang_thai_khuyen_mai
                 FROM khuyen_mai
                 WHERE ma_khuyen_mai LIKE '%$ma_khuyen_mai%' AND ten_khuyen_mai LIKE '%$ten_khuyen_mai%'
-                ORDER BY LENGTH(ma_khuyen_mai), ma_khuyen_mai";
+                ORDER BY CAST(SUBSTRING(ma_khuyen_mai, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -60,7 +60,7 @@ class KhuyenMai_m extends connectDB
                            ELSE 'con'
                        END AS trang_thai_khuyen_mai
                 FROM khuyen_mai
-                ORDER BY LENGTH(ma_khuyen_mai), ma_khuyen_mai";
+                ORDER BY CAST(SUBSTRING(ma_khuyen_mai, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -85,7 +85,7 @@ class KhuyenMai_m extends connectDB
         $sql = "SELECT *
                 FROM khuyen_mai
                 WHERE ngay_bat_dau <= '$current_date' AND ngay_ket_thuc >= '$current_date' AND trang_thai_khuyen_mai = 'con'
-                ORDER BY LENGTH(ma_khuyen_mai), ma_khuyen_mai";
+                ORDER BY CAST(SUBSTRING(ma_khuyen_mai, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 }

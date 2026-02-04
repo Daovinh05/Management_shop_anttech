@@ -40,7 +40,7 @@ class BienThe_m extends connectDB
                 FROM bien_the bt
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
                 WHERE bt.ma_bien_the LIKE '%$ma_bien_the%' AND bt.ten_bien_the LIKE '%$ten_bien_the%'
-                ORDER BY LENGTH(bt.ma_bien_the), bt.ma_bien_the";
+                ORDER BY CAST(SUBSTRING(bt.ma_bien_the, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
@@ -89,7 +89,7 @@ class BienThe_m extends connectDB
         $sql = "SELECT bt.*, sp.ten_san_pham
                 FROM bien_the bt
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
-                ORDER BY LENGTH(bt.ma_bien_the), bt.ma_bien_the";
+                ORDER BY CAST(SUBSTRING(bt.ma_bien_the, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 

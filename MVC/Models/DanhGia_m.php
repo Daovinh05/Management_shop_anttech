@@ -77,7 +77,7 @@ class DanhGia_m extends connectDB
                 FROM danh_gia dg
                 LEFT JOIN users u ON dg.ma_user = u.ma_user
                 LEFT JOIN san_pham sp ON dg.ma_san_pham = sp.ma_san_pham
-                ORDER BY dg.ngay_danh_gia DESC";
+                ORDER BY CAST(SUBSTRING(dg.ma_danh_gia, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
 
