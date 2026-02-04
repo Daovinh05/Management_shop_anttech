@@ -769,10 +769,12 @@
                 TECHZONE</a>
 
             <div class="middle-section">
-                <div class="category-dropdown"><button><i class="fa-solid fa-bars"></i> Danh mục</button></div>
+                <!-- <div class="category-dropdown"><button><i class="fa-solid fa-bars"></i> Danh mục</button></div> -->
                 <div class="search-box">
-                    <input type="text" placeholder="Hôm nay bạn muốn tìm kiếm gì?">
-                    <button><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                    <form action="<?php echo $this->url('Khachhang/timkiem'); ?>" method="GET">
+                        <input type="text" name="q" placeholder="Hôm nay bạn muốn tìm kiếm gì?" value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>">
+                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                    </form>
                 </div>
             </div>
 

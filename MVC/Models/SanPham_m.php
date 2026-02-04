@@ -152,4 +152,17 @@ class SanPham_m extends connectDB
         $result = mysqli_query($this->con, $sql);
         return $result;
     }
+
+    // Hàm tìm kiếm sản phẩm theo tên
+    function SanPham_searchByName($search_query)
+    {
+        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+                FROM san_pham s
+                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                WHERE s.ten_san_pham LIKE '%" . mysqli_real_escape_string($this->con, $search_query) . "%'
+                ORDER BY LENGTH(s.ma_san_pham), s.ma_san_pham";
+        return mysqli_query($this->con, $sql);
+    }
 }
