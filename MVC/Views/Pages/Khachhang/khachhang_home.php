@@ -730,6 +730,54 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         font-size: 16px;
         color: #d70018;
     }
+    
+    /* Pagination Styles */
+    .pagination {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pagination-btn {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        background: white;
+        color: #333;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: all 0.2s;
+        min-width: 40px;
+        text-align: center;
+    }
+    
+    .pagination-btn:hover {
+        background: #f5f5f7;
+        border-color: var(--primary-green);
+        color: var(--primary-green);
+    }
+    
+    .pagination-btn.active {
+        background: var(--primary-green);
+        color: white;
+        border-color: var(--primary-green);
+    }
+    
+    .pagination-btn.disabled {
+        color: #999;
+        border-color: #ddd;
+        cursor: not-allowed;
+    }
+    
+    .pagination-ellipsis {
+        padding: 8px 4px;
+        color: #999;
+    }
 </style>
 
 <div class="main-body-wrapper">
@@ -788,7 +836,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     <h2>Tìm sản phẩm theo nhu cầu</h2>
                     <button class="btn-filter-now"><i class="fa-solid fa-filter"></i> Dùng bộ lọc ngay</button>
                 </div>
-                <div class="results-count">Tìm thấy <?php echo mysqli_num_rows($data['dssp']); ?> kết quả</div>
+                <div class="results-count">Tìm thấy <?php echo isset($data['total_products']) ? $data['total_products'] : mysqli_num_rows($data['dssp']); ?> kết quả</div>
 
                 <section class="product-section">
                     <div class="product-grid">
@@ -832,6 +880,58 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <?php endwhile; ?>
                     </div>
                 </section>
+                
+                <!-- Pagination Controls -->
+                <?php if (isset($data['total_pages']) && $data['total_pages'] > 1): ?>
+                <div class="pagination-container" style="margin-top: 30px; text-align: center;">
+                    <div class="pagination">
+                        <?php
+                        $current_page = $data['current_page'];
+                        $total_pages = $data['total_pages'];
+                        
+                        // Previous button
+                        if ($current_page > 1) {
+                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . ($current_page - 1)) . '" class="pagination-btn">&laquo; Trước</a>';
+                        } else {
+                            echo '<span class="pagination-btn disabled">&laquo; Trước</span>';
+                        }
+                        
+                        // Page numbers
+                        $start_page = max(1, $current_page - 2);
+                        $end_page = min($total_pages, $current_page + 2);
+                        
+                        if ($start_page > 1) {
+                            echo '<a href="' . UrlHelper::url("Khachhang?page=1") . '" class="pagination-btn">1</a>';
+                            if ($start_page > 2) {
+                                echo '<span class="pagination-ellipsis">...</span>';
+                            }
+                        }
+                        
+                        for ($i = $start_page; $i <= $end_page; $i++) {
+                            if ($i == $current_page) {
+                                echo '<span class="pagination-btn active">' . $i . '</span>';
+                            } else {
+                                echo '<a href="' . UrlHelper::url("Khachhang?page=" . $i) . '" class="pagination-btn">' . $i . '</a>';
+                            }
+                        }
+                        
+                        if ($end_page < $total_pages) {
+                            if ($end_page < $total_pages - 1) {
+                                echo '<span class="pagination-ellipsis">...</span>';
+                            }
+                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . $total_pages) . '" class="pagination-btn">' . $total_pages . '</a>';
+                        }
+                        
+                        // Next button
+                        if ($current_page < $total_pages) {
+                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . ($current_page + 1)) . '" class="pagination-btn">Tiếp &raquo;</a>';
+                        } else {
+                            echo '<span class="pagination-btn disabled">Tiếp &raquo;</span>';
+                        }
+                        ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             </main>
 
         </div>

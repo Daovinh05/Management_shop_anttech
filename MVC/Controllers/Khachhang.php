@@ -61,14 +61,25 @@ class Khachhang extends controller
 
     function Get_data()
     {
-        // Hiển thị trang chủ cho khách hàng
-        $dssp = $this->sp->SanPham_getAll();
+        // Hiển thị trang chủ cho khách hàng với phân trang
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 12; // 12 sản phẩm mỗi trang
+        
+        // Lấy tổng số lượng sản phẩm
+        $total_products = $this->sp->SanPham_getTotalCount();
+        $total_pages = ceil($total_products / $limit);
+        
+        // Lấy sản phẩm theo trang
+        $dssp = $this->sp->SanPham_getAllWithPagination($page, $limit);
         $dsdm = $this->dm->DanhMuc_getAll();
 
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_home',
             'dssp' => $dssp,
-            'dsdm' => $dsdm
+            'dsdm' => $dsdm,
+            'current_page' => $page,
+            'total_pages' => $total_pages,
+            'total_products' => $total_products
         ]);
     }
 

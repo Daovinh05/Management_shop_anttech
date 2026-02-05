@@ -165,4 +165,32 @@ class SanPham_m extends connectDB
                 ORDER BY LENGTH(s.ma_san_pham), s.ma_san_pham";
         return mysqli_query($this->con, $sql);
     }
+    
+    // Hàm lấy tổng số lượng sản phẩm
+    function SanPham_getTotalCount()
+    {
+        $sql = "SELECT COUNT(*) as total FROM san_pham";
+        $result = mysqli_query($this->con, $sql);
+        $row = mysqli_fetch_assoc($result);
+        return $row['total'];
+    }
+    
+    // Hàm lấy sản phẩm có phân trang
+    function SanPham_getAllWithPagination($page, $limit)
+    {
+        $offset = ($page - 1) * $limit;
+        $sql = "SELECT s.*,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as gia,
+                       (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as so_luong_kho,
+                       (SELECT ten_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as ten_bien_the,
+                       (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
+                       dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+                FROM san_pham s
+                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                ORDER BY CAST(SUBSTRING(s.ma_san_pham, 3) AS UNSIGNED) DESC
+                LIMIT $limit OFFSET $offset";
+        return mysqli_query($this->con, $sql);
+    }
 }
