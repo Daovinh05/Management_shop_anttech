@@ -502,21 +502,21 @@ class Khachhang extends controller
                 if ($is_buy_now) {
                     // --- LOGIC MUA NGAY: Lấy dữ liệu từ form, KHÔNG lấy từ giỏ hàng ---
                     $ma_bien_the = $_POST['selected_items_str']; // ID sản phẩm
-                    $so_luong = (int)$_POST['forced_qty'];       // Số lượng khách chọn (ví dụ: 2)
-                    
+                    $forced_qty = (int)$_POST['forced_qty'];       // Số lượng khách chọn (ví dụ: 2)
+
                     $bt_query = $this->bt->BienThe_getById($ma_bien_the);
                     $bt_info = mysqli_fetch_assoc($bt_query);
-                    
+
                     // Kiểm tra tồn kho
-                    if ($so_luong > $bt_info['so_luong_kho']) {
+                    if ($forced_qty > $bt_info['so_luong_kho']) {
                         $out_of_stock_items[] = $bt_info['ten_bien_the'];
                     } else {
                         // Tạo item để lát nữa insert vào đơn hàng
                         $ct = [];
                         $ct['ma_bien_the'] = $ma_bien_the;
-                        $ct['so_luong'] = $so_luong; // Đảm bảo số lượng là 2
+                        $ct['so_luong'] = $forced_qty; // Đảm bảo số lượng là 2
                         $ct['gia'] = $bt_info['gia'];
-                        
+
                         $chi_tiet_gio_hang_array[] = $ct;
                         $tong_tien_hang = $ct['gia'] * $ct['so_luong'];
                     }
@@ -525,7 +525,7 @@ class Khachhang extends controller
                     // --- LOGIC GIỎ HÀNG BÌNH THƯỜNG (Giữ nguyên logic cũ) ---
                     $gio_hang = $this->gh->GioHang_getByUser($ma_user);
                     $row = mysqli_fetch_assoc($gio_hang);
-                    
+
                     if ($row) {
                         $ma_gio_hang = $row['ma_gio_hang'];
                         // ... Copy lại đoạn while loop lấy từ DB như code cũ của bạn ...
@@ -537,8 +537,10 @@ class Khachhang extends controller
 
                             $ct['qty_in_db'] = $ct['so_luong'];
 
-                            if ($forced_qty !== null) {
-                                $ct['so_luong'] = $forced_qty;
+                            // Check if forced_qty is set in POST for individual items (used in some cases)
+                            $item_forced_qty = isset($_POST['forced_qty']) ? (int)$_POST['forced_qty'] : null;
+                            if ($item_forced_qty !== null) {
+                                $ct['so_luong'] = $item_forced_qty;
                             }
 
                             $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);

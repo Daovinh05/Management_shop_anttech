@@ -749,6 +749,82 @@
             margin-top: 10px;
             display: block;
         }
+        
+        /* Custom Alert Styles */
+        .alert-custom {
+            position: relative;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background-color: #fef7f7;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            color: #d70018;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .alert-list {
+            flex: 1;
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .alert-list li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .alert-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #d70018;
+            font-weight: bold;
+        }
+
+        .alert-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #721c24;
+            font-size: 16px;
+            background: none;
+            border: none;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .alert-close-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
     </style>
 </head>
 
@@ -786,12 +862,18 @@
                         // Hiển thị lỗi nếu có
                         if (isset($data['errors']) && !empty($data['errors'])):
                         ?>
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
+                            <div class="alert-custom alert-error">
+                                <div class="alert-icon">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <ul class="alert-list mb-0">
                                     <?php foreach ($data['errors'] as $error): ?>
                                         <li><?php echo htmlspecialchars($error); ?></li>
                                     <?php endforeach; ?>
                                 </ul>
+                                <div class="alert-close-btn" onclick="this.parentElement.style.display='none';">
+                                    <i class="fas fa-times"></i>
+                                </div>
                             </div>
                         <?php endif; ?>
 
