@@ -1047,13 +1047,13 @@
 
                                     <div class="card status-section">
                                         <div class="status-title">CẬP NHẬT TRẠNG THÁI</div>
-                                        <div class="current-status">Hiện tại: <span class="badge-success">${getStatusText(data.order_info?.trang_thai_don_hang)}</span></div>
+                                        <div class="current-status">Hiện tại: ${getStatusBadge(data.order_info?.trang_thai_don_hang)}</div>
                                         <div class="status-select-wrapper">
-                                            <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)">
-                                                <option value="cho_duyet" ${data.order_info?.trang_thai_don_hang === 'cho_duyet' ? 'selected' : ''}>Chờ duyệt</option>
-                                                <option value="dang_giao" ${data.order_info?.trang_thai_don_hang === 'dang_giao' ? 'selected' : ''}>Đang giao hàng</option>
-                                                <option value="hoan_thanh" ${data.order_info?.trang_thai_don_hang === 'hoan_thanh' ? 'selected' : ''}>Hoàn thành</option>
-                                                <option value="da_huy" ${data.order_info?.trang_thai_don_hang === 'da_huy' ? 'selected' : ''}>Đã hủy</option>
+                                            <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" style="font-weight:600">
+                                                <option value="cho_duyet" style="color:#92400e" ${data.order_info?.trang_thai_don_hang === 'cho_duyet' ? 'selected' : ''}>Chờ duyệt</option>
+                                                <option value="dang_giao" style="color:#1e40af" ${data.order_info?.trang_thai_don_hang === 'dang_giao' ? 'selected' : ''}>Đang giao hàng</option>
+                                                <option value="hoan_thanh" style="color:#065f46" ${data.order_info?.trang_thai_don_hang === 'hoan_thanh' ? 'selected' : ''}>Hoàn thành</option>
+                                                <option value="da_huy" style="color:#991b1b" ${data.order_info?.trang_thai_don_hang === 'da_huy' ? 'selected' : ''}>Đã hủy</option>
                                             </select>
                                             <div class="status-lock"><i class="fa-solid fa-lock"></i></div>
                                         </div>
@@ -1147,6 +1147,28 @@
                 }
             }
 
+            function getStatusBadge(status) {
+            let bg = '#eee', color = '#333', text = 'Không xác định';
+            
+            switch(status) {
+                case 'cho_duyet':
+                    bg = '#fef3c7'; color = '#92400e'; text = 'Chờ duyệt';
+                    break;
+                case 'dang_giao':
+                    bg = '#dbeafe'; color = '#1e40af'; text = 'Đang giao';
+                    break;
+                case 'hoan_thanh':
+                    bg = '#d1fae5'; color = '#065f46'; text = 'Hoàn thành';
+                    break;
+                case 'da_huy':
+                    bg = '#fee2e2'; color = '#991b1b'; text = 'Đã hủy';
+                    break;
+            }
+            
+            // Trả về chuỗi HTML có style inline
+            return `<span style="background:${bg}; color:${color}; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600">${text}</span>`;
+        }
+
             // Hàm tính tổng phụ
             function calculateSubtotal(items) {
                 let total = 0;
@@ -1188,7 +1210,8 @@
             }
 
             function closeModal() {
-                document.getElementById('detailModal').style.display = 'none';
+                // Tải lại trang để cập nhật dữ liệu mới nhất (trạng thái,...) ở danh sách
+                window.location.reload();
             }
             window.onclick = function(event) {
                 if (event.target == document.getElementById('detailModal')) closeModal();

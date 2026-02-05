@@ -544,7 +544,7 @@
                         <th>Trạng thái TT</th>
                         <th>Tổng tiền</th>
                         <th>Khuyến mãi</th>
-                        <th>Lợi nhuận</th>
+                        <th>Thanh toán</th>
                     </tr>
                 </thead>
                 <tbody id="dhBody">
