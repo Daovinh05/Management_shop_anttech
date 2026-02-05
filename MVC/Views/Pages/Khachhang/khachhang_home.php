@@ -873,6 +873,19 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                         <div class="price-discount-text">Giảm
                                             <?php echo isset($sp['gia_cu']) && isset($sp['gia_moi']) ? number_format($sp['gia_cu'] - $sp['gia_moi'], 0, ',', '.') . '₫' : (isset($sp['gia']) && isset($sp['giam_gia']) ? number_format($sp['gia'] * $sp['giam_gia'] / 100, 0, ',', '.') . '₫' : 'Liên hệ'); ?>
                                         </div>
+                                        <?php if (isset($sp['so_luong_kho'])): ?>
+                                            <div class="stock-status">
+                                                <?php 
+                                                if ($sp['so_luong_kho'] > 5) {
+                                                    echo '<span style="color: green;">Còn hàng</span>';
+                                                } elseif ($sp['so_luong_kho'] > 0) {
+                                                    echo '<span style="color: orange;">Sắp hết hàng (' . $sp['so_luong_kho'] . ')</span>';
+                                                } else {
+                                                    echo '<span style="color: red;">Hết hàng</span>';
+                                                }
+                                                ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="buy-btn">Mua ngay</div>
                                 </div>
