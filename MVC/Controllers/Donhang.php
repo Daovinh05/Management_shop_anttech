@@ -224,59 +224,107 @@ class Donhang extends controller
 
     public function get_order_details($id)
     {
-        // Lấy thông tin chi tiết món
-        $raw_details = $this->ctdh->ChiTietDonHang_getByOrderId($id);
+        try {
+            // Lấy thông tin chi tiết món
+            $raw_details = $this->ctdh->ChiTietDonHang_getByOrderId($id);
 
-        // Lấy thông tin chung đơn hàng (để lấy ghi chú)
-        $raw_order = $this->dh->DonHang_getById($id);
+            // Lấy thông tin chung đơn hàng (để lấy ghi chú và thông tin khác)
+            $raw_order = $this->dh->DonHang_getById($id);
 
-        // --- Chuyển dữ liệu sang mảng ---
-        $details_arr = [];
-        $error_message = null;
+            // Lấy thông tin người dùng và địa chỉ giao hàng
+            $order_info = $this->dh->DonHang_getById($id);
 
-        if ($raw_details === false) {
-            // Nếu truy vấn thất bại, lưu lỗi
-            $error_message = mysqli_error($this->ctdh->con);
-        } else if ($raw_details) {
-            while ($row = mysqli_fetch_assoc($raw_details)) {
-                // Map dữ liệu để JavaScript dễ đọc
-                $row['ten_san_pham'] = $row['ten_san_pham'] ?? $row['ten_bien_the'] ?? 'Sản phẩm không xác định';
-                $row['ten_mon'] = $row['ten_san_pham'];
-                $row['img_san_pham'] = $row['img_hinh_anh'] ?? '';
+            // --- Chuyển dữ liệu sang mảng ---
+            $details_arr = [];
+            $error_message = null;
 
-                // Đảm bảo các trường giá trị luôn có mặt
-                $row['gia_tai_thoi_diem_dat'] = $row['gia_luc_mua'] ?? 0;
-                $row['so_luong'] = $row['so_luong'] ?? 0;
+            if ($raw_details === false) {
+                // Nếu truy vấn thất bại, lưu lỗi
+                $error_message = mysqli_error($this->ctdh->con);
+            } else if ($raw_details) {
+                while ($row = mysqli_fetch_assoc($raw_details)) {
+                    // Map dữ liệu để JavaScript dễ đọc
+                    $row['ten_san_pham'] = $row['ten_san_pham'] ?? $row['ten_bien_the'] ?? 'Sản phẩm không xác định';
+                    $row['ten_mon'] = $row['ten_san_pham'];
+                    $row['img_san_pham'] = $row['img_hinh_anh'] ?? '';
 
-                $details_arr[] = $row;
+                    // Đảm bảo các trường giá trị luôn có mặt
+                    $row['gia_tai_thoi_diem_dat'] = $row['gia_luc_mua'] ?? 0;
+                    $row['so_luong'] = $row['so_luong'] ?? 0;
+
+                    $details_arr[] = $row;
+                }
             }
+
+            // Lấy thông tin đơn hàng chính
+            $order_data = null;
+            if ($order_info && mysqli_num_rows($order_info) > 0) {
+                $order_data = mysqli_fetch_assoc($order_info);
+            }
+
+            // Lấy thông tin người dùng
+            $user_info = null;
+            if (isset($order_data['ma_user'])) {
+                $user_result = $this->user->Users_getById($order_data['ma_user']);
+                if ($user_result && mysqli_num_rows($user_result) > 0) {
+                    $user_info = mysqli_fetch_assoc($user_result);
+                }
+            }
+
+            // Lấy thông tin địa chỉ giao hàng
+            $address_info = null;
+            if (isset($order_data['ma_dia_chi'])) {
+                $address_result = $this->dc->DiaChiGiaoHang_getById($order_data['ma_dia_chi']);
+                if ($address_result && mysqli_num_rows($address_result) > 0) {
+                    $address_info = mysqli_fetch_assoc($address_result);
+                }
+            }
+
+            // Lấy thông tin khuyến mãi
+            $promotion_info = null;
+            if (isset($order_data['ma_khuyen_mai']) && !empty($order_data['ma_khuyen_mai'])) {
+                $promotion_result = $this->km->KhuyenMai_getById($order_data['ma_khuyen_mai']);
+                if ($promotion_result && mysqli_num_rows($promotion_result) > 0) {
+                    $promotion_info = mysqli_fetch_assoc($promotion_result);
+                }
+            }
+
+            // --- Trả về JSON ---
+            $result = [
+                'order_details' => $details_arr,
+                'order_info' => $order_data,
+                'user_info' => $user_info,
+                'address_info' => $address_info,
+                'promotion_info' => $promotion_info,
+                'order_notes'   => $order_data['ghi_chu'] ?? '',
+                'debug_info' => [
+                    'order_id' => $id,
+                    'details_count' => count($details_arr),
+                    'has_raw_details' => $raw_details !== false,
+                    'has_order' => $order_info !== false && mysqli_num_rows($order_info) > 0,
+                    'error_message' => $error_message,
+                    'query_success' => $raw_details !== false
+                ]
+            ];
+
+            // Xóa bộ nhớ đệm để tránh lỗi JSON
+            if (ob_get_length()) ob_clean();
+
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($result);
+        } catch (Exception $e) {
+            // Trả về lỗi nếu có exception
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'order_details' => [],
+                'order_info' => null,
+                'user_info' => null,
+                'address_info' => null,
+                'promotion_info' => null,
+                'order_notes' => ''
+            ]);
         }
-
-        $order_note = '';
-        if ($raw_order && mysqli_num_rows($raw_order) > 0) {
-            $order_data = mysqli_fetch_assoc($raw_order);
-            $order_note = $order_data['ghi_chu'] ?? '';
-        }
-
-        // --- Trả về JSON ---
-        $result = [
-            'order_details' => $details_arr,
-            'order_notes'   => $order_note,
-            'debug_info' => [
-                'order_id' => $id,
-                'details_count' => count($details_arr),
-                'has_raw_details' => $raw_details !== false,
-                'has_order' => $raw_order !== false && mysqli_num_rows($raw_order) > 0,
-                'error_message' => $error_message,
-                'query_success' => $raw_details !== false
-            ]
-        ];
-
-        // Xóa bộ nhớ đệm để tránh lỗi JSON
-        if (ob_get_length()) ob_clean();
-
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($result);
         exit();
     }
 
@@ -318,5 +366,40 @@ class Donhang extends controller
             'order_details' => $details_arr,
             'tong_tien' => $tong_tien
         ]);
+    }
+
+    // Phương thức cập nhật trạng thái đơn hàng
+    public function update_status()
+    {
+        // Kiểm tra phương thức POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Phương thức không hợp lệ']);
+            exit();
+        }
+
+        // Lấy dữ liệu JSON từ request
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!$input || !isset($input['orderId']) || !isset($input['status'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit();
+        }
+
+        $orderId = $input['orderId'];
+        $status = $input['status'];
+
+        // Cập nhật trạng thái đơn hàng
+        $result = $this->dh->DonHang_updateStatus($orderId, $status);
+
+        if ($result) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Cập nhật thất bại']);
+        }
+        exit();
     }
 }

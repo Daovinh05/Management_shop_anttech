@@ -50,7 +50,8 @@ class ChiTietDonHang_m extends connectDB
         // Sử dụng hàm escape string để tránh lỗi SQL Injection
         $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
 
-        $sql = "SELECT ctdh.*, bt.ten_bien_the, bt.mau_sac, bt.ram, bt.dung_luong, sp.ten_san_pham, sp.img_hinh_anh
+        // Trong database của bạn, cột ảnh là img_bien_the trong bảng bien_the
+        $sql = "SELECT ctdh.*, bt.ten_bien_the, bt.mau_sac, bt.ram, bt.dung_luong, sp.ten_san_pham, bt.img_bien_the as img_hinh_anh
                 FROM chi_tiet_don_hang ctdh
                 LEFT JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
