@@ -1076,7 +1076,7 @@
                                         </div>
                                         <div class="payment-row total">
                                             <span class="total-label">TỔNG THANH TOÁN:</span>
-                                            <span class="total-price">${parseInt(data.order_info?.tong_tien_hang || 0).toLocaleString('vi-VN')}đ</span>
+                                            <span class="total-price">${parseInt(data.order_info?.thanh_toan || 0).toLocaleString('vi-VN')}đ</span>
                                         </div>
                                     </div>
                                 </div>`;
@@ -1091,7 +1091,7 @@
                                 let gia = parseFloat(item.gia_tai_thoi_diem_dat || item.gia_luc_mua || 0);
                                 
                                 
-                                let imgName = item.img || item.hinh_anh; 
+                                let imgName = item.img_hinh_anh; 
                                 
                                 // [SỬA LỖI 2]: Kiểm tra đường dẫn. Thường ảnh biến thể nằm trong folder 'bien_the'
                                 // Nếu web của bạn để ảnh trong 'products' thì sửa 'bien_the' thành 'products'
