@@ -194,7 +194,7 @@
             color: var(--primary-green);
         }
 
-        .search-box {
+        /* .search-box {
             flex-grow: 1;
             display: flex;
             border: 2px solid var(--border-color);
@@ -222,6 +222,52 @@
 
         .search-box button:hover {
             color: var(--primary-green);
+        } */
+        .search-box {
+            flex-grow: 1;
+            height: 40px;
+        }
+
+        .search-box form {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .search-box input {
+            flex: 1;
+            /* chiếm toàn bộ phần còn lại */
+            border: none;
+            padding: 0 15px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            width: 150px;
+            /* cố định ở góc phải */
+            border: none;
+            background: white;
+            cursor: pointer;
+            border-left: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-gray);
+            background-color: #afe5dd;
+
+        }
+
+        .search-box button:hover {
+            background: #bdd8be;
+        }
+
+        .search-btn-text {
+            margin-left: 5px;
+            font-weight: 600;
         }
 
         .header-actions {
@@ -769,13 +815,20 @@
                 TECHZONE</a>
 
             <div class="middle-section">
-                <!-- <div class="category-dropdown"><button><i class="fa-solid fa-bars"></i> Danh mục</button></div> -->
                 <div class="search-box">
                     <form action="<?php echo $this->url('Khachhang/timkiem'); ?>" method="GET">
-                        <input type="text" name="q" placeholder="Hôm nay bạn muốn tìm kiếm gì?" value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>">
-                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Hôm nay bạn muốn tìm kiếm gì?"
+                            value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>">
+                        <button type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span class="search-btn-text">Tìm kiếm ngay </span>
+                        </button>
                     </form>
                 </div>
+
             </div>
 
             <div class="header-actions">
@@ -838,7 +891,7 @@
             if (isset($data['page'])) {
                 $pageName = basename($data['page'], '.php');
 
-                switch($pageName) {
+                switch ($pageName) {
                     case 'khachhang_home':
                         $currentPage = 'Trang chủ';
                         break;

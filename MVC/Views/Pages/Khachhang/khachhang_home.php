@@ -194,36 +194,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         color: var(--primary-green);
     }
 
-    /* Thanh tìm kiếm */
-    .search-box {
-        flex-grow: 1;
-        display: flex;
-        border: 2px solid var(--border-color);
-        border-radius: 4px;
-        overflow: hidden;
-        height: 40px;
-    }
-
-    .search-box input {
-        flex-grow: 1;
-        border: none;
-        padding: 0 15px;
-        outline: none;
-        font-size: 14px;
-    }
-
-    .search-box button {
-        background: white;
-        border: none;
-        padding: 0 20px;
-        color: var(--text-gray);
-        cursor: pointer;
-        border-left: 1px solid #eee;
-    }
-
-    .search-box button:hover {
-        color: var(--primary-green);
-    }
 
     .popular-keywords {
         margin-top: 5px;
