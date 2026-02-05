@@ -1034,8 +1034,8 @@
                                     <div class="card customer-info">
                                         <div class="avatar">
                                             ${data.user_info?.avatar ? 
-                                              `<img src="/Banhang/Public/Pictures/users/${data.user_info.avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : 
-                                              `<i class="fa-solid fa-user"></i>`
+                                            `<img src="/Banhang/Public/Pictures/users/${data.user_info.avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : 
+                                            `<i class="fa-solid fa-user"></i>`
                                             }
                                         </div>
                                         <div class="customer-name">${data.user_info?.full_name || 'Khách hàng'}</div>

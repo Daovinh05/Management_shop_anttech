@@ -877,6 +877,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             margin-top: 10px;
             display: block;
         }
+        .adress_detail{
+            background-color: rgb(231, 213, 231);
+        }
     </style>
 </head>
 
@@ -913,11 +916,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
 
     // Extract address information (using default address if available)
-    $dia_chi_text = '';
+    $dia_chi_value = ''; // Just the address string
+    $dia_chi_text = ''; // Full address with name and phone
     if ($dia_chi && mysqli_num_rows($dia_chi) > 0) {
         mysqli_data_seek($dia_chi, 0); // Reset pointer to beginning
         while ($dc = mysqli_fetch_assoc($dia_chi)) {
             if ($dc['mac_dinh'] == 1) { // Default address
+                $dia_chi_value = $dc['dia_chi'];
                 $dia_chi_text = $dc['dia_chi'] . ', ' . $dc['ho_ten'] . ', ' . $dc['so_dien_thoai'];
                 break;
             }
@@ -927,9 +932,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         if (empty($dia_chi_text)) {
             mysqli_data_seek($dia_chi, 0); // Reset pointer to beginning
             $first_dc = mysqli_fetch_assoc($dia_chi);
+            $dia_chi_value = $first_dc['dia_chi'];
             $dia_chi_text = $first_dc['dia_chi'] . ', ' . $first_dc['ho_ten'] . ', ' . $first_dc['so_dien_thoai'];
         }
     } else {
+        $dia_chi_value = 'Chưa có địa chỉ giao hàng';
         $dia_chi_text = 'Chưa có địa chỉ giao hàng';
     }
     ?>
@@ -965,12 +972,16 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <span class="info-label">Số điện thoại</span>
                         <span class="info-value"><?php echo htmlspecialchars($so_dien_thoai); ?></span>
                     </div>
-                      <div class="info-row">
+                    <div class="info-row">
                         <span class="info-label">Email</span>
                         <span class="info-value"><?php echo htmlspecialchars($email); ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Địa chỉ</span>
+                        <span class="info-value"><?php echo htmlspecialchars($dia_chi_value); ?></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Thông tin chi tiết</span>
                         <span class="info-value"><?php echo htmlspecialchars(is_string($dia_chi_text) ? $dia_chi_text : ''); ?></span>
                     </div>
 
@@ -1010,6 +1021,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         <input type="text" name="txtFullName" id="form-fullname" value="">
         <input type="text" name="txtSoDienThoai" id="form-phone" value="">
         <input type="password" name="txtPassword" id="form-password" value="">
+        <input type="email" name="txtDiaChi" id="form-diaChi" value="">
     </form>
 
     <!-- Password Change Modal -->
@@ -1095,6 +1107,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <input type="text" class="modal-input" id="modal-email"
                             value="<?php echo htmlspecialchars($email); ?>">
                     </div>
+                     <div class="modal-form-group">
+                        <label class="modal-label">ĐỊA CHỈ</label>
+                        <input type="text" class="modal-input" id="modal-diaChi"
+                            value="<?php echo htmlspecialchars($dia_chi_value); ?>">
+                    </div>
 
                     <!-- <div class="modal-form-group">
                         <label class="modal-label">ĐỊA CHỈ GIAO HÀNG</label>
@@ -1141,10 +1158,10 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         </div>
                     </div> -->
 
-                    <div class="modal-form-group">
-                        <label class="modal-label">ĐỊA CHỈ CHI TIẾT</label>
-                        <input type="text" class="modal-input" id="modal-address-detail"
-                            value="<?php echo htmlspecialchars($dia_chi_text); ?>">
+                    <div class="modal-form-group detail-address-group">
+                        <label class="modal-label">Hiển thị thông tin chi tiết</label> 
+                        <input type="text" class="modal-input adress_detail" id="modal-address-detail"
+                            value="<?php echo htmlspecialchars($dia_chi_text); ?>" readonly>
                     </div>
 
                     <button class="btn-save" onclick="saveChanges()">LƯU THAY ĐỔI</button>
@@ -1182,8 +1199,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             const phoneElement = document.getElementById('modal-phone');
             const emailElement = document.getElementById('modal-email');
             const avatarInputElement = document.getElementById('avatar-input');
+            const addressElement = document.getElementById('modal-diaChi');  // Fixed variable name
             
-            if (!fullnameElement || !phoneElement || !emailElement || !avatarInputElement) {
+            if (!fullnameElement || !phoneElement || !emailElement || !avatarInputElement || !addressElement) {
                 console.error('One or more form elements not found');
                 alert('Không tìm thấy các trường cần thiết để cập nhật thông tin!');
                 return;
@@ -1193,6 +1211,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             const fullname = fullnameElement.value;
             const phone = phoneElement.value;
             const email = emailElement.value;
+            const address = addressElement.value;   
 
             // Create a FormData object to handle file upload along with other data
             const formData = new FormData();
@@ -1202,6 +1221,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             formData.append('txtFullName', fullname);
             formData.append('txtSoDienThoai', phone);
             formData.append('txtEmail', email);
+            formData.append('txtDiaChi', address);
             
             // Add avatar file if selected
             if (avatarInputElement.files.length > 0) {

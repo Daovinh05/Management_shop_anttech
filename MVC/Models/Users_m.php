@@ -133,13 +133,60 @@ class Users_m extends connectDB
     }
     
     // Cập nhật thông tin hồ sơ người dùng (chỉ cập nhật các trường cần thiết)
-    function Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $avatar = null)
+    function Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $dia_chi = null, $avatar = null)
     {
+        // Update the users table
         if ($avatar !== null && !empty($avatar)) {
-            $sql = "UPDATE users SET full_name = '$full_name', so_dien_thoai = '$so_dien_thoai', email = '$email', avatar = '$avatar' WHERE ma_user = '$ma_user'";
+            $sql_users = "UPDATE users SET full_name = '$full_name', so_dien_thoai = '$so_dien_thoai', email = '$email', avatar = '$avatar' WHERE ma_user = '$ma_user'";
         } else {
-            $sql = "UPDATE users SET full_name = '$full_name', so_dien_thoai = '$so_dien_thoai', email = '$email' WHERE ma_user = '$ma_user'";
+            $sql_users = "UPDATE users SET full_name = '$full_name', so_dien_thoai = '$so_dien_thoai', email = '$email' WHERE ma_user = '$ma_user'";
         }
-        return mysqli_query($this->con, $sql);
+        
+        $result_users = mysqli_query($this->con, $sql_users);
+        
+        // If address is provided, update or insert address in dia_chi_giao_hang table
+        if ($dia_chi !== null && !empty($dia_chi)) {
+            // Check if user already has a default address
+            $check_sql = "SELECT ma_dia_chi FROM dia_chi_giao_hang WHERE ma_user = '$ma_user' AND mac_dinh = 1";
+            $check_result = mysqli_query($this->con, $check_sql);
+            
+            if (mysqli_num_rows($check_result) > 0) {
+                // Update existing default address
+                $update_address_sql = "UPDATE dia_chi_giao_hang SET dia_chi = '$dia_chi' WHERE ma_user = '$ma_user' AND mac_dinh = 1";
+                $result_address = mysqli_query($this->con, $update_address_sql);
+            } else {
+                // Insert new address as default (mac_dinh = 1)
+                // First, check if any address exists for this user
+                $any_address_sql = "SELECT ma_dia_chi FROM dia_chi_giao_hang WHERE ma_user = '$ma_user' LIMIT 1";
+                $any_result = mysqli_query($this->con, $any_address_sql);
+                
+                if (mysqli_num_rows($any_result) > 0) {
+                    // If user has addresses but none is default, update the first one to be default
+                    $row = mysqli_fetch_assoc($any_result);
+                    $existing_ma_dia_chi = $row['ma_dia_chi'];
+                    $update_address_sql = "UPDATE dia_chi_giao_hang SET dia_chi = '$dia_chi' WHERE ma_dia_chi = '$existing_ma_dia_chi'";
+                    $result_address = mysqli_query($this->con, $update_address_sql);
+                } else {
+                    // Generate new address ID
+                    $get_new_id_sql = "SELECT CONCAT('DC', LPAD(COALESCE(MAX(CAST(SUBSTRING(ma_dia_chi, 3) AS UNSIGNED)), 0) + 1, 2, '0')) as new_id FROM dia_chi_giao_hang";
+                    $id_result = mysqli_query($this->con, $get_new_id_sql);
+                    $id_row = mysqli_fetch_assoc($id_result);
+                    $new_ma_dia_chi = $id_row['new_id'];
+                    
+                    // If no previous records exist, start with DC01
+                    if (!$new_ma_dia_chi) {
+                        $new_ma_dia_chi = 'DC01';
+                    }
+                    
+                    $insert_address_sql = "INSERT INTO dia_chi_giao_hang (ma_dia_chi, ma_user, ho_ten, so_dien_thoai, dia_chi, mac_dinh) VALUES ('$new_ma_dia_chi', '$ma_user', '$full_name', '$so_dien_thoai', '$dia_chi', 1)";
+                    $result_address = mysqli_query($this->con, $insert_address_sql);
+                }
+            }
+        } else {
+            $result_address = true; // No address to update, consider successful
+        }
+        
+        // Return true only if both operations succeeded
+        return $result_users && $result_address;
     }
 }

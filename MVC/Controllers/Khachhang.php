@@ -928,6 +928,7 @@ class Khachhang extends controller
             $ten_user = $_POST['txtTenUser'] ?? '';
             $full_name = $_POST['txtFullName'] ?? '';
             $email = $_POST['txtEmail'] ?? '';
+            $dia_chi = $_POST['txtDiaChi'] ?? '';
             $so_dien_thoai = $_POST['txtSoDienThoai'] ?? '';
 
             // Xử lý upload avatar nếu có
@@ -992,7 +993,7 @@ class Khachhang extends controller
             }
 
             // Cập nhật thông tin người dùng (chỉ cập nhật những trường cần thiết)
-            $result = $this->user->Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $avatar);
+            $result = $this->user->Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $dia_chi, $avatar);
 
             if ($result) {
                 // Trả về kết quả thành công theo định dạng JSON
