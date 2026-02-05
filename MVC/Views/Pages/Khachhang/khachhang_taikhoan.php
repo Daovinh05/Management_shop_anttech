@@ -943,7 +943,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     <h1>Chào <?php echo htmlspecialchars($full_name); ?></h1>
                     <div class="member-date">Tài khoản được tạo vào ngày <?php echo $ngay_tao; ?></div>
                 </div>
-                <img src="https://cdn-icons-png.flaticon.com/512/4710/4710926.png" alt="Mascot" class="mascot-img2">
+                <?php
+                if ($user && !empty($user['avatar'])) {
+                    echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($user['avatar']) . '" alt="Avatar" style="width: 60px; height: 60px; 
+       border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
+                } else {
+                    echo '<i class="fa-regular fa-user" style="vertical-align: middle;"></i>';
+                }
+                ?>
             </div>
 
             <div class="profile-grid">

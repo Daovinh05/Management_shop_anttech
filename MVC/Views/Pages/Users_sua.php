@@ -67,7 +67,7 @@
 
     <main class="card">
         <h1>Sửa thông tin User</h1>
-        <form method="post" action="http://localhost/Banhang/Users/update">
+        <form method="post" action="http://localhost/Banhang/Users/update" enctype="multipart/form-data">
             <div>
                 <label>Mã user</label>
                 <input type="text" name="txtMauser" readonly
@@ -114,6 +114,17 @@
                         Khách hàng
                     </option>
                 </select>
+            </div>
+            <div>
+                <label>Avatar</label>
+                <input type="file" name="txtAvatar" accept="image/*" />
+                <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
+                    <div style="margin-top: 10px;">
+                        <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
+                             alt="Avatar người dùng" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                        <p>Chọn file mới để thay đổi avatar</p>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="actions">

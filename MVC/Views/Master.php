@@ -128,15 +128,64 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                 <div class="user-info">
                     <?php if (isset($_SESSION['user_name'])): ?>
                         <span>
-                            Xin chào: <?php echo htmlspecialchars($_SESSION['user_name']); ?>
+                            Xin chào: 
+                            <?php
+                            if (isset($_SESSION['user_id'])) {
+                                // Kết nối database để lấy full_name
+                                $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                                if ($conn) {
+                                    $user_id = $_SESSION['user_id'];
+                                    $query = "SELECT full_name FROM users WHERE ma_user = '$user_id'";
+                                    $result = mysqli_query($conn, $query);
+                                    if ($result && $row = mysqli_fetch_assoc($result)) {
+                                        if (!empty($row['full_name'])) {
+                                            echo htmlspecialchars($row['full_name']);
+                                        } else {
+                                            // Nếu không có full_name, hiển thị user_name
+                                            echo htmlspecialchars($_SESSION['user_name']);
+                                        }
+                                    } else {
+                                        echo htmlspecialchars($_SESSION['user_name']);
+                                    }
+                                    mysqli_close($conn);
+                                } else {
+                                    echo htmlspecialchars($_SESSION['user_name']);
+                                }
+                            } else {
+                                echo 'Người dùng';
+                            }
+                            ?>
                             <?php if (isset($_SESSION['user_role'])): ?>
                                 <span
                                     class="user-role">(<?php echo $_SESSION['user_role'] == 'admin' ? 'Quản trị viên' : 'Khách hàng'; ?>)</span>
                             <?php endif; ?>
                         </span>
                         <div class="avatar">
-                            <img src="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png'; ?>"
-                                alt="Avatar">
+                            <?php
+                            if (isset($_SESSION['user_id'])) {
+                                // Kết nối database để lấy avatar
+                                $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                                if ($conn) {
+                                    $user_id = $_SESSION['user_id'];
+                                    $query = "SELECT avatar FROM users WHERE ma_user = '$user_id'";
+                                    $result = mysqli_query($conn, $query);
+                                    if ($result && $row = mysqli_fetch_assoc($result)) {
+                                        if (!empty($row['avatar'])) {
+                                            echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">';
+                                        } else {
+                                            echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                        }
+                                    } else {
+                                        echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                    }
+                                    mysqli_close($conn);
+                                } else {
+                                    echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                }
+                            } else {
+                                echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                            }
+                            ?>
                         </div>
                     <?php endif; ?>
                 </div>

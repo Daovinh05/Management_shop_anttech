@@ -833,11 +833,54 @@
 
             <div class="header-actions">
                 <div class="action-item" id="accountBtn">
-                    <i class="fa-regular fa-user"></i>
+                    <?php
+                    if (isset($_SESSION['user_id'])) {
+                        // Kết nối database để lấy avatar
+                        $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                        if ($conn) {
+                            $user_id = $_SESSION['user_id'];
+                            $query = "SELECT avatar FROM users WHERE ma_user = '$user_id'";
+                            $result = mysqli_query($conn, $query);
+                            if ($result && $row = mysqli_fetch_assoc($result)) {
+                                if (!empty($row['avatar'])) {
+                                    echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
+                                } else {
+                                    echo '<i class="fa-regular fa-user" style="vertical-align: middle;"></i>';
+                                }
+                            } else {
+                                echo '<i class="fa-regular fa-user"></i>';
+                            }
+                            mysqli_close($conn);
+                        } else {
+                            echo '<i class="fa-regular fa-user"></i>';
+                        }
+                    } else {
+                        echo '<i class="fa-regular fa-user"></i>';
+                    }
+                    ?>
                     <span>
                         <?php
-                        if (isset($_SESSION['user_name'])) {
-                            echo htmlspecialchars($_SESSION['user_name']);
+                        if (isset($_SESSION['user_id'])) {
+                            // Kết nối database để lấy full_name
+                            $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                            if ($conn) {
+                                $user_id = $_SESSION['user_id'];
+                                $query = "SELECT full_name FROM users WHERE ma_user = '$user_id'";
+                                $result = mysqli_query($conn, $query);
+                                if ($result && $row = mysqli_fetch_assoc($result)) {
+                                    if (!empty($row['full_name'])) {
+                                        echo htmlspecialchars($row['full_name']);
+                                    } else {
+                                        // Nếu không có full_name, hiển thị user_name
+                                        echo htmlspecialchars($_SESSION['user_name']);
+                                    }
+                                } else {
+                                    echo htmlspecialchars($_SESSION['user_name']);
+                                }
+                                mysqli_close($conn);
+                            } else {
+                                echo htmlspecialchars($_SESSION['user_name']);
+                            }
                         } else {
                             echo 'Tài khoản';
                         }

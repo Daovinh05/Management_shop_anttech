@@ -2,9 +2,9 @@
 class Users_m extends connectDB
 {
 
-    function users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai)
+    function users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai, $avatar)
     {
-        $sql = "INSERT INTO users (ma_user, ten_user, full_name, password, email, phan_quyen, so_dien_thoai) VALUES ('$ma_user', '$ten_user', '$full_name', '$password', '$email', '$phan_quyen','$so_dien_thoai')";
+        $sql = "INSERT INTO users (ma_user, ten_user, full_name, password, email, phan_quyen, so_dien_thoai, avatar) VALUES ('$ma_user', '$ten_user', '$full_name', '$password', '$email', '$phan_quyen','$so_dien_thoai', '$avatar')";
         return mysqli_query($this->con, $sql);
     }
 
@@ -38,15 +38,29 @@ class Users_m extends connectDB
     }
 
 
-    function Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai)
+    function Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai, $avatar)
     {
-        $sql = "UPDATE users SET ten_user = '$ten_user', full_name = '$full_name', password = '$password', email = '$email', phan_quyen = '$phan_quyen', so_dien_thoai = '$so_dien_thoai' WHERE ma_user = '$ma_user'";
+        if ($avatar !== null) {
+            $sql = "UPDATE users SET ten_user = '$ten_user', full_name = '$full_name', password = '$password', email = '$email', phan_quyen = '$phan_quyen', so_dien_thoai = '$so_dien_thoai', avatar = '$avatar' WHERE ma_user = '$ma_user'";
+        } else {
+            $sql = "UPDATE users SET ten_user = '$ten_user', full_name = '$full_name', password = '$password', email = '$email', phan_quyen = '$phan_quyen', so_dien_thoai = '$so_dien_thoai' WHERE ma_user = '$ma_user'";
+        }
         return mysqli_query($this->con, $sql);
     }
 
 
     function Users_delete($ma_user)
     {
+        // Xóa avatar liên quan trước khi xóa user
+        $getImageSql = "SELECT avatar FROM users WHERE ma_user = '$ma_user'";
+        $result = mysqli_query($this->con, $getImageSql);
+        if ($result && $row = mysqli_fetch_assoc($result)) {
+            $imagePath = __DIR__ . '/../Public/Pictures/users/' . $row['avatar'];
+            if (!empty($row['avatar']) && file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+
         $sql = "DELETE FROM users WHERE ma_user = '$ma_user'";
         return mysqli_query($this->con, $sql);
     }
@@ -101,7 +115,7 @@ class Users_m extends connectDB
     }
 
     // Hàm tạo user mới với mã user tự động tăng U01, U02, ...U10 nhé dùng cho đăng ký
-    function createUser($username, $email,  $full_name, $password, $role, $so_dien_thoai)
+    function createUser($username, $email,  $full_name, $password, $role, $so_dien_thoai, $avatar = '')
     {
         $sql_max = "SELECT ma_user FROM users WHERE ma_user LIKE 'U%' ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC LIMIT 1";
         $result = mysqli_query($this->con, $sql_max);
@@ -114,7 +128,7 @@ class Users_m extends connectDB
         }
         $ma_user = 'U' . str_pad($next_id, 2, '0', STR_PAD_LEFT);
 
-        $sql = "INSERT INTO users (ma_user, ten_user, email, full_name, password, phan_quyen, so_dien_thoai) VALUES ('$ma_user', '$username', '$email', '$full_name', '$password', '$role', '$so_dien_thoai')";
+        $sql = "INSERT INTO users (ma_user, ten_user, email, full_name, password, phan_quyen, so_dien_thoai, avatar) VALUES ('$ma_user', '$username', '$email', '$full_name', '$password', '$role', '$so_dien_thoai', '$avatar')";
         return mysqli_query($this->con, $sql);
     }
 }

@@ -63,7 +63,7 @@
     <div class="card">
         <h1>Thêm mới User</h1>
         <p class="lead">Nhập thông tin user mới.</p>
-        <form method="post" action="http://localhost/Banhang/Users/ins">
+        <form method="post" action="http://localhost/Banhang/Users/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã user <span style="color:red">*</span></label>
                 <input type="text" name="txtMauser" required
@@ -109,6 +109,16 @@
                         Khách hàng
                     </option>
                 </select>
+            </div>
+            <div>
+                <label>Avatar</label>
+                <input type="file" name="txtAvatar" accept="image/*" />
+                <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
+                    <div style="margin-top: 10px;">
+                        <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
+                             alt="Avatar người dùng" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="actions">

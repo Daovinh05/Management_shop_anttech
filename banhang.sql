@@ -444,6 +444,7 @@ CREATE TABLE `users` (
   `email` varchar(55) DEFAULT NULL,
   `phan_quyen` enum('admin','khach_hang') NOT NULL DEFAULT 'khach_hang',
   `so_dien_thoai` varchar(20) DEFAULT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
   `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

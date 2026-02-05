@@ -39,7 +39,8 @@ class Users extends controller
             'ten_user' => '',
             'password' => '',
             'email' => '',
-            'phan_quyen' => 'nhan_vien'
+            'phan_quyen' => 'nhan_vien',
+            'avatar' => ''
         ]);
     }
 
@@ -53,6 +54,44 @@ class Users extends controller
             $email = $_POST['txtEmail'];
             $phan_quyen = $_POST['ddlPhanquyen'];
             $so_dien_thoai = $_POST['txtSoDienThoai'] ?? ''; // Phone number field
+
+            // Xử lý upload avatar
+            $avatar = '';
+            if (isset($_FILES['txtAvatar']) && $_FILES['txtAvatar']['error'] == 0) {
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $filename = $_FILES['txtAvatar']['name'];
+                $filetmp = $_FILES['txtAvatar']['tmp_name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+                if (in_array($ext, $allowed)) {
+                    // Làm sạch tên tệp gốc
+                    $original_name = pathinfo($filename, PATHINFO_FILENAME);
+                    $original_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $original_name);
+                    $original_name = str_replace('-', '_', $original_name);
+                    $new_filename = $original_name . '_' . time() . '.' . $ext;
+
+                    // Tạo thư mục nếu chưa tồn tại - sử dụng đường dẫn tuyệt đối từ thư mục gốc của ứng dụng
+                    $upload_dir = __DIR__ . '/../../Public/Pictures/users/';
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+
+                    // Sử dụng đường dẫn tuyệt đối đến thư mục Public/Pictures/users
+                    $upload_path = $upload_dir . $new_filename;
+
+                    if (move_uploaded_file($filetmp, $upload_path)) {
+                        $avatar = $new_filename; // Chỉ lưu tên tệp vào DB
+                    } else {
+                        echo "<script>alert('Upload avatar thất bại!');</script>";
+                        $this->themmoi();
+                        return;
+                    }
+                } else {
+                    echo "<script>alert('Định dạng avatar không hợp lệ!');</script>";
+                    $this->themmoi();
+                    return;
+                }
+            }
 
             if ($ma_user == '') {
                 echo "<script>alert('Mã user không được rỗng!')</script>";
@@ -71,7 +110,8 @@ class Users extends controller
                         'password' => $password,
                         'email' => $email,
                         'phan_quyen' => $phan_quyen,
-                        'so_dien_thoai' => ''
+                        'so_dien_thoai' => '',
+                        'avatar' => $avatar
                     ]);
                     return;
                 }
@@ -86,7 +126,8 @@ class Users extends controller
                         'password' => $password,
                         'email' => $email,
                         'phan_quyen' => $phan_quyen,
-                        'so_dien_thoai' => $so_dien_thoai
+                        'so_dien_thoai' => $so_dien_thoai,
+                        'avatar' => $avatar
                     ]);
                 } else if (mysqli_num_rows($checkEmail) > 0) {
                     echo "<script>alert('Email đã được sử dụng!')</script>";
@@ -98,11 +139,12 @@ class Users extends controller
                         'password' => $password,
                         'email' => '',
                         'phan_quyen' => $phan_quyen,
-                        'so_dien_thoai' => $so_dien_thoai
+                        'so_dien_thoai' => $so_dien_thoai,
+                        'avatar' => $avatar
                     ]);
                     return;
                 } else {
-                    $kq = $this->user->users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai);
+                    $kq = $this->user->users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai, $avatar);
                     if ($kq) {
                         echo "<script>alert('Thêm mới thành công!')</script>";
                         $this->danhsach();
@@ -116,7 +158,8 @@ class Users extends controller
                             'password' => $password,
                             'email' => $email,
                             'phan_quyen' => $phan_quyen,
-                            'so_dien_thoai' => $so_dien_thoai
+                            'so_dien_thoai' => $so_dien_thoai,
+                            'avatar' => $avatar
                         ]);
                     }
                 }
@@ -198,7 +241,8 @@ class Users extends controller
             'password' => $row['password'],
             'email' => $row['email'],
             'phan_quyen' => $row['phan_quyen'],
-            'so_dien_thoai' => $row['so_dien_thoai']
+            'so_dien_thoai' => $row['so_dien_thoai'],
+            'avatar' => $row['avatar']
         ]);
     }
 
@@ -213,13 +257,62 @@ class Users extends controller
             $phan_quyen = $_POST['ddlPhanquyen'];
             $so_dien_thoai = $_POST['txtSoDienThoai'] ?? '';
 
+            // Lấy avatar hiện tại từ database trước
+            $current_record = $this->user->Users_getById($ma_user);
+            $current_row = mysqli_fetch_array($current_record);
+            $avatar = $current_row['avatar']; // Giữ avatar hiện tại mặc định
+
+            // Xử lý upload avatar mới (nếu có)
+            if (isset($_FILES['txtAvatar']) && $_FILES['txtAvatar']['error'] == 0) {
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $filename = $_FILES['txtAvatar']['name'];
+                $filetmp = $_FILES['txtAvatar']['tmp_name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+                if (in_array($ext, $allowed)) {
+                    // Làm sạch tên tệp gốc
+                    $original_name = pathinfo($filename, PATHINFO_FILENAME);
+                    $original_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $original_name); // Chỉ giữ các ký tự an toàn
+                    $original_name = str_replace('-', '_', $original_name); // Thay thế dấu gạch nối bằng dấu gạch dưới
+                    $new_filename = $original_name . '_' . time() . '.' . $ext;
+
+                    // Tạo thư mục nếu chưa tồn tại - sử dụng đường dẫn tuyệt đối từ thư mục gốc của ứng dụng
+                    $upload_dir = __DIR__ . '/../../Public/Pictures/users/';
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+
+                    // Sử dụng đường dẫn tuyệt đối đến thư mục Public/Pictures/users
+                    $upload_path = $upload_dir . $new_filename;
+
+                    if (move_uploaded_file($filetmp, $upload_path)) {
+                        // Xóa avatar cũ nếu tồn tại
+                        $old_image_path = __DIR__ . '/../../Public/Pictures/users/' . $current_row['avatar'];
+                        if (!empty($current_row['avatar']) && file_exists($old_image_path) && strpos($old_image_path, '/Public/Pictures/users/') !== false) {
+                            unlink($old_image_path);
+                        }
+
+                        $avatar = $new_filename; // Chỉ lưu tên tệp vào DB
+                    } else {
+                        echo "<script>alert('Upload avatar thất bại!');</script>";
+                        $this->sua($ma_user);
+                        return;
+                    }
+                } else {
+                    echo "<script>alert('Định dạng avatar không hợp lệ!');</script>";
+                    $this->sua($ma_user);
+                    return;
+                }
+            }
+            // Nếu không có file upload mới, giữ nguyên avatar hiện tại (đã được lấy ở trên)
+
             $check = $this->user->checktrungEmail($email, $ma_user);
             if (mysqli_num_rows($check) > 0) {
                 echo "<script>alert('Email đã được sử dụng bởi tài khoản khác!');history.back();</script>";
                 return;
             }
 
-            $kq = $this->user->Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai);
+            $kq = $this->user->Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai, $avatar);
             if ($kq)
                 echo "<script>alert('Cập nhật thành công!'); window.location='" . $this->url('Users/danhsach') . "';</script>";
             else

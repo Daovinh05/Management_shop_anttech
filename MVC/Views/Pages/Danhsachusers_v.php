@@ -274,6 +274,7 @@
                 <thead>
                     <tr>
                         <th>STT</th>
+                        <th>Avatar</th>
                         <th>Mã User</th>
                         <th>Họ tên</th>
                         <th>Account</th>
@@ -293,6 +294,15 @@
                         ?>
                     <tr>
                         <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
+                        </td>
+                        <td>
+                            <?php if (!empty($row['avatar'])): ?>
+                                <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($row['avatar']); ?>" 
+                                     alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <?php else: ?>
+                                <img src="https://via.placeholder.com/40x40/cccccc/666666?text=?" 
+                                     alt="No Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <?php endif; ?>
                         </td>
                         <td><span
                                 style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_user']) ?></span>
