@@ -965,9 +965,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <span class="info-label">Số điện thoại</span>
                         <span class="info-value"><?php echo htmlspecialchars($so_dien_thoai); ?></span>
                     </div>
+                      <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value"><?php echo htmlspecialchars($email); ?></span>
+                    </div>
                     <div class="info-row">
                         <span class="info-label">Địa chỉ</span>
-                        <span class="info-value"><?php echo htmlspecialchars($dia_chi_text); ?></span>
+                        <span class="info-value"><?php echo htmlspecialchars(is_string($dia_chi_text) ? $dia_chi_text : ''); ?></span>
                     </div>
 
                     <button class="btn-black-outline" onclick="openModal()">CẬP NHẬT</button>
@@ -1050,20 +1054,25 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
             <div class="modal-body">
                 <div class="avatar-section">
-                    <div class="avatar-circle">
-                        <?php
-                        $avatar_url = '/Banhang/Public/Images/avatar.png';
-                        $full_avatar_path = $_SERVER['DOCUMENT_ROOT'] . $avatar_url;
+                    <form method="post" action="http://localhost/Banhang/Khachhang/capnhatTaikhoan" enctype="multipart/form-data">
+                        <div class="avatar-container">
+                            <div class="avatar-circle" style="position: relative; display: inline-block;">
+                                <?php if ($user && !empty($user['avatar'])): ?>
+                                    <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($user['avatar'] ?? ''); ?>"
+                                         alt="Avatar người dùng" style="width: 160px; height: 140px; border-radius: 50%; object-fit: fill;" id="avatar-preview">
+                                <?php else: ?>
+                                    <img src="/Banhang/Public/Images/avatar.png"
+                                         alt="Avatar người dùng" style="width: 160px; height: 140px; border-radius: 50%; object-fit: fill;" id="avatar-preview">
+                                <?php endif; ?>
 
-                        if (file_exists($full_avatar_path)):
-                        ?>
-                            <img src="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $avatar_url; ?>"
-                                alt="Avatar">
-                        <?php else: ?>
-                            <img src="https://cdn-icons-png.flaticon.com/512/4710/4710926.png" alt="Avatar">
-                        <?php endif; ?>
-                        <div class="camera-btn"><i class="fa-solid fa-camera"></i></div>
-                    </div>
+                                <div class="camera-btn" id="camera-btn" style="position: absolute; bottom: 0; right: 0; background: #2463ff; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                    <i class="fa-solid fa-camera"></i>
+                                </div>
+                            </div>
+
+                            <input type="file" name="txtAvatar" id="avatar-input" accept="image/*" style="display: none;" />
+                        </div>
+                    </form>
                     <div class="avatar-label">ẢNH ĐẠI DIỆN</div>
                     <div class="avatar-hint">Bấm vào camera để thay đổi ảnh</div>
                 </div>
@@ -1080,8 +1089,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <input type="text" class="modal-input" id="modal-phone"
                             value="<?php echo htmlspecialchars($so_dien_thoai); ?>">
                     </div>
+                  
+                     <div class="modal-form-group">
+                        <label class="modal-label">Email</label>
+                        <input type="text" class="modal-input" id="modal-email"
+                            value="<?php echo htmlspecialchars($email); ?>">
+                    </div>
 
-                    <div class="modal-form-group">
+                    <!-- <div class="modal-form-group">
                         <label class="modal-label">ĐỊA CHỈ GIAO HÀNG</label>
                         <div class="address-row">
                             <div>
@@ -1124,7 +1139,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="modal-form-group">
                         <label class="modal-label">ĐỊA CHỈ CHI TIẾT</label>
@@ -1162,16 +1177,78 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
         // Function to save changes
         function saveChanges() {
+            // Get the form elements
+            const fullnameElement = document.getElementById('modal-fullname');
+            const phoneElement = document.getElementById('modal-phone');
+            const emailElement = document.getElementById('modal-email');
+            const avatarInputElement = document.getElementById('avatar-input');
+            
+            if (!fullnameElement || !phoneElement || !emailElement || !avatarInputElement) {
+                console.error('One or more form elements not found');
+                alert('Không tìm thấy các trường cần thiết để cập nhật thông tin!');
+                return;
+            }
+
             // Get updated values from the modal form
-            const fullname = document.getElementById('modal-fullname').value;
-            const phone = document.getElementById('modal-phone').value;
+            const fullname = fullnameElement.value;
+            const phone = phoneElement.value;
+            const email = emailElement.value;
 
-            // Update the hidden form fields
-            document.getElementById('form-fullname').value = fullname;
-            document.getElementById('form-phone').value = phone;
+            // Create a FormData object to handle file upload along with other data
+            const formData = new FormData();
+            
+            // Add text fields
+            formData.append('txtMaUser', '<?php echo $user['ma_user']; ?>');
+            formData.append('txtFullName', fullname);
+            formData.append('txtSoDienThoai', phone);
+            formData.append('txtEmail', email);
+            
+            // Add avatar file if selected
+            if (avatarInputElement.files.length > 0) {
+                formData.append('txtAvatar', avatarInputElement.files[0]);
+            }
 
-            // Submit the form
-            document.getElementById('updateUserInfoForm').submit();
+            // Log form data for debugging
+            console.log('Sending form data:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0]+ ': ' + pair[1]);
+            }
+
+            // Send AJAX request to update user info
+            fetch('http://localhost/Banhang/Khachhang/capnhatTaikhoan', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.text();
+                })
+                .then(data => {
+                    console.log('Server response:', data);
+                    try {
+                        const result = JSON.parse(data);
+                        if (result.success) {
+                            alert('Cập nhật thông tin thành công!');
+                            // Reload the page to reflect changes
+                            location.reload();
+                        } else {
+                            alert(result.message || 'Có lỗi xảy ra khi cập nhật thông tin!');
+                        }
+                    } catch (e) {
+                        // If response is not JSON, it might be a redirect or error page
+                        // Check if it looks like a success message
+                        if (data.toLowerCase().includes('thành công') || data.includes('success')) {
+                            alert('Cập nhật thông tin thành công!');
+                            location.reload();
+                        } else {
+                            alert('Cập nhật thất bại. Vui lòng thử lại. Chi tiết: ' + data.substring(0, 200));
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi cập nhật thông tin! Chi tiết: ' + error.message);
+                });
         }
 
         // Function to change password
@@ -1360,6 +1437,44 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             // Đóng menu tài khoản khi click ra ngoài
             if (!accountBtn.contains(event.target)) {
                 accountMenu.classList.remove('active');
+            }
+        });
+
+        // Avatar upload functionality for customer profile page
+        document.addEventListener('DOMContentLoaded', function() {
+            const cameraBtn = document.getElementById('camera-btn');
+            const avatarInput = document.getElementById('avatar-input');
+            const avatarPreview = document.getElementById('avatar-preview');
+
+            if (cameraBtn && avatarInput && avatarPreview) {
+                cameraBtn.addEventListener('click', function() {
+                    avatarInput.click();
+                });
+
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validate file type
+                        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                        if (!validTypes.includes(file.type)) {
+                            alert('Vui lòng chọn file ảnh (JPEG, PNG, GIF, WEBP)');
+                            return;
+                        }
+
+                        // Validate file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
+                            return;
+                        }
+
+                        // Preview the selected image
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            avatarPreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             }
         });
     </script>

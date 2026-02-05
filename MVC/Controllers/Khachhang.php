@@ -922,27 +922,94 @@ class Khachhang extends controller
     // Cập nhật thông tin tài khoản
     function capnhatTaikhoan()
     {
-        if (isset($_POST['btnCapNhatTaiKhoan'])) {
-            $ma_user = $_POST['txtMaUser'];
-            $ten_user = $_POST['txtTenUser'];
-            $full_name = $_POST['txtFullName'];
-            $email = $_POST['txtEmail'];
-            $so_dien_thoai = $_POST['txtSoDienThoai'];
-            $password = $_POST['txtPassword'];
+        // Kiểm tra nếu có dữ liệu được gửi qua POST (bao gồm cả file upload)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ma_user = $_POST['txtMaUser'] ?? '';
+            $ten_user = $_POST['txtTenUser'] ?? '';
+            $full_name = $_POST['txtFullName'] ?? '';
+            $email = $_POST['txtEmail'] ?? '';
+            $so_dien_thoai = $_POST['txtSoDienThoai'] ?? '';
 
-            // Nếu có nhập mật khẩu mới thì mã hóa, nếu không thì giữ nguyên
-            $password_hash = !empty($password) ? md5($password) : $_POST['txtOldPassword'];
-
-            $result = $this->user->Users_update($ma_user, $ten_user, $full_name, $password_hash, $email, 'khach_hang', $so_dien_thoai);
-
-            if ($result) {
-                echo "<script>alert('Cập nhật thông tin thành công!');</script>";
+            // Xử lý upload avatar nếu có
+            $avatar = '';
+            if (isset($_FILES['txtAvatar']) && $_FILES['txtAvatar']['error'] == 0) {
+                $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                $file_type = $_FILES['txtAvatar']['type'];
+                
+                if (in_array($file_type, $allowed_types)) {
+                    $file_size = $_FILES['txtAvatar']['size'];
+                    if ($file_size <= 5 * 1024 * 1024) { // Max 5MB
+                        $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/users/';
+                        
+                        // Tạo thư mục nếu chưa tồn tại
+                        if (!file_exists($upload_dir)) {
+                            mkdir($upload_dir, 0777, true);
+                        }
+                        
+                        // Lấy phần mở rộng của file
+                        $file_extension = pathinfo($_FILES['txtAvatar']['name'], PATHINFO_EXTENSION);
+                        
+                        // Tạo tên file mới để tránh trùng lặp
+                        $new_filename = $ma_user . '_' . time() . '.' . $file_extension;
+                        $target_path = $upload_dir . $new_filename;
+                        
+                        if (move_uploaded_file($_FILES['txtAvatar']['tmp_name'], $target_path)) {
+                            $avatar = $new_filename;
+                            
+                            // Nếu người dùng đã có avatar cũ, xóa file đó đi
+                            $current_user = $this->user->Users_getById($ma_user);
+                            $current_user_data = mysqli_fetch_assoc($current_user);
+                            if ($current_user_data && !empty($current_user_data['avatar']) && $current_user_data['avatar'] != 'avatar.png') {
+                                $old_avatar_path = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/users/' . $current_user_data['avatar'];
+                                if (file_exists($old_avatar_path)) {
+                                    unlink($old_avatar_path);
+                                }
+                            }
+                        } else {
+                            // Trả về lỗi nếu không thể upload
+                            $response = array('success' => false, 'message' => 'Không thể upload file ảnh. Vui lòng thử lại.');
+                            header('Content-Type: application/json');
+                            echo json_encode($response);
+                            return;
+                        }
+                    } else {
+                        $response = array('success' => false, 'message' => 'File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
+                        header('Content-Type: application/json');
+                        echo json_encode($response);
+                        return;
+                    }
+                } else {
+                    $response = array('success' => false, 'message' => 'Định dạng file không hợp lệ. Chỉ chấp nhận JPEG, PNG, GIF, WEBP.');
+                    header('Content-Type: application/json');
+                    echo json_encode($response);
+                    return;
+                }
             } else {
-                echo "<script>alert('Cập nhật thông tin thất bại!');</script>";
+                // Nếu không có avatar mới được upload, giữ nguyên avatar cũ
+                $current_user = $this->user->Users_getById($ma_user);
+                $current_user_data = mysqli_fetch_assoc($current_user);
+                $avatar = $current_user_data ? $current_user_data['avatar'] : '';
             }
 
-            header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+            // Cập nhật thông tin người dùng (chỉ cập nhật những trường cần thiết)
+            $result = $this->user->Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $avatar);
+
+            if ($result) {
+                // Trả về kết quả thành công theo định dạng JSON
+                $response = array('success' => true, 'message' => 'Cập nhật thông tin thành công!');
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            } else {
+                // Trả về lỗi theo định dạng JSON
+                $response = array('success' => false, 'message' => 'Cập nhật thông tin thất bại!');
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+            return; // Kết thúc hàm sau khi trả về JSON
         }
+        
+        // Nếu không phải POST request, chuyển hướng về trang tài khoản
+        header('Location: http://localhost/Banhang/Khachhang/taikhoan');
     }
 
     // Đổi mật khẩu

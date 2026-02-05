@@ -131,4 +131,15 @@ class Users_m extends connectDB
         $sql = "INSERT INTO users (ma_user, ten_user, email, full_name, password, phan_quyen, so_dien_thoai, avatar) VALUES ('$ma_user', '$username', '$email', '$full_name', '$password', '$role', '$so_dien_thoai', '$avatar')";
         return mysqli_query($this->con, $sql);
     }
+    
+    // Cập nhật thông tin hồ sơ người dùng (chỉ cập nhật các trường cần thiết)
+    function Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $avatar = null)
+    {
+        if ($avatar !== null && !empty($avatar)) {
+            $sql = "UPDATE users SET full_name = '$full_name', so_dien_thoai = '$so_dien_thoai', email = '$email', avatar = '$avatar' WHERE ma_user = '$ma_user'";
+        } else {
+            $sql = "UPDATE users SET full_name = '$full_name', so_dien_thoai = '$so_dien_thoai', email = '$email' WHERE ma_user = '$ma_user'";
+        }
+        return mysqli_query($this->con, $sql);
+    }
 }

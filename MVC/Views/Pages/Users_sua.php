@@ -117,14 +117,24 @@
             </div>
             <div>
                 <label>Avatar</label>
-                <input type="file" name="txtAvatar" accept="image/*" />
-                <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
-                    <div style="margin-top: 10px;">
-                        <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
-                             alt="Avatar người dùng" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
-                        <p>Chọn file mới để thay đổi avatar</p>
+                <div class="avatar-section">
+                    <div class="avatar-circle" style="position: relative; display: inline-block;">
+                        <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
+                            <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
+                                 alt="Avatar người dùng" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" id="avatar-preview">
+                        <?php else: ?>
+                            <img src="/Banhang/Public/Images/avatar.png"
+                                 alt="Avatar người dùng" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" id="avatar-preview">
+                        <?php endif; ?>
+                        
+                        <div class="camera-btn" id="camera-btn" style="position: absolute; bottom: 0; right: 0; background: #2463ff; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
                     </div>
-                <?php endif; ?>
+                    
+                    <input type="file" name="txtAvatar" id="avatar-input" accept="image/*" style="display: none;" />
+                    <p style="margin-top: 10px;">Chọn file mới để thay đổi avatar</p>
+                </div>
             </div>
 
             <div class="actions">
@@ -135,6 +145,46 @@
             </div>
         </form>
     </main>
+    
+    <script>
+        // Avatar upload functionality for admin user edit page
+        document.addEventListener('DOMContentLoaded', function() {
+            const cameraBtn = document.getElementById('camera-btn');
+            const avatarInput = document.getElementById('avatar-input');
+            const avatarPreview = document.getElementById('avatar-preview');
+            
+            if (cameraBtn && avatarInput && avatarPreview) {
+                cameraBtn.addEventListener('click', function() {
+                    avatarInput.click();
+                });
+                
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validate file type
+                        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                        if (!validTypes.includes(file.type)) {
+                            alert('Vui lòng chọn file ảnh (JPEG, PNG, GIF, WEBP)');
+                            return;
+                        }
+                        
+                        // Validate file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
+                            return;
+                        }
+                        
+                        // Preview the selected image
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            avatarPreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
