@@ -298,10 +298,10 @@
                         <td>
                             <?php if (!empty($row['avatar'])): ?>
                                 <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($row['avatar']); ?>" 
-                                     alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                     alt="Avatar" style="width: 40px; height: 40px; border-radius: 5px; object-fit: fill;">
                             <?php else: ?>
                                 <img src="https://via.placeholder.com/40x40/cccccc/666666?text=?" 
-                                     alt="No Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                     alt="No Avatar" style="width: 40px; height: 40px; border-radius: 5px; object-fit: fill;">
                             <?php endif; ?>
                         </td>
                         <td><span

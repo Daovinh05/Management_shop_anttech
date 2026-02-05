@@ -1036,7 +1036,8 @@ class Khachhang extends controller
                         $new_password,
                         $user['email'],
                         $user['phan_quyen'],
-                        $user['so_dien_thoai']
+                        $user['so_dien_thoai'],
+                        $user['avatar']
                     );
 
                     if ($result) {
