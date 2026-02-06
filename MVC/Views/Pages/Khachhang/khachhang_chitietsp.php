@@ -495,17 +495,19 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-
+        
         .color-btn {
             border: 1px solid #ddd;
             border-radius: 4px;
-            padding: 5px 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            padding: 8px 10px;
             cursor: pointer;
             transition: 0.2s;
             position: relative;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
         }
 
         .color-btn:hover {
@@ -542,6 +544,17 @@
             font-size: 11px;
             color: #777;
         }
+        
+        /* Cập nhật lại layout cho color-btn để chứa 3 hàng thông tin */
+        .color-btn {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            min-height: 60px;
+        }
 
         .storage-grid {
             display: flex;
@@ -576,6 +589,39 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        /* Stock information styling */
+        .stock-info {
+            font-size: 11px;
+            margin-top: 3px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .in-stock {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .out-of-stock {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Variant specification styling */
+        .variant-specs {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+        
+        .variant-price {
+            font-weight: 700;
+            color: var(--tet-red);
+            font-size: 13px;
+            margin-bottom: 2px;
         }
 
         /* --- STYLES CHO PHẦN SỐ LƯỢNG VÀ NÚT THÊM VÀO GIỎ --- */
@@ -1645,7 +1691,14 @@
                                     if (isset($bt['dung_luong']) && $bt['dung_luong']) $variant_text .= ($variant_text ? ' - ' : '') . $bt['dung_luong'];
                                     if (isset($bt['ram']) && $bt['ram']) $variant_text .= ($variant_text ? ' - ' : '') . $bt['ram'];
 
-                                    echo '<div class="color-info"><span>' . ($variant_text ? $variant_text : $bt['ten_bien_the']) . '</span><small>' . number_format(isset($bt['gia']) ? $bt['gia'] : 0, 0, ',', '.') . '₫</small></div>';
+                                    echo '<div class="variant-specs">' . ($variant_text ? $variant_text : $bt['ten_bien_the']) . '</div>';
+                                    echo '<div class="variant-price">' . number_format(isset($bt['gia']) ? $bt['gia'] : 0, 0, ',', '.') . '₫</div>';
+                                    
+                                    // Show stock information
+                                    $stock_status = $bt['so_luong_kho'] > 0 ? 'Còn hàng' : 'Hết hàng';
+                                    $stock_class = $bt['so_luong_kho'] > 0 ? 'in-stock' : 'out-of-stock';
+                                    echo '<div class="stock-info ' . $stock_class . '">(' . $stock_status . ': ' . $bt['so_luong_kho'] . ' sản phẩm)</div>';
+                                    
                                     echo '</div>';
                                     $first_variant = false;
                                 }
@@ -1662,7 +1715,7 @@
                         </div>
 
                         <?php if (mysqli_num_rows($data['bien_the']) > 0): ?>
-                            <button class="add-to-cart-btn" onclick="addToCart()">
+                            <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()">
                                 <i class="fa-solid fa-cart-plus"></i> THÊM VÀO GIỎ
                             </button>
                         <?php else: ?>
@@ -1673,7 +1726,7 @@
                     </div>
 
                     <div class="action-area">
-                        <button class="buy-now-btn" onclick="buyNow()">
+                        <button class="buy-now-btn" id="buyNowBtn" onclick="buyNow()">
                             MUA NGAY
                             <span class="buy-now-sub">Giao hàng tận nơi hoặc nhận tại cửa hàng</span>
                         </button>
@@ -1940,6 +1993,9 @@
             var priceText = element.querySelector('small').textContent;
             var priceValue = priceText.replace(/[^\d]/g, ''); // Extract numeric value
             document.getElementById('currentPrice').innerHTML = formatCurrency(priceValue) + ' ₫';
+            
+            // Update button visibility based on selected variant stock
+            updateButtonsVisibility();
         }
 
         var thumbs = document.querySelectorAll('.thumb-item');
@@ -1981,6 +2037,21 @@
             if (!selectedVariantInput) {
                 alert("Vui lòng chọn phiên bản sản phẩm!");
                 return;
+            }
+
+            // Check if selected variant is in stock
+            var selectedVariantElement = selectedVariantInput.closest('.color-btn');
+            var stockInfo = selectedVariantElement.querySelector('.stock-info');
+            if (stockInfo) {
+                var stockText = stockInfo.textContent;
+                var stockMatch = stockText.match(/(\d+)/);
+                if (stockMatch) {
+                    var stockQty = parseInt(stockMatch[1]);
+                    if (stockQty <= 0) {
+                        alert("Sản phẩm này hiện đã hết hàng!");
+                        return;
+                    }
+                }
             }
 
             var ma_bien_the = selectedVariantInput.value;
@@ -2134,6 +2205,84 @@
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
+        // Function to check if a variant is in stock
+        function isVariantInStock(ma_bien_the) {
+            // Loop through all variants to find the one with matching ma_bien_the
+            var variantElements = document.querySelectorAll('.color-btn');
+            for (var i = 0; i < variantElements.length; i++) {
+                var radioBtn = variantElements[i].querySelector('input[name="ma_bien_the"][value="' + ma_bien_the + '"]');
+                if (radioBtn) {
+                    // Get the parent element to check for stock info
+                    var stockInfo = variantElements[i].querySelector('.stock-info');
+                    if (stockInfo) {
+                        var stockText = stockInfo.textContent;
+                        var stockMatch = stockText.match(/(\d+)/);
+                        if (stockMatch) {
+                            var stockQty = parseInt(stockMatch[1]);
+                            return stockQty > 0;
+                        }
+                    }
+                    // If no stock info found, assume it's in stock
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Function to update button visibility based on selected variant
+        function updateButtonsVisibility() {
+            var selectedVariantInput = document.querySelector('input[name="ma_bien_the"]:checked');
+            if (selectedVariantInput) {
+                var ma_bien_the = selectedVariantInput.value;
+                
+                // Check if this variant is in stock by looking at the selected variant element
+                var selectedVariantElement = selectedVariantInput.closest('.color-btn');
+                var stockInfo = selectedVariantElement.querySelector('.stock-info');
+                
+                if (stockInfo) {
+                    var stockText = stockInfo.textContent;
+                    var stockMatch = stockText.match(/(\d+)/);
+                    if (stockMatch) {
+                        var stockQty = parseInt(stockMatch[1]);
+                        var addToCartBtn = document.getElementById('addToCartBtn');
+                        var buyNowBtn = document.getElementById('buyNowBtn');
+                        
+                        if (stockQty <= 0) {
+                            // Out of stock - disable buttons and show message
+                            if (addToCartBtn) {
+                                addToCartBtn.disabled = true;
+                                addToCartBtn.innerHTML = '<i class="fa-solid fa-cart-plus"></i> TẠM HẾT HÀNG';
+                                addToCartBtn.onclick = function() {
+                                    alert('Sản phẩm này hiện đã hết hàng!');
+                                    return false;
+                                };
+                            }
+                            
+                            if (buyNowBtn) {
+                                buyNowBtn.disabled = true;
+                                buyNowBtn.onclick = function() {
+                                    alert('Sản phẩm này hiện đã hết hàng!');
+                                    return false;
+                                };
+                            }
+                        } else {
+                            // In stock - enable buttons
+                            if (addToCartBtn) {
+                                addToCartBtn.disabled = false;
+                                addToCartBtn.innerHTML = '<i class="fa-solid fa-cart-plus"></i> THÊM VÀO GIỎ';
+                                addToCartBtn.onclick = function() { addToCart(); };
+                            }
+                            
+                            if (buyNowBtn) {
+                                buyNowBtn.disabled = false;
+                                buyNowBtn.onclick = function() { buyNow(); };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Hàm mua ngay - thêm sản phẩm vào giỏ hàng và chuyển sang trang thanh toán
         function buyNow() {
 
@@ -2147,6 +2296,21 @@
             if (!selectedVariantInput) {
                 alert("Vui lòng chọn phiên bản sản phẩm!");
                 return;
+            }
+
+            // Check if selected variant is in stock
+            var selectedVariantElement = selectedVariantInput.closest('.color-btn');
+            var stockInfo = selectedVariantElement.querySelector('.stock-info');
+            if (stockInfo) {
+                var stockText = stockInfo.textContent;
+                var stockMatch = stockText.match(/(\d+)/);
+                if (stockMatch) {
+                    var stockQty = parseInt(stockMatch[1]);
+                    if (stockQty <= 0) {
+                        alert("Sản phẩm này hiện đã hết hàng!");
+                        return;
+                    }
+                }
             }
 
             var ma_bien_the = selectedVariantInput.value;
@@ -2165,7 +2329,7 @@
 
             //var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
 
-            
+
             // var product = {
             //     img: img,
             //     name: name,
@@ -2180,7 +2344,7 @@
 
             // setTimeout(function() {
             //     window.location.href = '<?php echo $this->url('Khachhang/thanhtoan'); ?>';
-            // }, 500); 
+            // }, 500);
         }
 
         // Function to open review modal
@@ -2308,6 +2472,11 @@
             if(e.target.id === 'reviewModal') {
                 closeReviewModal();
             }
+        });
+        
+        // Initialize button visibility when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateButtonsVisibility();
         });
     </script>
 

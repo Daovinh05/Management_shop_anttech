@@ -109,8 +109,13 @@ class Khachhang extends controller
         $sp = $this->sp->SanPham_getById($ma_san_pham);
         $san_pham = mysqli_fetch_assoc($sp);
 
-        // Lấy các biến thể của sản phẩm
-        $bien_the = $this->bt->BienThe_getByProduct($ma_san_pham);
+        // Lấy các biến thể của sản phẩm cùng với thông tin tồn kho
+        $sql_bien_the = "SELECT bt.*, sp.ten_san_pham
+                         FROM bien_the bt
+                         LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
+                         WHERE bt.ma_san_pham = '$ma_san_pham'
+                         ORDER BY bt.ma_bien_the";
+        $bien_the = mysqli_query($this->bt->con, $sql_bien_the);
 
         // Lấy biến thể đầu tiên để làm hình ảnh chính
         $bien_the_first = null;
@@ -509,7 +514,7 @@ class Khachhang extends controller
 
                     // Kiểm tra tồn kho
                     if ($forced_qty > $bt_info['so_luong_kho']) {
-                        $out_of_stock_items[] = $bt_info['ten_bien_the'];
+                        $out_of_stock_items[] = $bt_info['ten_bien_the'] . " (chỉ còn " . $bt_info['so_luong_kho'] . " sản phẩm)";
                     } else {
                         // Tạo item để lát nữa insert vào đơn hàng
                         $ct = [];
@@ -528,6 +533,8 @@ class Khachhang extends controller
 
                     if ($row) {
                         $ma_gio_hang = $row['ma_gio_hang'];
+                        $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+                        
                         // ... Copy lại đoạn while loop lấy từ DB như code cũ của bạn ...
                         // Lưu ý: Đoạn này dùng để xử lý khi mua từ Giỏ Hàng
                         while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
@@ -547,7 +554,7 @@ class Khachhang extends controller
                             $bt_info = mysqli_fetch_assoc($bien_the);
 
                             if ($ct['so_luong'] > $bt_info['so_luong_kho']) {
-                                $out_of_stock_items[] = $bt_info['ten_bien_the'];
+                                $out_of_stock_items[] = $bt_info['ten_bien_the'] . " (chỉ còn " . $bt_info['so_luong_kho'] . " sản phẩm)";
                             } else {
                                 $chi_tiet_gio_hang_array[] = $ct;
                                 $tong_tien_hang += $ct['gia'] * $ct['so_luong']; // Tính tiền theo số lượng mới
