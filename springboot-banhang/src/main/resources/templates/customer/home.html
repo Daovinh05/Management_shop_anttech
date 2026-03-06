@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm - TechZone</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --tech-blue: #0071e3;
+            --header-height: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        body {
+            background: #f5f5f7;
+        }
+
+        header {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 0px #eee;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 24px;
+        }
+
+        .logo span {
+            color: var(--tech-blue);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 40px;
+            min-height: calc(100vh - var(--header-height) - 60px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--tech-blue);
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--tech-blue);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/banhang/home" class="logo">Tech<span>Zone</span></a>
+        
+        <nav class="nav-menu">
+            <a href="/banhang/home" class="nav-item">Trang chủ</a>
+            <a href="/banhang/khachhang" class="nav-item">Sản phẩm</a>
+        </nav>
+        
+        <div class="nav-actions">
+            <a href="/banhang/login" class="nav-item">Đăng nhập</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <a href="/banhang/home" class="back-link">← Quay lại</a>
+            
+            <h1 class="section-title">Tất cả sản phẩm</h1>
+            
+            <div class="products-grid">
+                <div class="product-card" th:each="sp : ${dssp}">
+                    <img src="https://via.placeholder.com/300x250?text=Product" 
+                         alt="Product" 
+                         class="product-image">
+                    
+                    <h3 class="product-name" th:text="${sp.tenSanPham}">Tên sản phẩm</h3>
+                    
+                    <div class="product-price">Liên hệ</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

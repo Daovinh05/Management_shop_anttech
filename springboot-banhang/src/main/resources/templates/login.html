@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - TechZone</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --tech-blue: #0071e3;
+            --sale-red: #d70018;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .login-image {
+            background: linear-gradient(135deg, var(--tech-blue) 0%, #00c6fb 100%);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .login-image h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+
+        .login-image p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .login-form {
+            padding: 60px 40px;
+        }
+
+        .login-form h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .login-form p {
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--tech-blue);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--tech-blue);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-login:hover {
+            background: #005bb5;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #888;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-link a {
+            color: var(--tech-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-image {
+                padding: 40px 20px;
+            }
+
+            .login-form {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-image">
+            <h1>TechZone</h1>
+            <p>Chào mừng bạn quay trở lại!<br>Đăng nhập để tiếp tục mua sắm.</p>
+        </div>
+
+        <div class="login-form">
+            <h2>Đăng nhập</h2>
+            <p>Vui lòng nhập thông tin đăng nhập</p>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${logout}" class="alert alert-info" th:text="${logout}"></div>
+            <div th:if="${param.error}" class="alert alert-error">Tên đăng nhập hoặc mật khẩu không đúng!</div>
+            <div th:if="${param.logout}" class="alert alert-success">Bạn đã đăng xuất thành công!</div>
+
+            <form th:action="@{/login/process}" method="post">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" required placeholder="Nhập tên đăng nhập">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" name="password" required placeholder="Nhập mật khẩu">
+                </div>
+
+                <button type="submit" class="btn-login">Đăng nhập</button>
+            </form>
+
+            <div class="divider">hoặc</div>
+
+            <div class="register-link">
+                <p>Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a></p>
+            </div>
+
+            <div style="margin-top: 30px; padding: 15px; background: #f5f5f7; border-radius: 10px;">
+                <p style="font-size: 13px; color: #888; margin-bottom: 10px;"><strong>Tài khoản demo:</strong></p>
+                <p style="font-size: 12px; color: #666;">Admin: vinh / 123</p>
+                <p style="font-size: 12px; color: #666;">Khách hàng: long / 123</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
