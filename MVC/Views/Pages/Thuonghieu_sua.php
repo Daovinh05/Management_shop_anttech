@@ -121,7 +121,7 @@
                 <label>Hình ảnh hiện tại</label>
                 <?php if (isset($data['image']) && !empty($data['image'])): ?>
                     <div class="current-image">
-                        <img src="/banhang/Public/Pictures/danhmuc/<?php echo htmlspecialchars($data['image']) ?>" alt="Hình ảnh danh mục hiện tại" />
+                        <img src="<?php echo UrlHelper::url('Public/Pictures/danhmuc/') . htmlspecialchars($data['image']) ?>" alt="Hình ảnh danh mục hiện tại" />
                         <p><small>Hình ảnh hiện tại (giữ nguyên nếu không chọn hình mới)</small></p>
                     </div>
                 <?php endif; ?>

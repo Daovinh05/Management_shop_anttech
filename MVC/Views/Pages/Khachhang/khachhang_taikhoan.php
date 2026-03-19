@@ -1,7 +1,7 @@
 <?php
 // Include necessary helpers
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/TimezoneHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -952,7 +952,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                 </div>
                 <?php
                 if ($user && !empty($user['avatar'])) {
-                    echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($user['avatar']) . '" alt="Avatar" style="width: 60px; height: 60px; 
+                    echo '<img src="' . UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($user['avatar']) . '" alt="Avatar" style="width: 60px; height: 60px;
        border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
                 } else {
                     echo '<i class="fa-regular fa-user" style="vertical-align: middle;"></i>';
@@ -1066,14 +1066,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
             <div class="modal-body">
                 <div class="avatar-section">
-                    <form method="post" action="http://localhost/Banhang/Khachhang/capnhatTaikhoan" enctype="multipart/form-data">
+                    <form method="post" action="<?php echo UrlHelper::url('Khachhang/capnhatTaikhoan'); ?>" enctype="multipart/form-data">
                         <div class="avatar-container">
                             <div class="avatar-circle" style="position: relative; display: inline-block;">
                                 <?php if ($user && !empty($user['avatar'])): ?>
-                                    <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($user['avatar'] ?? ''); ?>"
+                                    <img src="<?php echo UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($user['avatar'] ?? ''); ?>"
                                          alt="Avatar người dùng" style="width: 160px; height: 140px; border-radius: 50%; object-fit: fill;" id="avatar-preview">
                                 <?php else: ?>
-                                    <img src="/Banhang/Public/Images/avatar.png"
+                                    <img src="<?php echo UrlHelper::url('Public/Images/avatar.png'); ?>"
                                          alt="Avatar người dùng" style="width: 160px; height: 140px; border-radius: 50%; object-fit: fill;" id="avatar-preview">
                                 <?php endif; ?>
 

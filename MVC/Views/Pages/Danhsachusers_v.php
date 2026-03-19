@@ -297,10 +297,10 @@
                         </td>
                         <td>
                             <?php if (!empty($row['avatar'])): ?>
-                                <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($row['avatar']); ?>" 
+                                <img src="<?php echo UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($row['avatar']); ?>"
                                      alt="Avatar" style="width: 40px; height: 40px; border-radius: 5px; object-fit: fill;">
                             <?php else: ?>
-                                <img src="https://via.placeholder.com/40x40/cccccc/666666?text=?" 
+                                <img src="<?php echo UrlHelper::url('Public/Images/avatar.png'); ?>"
                                      alt="No Avatar" style="width: 40px; height: 40px; border-radius: 5px; object-fit: fill;">
                             <?php endif; ?>
                         </td>

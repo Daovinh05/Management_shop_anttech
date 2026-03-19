@@ -1,7 +1,7 @@
 <?php
 // Include necessary helpers
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/TimezoneHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 ?>
 
 <style>
@@ -514,7 +514,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                 foreach ($chi_tiet_don_hang as $ct):
                             ?>
                                     <div class="order-product">
-                                        <img src="<?php echo !empty($ct['hinh_anh']) ? '/Banhang/Public/Pictures/bien_the/' . $ct['hinh_anh'] : 'https://placehold.co/80x80?text=SP'; ?>"
+                                        <img src="<?php echo !empty($ct['hinh_anh']) ? UrlHelper::url('Public/Pictures/bien_the/') . $ct['hinh_anh'] : UrlHelper::url('Public/Images/no-image.png'); ?>"
                                             alt="<?php echo $ct['ten_san_pham']; ?>" class="product-thumb">
                                         <div class="product-info">
                                             <span
@@ -527,7 +527,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                                 <?php echo number_format($ct['gia_luc_mua'], 0, ',', '.'); ?>₫</div>
                                         </div>
                                     </div><?php endforeach;
-                                    else: ?><div class="order-product"><img src="https://placehold.co/80x80?text=SP"
+                                    else: ?><div class="order-product"><img src="<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>"
                                         alt="Sản phẩm" class="product-thumb">
                                     <div class="product-info"><span class="product-name">Không có sản phẩm</span></div>
                                 </div><?php endif;
