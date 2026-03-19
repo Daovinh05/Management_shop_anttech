@@ -1,3 +1,6 @@
+<?php
+include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -824,7 +827,7 @@
         <div class="login-container">
             <span class="close-btn" id="btnCloseLogin">&times;</span>
             <div class="login-title">ĐĂNG NHẬP</div>
-            <form id="loginForm" method="post" action="http://localhost/Banhang/Login/process">
+            <form id="loginForm" method="post" action="<?php echo UrlHelper::url('Login/process'); ?>">
                 <div class="input-group">
                     <label>Tài khoản</label>
                     <input type="text" name="username" placeholder="Nhập tài khoản" required>
@@ -862,7 +865,7 @@
         <div class="login-container">
             <span class="close-btn" id="btnCloseRegister">&times;</span>
             <div class="login-title">ĐĂNG KÝ</div>
-            <form id="registerForm" method="post" action="http://localhost/Banhang/Login/process_register">
+            <form id="registerForm" method="post" action="<?php echo UrlHelper::url('Login/process_register'); ?>">
                 <div class="input-group">
                     <label>Họ và tên</label>
                     <input type="text" name="fullname" placeholder="Nhập họ và tên" required
@@ -1118,7 +1121,7 @@
             const formData = new FormData(this);
 
             // Send AJAX request
-            fetch('http://localhost/Banhang/Login/process', {
+            fetch('<?php echo UrlHelper::url('Login/process'); ?>', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -1185,7 +1188,7 @@
             const formData = new FormData(this);
 
             // Send AJAX request
-            fetch('http://localhost/Banhang/Login/process_register', {
+            fetch('<?php echo UrlHelper::url('Login/process_register'); ?>', {
                     method: 'POST',
                     body: formData,
                     headers: {

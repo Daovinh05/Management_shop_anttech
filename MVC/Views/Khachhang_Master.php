@@ -1,3 +1,6 @@
+<?php
+include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($data['title']) ? $data['title'] : 'Trang chủ - TechZone'; ?></title>
-    <base href="http://localhost/Banhang/">
+    <base href="<?php echo UrlHelper::baseUrl(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -836,14 +839,14 @@
                     <?php
                     if (isset($_SESSION['user_id'])) {
                         // Kết nối database để lấy avatar
-                        $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                        $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                         if ($conn) {
                             $user_id = $_SESSION['user_id'];
                             $query = "SELECT avatar FROM users WHERE ma_user = '$user_id'";
                             $result = mysqli_query($conn, $query);
                             if ($result && $row = mysqli_fetch_assoc($result)) {
                                 if (!empty($row['avatar'])) {
-                                    echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
+                                    echo '<img src="' . UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
                                 } else {
                                     echo '<i class="fa-regular fa-user" style="vertical-align: middle;"></i>';
                                 }
@@ -862,7 +865,7 @@
                         <?php
                         if (isset($_SESSION['user_id'])) {
                             // Kết nối database để lấy full_name
-                            $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                            $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                             if ($conn) {
                                 $user_id = $_SESSION['user_id'];
                                 $query = "SELECT full_name FROM users WHERE ma_user = '$user_id'";
