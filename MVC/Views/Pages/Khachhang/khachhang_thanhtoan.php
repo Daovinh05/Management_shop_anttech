@@ -1,3 +1,6 @@
+<?php
+include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -7,7 +10,7 @@
     <title>Thanh toán - TechZone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <base href="http://localhost/Banhang/">
+    <base href="<?php echo UrlHelper::baseUrl(); ?>">
 
     <style>
         /* --- 1. CORE VARIABLES & RESET --- */
