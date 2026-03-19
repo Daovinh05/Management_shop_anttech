@@ -120,10 +120,10 @@
                 <div class="avatar-section">
                     <div class="avatar-circle" style="position: relative; display: inline-block;">
                         <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
-                            <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
+                            <img src="<?php echo UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($data['avatar']); ?>"
                                  alt="Avatar người dùng" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" id="avatar-preview">
                         <?php else: ?>
-                            <img src="/Banhang/Public/Images/avatar.png"
+                            <img src="<?php echo UrlHelper::url('Public/Images/avatar.png'); ?>"
                                  alt="Avatar người dùng" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" id="avatar-preview">
                         <?php endif; ?>
                         

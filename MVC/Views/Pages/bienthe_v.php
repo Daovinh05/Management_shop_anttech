@@ -99,7 +99,7 @@
                 <input type="file" name="txtImage" accept="image/*" />
                 <?php if (isset($data['imgbienthe']) && !empty($data['imgbienthe'])): ?>
                     <div style="margin-top: 10px;">
-                        <img src="/Banhang/Public/Pictures/bien_the/<?php echo htmlspecialchars($data['imgbienthe']); ?>"
+                        <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($data['imgbienthe']); ?>"
                              alt="Hình ảnh biến thể" style="max-width: 100px; max-height: 100px;">
                     </div>
                 <?php endif; ?>
