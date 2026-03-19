@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/Config.php';
+
 class app
 {
     protected $controller = "Home";
@@ -54,20 +56,20 @@ class app
         // Nếu người dùng chưa đăng nhập và cố gắng truy cập route bảo vệ (không phải login/logout hoặc khachhang hoặc home)
         if (!isset($_SESSION['user_id']) && !in_array($current_route, $public_routes) && strpos($current_route, 'Khachhang') !== 0 && strpos($current_route, 'Home') !== 0) {
             // Redirect to Home instead of Login since login is now on the Home page
-            header('Location: http://localhost/Banhang/Home');
+            header('Location: ' . BASE_URL . 'Home');
             exit;
         }
 
         // Nếu người dùng đã đăng nhập nhưng cố truy cập trang đăng nhập, chuyển hướng theo vai trò
         if (isset($_SESSION['user_id']) && in_array($current_route, ['Users/login', 'Login'])) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: http://localhost/Banhang/admin');
+                header('Location: ' . BASE_URL . 'admin');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
-                header('Location: http://localhost/Banhang/Staff');
+                header('Location: ' . BASE_URL . 'Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
-                header('Location: http://localhost/Banhang/Khachhang');
+                header('Location: ' . BASE_URL . 'Khachhang');
             } else {
-                header('Location: http://localhost/Banhang/Khachhang');
+                header('Location: ' . BASE_URL . 'Khachhang');
             }
             exit;
         }
@@ -75,9 +77,9 @@ class app
         // Nếu người dùng đã đăng nhập và truy cập trang chủ trực tiếp, chuyển hướng theo vai trò nếu là admin hoặc nhân viên
         if (isset($_SESSION['user_id']) && empty($current_route)) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: http://localhost/Banhang/admin');
+                header('Location: ' . BASE_URL . 'admin');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
-                header('Location: http://localhost/Banhang/Staff');
+                header('Location: ' . BASE_URL . 'Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
                 // Cho phép khách hàng truy cập trang chủ
                 return;
@@ -90,13 +92,13 @@ class app
 
         // Đảm bảo chỉ những người dùng được ủy quyền mới có thể truy cập các route nhân viên
         if (!isset($_SESSION['user_id']) && strpos($current_route, 'Staff') === 0) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . BASE_URL . 'Login');
             exit;
         }
 
         // Đảm bảo chỉ những người dùng được ủy quyền mới có thể truy cập các route admin
         if (!isset($_SESSION['user_id']) && strpos($current_route, 'admin') === 0) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . BASE_URL . 'Login');
             exit;
         }
     }
