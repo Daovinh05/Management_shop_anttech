@@ -8,6 +8,15 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($data['title']) ? $data['title'] : 'Trang chủ - TechZone'; ?></title>
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="TechZone - Điện thoại & Laptop Chính Hãng">
+    <meta property="og:description" content="Mua sắm điện thoại, laptop chính hãng giá tốt nhất">
+    <meta property="og:image" content="<?php echo UrlHelper::url('Public/Images/4_197.png'); ?>">
+    <meta property="og:url" content="<?php echo UrlHelper::baseUrl(); ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TechZone">
+    
     <base href="<?php echo UrlHelper::baseUrl(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
