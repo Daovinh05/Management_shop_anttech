@@ -307,7 +307,7 @@
                         <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
                         <td>
                             <?php if (!empty($row['img_bien_the'])): ?>
-                            <img src="/Banhang/Public/Pictures/bien_the/<?php echo htmlspecialchars($row['img_bien_the']); ?>"
+                            <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($row['img_bien_the']); ?>"
                                 alt="<?php echo htmlspecialchars($row['ten_bien_the']); ?>"
                                 style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
                             <?php else: ?>

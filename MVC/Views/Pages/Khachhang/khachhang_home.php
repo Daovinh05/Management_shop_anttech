@@ -1,7 +1,7 @@
 <?php
 // Include necessary helpers
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/TimezoneHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 ?>
 
 <style>
@@ -847,11 +847,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                                     <span
                                         class="sticker-sale">-<?php echo isset($sp['giam_gia']) ? $sp['giam_gia'] : '10'; ?>%</span>
                                     <?php if (isset($sp['img_bien_the']) && $sp['img_bien_the']): ?>
-                                        <img src="<?php echo !empty($sp['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
+                                        <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($sp['img_bien_the']); ?>"
                                             alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
                                             style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />
                                     <?php else: ?>
-                                        <img src="https://placehold.co/300x300"
+                                        <img src="<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>"
                                             alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
                                             style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;">
                                     <?php endif; ?>
@@ -1127,12 +1127,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
                 let productHtml = `<span class="sticker-sale">-${product.giam_gia || '0'}%</span>`;
 
+                const baseUrl = '<?php echo UrlHelper::url(); ?>';
                 if (product.img_bien_the) {
                     productHtml +=
-                        `<img src="/Banhang/Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
+                        `<img src="${baseUrl}Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
                 } else {
                     productHtml +=
-                        `<img src="https://placehold.co/300x300" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
+                        `<img src="${baseUrl}Public/Images/no-image.png" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
                 }
 
                 productHtml += `<h3 class="product-name">${product.ten_san_pham || ''}</h3>

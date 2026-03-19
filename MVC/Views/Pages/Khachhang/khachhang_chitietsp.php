@@ -1,3 +1,6 @@
+<?php
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -1618,7 +1621,7 @@
                             <span
                                 class="discount-badge-circle">-<?php echo isset($data['san_pham']['giam_gia']) ? $data['san_pham']['giam_gia'] : '0'; ?>%</span>
                             <img id="mainImage"
-                                src="<?php echo !empty($data['bien_the_first']['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($data['bien_the_first']['img_bien_the']) : '/Banhang/Public/Images/no-image.png'; ?>"
+                                src="<?php echo !empty($data['bien_the_first']['img_bien_the']) ? UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($data['bien_the_first']['img_bien_the']) : UrlHelper::url('Public/Images/no-image.png'); ?>"
                                 alt="<?php echo $data['san_pham']['ten_san_pham']; ?>">
                         </div>
                         <div class="thumbnail-list">
@@ -1628,11 +1631,13 @@
                                 mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
                                 while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
                                     $class = $first ? 'thumb-item active' : 'thumb-item';
-                                    echo '<div class="' . $class . '" data-image="' . (!empty($bt['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : '/Banhang/Public/Images/no-image.png') . '"><img src="' . (!empty($bt['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
+                                    $imgUrl = !empty($bt['img_bien_the']) ? UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($bt['img_bien_the']) : UrlHelper::url('Public/Images/no-image.png');
+                                    echo '<div class="' . $class . '" data-image="' . $imgUrl . '"><img src="' . $imgUrl . '" alt=""></div>';
                                     $first = false;
                                 }
                             } else {
-                                echo '<div class="thumb-item active" data-image="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '"><img src="' . (!empty($data['san_pham']['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($data['san_pham']['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png') . '" alt=""></div>';
+                                $mainImgUrl = !empty($data['san_pham']['img_hinh_anh']) ? UrlHelper::url('Public/Pictures/sanpham/') . htmlspecialchars($data['san_pham']['img_hinh_anh']) : UrlHelper::url('Public/Images/no-image.png');
+                                echo '<div class="thumb-item active" data-image="' . $mainImgUrl . '"><img src="' . $mainImgUrl . '" alt=""></div>';
                             }
                             ?>
                         </div>

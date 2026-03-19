@@ -115,7 +115,7 @@
                 <input type="file" name="txtAvatar" accept="image/*" />
                 <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
                     <div style="margin-top: 10px;">
-                        <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
+                        <img src="<?php echo UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($data['avatar']); ?>"
                              alt="Avatar người dùng" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
                     </div>
                 <?php endif; ?>

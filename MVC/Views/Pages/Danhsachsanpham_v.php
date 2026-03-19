@@ -304,7 +304,7 @@
                         <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
                         <td>
                             <?php if ($row['img_bien_the']): ?>
-                            <img src="<?php echo !empty($row['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($row['img_bien_the']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
+                            <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($row['img_bien_the']); ?>"
                                 alt="<?php echo htmlspecialchars($row['ten_san_pham']) ?>"
                                 style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
                             <?php else: ?>
