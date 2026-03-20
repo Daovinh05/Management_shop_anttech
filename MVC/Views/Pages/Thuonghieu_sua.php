@@ -106,7 +106,7 @@
     <div class="card">
         <h1>Sửa Thương hiệu</h1>
         <p class="lead">Chỉnh sửa thông tin thương hiệu.</p>
-        <form method="post" action="http://localhost/Banhang/Thuonghieu/update" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Thuonghieu/update" enctype="multipart/form-data">
             <div>
                 <label>Mã thương hiệu <span style="color:red">*</span></label>
                 <input type="text" name="txtMathuonghieu" required readonly
@@ -136,7 +136,7 @@
             </div> -->
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">

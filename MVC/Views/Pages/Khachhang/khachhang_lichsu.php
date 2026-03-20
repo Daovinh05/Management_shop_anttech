@@ -595,7 +595,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                                     "price" => number_format($ct['gia_luc_mua'], 0, ',', '.') . '₫',
                                                     "qty" => $ct['so_luong'],
                                                     "subtotal" => number_format($ct['gia_luc_mua'] * $ct['so_luong'], 0, ',', '.') . '₫',
-                                                    "image" => !empty($ct['hinh_anh']) ? '/Banhang/Public/Pictures/bien_the/' . $ct['hinh_anh'] : 'https://placehold.co/80x80?text=SP'
+                                                    "image" => !empty($ct['hinh_anh']) ? BASE_URL . 'Public/Pictures/bien_the/' . $ct['hinh_anh'] : 'https://placehold.co/80x80?text=SP'
                                                 ];
                                             }
 

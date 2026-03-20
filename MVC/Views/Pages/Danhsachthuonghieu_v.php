@@ -216,16 +216,16 @@
                 <p class="lead">Quản lý thương hiệu sản phẩm.</p>
             </div>
             <div class="actions">
-                <a href="http://localhost/Banhang/Thuonghieu/themmoi" class="btn-create"><i
+                <a href="<?php echo BASE_URL; ?>Thuonghieu/themmoi" class="btn-create"><i
                         class="fa-solid fa-plus"></i>
                     Thêm mới</a>
-                <a href="http://localhost/Banhang/Thuonghieu/import_form" class="btn-ghost"><i
+                <a href="<?php echo BASE_URL; ?>Thuonghieu/import_form" class="btn-ghost"><i
                         class="fa-solid fa-file-excel"></i> Nhập
                     Excel</a>
             </div>
         </div>
 
-        <form method="post" action="http://localhost/Banhang/Thuonghieu/Timkiem" class="form-search"
+        <form method="post" action="<?php echo BASE_URL; ?>Thuonghieu/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -243,7 +243,7 @@
             <div class="actions" style="margin-top:0;">
                 <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
-                <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="btn-ghost">Làm mới</a>
+                <a href="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="btn-ghost">Làm mới</a>
                 <button type="submit" name="btnXuatexcel" class="btn-excel">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
@@ -304,10 +304,10 @@
                                     </td>
                                     <td style="text-align:right">
                                         <a
-                                            href="http://localhost/Banhang/Thuonghieu/sua/<?php echo urlencode($row['ma_thuong_hieu']) ?>"><button
+                                            href="<?php echo BASE_URL; ?>Thuonghieu/sua/<?php echo urlencode($row['ma_thuong_hieu']) ?>"><button
                                                 class="btn-edit">✏️
                                                 Sửa</button></a>
-                                        <a href="http://localhost/Banhang/Thuonghieu/xoa/<?php echo urlencode($row['ma_thuong_hieu']) ?>"
+                                        <a href="<?php echo BASE_URL; ?>Thuonghieu/xoa/<?php echo urlencode($row['ma_thuong_hieu']) ?>"
                                             onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                                 class="btn-delete">🗑️
                                                 Xóa</button></a>

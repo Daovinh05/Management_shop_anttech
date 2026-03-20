@@ -63,7 +63,7 @@
     <div class="card">
         <h1>Thêm mới Khuyến mãi</h1>
         <p class="lead">Nhập thông tin mã khuyến mãi.</p>
-        <form method="post" action="http://localhost/Banhang/Khuyenmai/ins">
+        <form method="post" action="<?php echo BASE_URL; ?>Khuyenmai/ins">
             <div>
                 <label>Mã khuyến mãi <span style="color:red">*</span></label>
                 <input type="text" name="txtMakhuyenmai" required
@@ -94,7 +94,7 @@
                     value="<?php echo isset($data['tien_khuyen_mai']) ? htmlspecialchars($data['tien_khuyen_mai']) : '' ?>" />
             </div>
             <div class="actions">
-                <a href="http://localhost/Banhang/Khuyenmai/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Khuyenmai/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">

@@ -114,7 +114,7 @@
     <div class="card">
         <h1>Cập nhật sản phẩm</h1>
         <p class="lead">Chỉnh sửa thông tin sản phẩm.</p>
-        <form method="post" action="http://localhost/Banhang/Sanpham/update" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Sanpham/update" enctype="multipart/form-data">
             <div>
                 <label>Mã sản phẩm <span style="color:red">*</span></label>
                 <input type="text" name="txtMasanpham" value="<?php echo htmlspecialchars($data['ma_san_pham']); ?>"
@@ -174,7 +174,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">

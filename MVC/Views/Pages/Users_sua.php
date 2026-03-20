@@ -67,7 +67,7 @@
 
     <main class="card">
         <h1>Sửa thông tin User</h1>
-        <form method="post" action="http://localhost/Banhang/Users/update" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Users/update" enctype="multipart/form-data">
             <div>
                 <label>Mã user</label>
                 <input type="text" name="txtMauser" readonly
@@ -138,7 +138,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Users/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>

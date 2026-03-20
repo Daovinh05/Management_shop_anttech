@@ -94,7 +94,7 @@
     <div class="card">
         <h1>Thêm mới Danh mục</h1>
         <p class="lead">Nhập thông tin danh mục mới.</p>
-        <form method="post" action="http://localhost/Banhang/Danhmuc/ins" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Danhmuc/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã danh mục <span style="color:red">*</span></label>
                 <input type="text" name="txtMadanhmuc" required
@@ -107,7 +107,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Danhmuc/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
