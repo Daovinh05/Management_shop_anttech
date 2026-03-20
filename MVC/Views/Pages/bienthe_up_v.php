@@ -94,7 +94,7 @@
     <div class="container">
         <h1>Nhập khẩu Biến thể từ Excel</h1>
         
-        <form method="post" action="http://localhost/Banhang/BienThe/up_l" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>BienThe/up_l" enctype="multipart/form-data">
             <div class="form-group">
                 <label>Chọn file Excel:</label>
                 <div class="file-input-wrapper">
@@ -106,7 +106,7 @@
             
             <div style="margin-top: 20px;">
                 <button type="submit" class="btn btn-primary">Upload</button>
-                <a href="http://localhost/Banhang/BienThe/danhsach" class="btn btn-secondary">Quay lại</a>
+                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn btn-secondary">Quay lại</a>
             </div>
         </form>
         

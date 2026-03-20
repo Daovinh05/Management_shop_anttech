@@ -406,7 +406,7 @@
         </div>
 
         <!-- Form lọc theo ngày và tìm kiếm -->
-        <form method="post" action="http://localhost/Banhang/Thongke/locTheoNgay" class="form-search">
+        <form method="post" action="<?php echo BASE_URL; ?>Thongke/locTheoNgay" class="form-search">
             <div class="search-fields">
                 <div>
                     <label for="txtTuNgay">Từ ngày</label>
@@ -434,8 +434,8 @@
                 <button type="submit" class="btn-primary" name="btnLoc"><i class="fa-solid fa-filter"></i> Lọc</button>
                 <button type="submit" class="btn-ghost" name="btnTimKiem"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
-                <a href="http://localhost/Banhang/Thongke/thongke" class="btn-ghost">Làm mới</a>
-                <a href="http://localhost/Banhang/Thongke/xuatExcel" class="btn-excel">
+                <a href="<?php echo BASE_URL; ?>Thongke/thongke" class="btn-ghost">Làm mới</a>
+                <a href="<?php echo BASE_URL; ?>Thongke/xuatExcel" class="btn-excel">
                     <i class="fa-solid fa-file-excel"></i> Xuất Excel
                 </a>
             </div>

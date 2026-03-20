@@ -106,7 +106,7 @@
     <div class="card">
         <h1>Sửa Nhà cung cấp</h1>
         <p class="lead">Chỉnh sửa thông tin nhà cung cấp.</p>
-        <form method="post" action="http://localhost/Banhang/Nhacungcap/update" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Nhacungcap/update" enctype="multipart/form-data">
             <div>
                 <label>Mã nhà cung cấp <span style="color:red">*</span></label>
                 <input type="text" name="txtManhacungcap" required readonly
@@ -132,7 +132,7 @@
 
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Nhacungcap/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">

@@ -215,15 +215,15 @@
                 <p class="lead">Tra cứu và cập nhật sản phẩm.</p>
             </div>
             <div class="actions">
-                <a href="http://localhost/Banhang/Sanpham/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
+                <a href="<?php echo BASE_URL; ?>Sanpham/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
                     Thêm sản phẩm </a>
-                <a href="http://localhost/Banhang/Sanpham/import_form" class="btn-ghost"><i
+                <a href="<?php echo BASE_URL; ?>Sanpham/import_form" class="btn-ghost"><i
                         class="fa-solid fa-file-excel"></i> Nhập
                     Excel</a>
             </div>
         </div>
 
-        <form method="post" action="http://localhost/Banhang/Sanpham/Timkiem" class="form-search"
+        <form method="post" action="<?php echo BASE_URL; ?>Sanpham/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -242,7 +242,7 @@
                 <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i>
                     Tìmkiếm</button>
 
-                <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn-ghost">Làm mới</a>
+                <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn-ghost">Làm mới</a>
                 <button type="submit" name="btnXuatexcel" class="btn-excel">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
@@ -333,10 +333,10 @@
                         </td>
                         <td style="text-align:right">
                             <!-- <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'nhan_vien'): ?> -->
-                            <a href="http://localhost/Banhang/Sanpham/sua/<?php echo urlencode($row['ma_san_pham']) ?>"><button
+                            <a href="<?php echo BASE_URL; ?>Sanpham/sua/<?php echo urlencode($row['ma_san_pham']) ?>"><button
                                     class="btn-edit">✏️
                                     Sửa</button></a>
-                            <a href="http://localhost/Banhang/Sanpham/xoa/<?php echo urlencode($row['ma_san_pham']) ?>"
+                            <a href="<?php echo BASE_URL; ?>Sanpham/xoa/<?php echo urlencode($row['ma_san_pham']) ?>"
                                 onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                     class="btn-delete">🗑️
                                     Xóa</button></a>

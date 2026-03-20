@@ -216,9 +216,9 @@
                 <p class="lead">Quản lý danh mục sản phẩm.</p>
             </div>
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhmuc/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
+                <a href="<?php echo BASE_URL; ?>Danhmuc/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
                     Thêm mới danh mục</a>
-                <a href="http://localhost/Banhang/Danhmuc/import_form" class="btn-ghost"><i
+                <a href="<?php echo BASE_URL; ?>Danhmuc/import_form" class="btn-ghost"><i
                         class="fa-solid fa-file-excel"></i> Nhập
                     Excel</a>
                 <!-- <a href="http://localhost/QLSP/Danhmuc/export" class="btn-excel"><i class="fa-solid fa-download"></i> Xuất
@@ -226,7 +226,7 @@
             </div>
         </div>
 
-        <form method="post" action="http://localhost/Banhang/Danhmuc/Timkiem" class="form-search"
+        <form method="post" action="<?php echo BASE_URL; ?>Danhmuc/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -304,10 +304,10 @@
                         <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
                         </td>
                         <td style="text-align:right">
-                            <a href="http://localhost/Banhang/Danhmuc/sua/<?php echo urlencode($row['ma_danh_muc']) ?>"><button
+                            <a href="<?php echo BASE_URL; ?>Danhmuc/sua/<?php echo urlencode($row['ma_danh_muc']) ?>"><button
                                     class="btn-edit">✏️
                                     Sửa</button></a>
-                            <a href="http://localhost/Banhang/Danhmuc/xoa/<?php echo urlencode($row['ma_danh_muc']) ?>"
+                            <a href="<?php echo BASE_URL; ?>Danhmuc/xoa/<?php echo urlencode($row['ma_danh_muc']) ?>"
                                 onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                     class="btn-delete">🗑️
                                     Xóa</button></a>

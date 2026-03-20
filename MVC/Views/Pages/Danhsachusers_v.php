@@ -215,15 +215,15 @@
                 <p class="lead">Tạo, sửa, xóa tài khoản người dùng.</p>
             </div>
             <div class="actions">
-                <a href="http://localhost/Banhang/Users/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
+                <a href="<?php echo BASE_URL; ?>Users/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
                     Thêm người dùng</a>
-                <a href="http://localhost/Banhang/Users/import_form" class="btn-ghost"><i
+                <a href="<?php echo BASE_URL; ?>Users/import_form" class="btn-ghost"><i
                         class="fa-solid fa-file-excel"></i> Nhập
                     Excel</a>
             </div>
         </div>
 
-        <form method="post" action="http://localhost/Banhang/Users/Timkiem" class="form-search"
+        <form method="post" action="<?php echo BASE_URL; ?>Users/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -241,7 +241,7 @@
             <div class="actions" style="margin-top:0;">
                 <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
-                <a href="http://localhost/Banhang/Users/danhsach" class="btn-ghost">Làm mới</a>
+                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-ghost">Làm mới</a>
                 <button type="submit" name="btnXuatexcel" class="btn-excel">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
@@ -315,10 +315,10 @@
                         <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
                         </td>
                         <td style="text-align:right">
-                            <a href="http://localhost/Banhang/Users/sua/<?php echo urlencode($row['ma_user']) ?>"><button
+                            <a href="<?php echo BASE_URL; ?>Users/sua/<?php echo urlencode($row['ma_user']) ?>"><button
                                     class="btn-edit">✏️
                                     Sửa</button></a>
-                            <a href="http://localhost/Banhang/Users/xoa/<?php echo urlencode($row['ma_user']) ?>"
+                            <a href="<?php echo BASE_URL; ?>Users/xoa/<?php echo urlencode($row['ma_user']) ?>"
                                 onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                     class="btn-delete">🗑️
                                     Xóa</button></a>

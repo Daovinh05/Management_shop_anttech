@@ -573,7 +573,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                         $variant_str = !empty($variant_text) ? implode(' - ', $variant_text) : ($item['ten_bien_the'] ?? '');
 
                                         // Determine image source
-                                        $img_src = !empty($item['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . $item['img_bien_the'] : $this->url('Public/Images/no-image.png');
+                                        $img_src = !empty($item['img_bien_the']) ? BASE_URL . 'Public/Pictures/bien_the/' . $item['img_bien_the'] : $this->url('Public/Images/no-image.png');
                                     ?>
                                         <tr>
                                             <td style="text-align: center;">

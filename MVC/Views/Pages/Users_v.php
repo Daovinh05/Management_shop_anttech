@@ -63,7 +63,7 @@
     <div class="card">
         <h1>Thêm mới User</h1>
         <p class="lead">Nhập thông tin user mới.</p>
-        <form method="post" action="http://localhost/Banhang/Users/ins" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Users/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã user <span style="color:red">*</span></label>
                 <input type="text" name="txtMauser" required
@@ -122,7 +122,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Users/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">

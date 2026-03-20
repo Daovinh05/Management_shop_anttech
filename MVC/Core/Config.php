@@ -7,30 +7,54 @@
 // Tự động detect base URL
 function getBaseUrl()
 {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
-                 || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) 
-                ? "https://" 
+    // Nếu đã có hằng số BASE_URL_MANUAL (tùy chỉnh thủ công), sử dụng nó
+    if (defined('BASE_URL_MANUAL')) {
+        return BASE_URL_MANUAL;
+    }
+
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+                 || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443))
+                ? "https://"
                 : "http://";
-    
+
     $host = $_SERVER['HTTP_HOST'];
     $scriptName = $_SERVER['SCRIPT_NAME'];
-    $basePath = dirname($scriptName);
+    $requestUri = $_SERVER['REQUEST_URI'];
     
+    // Xác định base path từ SCRIPT_NAME
+    $basePath = dirname($scriptName);
+
     // Xây dựng base URL
     $baseUrl = $protocol . $host;
-    
+
     // Thêm base path nếu không phải root
-    if ($basePath !== '/') {
-        // Xóa các thư mục không cần thiết từ path (như public_html)
+    if ($basePath !== '/' && $basePath !== '\\') {
+        // Chuẩn hóa path separators
         $basePath = str_replace('\\', '/', $basePath);
-        $baseUrl .= $basePath;
+        
+        // Loại bỏ các thư mục không cần thiết như 'public_html' nếu đang trên hosting
+        // Chỉ giữ lại thư mục thực sự chứa ứng dụng
+        $pathSegments = explode('/', trim($basePath, '/'));
+        $filteredSegments = [];
+        
+        foreach ($pathSegments as $segment) {
+            // Bỏ qua các thư mục hosting tiêu chuẩn
+            if (!in_array(strtolower($segment), ['public_html', 'htdocs', 'www', 'web'])) {
+                $filteredSegments[] = $segment;
+            }
+        }
+        
+        // Nếu còn segment nào, thêm vào base URL
+        if (!empty($filteredSegments)) {
+            $baseUrl .= '/' . implode('/', $filteredSegments);
+        }
     }
-    
+
     // Đảm bảo kết thúc bằng /
     if (substr($baseUrl, -1) !== '/') {
         $baseUrl .= '/';
     }
-    
+
     return $baseUrl;
 }
 

@@ -69,7 +69,7 @@
     <div class="card">
         <h1>Sửa Biến thể</h1>
         <p class="lead">Chỉnh sửa thông tin biến thể sản phẩm.</p>
-        <form method="post" action="http://localhost/Banhang/BienThe/update" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>BienThe/update" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
                 <input type="text" name="txtMaBienThe" required readonly
@@ -132,7 +132,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/BienThe/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">

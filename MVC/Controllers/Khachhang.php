@@ -167,7 +167,7 @@ class Khachhang extends controller
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -216,7 +216,7 @@ class Khachhang extends controller
     function giohang()
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -285,7 +285,7 @@ class Khachhang extends controller
                 $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $so_luong);
             }
 
-            header('Location: http://localhost/Banhang/Khachhang/giohang');
+            header('Location: ' . $this->url('Khachhang/giohang'));
         }
     }
 
@@ -293,14 +293,14 @@ class Khachhang extends controller
     function xoakhoigio($ma_gio_hang, $ma_bien_the)
     {
         $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ma_bien_the);
-        header('Location: http://localhost/Banhang/Khachhang/giohang');
+        header('Location: ' . $this->url('Khachhang/giohang'));
     }
 
     // Tiến hành thanh toán
     function thanhtoan()
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -389,7 +389,7 @@ class Khachhang extends controller
     function datHang()
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -713,7 +713,7 @@ class Khachhang extends controller
                 // Nếu là thanh toán online (VNPAY), chuyển hướng đến cổng thanh toán
                 if ($payment_method === 'bank') {
                     // Include VNPAY helper
-                    require_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/MVC/Core/VnPayHelper.php';
+                    require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'MVC/Core/VnPayHelper.php';
 
                     try {
                         $orderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
@@ -755,7 +755,7 @@ class Khachhang extends controller
     function xulythanhtoan()
     {
         // Include VNPAY helper
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/MVC/Core/VnPayHelper.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'MVC/Core/VnPayHelper.php';
 
         $vnp_SecureHash = $_GET['vnp_SecureHash'];
         $vnp_ResponeCode = $_GET['vnp_ResponseCode'];
@@ -835,7 +835,7 @@ class Khachhang extends controller
     function lichsumuahang()
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -891,7 +891,7 @@ class Khachhang extends controller
     function chitietdonhang($ma_don_hang)
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -903,7 +903,7 @@ class Khachhang extends controller
 
         if ($dh_info['ma_user'] != $ma_user) {
             echo "<script>alert('Bạn không có quyền xem đơn hàng này!');</script>";
-            header('Location: http://localhost/Banhang/Khachhang/lichsumuahang');
+            header('Location: ' . $this->url('Khachhang/lichsumuahang'));
             exit;
         }
 
@@ -921,7 +921,7 @@ class Khachhang extends controller
     function taikhoan()
     {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: http://localhost/Banhang/Login');
+            header('Location: ' . $this->url('Login'));
             exit;
         }
 
@@ -960,7 +960,7 @@ class Khachhang extends controller
                 if (in_array($file_type, $allowed_types)) {
                     $file_size = $_FILES['txtAvatar']['size'];
                     if ($file_size <= 5 * 1024 * 1024) { // Max 5MB
-                        $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/users/';
+                        $upload_dir = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/users/';
                         
                         // Tạo thư mục nếu chưa tồn tại
                         if (!file_exists($upload_dir)) {
@@ -981,7 +981,7 @@ class Khachhang extends controller
                             $current_user = $this->user->Users_getById($ma_user);
                             $current_user_data = mysqli_fetch_assoc($current_user);
                             if ($current_user_data && !empty($current_user_data['avatar']) && $current_user_data['avatar'] != 'avatar.png') {
-                                $old_avatar_path = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/users/' . $current_user_data['avatar'];
+                                $old_avatar_path = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/users/' . $current_user_data['avatar'];
                                 if (file_exists($old_avatar_path)) {
                                     unlink($old_avatar_path);
                                 }
@@ -1030,7 +1030,7 @@ class Khachhang extends controller
         }
         
         // Nếu không phải POST request, chuyển hướng về trang tài khoản
-        header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+        header('Location: ' . $this->url('Khachhang/taikhoan'));
     }
 
     // Đổi mật khẩu
@@ -1093,7 +1093,7 @@ class Khachhang extends controller
                 echo "<script>alert('Thêm địa chỉ thất bại!');</script>";
             }
 
-            header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+            header('Location: ' . $this->url('Khachhang/taikhoan'));
         }
     }
 
@@ -1116,7 +1116,7 @@ class Khachhang extends controller
                 echo "<script>alert('Cập nhật địa chỉ thất bại!');</script>";
             }
 
-            header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+            header('Location: ' . $this->url('Khachhang/taikhoan'));
         }
     }
 
@@ -1131,7 +1131,7 @@ class Khachhang extends controller
             echo "<script>alert('Xóa địa chỉ thất bại!');</script>";
         }
 
-        header('Location: http://localhost/Banhang/Khachhang/taikhoan');
+        header('Location: ' . $this->url('Khachhang/taikhoan'));
     }
 
     // Lọc sản phẩm theo mức giá
@@ -1276,10 +1276,10 @@ class Khachhang extends controller
 
                 // Tạo đường dẫn hình ảnh
                 $img_url = !empty($bt_info['img_bien_the'])
-                    ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt_info['img_bien_the'])
+                    ? BASE_URL . 'Public/Pictures/bien_the/' . htmlspecialchars($bt_info['img_bien_the'])
                     : (!empty($sp_info['img_hinh_anh'])
-                        ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp_info['img_hinh_anh'])
-                        : '/Banhang/Public/Images/no-image.png');
+                        ? BASE_URL . 'Public/Pictures/sanpham/' . htmlspecialchars($sp_info['img_hinh_anh'])
+                        : BASE_URL . 'Public/Images/no-image.png');
 
                 // Tạo tên biến thể
                 $variant_parts = [];

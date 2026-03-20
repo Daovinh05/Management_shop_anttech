@@ -230,16 +230,16 @@
                     <p class="lead">Tìm kiếm và quản lý thông tin nhà cung cấp.</p>
                 </div>
                 <div class="actions">
-                    <a href="http://localhost/Banhang/Nhacungcap/themmoi" class="btn-create"><i
+                    <a href="<?php echo BASE_URL; ?>Nhacungcap/themmoi" class="btn-create"><i
                             class="fa-solid fa-plus"></i>
                         Thêm mới nhà cung cấp</a>
-                    <a href="http://localhost/Banhang/Danhmuc/import_form" class="btn-ghost"><i
+                    <a href="<?php echo BASE_URL; ?>Danhmuc/import_form" class="btn-ghost"><i
                             class="fa-solid fa-file-excel"></i> Nhập
                         Excel</a>
                 </div>
             </div>
 
-            <form method="post" action="http://localhost/Banhang/Nhacungcap/Timkiem" class="form-search"
+            <form method="post" action="<?php echo BASE_URL; ?>Nhacungcap/Timkiem" class="form-search"
                 style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
                 <div class="search-fields">
                     <div>
@@ -258,7 +258,7 @@
                 <div class="actions" style="margin-top:0;">
                     <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
                         kiếm</button>
-                    <a href="http://localhost/Banhang/Nhacungcap/danhsach" class="btn-ghost">Làm mới</a>
+                    <a href="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="btn-ghost">Làm mới</a>
                     <button type="submit" name="btnXuatexcel" class="btn-excel">
                         <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                     </button>
@@ -303,10 +303,10 @@
                             <td><?php echo $row['dia_chi'] ?></td>
                             <td><?php echo $row['dien_thoai'] ?></td>
                             <td style="text-align:right">
-                                <a href="http://localhost/Banhang/Nhacungcap/sua/<?php echo $row['ma_nha_cung_cap'] ?>"><button
+                                <a href="<?php echo BASE_URL; ?>Nhacungcap/sua/<?php echo $row['ma_nha_cung_cap'] ?>"><button
                                         class="btn-edit">✏️
                                         Sửa</button></a>
-                                <a href="http://localhost/Banhang/Nhacungcap/xoa/<?php echo $row['ma_nha_cung_cap'] ?>"
+                                <a href="<?php echo BASE_URL; ?>Nhacungcap/xoa/<?php echo $row['ma_nha_cung_cap'] ?>"
                                     onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
                                         class="btn-delete">🗑️
                                         Xóa</button></a>
