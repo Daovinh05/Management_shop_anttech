@@ -175,7 +175,7 @@
 
 
 
-            <form method="post" action="http://localhost/Banhang/Login/process">
+            <form method="post" action="<?php echo BASE_URL; ?>Login/process">
                 <div class="form-group">
                     <label>Tài khoản</label>
                     <input type="text" name="username" placeholder="Nhập tài khoản" required>
@@ -198,7 +198,7 @@
 
             <div style="text-align: center; margin-top: 15px;">
                 <p>Bạn chưa có tài khoản?
-                    <a href="http://localhost/Banhang/Login/register"
+                    <a href="<?php echo BASE_URL; ?>Login/register"
                         style="color: #6f4e37; text-decoration: none; font-weight: bold;">Đăng ký ngay</a>
                 </p>
             </div>

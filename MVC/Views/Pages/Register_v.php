@@ -182,7 +182,7 @@
             <h2>Đăng ký tài khoản</h2>
             <p>Quản lý quán cà phê</p>
 
-            <form method="post" action="http://localhost/Banhang/Login/process_register">
+            <form method="post" action="<?php echo BASE_URL; ?>Login/process_register">
                 <div class="form-group">
                     <label>Tên tài khoản</label>
                     <!-- <input type="text" name="username" placeholder="Nhập tên đăng nhập" required> -->

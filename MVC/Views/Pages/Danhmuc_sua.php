@@ -106,7 +106,7 @@
     <div class="card">
         <h1>Sửa Danh mục</h1>
         <p class="lead">Chỉnh sửa thông tin danh mục.</p>
-        <form method="post" action="http://localhost/Banhang/Danhmuc/update" enctype="multipart/form-data">
+        <form method="post" action="<?php echo BASE_URL; ?>Danhmuc/update" enctype="multipart/form-data">
             <div>
                 <label>Mã danh mục <span style="color:red">*</span></label>
                 <input type="text" name="txtMadanhmuc" required readonly
@@ -119,7 +119,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
+                <a href="<?php echo BASE_URL; ?>Danhmuc/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>

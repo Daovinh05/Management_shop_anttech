@@ -1686,7 +1686,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                 mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
                                 while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
                                     $class = $first_variant ? 'color-btn selected' : 'color-btn';
-                                    $variant_image = !empty($bt['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : '/Banhang/Public/Images/no-image.png';
+                                    $variant_image = !empty($bt['img_bien_the']) ? BASE_URL . 'Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : BASE_URL . 'Public/Images/no-image.png';
                                     echo '<div class="' . $class . '" data-variant-image="' . $variant_image . '" onclick="selectVariant(this, \'' . $bt['ten_bien_the'] . '\', \'' . $variant_image . '\')">';
                                     echo '<input type="radio" name="ma_bien_the" value="' . $bt['ma_bien_the'] . '" ' . ($first_variant ? 'checked' : '') . ' style="display:none;">';
 
@@ -1919,7 +1919,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                         echo '<div class="sim-card">';
                         echo '<div class="sim-badge">-' . (isset($sp['giam_gia']) ? $sp['giam_gia'] : '0') . '%</div>';
                         echo '<a href="' . $this->url('Khachhang/chitietsanpham/' . $sp['ma_san_pham']) . '" class="sim-img">';
-                        $img_src = !empty($sp['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : (!empty($sp['img_hinh_anh']) ? '/Banhang/Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : '/Banhang/Public/Images/no-image.png');
+                        $img_src = !empty($sp['img_bien_the']) ? BASE_URL . 'Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : (!empty($sp['img_hinh_anh']) ? BASE_URL . 'Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : BASE_URL . 'Public/Images/no-image.png');
                         echo '<img src="' . $img_src . '" alt="' . $sp['ten_san_pham'] . '">';
                         echo '</a>';
                         echo '<div class="sim-title">' . $sp['ten_san_pham'] . '</div>';

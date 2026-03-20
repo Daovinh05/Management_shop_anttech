@@ -73,7 +73,7 @@
 
     <main class="card">
         <h1>Sửa thông tin Đánh giá</h1>
-        <form method="post" action="http://localhost/Banhang/Danhgia/update">
+        <form method="post" action="<?php echo BASE_URL; ?>Danhgia/update">
             <div>
                 <label>Mã đánh giá</label>
                 <input type="text" name="txtMadanhgia" readonly
@@ -113,7 +113,7 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhgia/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Danhgia/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>

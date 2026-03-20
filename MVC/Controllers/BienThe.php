@@ -78,7 +78,7 @@ class BienThe extends controller
                     // Kiểm tra nếu tên tệp đã tồn tại, thêm hậu tố cho đến khi không trùng
                     $counter = 1;
                     $final_filename = $new_filename;
-                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/bien_the/';
+                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/bien_the/';
 
                     while (file_exists($upload_dir . $final_filename)) {
                         $final_filename = $original_name . '_' . $counter . '.' . $ext;
@@ -234,7 +234,7 @@ class BienThe extends controller
                     // Kiểm tra nếu tên tệp đã tồn tại, thêm hậu tố cho đến khi không trùng
                     $counter = 1;
                     $final_filename = $new_filename;
-                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/bien_the/';
+                    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/bien_the/';
 
                     while (file_exists($upload_dir . $final_filename)) {
                         $final_filename = $original_name . '_' . $counter . '.' . $ext;
@@ -257,7 +257,7 @@ class BienThe extends controller
 
                     if (move_uploaded_file($filetmp, $upload_path)) {
                         // Xóa hình ảnh cũ nếu tồn tại
-                        $old_image_path = $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Pictures/bien_the/' . $current_row['img_bien_the'];
+                        $old_image_path = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/bien_the/' . $current_row['img_bien_the'];
                         if (!empty($current_row['img_bien_the']) && file_exists($old_image_path) && strpos($old_image_path, '/Public/Pictures/bien_the/') !== false) {
                             unlink($old_image_path);
                         }

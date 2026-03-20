@@ -299,7 +299,7 @@
         <div class="quick-actions">
             <h2><i class="fa-solid fa-bolt"></i> Hành động nhanh</h2>
             <div class="actions-grid">
-                <a href="http://localhost/Banhang/Users/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="action-card">
                     <div class="action-icon bg-blue">
                         <i class="fa-solid fa-users"></i>
                     </div>
@@ -309,7 +309,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Danhmuc/danhsach" class="action-card">
                     <div class="action-icon bg-purple">
                         <i class="fa-solid fa-file-excel"></i>
                     </div>
@@ -319,7 +319,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="action-card">
                     <div class="action-icon bg-cyan">
                         <i class="fa-solid fa-chair"></i>
                     </div>
@@ -329,7 +329,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/Nhacungcap/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="action-card">
                     <div class="action-icon bg-indigo">
                         <i class="fa-solid fa-truck-fast"></i>
                     </div>
@@ -341,7 +341,7 @@
 
 
 
-                <a href="http://localhost/Banhang/Sanpham/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="action-card">
                     <div class="action-icon bg-green">
                         <i class="fa-solid fa-box-open"></i>
                     </div>
@@ -351,7 +351,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/BienThe/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="action-card">
                     <div class="action-icon bg-orange">
                         <i class="fa-solid fa-sliders-h"></i>
                     </div>
@@ -360,7 +360,7 @@
                         <p>Quản lý biến thể sản phẩm</p>
                 </div>
 
-                <a href="http://localhost/Banhang/Khuyenmai/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Khuyenmai/danhsach" class="action-card">
                     <div class="action-icon bg-pink">
                         <i class="fa-solid fa-gift"></i>
                     </div>
@@ -370,7 +370,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/Danhgia/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Danhgia/danhsach" class="action-card">
                     <div class="action-icon bg-pink">
                         <i class="fa-solid fa-gift"></i>
                     </div>
@@ -380,7 +380,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/Donhang/danhsach" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Donhang/danhsach" class="action-card">
                     <div class="action-icon bg-orange">
                         <i class="fa-solid fa-cart-shopping"></i>
                     </div>
@@ -390,7 +390,7 @@
                     </div>
                 </a>
 
-                <a href="http://localhost/Banhang/Thongke/thongke" class="action-card">
+                <a href="<?php echo BASE_URL; ?>Thongke/thongke" class="action-card">
                     <div class="action-icon bg-teal">
                         <i class="fa-solid fa-chart-simple"></i>
                     </div>

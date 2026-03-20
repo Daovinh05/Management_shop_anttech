@@ -1012,7 +1012,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     </div>
 
     <!-- Hidden form for updating user info -->
-    <form id="updateUserInfoForm" action="http://localhost/Banhang/Khachhang/capnhatTaikhoan" method="post"
+    <form id="updateUserInfoForm" action="<?php echo BASE_URL; ?>Khachhang/capnhatTaikhoan" method="post"
         style="display: none;">
         <input type="hidden" name="txtMaUser" value="<?php echo $user ? $user['ma_user'] : ''; ?>">
         <input type="hidden" name="txtTenUser" value="<?php echo $user ? $user['ten_user'] : ''; ?>">
@@ -1235,7 +1235,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             }
 
             // Send AJAX request to update user info
-            fetch('http://localhost/Banhang/Khachhang/capnhatTaikhoan', {
+            fetch('<?php echo BASE_URL; ?>Khachhang/capnhatTaikhoan', {
                     method: 'POST',
                     body: formData
                 })
@@ -1300,7 +1300,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             formData.append('txtNewPassword', newPassword); // Mật khẩu mới
 
             // Send AJAX request to update password
-            fetch('http://localhost/Banhang/Khachhang/doimatkhau', {
+            fetch('<?php echo BASE_URL; ?>Khachhang/doimatkhau', {
                     method: 'POST',
                     body: formData
                 })
