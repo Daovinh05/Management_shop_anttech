@@ -1,4 +1,8 @@
 <?php
+// Tắt error display để không làm hỏng JSON response
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 class Login extends controller
 {
     private $user;
@@ -33,6 +37,16 @@ class Login extends controller
         // Check if this is an AJAX request FIRST
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
         
+        // Nếu là AJAX request, tắt buffering và đảm bảo không có output nào trước JSON
+        if ($isAjax) {
+            // Xóa bất kỳ output nào trước đó
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            // Đảm bảo header JSON được gửi đúng
+            header('Content-Type: application/json; charset=utf-8');
+        }
+
         if (isset($_POST['username']) && isset($_POST['password'])) {
             $username = $_POST['username'];
             $password = $_POST['password'];
@@ -45,10 +59,12 @@ class Login extends controller
                 $_SESSION['user_id'] = $user['ma_user'];
                 $_SESSION['user_name'] = $user['ten_user'];
                 $_SESSION['user_role'] = $user['phan_quyen'];
+                
+                // Lưu session ngay lập tức
+                session_write_close();
 
                 // Return JSON response for AJAX
                 if ($isAjax) {
-                    header('Content-Type: application/json');
                     if ($user['phan_quyen'] == 'admin') {
                         echo json_encode(['success' => true, 'redirect' => $this->url('admin')]);
                     } else {
@@ -69,7 +85,6 @@ class Login extends controller
 
                 // Return JSON response for AJAX
                 if ($isAjax) {
-                    header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'error' => 'Tên đăng nhập hoặc mật khẩu không đúng!']);
                     exit;
                 } else {
@@ -80,7 +95,6 @@ class Login extends controller
         } else {
             // Return JSON response for AJAX
             if ($isAjax) {
-                header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'error' => 'Dữ liệu không hợp lệ!']);
                 exit;
             } else {
