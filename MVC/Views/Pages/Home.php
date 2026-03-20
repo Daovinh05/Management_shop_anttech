@@ -1119,9 +1119,17 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
             // Get form data
             const formData = new FormData(this);
+            
+            // Get the URL
+            const loginUrl = '<?php echo UrlHelper::url('Login/process'); ?>';
+            
+            // Debug log
+            console.log('=== LOGIN DEBUG ===');
+            console.log('Login URL:', loginUrl);
+            console.log('Form data:', Object.fromEntries(formData));
 
             // Send AJAX request
-            fetch('<?php echo UrlHelper::url('Login/process'); ?>', {
+            fetch(loginUrl, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -1129,18 +1137,24 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     }
                 })
                 .then(async response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                    
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
                     // Check if the response is JSON or HTML
                     const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
                     if (contentType && contentType.includes('application/json')) {
                         return response.json();
                     } else {
                         // If not JSON, try to parse the response as text to see what's happening
                         const text = await response.text();
                         console.log('Server response (non-JSON):', text);
+                        console.log('Response length:', text.length);
 
                         // Try to extract JSON from the response if it contains JSON somewhere
                         try {
@@ -1149,13 +1163,14 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             const jsonEnd = text.lastIndexOf('}') + 1;
                             if (jsonStart !== -1 && jsonEnd !== 0) {
                                 const jsonString = text.substring(jsonStart, jsonEnd);
+                                console.log('Extracted JSON:', jsonString);
                                 return JSON.parse(jsonString);
                             } else {
-                                throw new Error('Server did not return valid JSON');
+                                throw new Error('Server did not return valid JSON. Response: ' + text.substring(0, 200));
                             }
                         } catch (e) {
                             console.error('Could not parse server response as JSON:', e);
-                            throw new Error('Server returned invalid response format');
+                            throw new Error('Server returned invalid response format: ' + e.message);
                         }
                     }
                 })
