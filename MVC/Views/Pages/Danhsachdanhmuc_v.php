@@ -221,7 +221,7 @@
                 <a href="<?php echo BASE_URL; ?>Danhmuc/import_form" class="btn-ghost"><i
                         class="fa-solid fa-file-excel"></i> Nhập
                     Excel</a>
-                <!-- <a href="http://localhost/QLSP/Danhmuc/export" class="btn-excel"><i class="fa-solid fa-download"></i> Xuất
+                <!-- <a href="<?php echo BASE_URL ?>Danhmuc/export" class="btn-excel"><i class="fa-solid fa-download"></i> Xuất
                     Excel</a> -->
             </div>
         </div>
@@ -244,7 +244,7 @@
             <div class="actions" style="margin-top:0;">
                 <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
-                <a href="http://localhost/QLSP/Danhmuc/danhsach" class="btn-ghost">Làm mới</a>
+                <a href="<?php echo BASE_URL ?>Danhmuc/danhsach" class="btn-ghost">Làm mới</a>
                 <button type="submit" name="btnXuatexcel" class="btn-excel">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>

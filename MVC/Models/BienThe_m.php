@@ -73,7 +73,7 @@ class BienThe_m extends connectDB
         $getImageSql = "SELECT img_bien_the FROM bien_the WHERE ma_bien_the = '$ma_bien_the'";
         $result = mysqli_query($this->con, $getImageSql);
         if ($result && $row = mysqli_fetch_assoc($result)) {
-            $imagePath = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/bien_the/' . $row['img_bien_the'];
+            $imagePath = __DIR__ . '/../../Public/Pictures/bien_the/' . $row['img_bien_the'];
             if (!empty($row['img_bien_the']) && file_exists($imagePath)) {
                 unlink($imagePath);
             }
