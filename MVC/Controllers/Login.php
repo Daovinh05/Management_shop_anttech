@@ -21,7 +21,7 @@ class Login extends controller
     {
         if (isset($_SESSION['user_id'])) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: ' . $this->url('admin'));
+                header('Location: ' . $this->url('Quanly'));
             } else {
                 header('Location: ' . $this->url('Khachhang'));
             }
@@ -66,7 +66,7 @@ class Login extends controller
                 // Return JSON response for AJAX
                 if ($isAjax) {
                     if ($user['phan_quyen'] == 'admin') {
-                        echo json_encode(['success' => true, 'redirect' => $this->url('admin')]);
+                        echo json_encode(['success' => true, 'redirect' => $this->url('Quanly')]);
                     } else {
                         echo json_encode(['success' => true, 'redirect' => $this->url('Khachhang')]);
                     }
@@ -74,7 +74,7 @@ class Login extends controller
                 } else {
                     // Regular redirect for non-AJAX requests
                     if ($user['phan_quyen'] == 'admin') {
-                        header('Location: ' . $this->url('admin'));
+                        header('Location: ' . $this->url('Quanly'));
                     } else {
                         header('Location: ' . $this->url('Khachhang'));
                     }

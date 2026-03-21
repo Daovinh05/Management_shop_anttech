@@ -27,8 +27,8 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             <nav class="menu_left1">
                 <ul>
                     <li>
-                        <a href="<?php echo UrlHelper::url('admin'); ?>"
-                            class="<?php echo (strpos($current, 'admin') !== false) ? 'active' : ''; ?>">
+                        <a href="<?php echo UrlHelper::url('Quanly'); ?>"
+                            class="<?php echo (strpos($current, 'Quanly') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-chart-pie"></i> Tổng quan
                         </a>
                     </li>
@@ -111,7 +111,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             <header class="top-header">
                 <div class="page-title">
                     <?php
-                    if (strpos($current, 'admin') !== false) echo 'Dashboard';
+                    if (strpos($current, 'Quanly') !== false) echo 'Dashboard';
                     elseif (strpos($current, 'Sanpham') !== false) echo 'Sản phẩm';
                     elseif (strpos($current, 'Danhmuc') !== false) echo 'Danh mục';
                     elseif (strpos($current, 'Thuonghieu') !== false) echo 'Thương hiệu';
