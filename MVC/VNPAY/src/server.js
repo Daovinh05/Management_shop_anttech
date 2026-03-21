@@ -13,7 +13,7 @@ const { VNPay, ignoreLogger, ProductCode, VnpLocale, dateFormat } = require('vnp
 app.post('/api/create-qr', async (req, res) => {
     const vnpay = new VNPay({
         tmnCode: 'FE8GKNXS',
-        secureSecret: 'D124UIMTTI9E22DFF05VQWJ4CJOACJU2',
+        secureSecret: 'ZDFBA7R38IRP31HKIN1GBQP6OFPGHIDN',
         vnpayHost: 'https://sandbox.vnpayment.vn',
         testMode: true,
         hashAlgorithm: 'SHA512',
