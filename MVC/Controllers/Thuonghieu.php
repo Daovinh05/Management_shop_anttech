@@ -121,7 +121,7 @@ class Thuonghieu extends controller
         }
         // DISPLAY VIEW
         $this->view('Master', [
-            'page' => 'danhsachthuonghieu_v',
+            'page' => 'Danhsachthuonghieu_v',
             'ma_thuong_hieu' => $ma_thuong_hieu,
             'ten_thuong_hieu' => $ten_thuong_hieu,
             'dulieu' => $result
@@ -134,7 +134,7 @@ class Thuonghieu extends controller
         $row = mysqli_fetch_array($result);
 
         $this->view('Master', [
-            'page' => 'thuonghieu_sua',
+            'page' => 'Thuonghieu_sua',
             'ma_thuong_hieu' => $row['ma_thuong_hieu'],
             'ten_thuong_hieu' => $row['ten_thuong_hieu']
         ]);

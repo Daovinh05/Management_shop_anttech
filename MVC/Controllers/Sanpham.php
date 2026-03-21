@@ -39,7 +39,7 @@ class Sanpham extends controller
         $result = $this->sp->SanPham_getAll();
 
         $this->view('Master', [
-            'page' => 'sanpham_v',
+            'page' => 'Sanpham_v',
             'ma_san_pham' => '',
             'ten_san_pham' => '',
             'ma_danh_muc' => '',
@@ -76,7 +76,7 @@ class Sanpham extends controller
                 if ($kq1) {
                     echo "<script>alert('Mã sản phẩm đã tồn tại! Vui lòng nhập mã khác.')</script>";
                     $this->view('Master', [
-                        'page' => 'sanpham_v',
+                        'page' => 'Sanpham_v',
                         'ma_san_pham' => $ma_san_pham,
                         'ten_san_pham' => $ten_san_pham,
                         'ma_danh_muc' => $ma_danh_muc,
@@ -94,7 +94,7 @@ class Sanpham extends controller
                     } else {
                         echo "<script>alert('Thêm mới thất bại!')</script>";
                         $this->view('Master', [
-                            'page' => 'sanpham_v',
+                            'page' => 'Sanpham_v',
                             'ma_san_pham' => $ma_san_pham,
                             'ten_san_pham' => $ten_san_pham,
                             'ma_danh_muc' => $ma_danh_muc,
@@ -227,7 +227,7 @@ class Sanpham extends controller
     function import_form()
     {
         $this->view('Master', [
-            'page' => 'sanpham_up_v'
+            'page' => 'Sanpham_up_v'
         ]);
     }
 
@@ -274,6 +274,6 @@ class Sanpham extends controller
         }
 
         echo "<script>alert('Upload sản phẩm thành công!')</script>";
-        $this->view('Master', ['page' => 'sanpham_up_v']);
+        $this->view('Master', ['page' => 'Sanpham_up_v']);
     }
 }
