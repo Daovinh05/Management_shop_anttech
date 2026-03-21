@@ -63,7 +63,7 @@ class app
         // Nếu người dùng đã đăng nhập nhưng cố truy cập trang đăng nhập, chuyển hướng theo vai trò
         if (isset($_SESSION['user_id']) && in_array($current_route, ['Users/login', 'Login'])) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: ' . BASE_URL . 'admin');
+                header('Location: ' . BASE_URL . 'Quanly');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
                 header('Location: ' . BASE_URL . 'Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
@@ -77,7 +77,7 @@ class app
         // Nếu người dùng đã đăng nhập và truy cập trang chủ trực tiếp, chuyển hướng theo vai trò nếu là admin hoặc nhân viên
         if (isset($_SESSION['user_id']) && empty($current_route)) {
             if ($_SESSION['user_role'] === 'admin') {
-                header('Location: ' . BASE_URL . 'admin');
+                header('Location: ' . BASE_URL . 'Quanly');
             } elseif ($_SESSION['user_role'] === 'nhan_vien') {
                 header('Location: ' . BASE_URL . 'Staff');
             } elseif ($_SESSION['user_role'] === 'khach_hang') {
@@ -97,7 +97,7 @@ class app
         }
 
         // Đảm bảo chỉ những người dùng được ủy quyền mới có thể truy cập các route admin
-        if (!isset($_SESSION['user_id']) && strpos($current_route, 'admin') === 0) {
+        if (!isset($_SESSION['user_id']) && strpos($current_route, 'Quanly') === 0) {
             header('Location: ' . BASE_URL . 'Login');
             exit;
         }
