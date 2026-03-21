@@ -19,7 +19,7 @@ class Nhacungcap extends controller
         $result = $this->ncc->NhaCungCap_getAll();
 
         $this->view('Master', [
-            'page' => 'danhsachnhacungcap_v',
+            'page' => 'Danhsachnhacungcap_v',
             'dulieu' => $result
         ]);
     }
@@ -29,7 +29,7 @@ class Nhacungcap extends controller
         $result = $this->ncc->NhaCungCap_getAll();
 
         $this->view('Master', [
-            'page' => 'nhacungcap_v',
+            'page' => 'Nhacungcap_v',
             'ma_nha_cung_cap' => '',
             'ten_nha_cung_cap' => '',
             'dia_chi' => '',
@@ -57,7 +57,7 @@ class Nhacungcap extends controller
                 if ($kq1) {
                     echo "<script>alert('Mã nhà cung cấp đã tồn tại! Vui lòng nhập mã khác.')</script>";
                     $this->view('Master', [
-                        'page' => 'nhacungcap_v',
+                        'page' => 'Nhacungcap_v',
                         'ma_nha_cung_cap' => $ma_nha_cung_cap,
                         'ten_nha_cung_cap' => $ten_nha_cung_cap,
                         'dia_chi' => $dia_chi,
@@ -71,7 +71,7 @@ class Nhacungcap extends controller
                     } else {
                         echo "<script>alert('Thêm mới thất bại!')</script>";
                         $this->view('Master', [
-                            'page' => 'nhacungcap_v',
+                            'page' => 'Nhacungcap_v',
                             'ma_nha_cung_cap' => $ma_nha_cung_cap,
                             'ten_nha_cung_cap' => $ten_nha_cung_cap,
                             'dia_chi' => $dia_chi,

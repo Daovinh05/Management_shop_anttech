@@ -5,7 +5,7 @@ class Danhmuc extends controller
 
     function __construct()
     {
-        $this->dm = $this->model("Danhmuc_m");
+        $this->dm = $this->model("DanhMuc_m");
     }
     function Get_data()
     {
