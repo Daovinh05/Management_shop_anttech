@@ -34,7 +34,7 @@ class Thongke extends controller
         $topSanPham = $this->dh->DonHang_TopSanPham(10);
 
         $this->view('Master', [
-            'page' => 'thongkedoanhthu_v',
+            'page' => 'Thongkedoanhthu_v',
             'tongquan' => $tongQuan,
             'danhsachdonhang' => $danhSachDonHang,
             'thongkephuongthuc' => $thongKePhuongThuc,
@@ -162,7 +162,7 @@ class Thongke extends controller
             $topSanPham = $this->dh->DonHang_TopSanPham(10);
 
             $this->view('Master', [
-                'page' => 'thongkedoanhthu_v',
+                'page' => 'Thongkedoanhthu_v',
                 'tongquan' => $tongQuan,
                 'danhsachdonhang' => $danhSachDonHang,
                 'thongkephuongthuc' => $thongKePhuongThuc,
@@ -199,7 +199,7 @@ class Thongke extends controller
             $topSanPham = $this->dh->DonHang_TopSanPham(10);
 
             $this->view('Master', [
-                'page' => 'thongkedoanhthu_v',
+                'page' => 'Thongkedoanhthu_v',
                 'tongquan' => $tongQuan,
                 'danhsachdonhang' => $danhSachDonHang,
                 'thongkephuongthuc' => $thongKePhuongThuc,

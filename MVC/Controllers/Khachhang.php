@@ -713,7 +713,7 @@ class Khachhang extends controller
                 // Nếu là thanh toán online (VNPAY), chuyển hướng đến cổng thanh toán
                 if ($payment_method === 'bank') {
                     // Include VNPAY helper
-                    require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'MVC/Core/VnPayHelper.php';
+                    require_once __DIR__ . '/../Core/VnPayHelper.php';
 
                     try {
                         $orderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
@@ -755,7 +755,7 @@ class Khachhang extends controller
     function xulythanhtoan()
     {
         // Include VNPAY helper
-        require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'MVC/Core/VnPayHelper.php';
+        require_once __DIR__ . '/../Core/VnPayHelper.php';
 
         $vnp_SecureHash = $_GET['vnp_SecureHash'];
         $vnp_ResponeCode = $_GET['vnp_ResponseCode'];
@@ -960,7 +960,7 @@ class Khachhang extends controller
                 if (in_array($file_type, $allowed_types)) {
                     $file_size = $_FILES['txtAvatar']['size'];
                     if ($file_size <= 5 * 1024 * 1024) { // Max 5MB
-                        $upload_dir = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/users/';
+                        $upload_dir = __DIR__ . '/../../Public/Pictures/users/';
                         
                         // Tạo thư mục nếu chưa tồn tại
                         if (!file_exists($upload_dir)) {
@@ -981,7 +981,7 @@ class Khachhang extends controller
                             $current_user = $this->user->Users_getById($ma_user);
                             $current_user_data = mysqli_fetch_assoc($current_user);
                             if ($current_user_data && !empty($current_user_data['avatar']) && $current_user_data['avatar'] != 'avatar.png') {
-                                $old_avatar_path = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . 'Public/Pictures/users/' . $current_user_data['avatar'];
+                                $old_avatar_path = __DIR__ . '/../../Public/Pictures/users/' . $current_user_data['avatar'];
                                 if (file_exists($old_avatar_path)) {
                                     unlink($old_avatar_path);
                                 }
