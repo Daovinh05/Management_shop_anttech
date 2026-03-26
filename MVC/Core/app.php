@@ -12,22 +12,49 @@ class app
         $this->checkAuth();
 
         $arr = $this->processURL();
+        $is_api = false;
+        $controller_dir = '/../Controllers/';
 
-        if ($arr != null) {
-            if (file_exists(__DIR__ . '/../Controllers/' . $arr[0] . '.php')) {
+        if ($arr != null && strtolower($arr[0]) === 'api') {
+            $is_api = true;
+            $controller_dir = '/../Controllers/Api/';
+            unset($arr[0]);
+            $arr = array_values($arr); // reset index
+        }
+
+        if ($arr != null && isset($arr[0])) {
+            if (file_exists(__DIR__ . $controller_dir . $arr[0] . '.php')) {
                 $this->controller = $arr[0];
                 unset($arr[0]);
+            } else if ($is_api) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'API Controller Not Found']);
+                exit;
             }
+        } else if ($is_api) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'API Controller Required']);
+            exit;
         }
-        include_once __DIR__ . '/../Controllers/' . $this->controller . '.php';
+
+        include_once __DIR__ . $controller_dir . $this->controller . '.php';
         $this->controller = new $this->controller;
+        
         //Xử lý action
         if (isset($arr[1])) {
             if (method_exists($this->controller, $arr[1])) {
                 $this->action = $arr[1];
                 unset($arr[1]);
+            } else if ($is_api) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'API Endpoint (Action) Not Found']);
+                exit;
             }
         }
+
         //Xử lý param
         $this->param = $arr ? array_values($arr) : [];
         //Tạo biến có 3 tham số
@@ -42,9 +69,12 @@ class app
         // Lấy route hiện tại
         $current_route = '';
         if (isset($_GET['url'])) {
-            $current_route = $_GET['url'];
-        } else {
-            $current_route = '';
+            $current_route = trim($_GET['url'], '/');
+        }
+
+        // Nếu đây là request dành cho API, bỏ qua cơ chế session checkAuth này
+        if (strpos(strtolower($current_route), 'api/') === 0 || strtolower($current_route) === 'api') {
+            return; // API sẽ tự bọc cơ chế Auth riêng (Token) ở các Controller của chúng
         }
 
         // Nếu người dùng chưa đăng nhập và truy cập trang chủ trực tiếp (root URL), cho phép truy cập trang chủ
