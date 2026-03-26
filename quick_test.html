@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick API Test</title>
+</head>
+<body>
+    <h1>Quick API Test</h1>
+    
+    <h2>Test 1: Login</h2>
+    <button onclick="testLogin()">Test Login</button>
+    <pre id="loginResult"></pre>
+    
+    <h2>Test 2: Get Products</h2>
+    <button onclick="testProducts()">Test Get Products</button>
+    <pre id="productsResult"></pre>
+    
+    <script>
+        async function testLogin() {
+            try {
+                const response = await fetch('/Banhang/index.php?url=api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'vinh',
+                        password: '123'
+                    })
+                });
+                
+                console.log('Status:', response.status);
+                const text = await response.text();
+                console.log('Response text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    document.getElementById('loginResult').textContent = JSON.stringify(data, null, 2);
+                } catch (e) {
+                    document.getElementById('loginResult').textContent = 'Invalid JSON: ' + text;
+                }
+            } catch (error) {
+                document.getElementById('loginResult').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testProducts() {
+            try {
+                const response = await fetch('/Banhang/index.php?url=api/products&page=1&limit=3', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('Status:', response.status);
+                const text = await response.text();
+                console.log('Response text:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    document.getElementById('productsResult').textContent = JSON.stringify(data, null, 2);
+                } catch (e) {
+                    document.getElementById('productsResult').textContent = 'Invalid JSON: ' + text;
+                }
+            } catch (error) {
+                document.getElementById('productsResult').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

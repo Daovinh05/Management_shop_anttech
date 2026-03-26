@@ -111,4 +111,42 @@ class BienThe_m extends connectDB
         $sql = "SELECT * FROM bien_the WHERE ma_san_pham = '$ma_san_pham'";
         return mysqli_query($this->con, $sql);
     }
+
+    /**
+     * Lấy tất cả biến thể của một sản phẩm (alias cho BienThe_getByProduct)
+     */
+    function getBienTheByMaSanPham($ma_san_pham)
+    {
+        return $this->BienThe_getByProduct($ma_san_pham);
+    }
+
+    /**
+     * Thêm biến thể mới
+     */
+    function insertBienThe($ma_san_pham, $ten_bien_the, $gia, $so_luong_kho, $img_bien_the = '', $mau_sac = '', $ram = '', $dung_luong = '')
+    {
+        // Tạo mã biến thể tự động
+        $sql_max = "SELECT ma_bien_the FROM bien_the WHERE ma_bien_the LIKE 'BT%' ORDER BY CAST(SUBSTRING(ma_bien_the, 3) AS UNSIGNED) DESC LIMIT 1";
+        $result = mysqli_query($this->con, $sql_max);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $last_id = substr($row['ma_bien_the'], 2);
+            $next_id = intval($last_id) + 1;
+        } else {
+            $next_id = 1;
+        }
+        $ma_bien_the = 'BT' . str_pad($next_id, 3, '0', STR_PAD_LEFT);
+
+        return $this->bien_the_ins(
+            $ma_bien_the,
+            $ma_san_pham,
+            $ten_bien_the,
+            $img_bien_the,
+            $mau_sac,
+            $ram,
+            $dung_luong,
+            $gia,
+            $so_luong_kho
+        );
+    }
 }

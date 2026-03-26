@@ -64,9 +64,9 @@ define('BASE_URL', getBaseUrl());
 
 // Cấu hình database (cập nhật thông tin này trên production)
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'udtbalbihosting_Banhang');  // Đổi tên database nếu cần
-define('DB_USER', 'udtbalbihosting_root');     // Đổi username trên production
-define('DB_PASS', 'Vinh@123');         // Đổi password trên production
+define('DB_NAME', 'Banhang');  // Database local cho XAMPP
+define('DB_USER', 'root');             // XAMPP default user
+define('DB_PASS', '');                 // XAMPP default password (empty)
 define('DB_CHARSET', 'utf8mb4');
 
 // Cấu hình upload path

@@ -36,6 +36,12 @@ class app
 
     function checkAuth()
     {
+        // Bỏ qua API routes - đã được index.php xử lý
+        $current_route = isset($_GET['url']) ? $_GET['url'] : '';
+        if (stripos($current_route, 'api') === 0) {
+            return; // Không check auth cho API routes
+        }
+
         // Xác định các route công khai không yêu cầu xác thực
         $public_routes = ['Users/login', 'Users/logout', 'Login', 'Login/process', 'Login/register', 'Login/process_register', 'Khachhang', 'Khachhang/*', 'Home', 'Home/*'];
 

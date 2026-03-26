@@ -987,6 +987,9 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
 
     <script>
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+        const API_URL = BASE_URL + 'index.php?url=api';
+        
         // --- 1. SLIDER LOGIC ---
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
@@ -1009,7 +1012,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         function startTimer() {
             slideInterval = setInterval(() => {
                 showSlide(currentSlide + 1);
-            }, 3000);
+            }, 5000);
         }
 
         function resetTimer() {
@@ -1018,25 +1021,21 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         }
         startTimer();
 
-        // --- 2. MODAL LOGIC (NÂNG CẤP) ---
-        // Các nút mở Modal
+        // --- 2. MODAL LOGIC ---
         const btnOpenLogin = document.getElementById('btnOpenLogin');
         const btnOpenRegister = document.getElementById('btnOpenRegister');
         const btnCart = document.getElementById('btnCart');
         const ctaButtons = document.querySelectorAll('.cta-btn');
 
-        // Các Modal
         const loginModal = document.getElementById('loginModal');
         const registerModal = document.getElementById('registerModal');
 
-        // Các nút đóng/chuyển đổi
         const btnCloseLogin = document.getElementById('btnCloseLogin');
         const btnCloseRegister = document.getElementById('btnCloseRegister');
         const linkToRegister = document.getElementById('linkToRegister');
         const linkToLogin = document.getElementById('linkToLogin');
         const linkBacks = document.querySelectorAll('.linkBack');
 
-        // Hàm tiện ích: Mở/Đóng Modal
         function showModal(modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -1048,10 +1047,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         }
 
         // --- SỰ KIỆN MỞ MODAL ---
-        // 1. Nút Đăng nhập -> Mở Form Đăng nhập
         if (btnOpenLogin) btnOpenLogin.addEventListener('click', () => showModal(loginModal));
-
-        // 2. Nút Giỏ hàng & Các nút CTA trên Banner -> Mở Form Đăng nhập (Logic cũ)
         if (btnCart) btnCart.addEventListener('click', () => showModal(loginModal));
         ctaButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1059,19 +1055,15 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 showModal(loginModal);
             });
         });
-
-        // 3. Nút Đăng ký (Header) -> Mở Form Đăng ký
         if (btnOpenRegister) btnOpenRegister.addEventListener('click', () => showModal(registerModal));
 
         // --- SỰ KIỆN CHUYỂN ĐỔI FORM ---
-        // 4. Từ Login -> Register
         linkToRegister.addEventListener('click', (e) => {
             e.preventDefault();
             hideModal(loginModal);
             showModal(registerModal);
         });
 
-        // 5. Từ Register -> Login
         linkToLogin.addEventListener('click', (e) => {
             e.preventDefault();
             hideModal(registerModal);
@@ -1079,11 +1071,9 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         });
 
         // --- SỰ KIỆN ĐÓNG MODAL ---
-        // Nút X
         btnCloseLogin.addEventListener('click', () => hideModal(loginModal));
         btnCloseRegister.addEventListener('click', () => hideModal(registerModal));
 
-        // Nút "Tiếp tục mua sắm"
         linkBacks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1092,13 +1082,12 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             });
         });
 
-        // Click ra ngoài vùng đen
         window.addEventListener('click', (e) => {
             if (e.target === loginModal) hideModal(loginModal);
             if (e.target === registerModal) hideModal(registerModal);
         });
 
-        // --- LOGIC ẨN/HIỆN MẬT KHẨU (Cho cả 2 form) ---
+        // --- LOGIC ẨN/HIỆN MẬT KHẨU ---
         function setupPasswordToggle(inputId, toggleId) {
             const input = document.getElementById(inputId);
             const toggle = document.getElementById(toggleId);
@@ -1113,162 +1102,174 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         setupPasswordToggle('loginPasswordInput', 'loginTogglePass');
         setupPasswordToggle('regPasswordInput', 'regTogglePass');
 
-        // Submit Forms with AJAX to maintain modal experience
+        // --- LOGIN FORM - GỌI API ---
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent normal form submission
+            e.preventDefault();
 
-            // Get form data
             const formData = new FormData(this);
-            
-            // Get the URL
-            const loginUrl = '<?php echo UrlHelper::url('Login/process'); ?>';
-            
-            // Debug log
-            console.log('=== LOGIN DEBUG ===');
-            console.log('Login URL:', loginUrl);
-            console.log('Form data:', Object.fromEntries(formData));
+            const username = formData.get('username');
+            const password = formData.get('password');
 
-            // Send AJAX request
-            fetch(loginUrl, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(async response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+            // Disable button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xử lý...';
+
+            fetch(API_URL + '/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Lưu token và userInfo
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
                     
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    // Check if the response is JSON or HTML
-                    const contentType = response.headers.get('content-type');
-                    console.log('Content-Type:', contentType);
+                    // Hiển thị thành công
+                    const errorDiv = this.querySelector('.error');
+                    if (errorDiv) errorDiv.remove();
                     
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        // If not JSON, try to parse the response as text to see what's happening
-                        const text = await response.text();
-                        console.log('Server response (non-JSON):', text);
-                        console.log('Response length:', text.length);
-
-                        // Try to extract JSON from the response if it contains JSON somewhere
-                        try {
-                            // Look for JSON in the response text
-                            const jsonStart = text.indexOf('{');
-                            const jsonEnd = text.lastIndexOf('}') + 1;
-                            if (jsonStart !== -1 && jsonEnd !== 0) {
-                                const jsonString = text.substring(jsonStart, jsonEnd);
-                                console.log('Extracted JSON:', jsonString);
-                                return JSON.parse(jsonString);
-                            } else {
-                                throw new Error('Server did not return valid JSON. Response: ' + text.substring(0, 200));
-                            }
-                        } catch (e) {
-                            console.error('Could not parse server response as JSON:', e);
-                            throw new Error('Server returned invalid response format: ' + e.message);
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'success';
+                    successDiv.style.cssText = 'color: green; margin-top: 10px; text-align: center;';
+                    successDiv.textContent = 'Đăng nhập thành công! Đang chuyển hướng...';
+                    this.appendChild(successDiv);
+                    
+                    // Redirect dựa trên role
+                    setTimeout(() => {
+                        hideModal(loginModal);
+                        const role = data.data.role || data.data.user.user_role;
+                        if (role === 'admin') {
+                            window.location.href = BASE_URL + 'Quanly';
+                        } else if (role === 'nhan_vien') {
+                            window.location.href = BASE_URL + 'Staff';
+                        } else {
+                            window.location.href = BASE_URL + 'Khachhang';
                         }
-                    }
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Close the modal and redirect based on user role
-                        hideModal(document.getElementById('loginModal'));
-                        window.location.href = data.redirect;
-                    } else {
-                        // Display error message
-                        document.querySelector('#loginModal .error')?.remove();
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'error';
-                        errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
-                        errorDiv.textContent = data.error || 'Đăng nhập thất bại!';
-                        document.querySelector('#loginForm').appendChild(errorDiv);
-                    }
-                })
-                .catch(error => {
-                    console.error('Login Error:', error);
-                    // Show error message to user
-                    alert('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại. Chi tiết: ' + error.message);
-                });
+                    }, 1000);
+                } else {
+                    // Hiển thị lỗi
+                    const errorDiv = this.querySelector('.error');
+                    if (errorDiv) errorDiv.remove();
+                    
+                    const newErrorDiv = document.createElement('div');
+                    newErrorDiv.className = 'error';
+                    newErrorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
+                    newErrorDiv.textContent = data.message || 'Đăng nhập thất bại!';
+                    this.appendChild(newErrorDiv);
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Login Error:', error);
+                const errorDiv = this.querySelector('.error');
+                if (errorDiv) errorDiv.remove();
+                
+                const newErrorDiv = document.createElement('div');
+                newErrorDiv.className = 'error';
+                newErrorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
+                newErrorDiv.textContent = 'Lỗi kết nối: ' + error.message;
+                this.appendChild(newErrorDiv);
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
         });
 
+        // --- REGISTER FORM - GỌI API ---
         document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent normal form submission
+            e.preventDefault();
 
-            // Get form data
             const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
 
-            // Send AJAX request
-            fetch('<?php echo UrlHelper::url('Login/process_register'); ?>', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(async response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+            // Disable button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xử lý...';
 
-                    // Check if the response is JSON or HTML
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        // If not JSON, try to parse the response as text to see what's happening
-                        const text = await response.text();
-                        console.log('Server response (non-JSON):', text);
-
-                        // Try to extract JSON from the response if it contains JSON somewhere
-                        try {
-                            // Look for JSON in the response text
-                            const jsonStart = text.indexOf('{');
-                            const jsonEnd = text.lastIndexOf('}') + 1;
-                            if (jsonStart !== -1 && jsonEnd !== 0) {
-                                const jsonString = text.substring(jsonStart, jsonEnd);
-                                return JSON.parse(jsonString);
-                            } else {
-                                throw new Error('Server did not return valid JSON');
-                            }
-                        } catch (e) {
-                            console.error('Could not parse server response as JSON:', e);
-                            throw new Error('Server returned invalid response format');
-                        }
-                    }
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Close the register modal
-                        hideModal(document.getElementById('registerModal'));
-
-                        // Show success message
-                        if (data.message) {
-                            alert(data.message);
-                        }
-
-                        // Open the login modal
-                        showModal(document.getElementById('loginModal'));
-                    } else {
-                        // Display error message
-                        document.querySelector('#registerModal .error')?.remove();
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'error';
-                        errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
-                        errorDiv.textContent = data.error || 'Đăng ký thất bại!';
-                        document.querySelector('#registerForm').appendChild(errorDiv);
-                    }
-                })
-                .catch(error => {
-                    console.error('Registration Error:', error);
-                    // Show error message to user
-                    alert('Có lỗi xảy ra khi đăng ký. Vui lòng thử lại. Chi tiết: ' + error.message);
-                });
+            fetch(API_URL + '/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hiển thị thành công
+                    const errorDiv = this.querySelector('.error');
+                    if (errorDiv) errorDiv.remove();
+                    
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'success';
+                    successDiv.style.cssText = 'color: green; margin-top: 10px; text-align: center;';
+                    successDiv.textContent = data.message || 'Đăng ký thành công!';
+                    this.appendChild(successDiv);
+                    
+                    setTimeout(() => {
+                        hideModal(registerModal);
+                        showModal(loginModal);
+                    }, 1500);
+                } else {
+                    // Hiển thị lỗi
+                    const errorDiv = this.querySelector('.error');
+                    if (errorDiv) errorDiv.remove();
+                    
+                    const newErrorDiv = document.createElement('div');
+                    newErrorDiv.className = 'error';
+                    newErrorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
+                    newErrorDiv.textContent = data.message || 'Đăng ký thất bại!';
+                    this.appendChild(newErrorDiv);
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Register Error:', error);
+                const errorDiv = this.querySelector('.error');
+                if (errorDiv) errorDiv.remove();
+                
+                const newErrorDiv = document.createElement('div');
+                newErrorDiv.className = 'error';
+                newErrorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
+                newErrorDiv.textContent = 'Lỗi kết nối: ' + error.message;
+                this.appendChild(newErrorDiv);
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
         });
+
+        // --- CHECK AUTH STATUS ---
+        function checkAuthStatus() {
+            const token = localStorage.getItem('authToken');
+            const userInfo = localStorage.getItem('userInfo');
+            
+            if (token && userInfo) {
+                const user = JSON.parse(userInfo);
+                // Cập nhật UI hiển thị user đã đăng nhập
+                const btnOpenLoginEl = document.getElementById('btnOpenLogin');
+                if (btnOpenLoginEl) {
+                    btnOpenLoginEl.querySelector('.btn-text').textContent = user.user_name || user.username;
+                }
+            }
+        }
+        
+        // Run on page load
+        checkAuthStatus();
     </script>
 </body>
 

@@ -189,4 +189,38 @@ class Users_m extends connectDB
         // Return true only if both operations succeeded
         return $result_users && $result_address;
     }
+
+    /**
+     * Cập nhật thông tin user (dùng cho API)
+     */
+    function updateUser($ma_user, $data)
+    {
+        $fields = [];
+        
+        if (isset($data['email'])) {
+            $fields[] = "email = '{$data['email']}'";
+        }
+        if (isset($data['so_dien_thoai'])) {
+            $fields[] = "so_dien_thoai = '{$data['so_dien_thoai']}'";
+        }
+        if (isset($data['full_name'])) {
+            $fields[] = "full_name = '{$data['full_name']}'";
+        }
+        
+        if (empty($fields)) {
+            return false;
+        }
+        
+        $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE ma_user = '$ma_user'";
+        return mysqli_query($this->con, $sql);
+    }
+
+    /**
+     * Đổi mật khẩu
+     */
+    function changePassword($ma_user, $newPassword)
+    {
+        $sql = "UPDATE users SET password = '$newPassword' WHERE ma_user = '$ma_user'";
+        return mysqli_query($this->con, $sql);
+    }
 }

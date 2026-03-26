@@ -28,7 +28,6 @@
             width: 900px;
             background: white;
             background: rgba(255, 255, 255, 0.6);
-            /* More transparent white for better readability */
             border-radius: 15px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
             display: flex;
@@ -40,7 +39,6 @@
             width: 50%;
             padding: 40px;
             background: rgba(255, 255, 255, 0.3);
-            /* More transparent white */
         }
 
         .logo {
@@ -100,6 +98,11 @@
             background: #5a3e2b;
         }
 
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         .error {
             background: #fdecea;
             color: #b71c1c;
@@ -109,11 +112,35 @@
             text-align: center;
         }
 
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading i {
+            color: #6f4e37;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* RIGHT - INFO */
         .right {
             width: 50%;
             background: rgba(111, 78, 55, 0.7);
-            /* More transparent coffee brown */
             color: white;
             padding: 40px;
             text-align: center;
@@ -146,17 +173,13 @@
         }
 
         .right ul li::before {
-            /* content: "✔ "; */
             content: " - ";
-
             color: #c8e6c9;
             font-weight: bold;
         }
 
         .right ul li::after {
-            /* content: "✔ "; */
             content: " - ";
-
             color: #c8e6c9;
             font-weight: bold;
         }
@@ -173,27 +196,25 @@
             <h2>Đăng nhập hệ thống</h2>
             <p>Chào mừng bạn đến với thế giới di động</p>
 
+            <div id="message"></div>
 
-
-            <form method="post" action="<?php echo BASE_URL; ?>Login/process">
+            <form id="loginForm" onsubmit="handleLogin(event); return false;">
                 <div class="form-group">
                     <label>Tài khoản</label>
-                    <input type="text" name="username" placeholder="Nhập tài khoản" required>
+                    <input type="text" id="username" name="username" placeholder="Nhập tài khoản" required autocomplete="username">
                 </div>
 
                 <div class="form-group">
                     <label>Mật khẩu</label>
-                    <input type="password" name="password" placeholder="Nhập mật khẩu" required>
+                    <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
                 </div>
 
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="error">
-                        <?= $_SESSION['error'] ?>
-                    </div>
-                <?php unset($_SESSION['error']);
-                endif; ?>
-
-                <button class="btn">Đăng nhập</button>
+                <button type="submit" class="btn" id="btnSubmit">
+                    <span id="btnText">Đăng nhập</span>
+                    <span id="btnLoading" class="loading" style="display: none;">
+                        <i class="fa fa-spinner"></i> Đang xử lý...
+                    </span>
+                </button>
             </form>
 
             <div style="text-align: center; margin-top: 15px;">
@@ -220,6 +241,109 @@
         </div>
 
     </div>
+
+    <script>
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+        const API_URL = BASE_URL + 'index.php?url=api';
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+
+            // Clear previous messages
+            messageDiv.innerHTML = '';
+            
+            // Show loading
+            btnSubmit.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+
+            try {
+                const response = await fetch(API_URL + '/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Lưu token
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    
+                    // Hiển thị thành công
+                    messageDiv.innerHTML = `
+                        <div class="success">
+                            <i class="fa fa-check-circle"></i> Đăng nhập thành công! Đang chuyển hướng...
+                        </div>
+                    `;
+                    
+                    // Redirect dựa trên role
+                    const role = data.data.role || data.data.user.user_role;
+                    let redirectUrl;
+                    
+                    if (role === 'admin') {
+                        redirectUrl = BASE_URL + 'Quanly';
+                    } else if (role === 'nhan_vien') {
+                        redirectUrl = BASE_URL + 'Staff';
+                    } else {
+                        redirectUrl = BASE_URL + 'Khachhang';
+                    }
+                    
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1000);
+                } else {
+                    // Hiển thị lỗi
+                    messageDiv.innerHTML = `
+                        <div class="error">
+                            <i class="fa fa-exclamation-circle"></i> ${data.message || 'Đăng nhập thất bại!'}
+                        </div>
+                    `;
+                    
+                    // Reset button
+                    btnSubmit.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                messageDiv.innerHTML = `
+                    <div class="error">
+                        <i class="fa fa-exclamation-triangle"></i> Lỗi kết nối: ${error.message}
+                    </div>
+                `;
+                
+                // Reset button
+                btnSubmit.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        }
+
+        // Tự động hiển thị lỗi từ session nếu có (từ PHP cũ)
+        <?php if (isset($_SESSION['error'])): ?>
+            document.getElementById('message').innerHTML = `
+                <div class="error">
+                    <i class="fa fa-exclamation-circle"></i> <?= $_SESSION['error'] ?>
+                </div>
+            `;
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+    </script>
 
 </body>
 
