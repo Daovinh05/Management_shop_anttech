@@ -114,7 +114,7 @@
     <div class="card">
         <h1>Cập nhật sản phẩm</h1>
         <p class="lead">Chỉnh sửa thông tin sản phẩm.</p>
-        <form method="post" action="<?php echo BASE_URL; ?>Sanpham/update" enctype="multipart/form-data">
+        <form id="formEditProduct">
             <div>
                 <label>Mã sản phẩm <span style="color:red">*</span></label>
                 <input type="text" name="txtMasanpham" value="<?php echo htmlspecialchars($data['ma_san_pham']); ?>"
@@ -179,21 +179,62 @@
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật thông tin</button>
+                    <button type="submit" class="btn-primary">Cập nhật bằng API</button>
                 </div>
             </div>
         </form>
     </div>
 
     <script>
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            const fileNameDisplay = document.getElementById('fileName');
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
+    document.getElementById('formEditProduct').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const payload = {
+            "ma_san_pham": formData.get('txtMasanpham'),
+            "ten_san_pham": formData.get('txtTensanpham'),
+            "ma_danh_muc": formData.get('ddlDanhmuc'),
+            "ma_thuong_hieu": formData.get('ddlThuonghieu'),
+            "ma_nha_cung_cap": formData.get('ddlNhacungcap')
+        };
+
+        console.log("Đang bắn PUT lên API:", payload);
+
+        fetch('<?php echo BASE_URL; ?>Api/Products/update', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert("✅ Cập nhật thành công bằng CÒN REST API!");
+                window.location.href = "<?php echo BASE_URL; ?>Sanpham/danhsach";
             } else {
-                fileNameDisplay.textContent = 'Chưa chọn file mới';
+                alert("❌ Lỗi: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Lỗi sập mạng khi gọi API PUT!");
+        });
+    });
+
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const fileNameDisplay = document.getElementById('fileName');
+            if(fileNameDisplay) {
+                if (e.target.files.length > 0) {
+                    fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
+                } else {
+                    fileNameDisplay.textContent = 'Chưa chọn file mới';
+                }
             }
         });
+    }
     </script>
 </body>
 

@@ -62,11 +62,20 @@ function getBaseUrl()
 // Định nghĩa hằng số BASE_URL để sử dụng toàn ứng dụng
 define('BASE_URL', getBaseUrl());
 
-// Cấu hình database (cập nhật thông tin này trên production)
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'udtbalbihosting_Banhang');  // Đổi tên database nếu cần
-define('DB_USER', 'udtbalbihosting_root');     // Đổi username trên production
-define('DB_PASS', 'Vinh@123');         // Đổi password trên production
+// Cấu hình database tự động nhận dạng môi trường
+if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1') {
+    // Cấu hình chạy trên Local / XAMPP
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'banhang'); // Hoặc 'phone_store_v2' nếu bạn dùng DB cũ
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+} else {
+    // Cấu hình chạy trên Hosting (tieuchuancao.id.vn)
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'udtbalbihosting_Banhang');  
+    define('DB_USER', 'udtbalbihosting_root');     
+    define('DB_PASS', 'Vinh@123');         
+}
 define('DB_CHARSET', 'utf8mb4');
 
 // Cấu hình upload path
