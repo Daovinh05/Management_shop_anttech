@@ -336,10 +336,7 @@
                             <a href="<?php echo BASE_URL; ?>Sanpham/sua/<?php echo urlencode($row['ma_san_pham']) ?>"><button
                                     class="btn-edit">✏️
                                     Sửa</button></a>
-                            <a href="<?php echo BASE_URL; ?>Sanpham/xoa/<?php echo urlencode($row['ma_san_pham']) ?>"
-                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                    class="btn-delete">🗑️
-                                    Xóa</button></a>
+                            <button type="button" class="btn-delete" onclick="deleteProduct('<?php echo htmlspecialchars($row['ma_san_pham']) ?>')">🗑️ Xóa API</button>
                             <!-- <?php endif; ?> -->
                         </td>
                     </tr>
@@ -361,6 +358,43 @@
         <?php endif; ?>
 
     </div>
+
+    <!-- SCRIPT TEST TÍCH HỢP REST API -->
+    <script>
+    function deleteProduct(id) {
+        if(!confirm('Bạn có chắc chắn muốn xóa sản phẩm ' + id + ' vĩnh viễn bằng REST API không?')) return;
+        
+        console.log("Đang bắn DELETE lên: <?php echo BASE_URL; ?>Api/Products/delete/" + id);
+        fetch('<?php echo BASE_URL; ?>Api/Products/delete/' + id, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert("✅ Đã xóa " + id + " thành công qua REST API!");
+                location.reload(); // Tải lại trang để bảng tự cập nhật
+            } else {
+                alert("❌ Lỗi xóa: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi:", error);
+            alert("Lỗi sập mạng khi gọi API DELETE!");
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("Đang gọi REST API ngầm để test...");
+        // Gọi API lấy danh sách sản phẩm bằng Fetch
+        fetch('<?php echo BASE_URL; ?>Api/Products/get_all')
+            .then(response => response.json())
+            .then(data => {
+                console.log("✅ REST API ĐÃ TRẢ VỀ DỮ LIỆU THÀNH CÔNG:", data);
+                console.log("Bạn có thể kiểm tra tab 'Network' (F12 -> Network -> Fetch/XHR) để thấy Request này.");
+            })
+            .catch(error => console.error("Lỗi khi gọi API:", error));
+    });
+    </script>
 
 </body>
 
