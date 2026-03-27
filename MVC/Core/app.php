@@ -45,12 +45,30 @@ class app
         //Xử lý action
         if (isset($arr[1])) {
             if (method_exists($this->controller, $arr[1])) {
+                // Ưu tiên giữ tương thích route action-based hiện tại
                 $this->action = $arr[1];
                 unset($arr[1]);
             } else if ($is_api) {
+                // Fallback RESTful route: /Api/Products/SP01
+                $restful_action = $this->resolveApiRestfulAction($_SERVER['REQUEST_METHOD']);
+                if ($restful_action !== null && method_exists($this->controller, $restful_action)) {
+                    $this->action = $restful_action;
+                } else {
+                    header('Content-Type: application/json; charset=utf-8');
+                    http_response_code(404);
+                    echo json_encode(['success' => false, 'error' => 'API Endpoint Not Found']);
+                    exit;
+                }
+            }
+        } else if ($is_api) {
+            // RESTful collection route: /Api/Products
+            $restful_action = $this->resolveApiRestfulAction($_SERVER['REQUEST_METHOD'], true);
+            if ($restful_action !== null && method_exists($this->controller, $restful_action)) {
+                $this->action = $restful_action;
+            } else if (!method_exists($this->controller, $this->action)) {
                 header('Content-Type: application/json; charset=utf-8');
                 http_response_code(404);
-                echo json_encode(['success' => false, 'error' => 'API Endpoint (Action) Not Found']);
+                echo json_encode(['success' => false, 'error' => 'API Endpoint Not Found']);
                 exit;
             }
         }
@@ -59,6 +77,34 @@ class app
         $this->param = $arr ? array_values($arr) : [];
         //Tạo biến có 3 tham số
         call_user_func_array([$this->controller, $this->action], $this->param);
+    }
+
+    private function resolveApiRestfulAction($request_method, $is_collection = false)
+    {
+        $request_method = strtoupper($request_method);
+
+        if ($is_collection) {
+            switch ($request_method) {
+                case 'GET':
+                    return 'get_all';
+                case 'POST':
+                    return 'create';
+                default:
+                    return null;
+            }
+        }
+
+        switch ($request_method) {
+            case 'GET':
+                return 'get_detail';
+            case 'PUT':
+            case 'PATCH':
+                return 'update';
+            case 'DELETE':
+                return 'delete';
+            default:
+                return null;
+        }
     }
 
     function checkAuth()

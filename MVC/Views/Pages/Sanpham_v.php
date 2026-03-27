@@ -190,10 +190,10 @@
             "ma_nha_cung_cap": formData.get('ddlNhacungcap')
         };
 
-        console.log("Đang bắn POST lên: <?php echo BASE_URL; ?>Api/Products/create");
+        console.log("Đang bắn POST lên: <?php echo BASE_URL; ?>Api/Products");
         console.log("Payload JSON:", payload);
 
-        fetch('<?php echo BASE_URL; ?>Api/Products/create', {
+        fetch('<?php echo BASE_URL; ?>Api/Products', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

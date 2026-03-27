@@ -9,29 +9,56 @@ class Products extends api_controller {
     }
 
     /**
-     * Endpoint: GET /Api/Products/get_all
-     * Lấy danh sách sản phẩm từ Database
+        * Endpoint: GET /Api/Products
+     * Lấy danh sách hoặc tìm kiếm sản phẩm qua query params
+     * Ví dụ: /Api/Products?ma_san_pham=SP020&ten_san_pham=iphone
      */
     public function get_all() {
-        $result = $this->sanpham_model->SanPham_getAll();
-        
-        $products = [];
-        if ($result) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $products[] = $row;
-            }
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
         }
 
-        $this->sendResponse(200, [
+        $ma_san_pham = isset($_GET['ma_san_pham']) ? trim($_GET['ma_san_pham']) : '';
+        $ten_san_pham = isset($_GET['ten_san_pham']) ? trim($_GET['ten_san_pham']) : '';
+
+        $is_search = ($ma_san_pham !== '' || $ten_san_pham !== '');
+        $result = $is_search
+            ? $this->sanpham_model->SanPham_find($ma_san_pham, $ten_san_pham)
+            : $this->sanpham_model->SanPham_getAll();
+
+        if (!$result) {
+            $this->sendResponse(500, [
+                'success' => false,
+                'message' => $is_search
+                    ? 'Đã có lỗi xảy ra khi tìm kiếm sản phẩm'
+                    : 'Đã có lỗi xảy ra khi lấy danh sách sản phẩm'
+            ]);
+        }
+        
+        $products = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $products[] = $row;
+        }
+
+        $response = [
             'success' => true,
-            'message' => 'Lấy danh sách sản phẩm thành công',
+            'message' => $is_search ? 'Tìm kiếm sản phẩm thành công' : 'Lấy danh sách sản phẩm thành công',
             'total' => count($products),
             'data' => $products
-        ]);
+        ];
+
+        if ($is_search) {
+            $response['filters'] = [
+                'ma_san_pham' => $ma_san_pham,
+                'ten_san_pham' => $ten_san_pham
+            ];
+        }
+
+        $this->sendResponse(200, $response);
     }
 
     /**
-     * Endpoint: GET /Api/Products/get_detail/SP01
+        * Endpoint: GET /Api/Products/SP01
      * Lấy chi tiết 1 sản phẩm theo ID thực tế từ Database
      */
     public function get_detail($id = null) {
@@ -57,55 +84,22 @@ class Products extends api_controller {
 
     /**
      * Endpoint: GET /Api/Products/search?ma_san_pham=SP01&ten_san_pham=iphone
-     * Tìm kiếm sản phẩm theo mã và/hoặc tên sản phẩm
+     * Tương thích ngược. Khuyến nghị dùng GET /Api/Products?ma_san_pham=...&ten_san_pham=...
      */
     public function search($ma_san_pham = null, $ten_san_pham = null) {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        if ($ma_san_pham !== null && trim($ma_san_pham) !== '') {
+            $_GET['ma_san_pham'] = trim($ma_san_pham);
         }
 
-        // Ưu tiên query string, fallback sang tham số URL
-        $ma_san_pham_query = isset($_GET['ma_san_pham']) ? trim($_GET['ma_san_pham']) : '';
-        $ten_san_pham_query = isset($_GET['ten_san_pham']) ? trim($_GET['ten_san_pham']) : '';
-
-        $ma_san_pham = $ma_san_pham_query !== '' ? $ma_san_pham_query : (($ma_san_pham !== null) ? trim($ma_san_pham) : '');
-        $ten_san_pham = $ten_san_pham_query !== '' ? $ten_san_pham_query : (($ten_san_pham !== null) ? trim($ten_san_pham) : '');
-
-        if ($ma_san_pham === '' && $ten_san_pham === '') {
-            $this->sendResponse(400, [
-                'success' => false,
-                'message' => 'Vui lòng cung cấp ít nhất một tiêu chí tìm kiếm: ma_san_pham hoặc ten_san_pham'
-            ]);
+        if ($ten_san_pham !== null && trim($ten_san_pham) !== '') {
+            $_GET['ten_san_pham'] = trim($ten_san_pham);
         }
 
-        $result = $this->sanpham_model->SanPham_find($ma_san_pham, $ten_san_pham);
-
-        if (!$result) {
-            $this->sendResponse(500, [
-                'success' => false,
-                'message' => 'Đã có lỗi xảy ra khi tìm kiếm sản phẩm'
-            ]);
-        }
-
-        $products = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $products[] = $row;
-        }
-
-        $this->sendResponse(200, [
-            'success' => true,
-            'message' => 'Tìm kiếm sản phẩm thành công',
-            'filters' => [
-                'ma_san_pham' => $ma_san_pham,
-                'ten_san_pham' => $ten_san_pham
-            ],
-            'total' => count($products),
-            'data' => $products
-        ]);
+        $this->get_all();
     }
 
     /**
-     * Endpoint: POST /Api/Products/create
+        * Endpoint: POST /Api/Products
      * Tạo sản phẩm mới
      */
     public function create() {
@@ -155,19 +149,24 @@ class Products extends api_controller {
     }
 
     /**
-     * Endpoint: PUT /Api/Products/update
+     * Endpoint: PUT/PATCH /Api/Products/SP01
      * Cập nhật thông tin sản phẩm
      */
-    public function update() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use PUT']);
+    public function update($id = null) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'PATCH') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use PUT or PATCH']);
         }
 
         // Lấy dữ liệu gửi lên dưới dạng JSON
         $data = $this->getJsonInput();
 
+        // Ưu tiên lấy mã sản phẩm từ URL theo chuẩn RESTful
+        if ($id !== null && trim($id) !== '') {
+            $data['ma_san_pham'] = trim($id);
+        }
+
         if (empty($data['ma_san_pham'])) {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Vui lòng cung cấp ma_san_pham để cập nhật']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Vui lòng cung cấp ma_san_pham trên URL (Ví dụ: /Api/Products/SP01) hoặc trong payload']);
         }
 
         // Kiểm tra xem sản phẩm có tồn tại không
@@ -199,7 +198,7 @@ class Products extends api_controller {
     }
 
     /**
-     * Endpoint: DELETE /Api/Products/delete/SP01
+        * Endpoint: DELETE /Api/Products/SP01
      * Xóa sản phẩm
      */
     public function delete($id = null) {

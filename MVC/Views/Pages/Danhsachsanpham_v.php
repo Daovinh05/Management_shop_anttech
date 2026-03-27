@@ -365,9 +365,10 @@
 
     function deleteProduct(id) {
         if(!confirm('Bạn có chắc chắn muốn xóa sản phẩm ' + id + ' vĩnh viễn bằng REST API không?')) return;
+        const endpoint = '<?php echo BASE_URL; ?>Api/Products/' + encodeURIComponent(id);
         
-        console.log("Đang bắn DELETE lên: <?php echo BASE_URL; ?>Api/Products/delete/" + id);
-        fetch('<?php echo BASE_URL; ?>Api/Products/delete/' + id, {
+        console.log("Đang bắn DELETE lên:", endpoint);
+        fetch(endpoint, {
             method: 'DELETE'
         })
         .then(response => response.json())
@@ -456,7 +457,7 @@
 
                 const maSanPham = (document.getElementById('searchId') || {}).value || '';
                 const tenSanPham = (document.getElementById('searchName') || {}).value || '';
-                const url = new URL(BASE_URL + 'Api/Products/search');
+                const url = new URL(BASE_URL + 'Api/Products');
 
                 if (maSanPham.trim() !== '') {
                     url.searchParams.set('ma_san_pham', maSanPham.trim());
@@ -492,7 +493,7 @@
 
         console.log("Đang gọi REST API ngầm để test...");
         // Gọi API lấy danh sách sản phẩm bằng Fetch
-        fetch('<?php echo BASE_URL; ?>Api/Products/get_all')
+        fetch('<?php echo BASE_URL; ?>Api/Products')
             .then(response => response.json())
             .then(data => {
                 console.log("✅ REST API ĐÃ TRẢ VỀ DỮ LIỆU THÀNH CÔNG:", data);
