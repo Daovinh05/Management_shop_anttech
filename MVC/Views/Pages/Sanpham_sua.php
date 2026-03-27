@@ -197,10 +197,12 @@
             "ma_thuong_hieu": formData.get('ddlThuonghieu'),
             "ma_nha_cung_cap": formData.get('ddlNhacungcap')
         };
+        const productId = encodeURIComponent(payload.ma_san_pham || '');
+        const endpoint = '<?php echo BASE_URL; ?>Api/Products/' + productId;
 
-        console.log("Đang bắn PUT lên API:", payload);
+        console.log("Đang bắn PUT lên API:", endpoint, payload);
 
-        fetch('<?php echo BASE_URL; ?>Api/Products/update', {
+        fetch(endpoint, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
