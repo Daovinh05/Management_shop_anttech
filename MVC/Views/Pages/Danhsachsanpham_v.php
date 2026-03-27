@@ -223,7 +223,7 @@
             </div>
         </div>
 
-        <form method="post" action="<?php echo BASE_URL; ?>Sanpham/Timkiem" class="form-search"
+        <form id="productSearchForm" method="post" action="<?php echo BASE_URL; ?>Sanpham/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -239,7 +239,7 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i>
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i>
                     Tìmkiếm</button>
 
                 <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn-ghost">Làm mới</a>
@@ -361,6 +361,8 @@
 
     <!-- SCRIPT TEST TÍCH HỢP REST API -->
     <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
     function deleteProduct(id) {
         if(!confirm('Bạn có chắc chắn muốn xóa sản phẩm ' + id + ' vĩnh viễn bằng REST API không?')) return;
         
@@ -383,7 +385,111 @@
         });
     }
 
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function formatCurrency(value) {
+        const numberValue = Number(value || 0);
+        return numberValue.toLocaleString('vi-VN') + ' ₫';
+    }
+
+    function renderProductRows(items) {
+        const tbody = document.getElementById('spBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const hasImage = row.img_bien_the && row.img_bien_the !== '';
+            const imageHtml = hasImage
+                ? '<img src="' + BASE_URL + 'Public/Pictures/bien_the/' + encodeURIComponent(row.img_bien_the) + '" alt="' + escapeHtml(row.ten_san_pham || '') + '" style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />'
+                : '<span>Không có hình</span>';
+
+            const stockHtml = Number(row.so_luong_kho || 0) > 0
+                ? '<span style="background:#d1fae5;color:#065f46;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">Còn ' + escapeHtml(row.so_luong_kho) + '</span>'
+                : '<span style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">Hết hàng</span>';
+
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td>' + escapeHtml(row.ma_san_pham || '') + '</td>'
+                + '<td>' + escapeHtml(row.ten_san_pham || '') + '</td>'
+                + '<td>' + escapeHtml(row.ten_bien_the || '') + '</td>'
+                + '<td>' + imageHtml + '</td>'
+                + '<td>' + (row.gia ? formatCurrency(row.gia) : 'N/A ₫') + '</td>'
+                + '<td>' + stockHtml + '</td>'
+                + '<td>' + escapeHtml(row.ten_danh_muc || 'N/A') + '</td>'
+                + '<td>' + escapeHtml(row.ten_thuong_hieu || 'N/A') + '</td>'
+                + '<td>' + escapeHtml(row.ten_nha_cung_cap || 'N/A') + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'Sanpham/sua/' + encodeURIComponent(row.ma_san_pham || '') + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deleteProduct(\'' + escapeHtml(row.ma_san_pham || '') + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
+        const searchForm = document.getElementById('productSearchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(event) {
+                const submitter = event.submitter;
+                const submitName = submitter && submitter.name ? submitter.name : '';
+
+                // Chỉ chặn submit của nút tìm kiếm, cho phép nút xuất Excel chạy luồng cũ
+                if (submitName !== 'btnTim') {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const maSanPham = (document.getElementById('searchId') || {}).value || '';
+                const tenSanPham = (document.getElementById('searchName') || {}).value || '';
+                const url = new URL(BASE_URL + 'Api/Products/search');
+
+                if (maSanPham.trim() !== '') {
+                    url.searchParams.set('ma_san_pham', maSanPham.trim());
+                }
+
+                if (tenSanPham.trim() !== '') {
+                    url.searchParams.set('ten_san_pham', tenSanPham.trim());
+                }
+
+                const resultCountEl = document.getElementById('resultCount');
+                if (resultCountEl) {
+                    resultCountEl.textContent = 'Đang tìm kiếm...';
+                }
+
+                fetch(url.toString(), {
+                        method: 'GET'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            renderProductRows(Array.isArray(data.data) ? data.data : []);
+                        } else {
+                            alert('❌ Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                            renderProductRows([]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi tìm kiếm API:', error);
+                        alert('❌ Không thể kết nối API tìm kiếm.');
+                    });
+            });
+        }
+
         console.log("Đang gọi REST API ngầm để test...");
         // Gọi API lấy danh sách sản phẩm bằng Fetch
         fetch('<?php echo BASE_URL; ?>Api/Products/get_all')
