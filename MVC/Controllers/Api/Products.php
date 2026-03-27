@@ -56,6 +56,55 @@ class Products extends api_controller {
     }
 
     /**
+     * Endpoint: GET /Api/Products/search?ma_san_pham=SP01&ten_san_pham=iphone
+     * Tìm kiếm sản phẩm theo mã và/hoặc tên sản phẩm
+     */
+    public function search($ma_san_pham = null, $ten_san_pham = null) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        // Ưu tiên query string, fallback sang tham số URL
+        $ma_san_pham_query = isset($_GET['ma_san_pham']) ? trim($_GET['ma_san_pham']) : '';
+        $ten_san_pham_query = isset($_GET['ten_san_pham']) ? trim($_GET['ten_san_pham']) : '';
+
+        $ma_san_pham = $ma_san_pham_query !== '' ? $ma_san_pham_query : (($ma_san_pham !== null) ? trim($ma_san_pham) : '');
+        $ten_san_pham = $ten_san_pham_query !== '' ? $ten_san_pham_query : (($ten_san_pham !== null) ? trim($ten_san_pham) : '');
+
+        if ($ma_san_pham === '' && $ten_san_pham === '') {
+            $this->sendResponse(400, [
+                'success' => false,
+                'message' => 'Vui lòng cung cấp ít nhất một tiêu chí tìm kiếm: ma_san_pham hoặc ten_san_pham'
+            ]);
+        }
+
+        $result = $this->sanpham_model->SanPham_find($ma_san_pham, $ten_san_pham);
+
+        if (!$result) {
+            $this->sendResponse(500, [
+                'success' => false,
+                'message' => 'Đã có lỗi xảy ra khi tìm kiếm sản phẩm'
+            ]);
+        }
+
+        $products = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $products[] = $row;
+        }
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Tìm kiếm sản phẩm thành công',
+            'filters' => [
+                'ma_san_pham' => $ma_san_pham,
+                'ten_san_pham' => $ten_san_pham
+            ],
+            'total' => count($products),
+            'data' => $products
+        ]);
+    }
+
+    /**
      * Endpoint: POST /Api/Products/create
      * Tạo sản phẩm mới
      */
