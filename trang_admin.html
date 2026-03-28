@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Danh sách đề</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 80px;
+    height: 100vh;
+    background: #2f54eb;
+    position: fixed;
+}
+
+/* Header */
+.header {
+    margin-left: 80px;
+    height: 60px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.header .right button {
+    margin-left: 10px;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-blue { background: #2f54eb; }
+.btn-green { background: #52c41a; }
+.btn-cyan { background: #13c2c2; }
+.btn-dark { background: #1d39c4; }
+
+/* Main */
+.main {
+    margin-left: 80px;
+    padding: 20px;
+}
+
+/* Search + actions */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search {
+    width: 250px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Suggested */
+.section-title {
+    margin: 20px 0 10px;
+    font-weight: 600;
+}
+
+.cards {
+    display: flex;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    width: 260px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.card .badge {
+    background: #52c41a;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* Table */
+.table {
+    margin-top: 20px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.table th {
+    background: #fafafa;
+    color: #555;
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+/* Floating support */
+.support {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #1890ff;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.header {
+    margin-left: 80px;
+    height: 60px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+.header .right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Flag VN */
+.flag {
+    width: 26px;
+    height: 18px;
+    background: red;
+    position: relative;
+    border-radius: 2px;
+}
+
+.flag::after {
+    content: "★";
+    color: yellow;
+    position: absolute;
+    top: -2px;
+    left: 5px;
+    font-size: 16px;
+}
+
+/* Bell */
+.icon {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* User */
+.user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.user img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.role {
+    font-size: 12px;
+    color: #888;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar"></div>
+
+<div class="header">
+    <div class="left">
+        ← Quay lại
+    </div>
+
+    <div class="right">
+        <button class="btn btn-blue">Mua point</button>
+        <button class="btn btn-cyan">Nâng VIP</button>
+
+        <!-- Flag -->
+        <div class="flag"></div>
+
+        <!-- Notification -->
+        <div class="icon">🔔</div>
+
+        <!-- User -->
+        <div class="user">
+            <img src="https://i.pravatar.cc/40" alt="">
+            <div>
+                <div class="name">Công Vinh</div>
+                <div class="role">Giáo viên</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="main">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+        <input class="search" placeholder="Tìm kiếm...">
+
+        <div>
+            <button class="btn btn-cyan">Tạo đề từ ngân hàng chung</button>
+            <button class="btn btn-dark">Tạo nhanh thư mục</button>
+            <button class="btn btn-green">+ Tạo đề thi</button>
+            <button class="btn btn-blue">+ Tạo thư mục</button>
+        </div>
+    </div>
+
+    <!-- Suggested -->
+    <div class="section-title">Được đề xuất</div>
+
+    <div class="cards">
+        <div class="card">
+            <b>hp1, pờ rai việt</b>
+            <p>Ngày tạo: 18/04/2025</p>
+            <p>Thời gian: Không thời hạn</p>
+            <span class="badge">9</span>
+        </div>
+
+        <div class="card">
+            <b>Học phần 2 beautifull</b>
+            <p>Ngày tạo: 01/03/2025</p>
+            <p>Thời gian: Không thời hạn</p>
+            <span class="badge">53</span>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-title">Tất cả</div>
+
+    <div class="table">
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox"></th>
+                    <th>Tên</th>
+                    <th>Số bài đã nộp</th>
+                    <th>Trạng Thái</th>
+                    <th>Đã Giao Cho</th>
+                    <th>Thời gian thi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>Kho đề Azota</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>hp1, pờ rai việt</td>
+                    <td>9</td>
+                    <td>Đã xuất bản</td>
+                    <td>Tất cả mọi người</td>
+                    <td>-</td>
+                </tr>
+
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>Học phần 2 beautifull</td>
+                    <td>53</td>
+                    <td>Đã xuất bản</td>
+                    <td>Tất cả mọi người</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Support -->
+<div class="support">💬</div>
+
+<script>
+// Demo search filter
+document.querySelector(".search").addEventListener("input", function() {
+    let value = this.value.toLowerCase();
+    document.querySelectorAll("tbody tr").forEach(row => {
+        let text = row.innerText.toLowerCase();
+        row.style.display = text.includes(value) ? "" : "none";
+    });
+});
+</script>
+
+</body>
+</html>

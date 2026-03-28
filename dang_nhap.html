@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Azota</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .language-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .language-btn:hover {
+            color: #1e3a8a;
+        }
+
+        .flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .time-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .time-btn:hover {
+            color: #1e3a8a;
+        }
+
+        /* Login Container */
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 450px;
+            margin-top: 60px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #1a1a1a;
+            transition: all 0.3s;
+            background: #f9fafb;
+        }
+
+        .form-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+
+        .password-toggle:hover {
+            color: #1e3a8a;
+        }
+
+        .forgot-password {
+            font-size: 13px;
+            text-align: right;
+            margin-bottom: 25px;
+        }
+
+        .forgot-password-link {
+            color: #1e3a8a;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .forgot-password-link:hover {
+            color: #1e40af;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-section {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .signup-link {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .signup-link:hover {
+            color: #1e40af;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider-text {
+            font-size: 13px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .social-login {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .social-btn {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .social-btn:hover {
+            border-color: #1e3a8a;
+            color: #1e3a8a;
+            background: #f0f4ff;
+        }
+
+        .social-icon {
+            font-size: 18px;
+        }
+
+        /* Loading State */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .login-container {
+                padding: 30px 20px;
+                margin-top: 70px;
+            }
+
+            .login-title {
+                font-size: 24px;
+            }
+
+            .social-login {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <a href="#" class="logo">
+            <div class="logo-icon">Δ</div>
+            <span>Azota</span>
+        </a>
+        <div class="header-right">
+            <button class="language-btn">
+                <svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="900" height="300" fill="#CE1126"/>
+                    <rect y="300" width="900" height="300" fill="#FFC400"/>
+                </svg>
+                <span>Tiếng Việt</span>
+            </button>
+            <button class="time-btn">
+                <span>🌙</span>
+                <span>Chế độ tối</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <h1 class="login-title">Đăng nhập</h1>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    class="form-input" 
+                    id="username"
+                    placeholder="Nhập số điện thoại, email hoặc username" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <div class="password-field">
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="password"
+                        placeholder="Mật khẩu" 
+                        required
+                    >
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        👁️
+                    </button>
+                </div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#" class="forgot-password-link">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">Đăng nhập</button>
+        </form>
+
+        <div class="signup-section">
+            Bạn chưa có tài khoản? <a href="#" class="signup-link">Tạo một tài khoản mới</a>
+        </div>
+
+        <div class="divider">
+            <span class="divider-text">Hoặc</span>
+        </div>
+
+        <div class="social-login">
+            <button class="social-btn" onclick="loginWith('Google')">
+                <span class="social-icon">🔵</span>
+                <span>Google</span>
+            </button>
+            <button class="social-btn" onclick="loginWith('Microsoft')">
+                <span class="social-icon">⊞</span>
+                <span>Microsoft</span>
+            </button>
+            <button class="social-btn" onclick="loginWith('Qrcode')">
+                <span class="social-icon">▢</span>
+                <span>Qrcode</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        // Handle Login
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Clear messages
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+
+            // Validation
+            if (!username) {
+                showError('Vui lòng nhập tên đăng nhập hoặc email');
+                return;
+            }
+
+            if (!password) {
+                showError('Vui lòng nhập mật khẩu');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Mật khẩu phải có ít nhất 6 ký tự');
+                return;
+            }
+
+            // Simulate login process
+            loginBtn.disabled = true;
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'Đang đăng nhập...';
+
+            setTimeout(() => {
+                // Simulate successful login for demo purposes
+                if (username && password.length >= 6) {
+                    showSuccess('Đăng nhập thành công! Chuyển hướng...');
+                    
+                    setTimeout(() => {
+                        // Redirect to dashboard
+                        window.location.href = '#dashboard';
+                    }, 1500);
+                } else {
+                    showError('Tên đăng nhập hoặc mật khẩu không chính xác');
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('loading');
+                    loginBtn.textContent = 'Đăng nhập';
+                }
+            }, 1500);
+        }
+
+        // Show Error
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Show Success
+        function showSuccess(message) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+        }
+
+        // Social Login
+        function loginWith(provider) {
+            alert(`Đang kết nối với ${provider}...`);
+            console.log(`Login with ${provider}`);
+        }
+
+        // Language Switch
+        document.querySelector('.language-btn').addEventListener('click', function() {
+            alert('Chuyển ngôn ngữ - Tính năng đang phát triển');
+        });
+
+        // Dark Mode Toggle
+        document.querySelector('.time-btn').addEventListener('click', function() {
+            document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'none' : 'invert(1)';
+        });
+
+        // Forgot Password Link
+        document.querySelector('.forgot-password-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            const email = prompt('Nhập email của bạn để đặt lại mật khẩu:');
+            if (email) {
+                showSuccess('Email đặt lại mật khẩu đã được gửi!');
+            }
+        });
+
+        // Sign Up Link
+        document.querySelector('.signup-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Chuyển hướng đến trang đăng ký...');
+        });
+
+        // Enter key to submit
+        document.getElementById('loginForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin(e);
+            }
+        });
+
+        // Focus effects
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.backgroundColor = 'white';
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.style.backgroundColor = '#f9fafb';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

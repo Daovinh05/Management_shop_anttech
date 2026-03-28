@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách bài nộp - Vinhzota</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fb;
+        }
+        .sidebar {
+            width: 80px;
+            height: 100vh;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 24px;
+        }
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            background: white;
+            color: #667eea;
+        }
+        .header {
+            margin-left: 80px;
+            height: 60px;
+            background: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+        }
+        .main {
+            margin-left: 80px;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back {
+            background: #f3f4f6;
+            color: #666;
+        }
+        .btn-back:hover {
+            background: #e5e7eb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f9fafb;
+            color: #555;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f9f9f9;
+        }
+        .score-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .score-high { background: #d1fae5; color: #065f46; }
+        .score-medium { background: #fef3c7; color: #92400e; }
+        .score-low { background: #fee2e2; color: #991b1b; }
+        .btn-view {
+            padding: 6px 12px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-view:hover {
+            background: #bbdefb;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">V</div>
+        <div class="nav-item active">📝</div>
+    </div>
+
+    <div class="header">
+        <span style="font-size: 18px; font-weight: 600;">Danh sách bài nộp</span>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title" id="examTitle">Đang tải...</h2>
+                <button class="btn btn-back" onclick="window.location.href='trang_admin.html'">← Quay lại</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Thời gian nộp</th>
+                        <th>Điểm</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="submissionsBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <p style="font-size: 48px;">📭</p>
+                <p>Chưa có bài nộp nào</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const ma_de = urlParams.get('ma_de');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!ma_de) {
+                alert('Không tìm thấy đề thi');
+                window.location.href = 'trang_admin.html';
+                return;
+            }
+            loadSubmissions();
+        });
+
+        async function loadSubmissions() {
+            try {
+                const response = await fetch(`/Banhang/vinhzota/controllers/submission_controller.php?action=get_submissions&ma_de=${ma_de}`);
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    document.getElementById('emptyState').style.display = 'none';
+                    renderSubmissions(result.data);
+                } else {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Load error:', error);
+            }
+        }
+
+        function renderSubmissions(submissions) {
+            const tbody = document.getElementById('submissionsBody');
+            tbody.innerHTML = submissions.map((sub, index) => {
+                const score = parseFloat(sub.diem) || 0;
+                let scoreClass = 'score-medium';
+                if (score >= 8) scoreClass = 'score-high';
+                else if (score < 5) scoreClass = 'score-low';
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${sub.ten_hoc_sinh || 'Ẩn danh'}</strong></td>
+                        <td>${sub.email || '-'}</td>
+                        <td>${formatDateTime(sub.thoi_gian_nop)}</td>
+                        <td><span class="score-badge ${scoreClass}">${score.toFixed(1)}</span></td>
+                        <td>
+                            <button class="btn-view" onclick="viewDetail('${sub.ma_bai_lam}')">
+                                👁️ Xem chi tiết
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewDetail(ma_bai_lam) {
+            window.location.href = `xem_dap_an.html?ma_bai_lam=${ma_bai_lam}`;
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

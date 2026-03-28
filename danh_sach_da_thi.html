@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Chi tiết đề thi</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 80px;
+    height: 100vh;
+    background: #2f54eb;
+    position: fixed;
+}
+
+/* HEADER */
+.header {
+    margin-left: 80px;
+    height: 60px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.header .right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+}
+
+.btn-blue { background: #2f54eb; }
+.btn-cyan { background: #13c2c2; }
+
+/* MAIN */
+.main {
+    margin-left: 80px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+/* LEFT PANEL */
+.left {
+    width: 300px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.menu div {
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.menu div:hover {
+    background: #f0f2f5;
+}
+
+/* RIGHT */
+.right-content {
+    flex: 1;
+}
+
+/* TOP BAR */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.search {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* GRID STUDENTS */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.student {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px;
+}
+
+.student .name {
+    font-weight: 600;
+}
+
+.status {
+    color: red;
+    font-size: 12px;
+}
+
+/* AVATAR */
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ccc;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar"></div>
+
+<!-- HEADER -->
+<div class="header">
+    <div>← Quay lại</div>
+    <div class="right">
+        <button class="btn btn-blue">Mua point</button>
+        <button class="btn btn-cyan">Nâng VIP</button>
+        🔔
+        <div class="row">
+            <div class="avatar">A</div>
+            <div>
+                <div>Công Vinh</div>
+                <small>Giáo viên</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- LEFT -->
+    <div class="left">
+
+        <div class="card">
+            <b>Học phần 2 beautifull</b>
+            <p>Ngày tạo: 01/03/2025</p>
+            <p>Người tạo: Công Vinh</p>
+            <p>Số lượt làm: 53</p>
+        </div>
+
+        <div class="card menu">
+            <div>Cài đặt</div>
+            <div>Thống kê</div>
+            <div>Nhật ký hoạt động</div>
+            <div>Bảng xếp hạng</div>
+            <div>Chấm lại điểm</div>
+            <div style="color:red">Xóa</div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-content">
+
+        <div class="top-bar">
+            <b>Danh sách đã thi (20/25)</b>
+            <input class="search" placeholder="Tìm kiếm...">
+        </div>
+
+        <div class="grid">
+
+            <!-- STUDENT -->
+            <div class="student">
+                <div class="row">
+                    <div class="avatar">N</div>
+                    <div>
+                        <div class="name">Nguyễn Đạt</div>
+                        <div class="status">Đang thi</div>
+                    </div>
+                </div>
+                <div>Điểm: 0</div>
+                <div>Thời gian: 33 giây</div>
+            </div>
+
+            <div class="student">
+                <div class="row">
+                    <div class="avatar">C</div>
+                    <div class="name">Công Vinh</div>
+                </div>
+                <div>Điểm: 210</div>
+                <div>24 phút</div>
+            </div>
+
+            <div class="student">
+                <div class="row">
+                    <div class="avatar">A</div>
+                    <div class="name">Abc</div>
+                </div>
+                <div>Điểm: 44</div>
+            </div>
+
+            <div class="student">
+                <div class="row">
+                    <div class="avatar">Q</div>
+                    <div>
+                        <div class="name">Quyền</div>
+                        <div class="status">Đang thi</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

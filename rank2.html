@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Học tập</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2a5298;
+            font-size: 24px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .language-btn, .notification-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .language-btn:hover, .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .user-name {
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+        }
+
+        .score-section {
+            margin-bottom: 30px;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 25px;
+        }
+
+        .course-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        .info-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-group:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info-icon {
+            font-size: 18px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: 2px solid #2a5298;
+            color: #2a5298;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .add-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* Right Column */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .leaderboard-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* Leaderboard Card */
+        .leaderboard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-player {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-player::before {
+            content: '';
+            position: absolute;
+            right: -30px;
+            top: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .rank-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            min-width: 40px;
+        }
+
+        .top-player-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        .top-player-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-player-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .top-player-score {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .top-player-badge {
+            width: 40px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+
+        .player-item:hover {
+            background: #f0f0f0;
+            border-color: #2a5298;
+        }
+
+        .player-rank {
+            font-size: 20px;
+            font-weight: bold;
+            color: #999;
+            min-width: 30px;
+        }
+
+        .player-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            overflow: hidden;
+        }
+
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .player-score-text {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .player-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .badge-gold {
+            background: #ffd700;
+            color: white;
+        }
+
+        .badge-silver {
+            background: #c0c0c0;
+            color: white;
+        }
+
+        .badge-bronze {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .view-more {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .view-more-btn {
+            background: none;
+            border: none;
+            color: #2a5298;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-more-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .right-column {
+                grid-column: auto;
+            }
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">Δ</div>
+            <div class="header-title">← Quay lại</div>
+        </div>
+        <div class="header-right">
+            <button class="language-btn">🌐 Bộ quảng cáo</button>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect fill='%23DC143C' width='12' height='24'/%3E%3Crect fill='%23FFDE00' x='12' width='12' height='24'/%3E%3C/svg%3E" alt="VN" style="width: 24px; height: auto;">
+            <button class="notification-btn">🔔</button>
+            <div class="user-profile">
+                <div class="avatar">C</div>
+                <div>
+                    <div class="user-name">Công Vinh</div>
+                    <div class="user-role">Học sinh</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Column -->
+        <div>
+            <div class="card">
+                <div class="card-title">Bài làm của bạn đã được gửi đi</div>
+                
+                <div class="score-section">
+                    <div class="score-label">Điểm của bạn:</div>
+                    <div class="score-value" id="scoreValue">0/210</div>
+                </div>
+
+                <div class="course-title">Học phần 2 beautiful!</div>
+
+                <div class="info-group">
+                    <div class="info-label">
+                        <span class="info-icon">👤</span>
+                        Thí sinh
+                    </div>
+                    <div class="info-value">Công Vinh</div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">
+                        <span class="info-icon">⏱️</span>
+                        Thời gian làm bài
+                    </div>
+                    <div class="info-value" id="duration">3 phút 29 giây</div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">
+                        <span class="info-icon">✓</span>
+                        Số câu trắc nghiệm đúng
+                    </div>
+                    <div class="info-value" id="correct">0/210</div>
+                </div>
+
+                <button class="add-btn">Xem đáp án →</button>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <div class="leaderboard-header">
+                <div class="leaderboard-title">🏆 Bảng xếp hạng</div>
+                <button class="copy-btn">📋 Sao chép</button>
+            </div>
+
+            <div class="leaderboard-card">
+                <div class="top-player">
+                    <div class="rank-number">1</div>
+                    <div class="top-player-avatar">A</div>
+                    <div class="top-player-info">
+                        <div class="top-player-name">abc</div>
+                        <div class="top-player-score">353 điểm</div>
+                    </div>
+                    <div class="top-player-badge">👑</div>
+                </div>
+
+                <div class="player-item">
+                    <div class="player-rank">2</div>
+                    <div class="player-avatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='35' r='20' fill='%23fdbf63'/%3E%3Cellipse cx='50' cy='75' rx='30' ry='25' fill='%23fdbf63'/%3E%3C/svg%3E" alt="CV">
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Công Vinh</div>
+                        <div class="player-score-text">346 điểm</div>
+                    </div>
+                    <div class="player-badge badge-silver">🥈</div>
+                </div>
+
+                <div class="player-item">
+                    <div class="player-rank">3</div>
+                    <div class="player-avatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='35' r='20' fill='%238b5a3c'/%3E%3Cellipse cx='50' cy='75' rx='30' ry='25' fill='%238b5a3c'/%3E%3C/svg%3E" alt="Dân">
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Dân</div>
+                        <div class="player-score-text">1 điểm</div>
+                    </div>
+                    <div class="player-badge badge-bronze">🥉</div>
+                </div>
+
+                <div class="view-more">
+                    <button class="view-more-btn">Xem thêm →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate score on page load
+        const scoreValue = document.getElementById('scoreValue');
+        const correctAnswers = document.getElementById('correct');
+        
+        function animateScore() {
+            let current = 0;
+            const target = 346;
+            const duration = 1500;
+            const increment = target / (duration / 16);
+            
+            const interval = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                scoreValue.textContent = Math.floor(current) + '/210';
+                correctAnswers.textContent = Math.floor(current) + '/210';
+            }, 16);
+        }
+
+        // Start animation when page loads
+        window.addEventListener('load', animateScore);
+
+        // Button interactions
+        document.querySelector('.add-btn').addEventListener('click', function() {
+            alert('Xem đáp án - Tính năng này sẽ mở bộ câu hỏi chi tiết');
+        });
+
+        document.querySelector('.copy-btn').addEventListener('click', function() {
+            alert('Đã sao chép liên kết bảng xếp hạng');
+        });
+
+        document.querySelector('.view-more-btn').addEventListener('click', function() {
+            alert('Xem toàn bộ bảng xếp hạng');
+        });
+
+        // Tab switch functionality
+        document.querySelector('.back-btn')?.addEventListener('click', function() {
+            window.history.back();
+        });
+    </script>
+</body>
+</html>

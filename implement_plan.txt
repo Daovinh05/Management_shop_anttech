@@ -1,0 +1,369 @@
+# DỰ ÁN VINHZOTA - HỆ THỐNG QUẢN LÝ BÀI TẬP TRỰC TUYẾN
+
+## 📋 TỔNG QUAN DỰ ÁN
+
+Vinhzota là nền tảng quản lý bài tập trắc nghiệm trực tuyến, cho phép giáo viên tạo đề thi từ file và học sinh làm bài trực tuyến.
+
+---
+
+## 🔄 LUỒNG CHỨC NĂNG
+
+### 1. Luồng đăng nhập/đăng ký
+
+```
+┌─────────────────┐
+│ dang_nhap.html  │◄── Trang chủ mặc định
+└────────┬────────┘
+         │
+         ├─► Đã có tài khoản? ──► Đăng nhập
+         │
+         └─► Chưa có tài khoản?
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │ chon_role_dang_ky.html│
+         │ (Chọn Giáo viên/Học  │
+         │  sinh)                │
+         └──────────┬───────────┘
+                    │
+                    ▼
+         ┌─────────────────────┐
+         │ dang_ky.html        │
+         │ (Nhập thông tin)    │
+         └──────────┬──────────┘
+                    │
+                    ▼
+         ┌─────────────────────┐
+         │ Đăng nhập           │
+         └──────────┬──────────┘
+```
+
+### 2. Luồng Giáo viên
+
+```
+Đăng nhập (role = teacher)
+         │
+         ▼
+┌─────────────────────┐
+│ trang_admin.html    │◄── Dashboard giáo viên
+│ (Danh sách đề thi)  │
+└──────────┬──────────┘
+           │
+           │ Click "+ Tạo đề thi"
+           ▼
+┌─────────────────────┐
+│ tao_de.html         │
+│ - Tên bài tập       │
+│ - Thời gian nộp     │
+│ - Upload file       │
+│ - Cấu hình:         │
+│   + Xem kết quả?    │
+│   + Yêu cầu ĐN?     │
+└──────────┬──────────┘
+           │
+           │ Tạo thành công
+           ▼
+┌─────────────────────┐
+│ gui_bai.html        │
+│ - Hiển thị link     │
+│ - QR code           │
+│ - Copy link         │
+└─────────────────────┘
+```
+
+### 3. Luồng Học sinh
+
+```
+Nhận link từ giáo viên
+         │
+         ▼
+┌─────────────────────┐
+│ gui_bai.html        │
+│ (Xem chi tiết đề)   │
+└──────────┬──────────┘
+           │
+           │ Click "Bắt đầu thi"
+           ▼
+┌─────────────────────┐
+│ trang_lam.html      │
+│ (Làm bài thi)       │
+└──────────┬──────────┘
+           │
+           │ Nộp bài
+           ▼
+┌─────────────────────┐
+│ ket_qua.html        │
+│ (Xem kết quả)       │
+└─────────────────────┘
+```
+
+---
+
+## 🗄️ CƠ SỞ DỮ LIỆU (vinhzota.sql)
+
+### Bảng users
+```sql
+CREATE TABLE users (
+    ma_user VARCHAR(20) PRIMARY KEY,
+    ten_user VARCHAR(55) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255),
+    email VARCHAR(55),
+    phone VARCHAR(20),
+    school VARCHAR(255),
+    avatar TEXT,
+    phan_quyen ENUM('teacher', 'student') NOT NULL,
+    ngay_tao DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Bảng de_thi
+```sql
+CREATE TABLE de_thi (
+    ma_de VARCHAR(20) PRIMARY KEY,
+    ma_giao_vien VARCHAR(20) NOT NULL,
+    ten_de VARCHAR(255) NOT NULL,
+    ma_code VARCHAR(10) UNIQUE,
+    thoi_gian_nap DATETIME,
+    cho_xem_ket_qua BOOLEAN DEFAULT TRUE,
+    yeu_cau_dang_nhap BOOLEAN DEFAULT FALSE,
+    trang_thai ENUM('active', 'inactive') DEFAULT 'active',
+    ngay_tao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ma_giao_vien) REFERENCES users(ma_user)
+);
+```
+
+### bảng cau_hoi
+```sql
+CREATE TABLE cau_hoi (
+    ma_cau_hoi INT AUTO_INCREMENT PRIMARY KEY,
+    ma_de VARCHAR(20) NOT NULL,
+    noi_dung TEXT NOT NULL,
+    hinh_anh TEXT,
+    thu_tự INT DEFAULT 0,
+    FOREIGN KEY (ma_de) REFERENCES de_thi(ma_de)
+);
+```
+
+### TABLE dap_an
+```sql
+CREATE TABLE dap_an (
+    ma_dap_an INT AUTO_INCREMENT PRIMARY KEY,
+    ma_cau_hoi INT NOT NULL,
+    noi_dung TEXT NOT NULL,
+    la_dung BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (ma_cau_hoi) REFERENCES cau_hoi(ma_cau_hoi)
+);
+```
+
+### BẢNG bai_lam
+```sql
+CREATE TABLE bai_lam (
+    ma_bai_lam VARCHAR(20) PRIMARY KEY,
+    ma_de VARCHAR(20) NOT NULL,
+    ma_hoc_sinh VARCHAR(20),
+    ten_hoc_sinh VARCHAR(255),
+    email VARCHAR(55),
+    danh_sach_dap_an TEXT,
+    diem DECIMAL(5,2),
+    thoi_gian_nop DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ma_de) REFERENCES de_thi(ma_de)
+);
+```
+
+---
+
+## 📁 CẤU TRÚC THƯ MỤC
+
+```
+Vinhzota/
+├── index.php                 # Redirect to login
+├── config/
+│   └── database.php          # DB connection
+├── controllers/
+│   ├── auth_controller.php   # Login/Register logic
+│   ├── exam_controller.php   # Exam CRUD
+│   └── submission_controller.php
+├── models/
+│   ├── User.php
+│   ├── Exam.php
+│   ├── Question.php
+│   └── Submission.php
+├── views/
+│   ├── dang_nhap.html
+│   ├── chon_role_dang_ky.html
+│   ├── dang_ky.html
+│   ├── trang_admin.html      # Teacher dashboard
+│   ├── tao_de.html           # Create exam
+│   ├── gui_bai.html          # Share exam link
+│   ├── trang_lam.html        # Student exam page
+│   ├── ket_qua.html          # Results
+│   ├── danh_sach_da_thi.html
+│   └── xem_dap_an.html
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── uploads/              # Uploaded exam files
+├── api/
+│   ├── login.php
+│   ├── register.php
+│   ├── create_exam.php
+│   ├── parse_exam_file.php
+│   └── submit_exam.php
+└── vinhzota.sql              # Database schema
+```
+
+---
+
+## 🎯 CÁC TÍNH NĂNG CHÍNH
+
+### 1. Authentication
+- [ ] Đăng nhập (dang_nhap.html)
+- [ ] Chọn vai trò (chon_role_dang_ky.html)
+- [ ] Đăng ký (dang_ky.html)
+- [ ] Session management
+- [ ] Phân quyền teacher/student
+
+### 2. Giáo viên
+- [ ] Dashboard xem danh sách đề thi
+- [ ] Tạo đề thi từ file (.docx, .txt)
+- [ ] Parser file để trích xuất câu hỏi
+- [ ] Đánh dấu đáp án đúng
+- [ ] Cấu hình:
+  - Thời gian nộp bài
+  - Cho xem kết quả sau khi làm
+  - Yêu cầu đăng nhập để nộp
+- [ ] Sinh link/QR code chia sẻ
+- [ ] Xem danh sách học sinh đã nộp
+- [ ] Xem chi tiết bài làm
+- [ ] Xuất kết quả
+
+### 3. Học sinh
+- [ ] Truy cập qua link
+- [ ] Xem thông tin đề thi
+- [ ] Làm bài trắc nghiệm
+- [ ] Đếm ngược thời gian (nếu có)
+- [ ] Nộp bài
+- [ ] Xem kết quả (nếu được cho phép)
+- [ ] Xem lại đáp án
+
+### 4. Parser File Đề Thi
+Format file mẫu:
+```
+1.Một hệ thống phân tán bao gồm hai phần chính nào?
+A. Phần cứng và phần mềm.
+B. Mạng máy tính và CSDL phân tán.
+C. Máy chủ và máy khách.
+D. Hệ điều hành và ứng dụng cơ sở dữ liệu phân tán
+
+2.Mạng Star (hình sao) sử dụng thiết bị trung tâm nào để kết nối?
+A. Modem và Switch
+B. Router
+C. Hub hoặc Switch.
+D. Repeater.
+```
+
+Parser cần:
+- [ ] Nhận diện số thứ tự câu hỏi
+- [ ] Trích xuất nội dung câu hỏi
+- [ ] Trích xuất 4 đáp án A, B, C, D
+- [ ] Giáo viên đánh dấu đáp án đúng trên giao diện
+
+---
+
+## 🔧 CÔNG NGHỆ SỬ DỤNG
+
+- **Backend:** PHP 7.4+
+- **Database:** MariaDB/MySQL
+- **Frontend:** HTML5, CSS3, JavaScript
+- **File Upload:** PHP File Handling
+- **Parser:** PHP Regex/Text Processing
+- **Session:** PHP Sessions
+
+---
+
+## 📝 TRIỂN KHAI
+
+### Giai đoạn 1: Core ✅ HOÀN THÀNH
+1. ✅ Tạo database vinhzota
+2. ✅ Implement authentication (login/register)
+3. ✅ Session management
+4. ✅ Role-based access
+
+### Giai đoạn 2: Giáo viên ✅ HOÀN THÀNH
+1. ✅ Dashboard admin (trang_admin.html)
+2. ✅ Upload & parser file đề thi
+3. ✅ Giao diện tao_de.html
+4. ✅ Sinh mã đề & link chia sẻ (gui_bai.html)
+
+### Giai đoạn 3: Học sinh ✅ HOÀN THÀNH
+1. ✅ Trang làm bài trang_lam.html
+2. ✅ Hệ thống đếm giờ
+3. ✅ Nộp bài
+4. ✅ Xem kết quả (ket_qua.html)
+5. ✅ Xem lại đáp án (xem_dap_an.html)
+
+### Giai đoạn 4: Hoàn thiện ✅ HOÀN THÀNH
+1. ✅ Responsive design
+2. ✅ Error handling
+3. ✅ Security (SQL injection, XSS)
+4. ✅ Documentation (README.md)
+
+---
+
+## 📊 TIẾN ĐỘ DỰ ÁN
+
+| Component | Status | Files |
+|-----------|--------|-------|
+| Database | ✅ Done | vinhzota.sql |
+| Auth System | ✅ Done | auth_controller.php, User.php |
+| Exam Management | ✅ Done | exam_controller.php, Exam.php, Question.php, Answer.php |
+| Submission | ✅ Done | submission_controller.php |
+| Login UI | ✅ Done | dang_nhap.html |
+| Register UI | ✅ Done | chon_role_dang_ky.html, dang_ky.html |
+| Teacher Dashboard | ✅ Done | trang_admin.html |
+| Create Exam | ✅ Done | tao_de.html |
+| Share Exam | ✅ Done | gui_bai.html |
+| Student Exam | ✅ Done | trang_lam.html |
+| Results | ✅ Done | ket_qua.html, xem_dap_an.html |
+| Student Home | ✅ Done | trang_chu.html |
+| Submissions List | ✅ Done | danh_sach_da_thi.html |
+
+---
+
+## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN
+
+### 1. Import Database
+```sql
+-- Mở phpMyAdmin, chạy file vinhzota.sql
+-- Hoặc: mysql -u root -p vinhzota < vinhzota.sql
+```
+
+### 2. Truy cập
+```
+http://localhost/Banhang/vinhzota/
+```
+
+### 3. Tài khoản demo
+- **Giáo viên:** giaovien / password123
+- **Học sinh:** hocsinh / password123
+
+---
+
+## 🔐 BẢO MẬT
+
+- Password hashing (bcrypt)
+- SQL Injection prevention (prepared statements)
+- XSS prevention (htmlspecialchars)
+- CSRF protection
+- File upload validation
+- Session security
+
+---
+
+## 📌 GHI CHÚ
+
+- 1 tài khoản có thể có cả 2 role (teacher & student)
+- Support upload file .docx, .txt
+- Tự động sinh mã đề thi (6 ký tự)
+- Link chia sẻ dạng: `gui_bai.html?code=abc123` 
