@@ -106,7 +106,7 @@
     <div class="card">
         <h1>Sửa Thương hiệu</h1>
         <p class="lead">Chỉnh sửa thông tin thương hiệu.</p>
-        <form method="post" action="<?php echo BASE_URL; ?>Thuonghieu/update" enctype="multipart/form-data">
+        <form id="updateBrandForm" method="post" action="<?php echo BASE_URL; ?>Thuonghieu/update" enctype="multipart/form-data">
             <div>
                 <label>Mã thương hiệu <span style="color:red">*</span></label>
                 <input type="text" name="txtMathuonghieu" required readonly
@@ -140,20 +140,63 @@
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
-                    <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>
+                    <button type="submit" id="updateBrandBtn" name="btnCapnhat" class="btn-primary">Cập nhật</button>
                 </div>
             </div>
         </form>
     </div>
 
     <script>
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            const fileNameDisplay = document.getElementById('fileName');
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
-            } else {
-                fileNameDisplay.textContent = 'Chưa chọn file';
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('updateBrandForm');
+            const submitBtn = document.getElementById('updateBrandBtn');
+
+            if (!form || !submitBtn) {
+                return;
             }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const maThuongHieu = (form.querySelector('input[name="txtMathuonghieu"]') || {}).value || '';
+                const tenThuongHieu = (form.querySelector('input[name="txtTenthuonghieu"]') || {}).value || '';
+
+                if (!maThuongHieu.trim() || !tenThuongHieu.trim()) {
+                    alert('Vui lòng nhập đầy đủ mã và tên thương hiệu.');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Đang cập nhật...';
+
+                fetch(BASE_URL + 'Api/Thuonghieu/' + encodeURIComponent(maThuongHieu.trim()), {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ten_thuong_hieu: tenThuongHieu.trim()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            alert('Cập nhật thương hiệu thành công qua REST API');
+                            window.location.href = BASE_URL + 'Thuonghieu/danhsach';
+                        } else {
+                            alert('Cập nhật thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Không thể kết nối API cập nhật thương hiệu: ' + error.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Cập nhật';
+                    });
+            });
         });
     </script>
 </body>
