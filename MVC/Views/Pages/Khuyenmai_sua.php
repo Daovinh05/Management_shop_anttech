@@ -63,7 +63,7 @@
     <div class="card">
         <h1>Cập nhật Khuyến mãi</h1>
         <p class="lead">Cập nhật thông tin mã khuyến mãi.</p>
-        <form method="post" action="<?php echo BASE_URL; ?>Khuyenmai/update">
+        <form id="updatePromotionForm" method="post" action="<?php echo BASE_URL; ?>Khuyenmai/update">
             <div>
                 <label>Mã khuyến mãi <span style="color:red">*</span></label>
                 <input type="text" name="txtMakhuyenmai" required
@@ -100,11 +100,71 @@
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>
+                    <button type="submit" id="updatePromotionBtn" name="btnCapnhat" class="btn-primary">Cập nhật</button>
                 </div>
             </div>
         </form>
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('updatePromotionForm');
+        const submitBtn = document.getElementById('updatePromotionBtn');
+
+        if (!form || !submitBtn) {
+            return;
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const ma = (form.querySelector('input[name="txtMakhuyenmai"]') || {}).value || '';
+            const ten = (form.querySelector('input[name="txtTenkhuyenmai"]') || {}).value || '';
+            const tien = (form.querySelector('input[name="txtTienkhuyenmai"]') || {}).value || '';
+            const ngayBatDau = (form.querySelector('input[name="txtNgaybatdau"]') || {}).value || '';
+            const ngayKetThuc = (form.querySelector('input[name="txtNgayketthuc"]') || {}).value || '';
+
+            if (!ma.trim() || !ten.trim() || !ngayBatDau.trim() || !ngayKetThuc.trim()) {
+                alert('Vui lòng nhập đầy đủ thông tin bắt buộc.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang cập nhật...';
+
+            fetch(BASE_URL + 'Api/Khuyenmai/' + encodeURIComponent(ma.trim()), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ten_khuyen_mai: ten.trim(),
+                        tien_khuyen_mai: tien === '' ? 0 : Number(tien),
+                        ngay_bat_dau: ngayBatDau,
+                        ngay_ket_thuc: ngayKetThuc
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Cập nhật khuyến mãi thành công qua REST API');
+                        window.location.href = BASE_URL + 'Khuyenmai/danhsach';
+                    } else {
+                        alert('Cập nhật thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API cập nhật khuyến mãi: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Cập nhật';
+                });
+        });
+    });
+    </script>
 
 </body>
 
