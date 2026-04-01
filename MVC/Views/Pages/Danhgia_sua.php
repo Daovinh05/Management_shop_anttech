@@ -73,7 +73,7 @@
 
     <main class="card">
         <h1>Sửa thông tin Đánh giá</h1>
-        <form method="post" action="<?php echo BASE_URL; ?>Danhgia/update">
+        <form id="updateReviewForm" method="post" action="<?php echo BASE_URL; ?>Danhgia/update">
             <div>
                 <label>Mã đánh giá</label>
                 <input type="text" name="txtMadanhgia" readonly
@@ -120,6 +120,56 @@
             </div>
         </form>
     </main>
+
+    <script>
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
+        document.getElementById('updateReviewForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = this;
+            const maDanhGia = (form.querySelector('input[name="txtMadanhgia"]') || {}).value || '';
+
+            if (!maDanhGia.trim()) {
+                alert('Thiếu mã đánh giá để cập nhật');
+                return;
+            }
+
+            const payload = {
+                ma_danh_gia: maDanhGia.trim(),
+                so_sao: (form.querySelector('input[name="txtSosao"]') || {}).value || '',
+                noi_dung: (form.querySelector('input[name="txtNoidung"]') || {}).value || '',
+                phan_hoi: (form.querySelector('textarea[name="txtPhanhoi"]') || {}).value || ''
+            };
+
+            fetch(BASE_URL + 'Api/Danhgia/' + encodeURIComponent(maDanhGia.trim()), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(async (response) => {
+                    const data = await response.json().catch(() => ({}));
+                    return {
+                        status: response.status,
+                        data
+                    };
+                })
+                .then((result) => {
+                    if (result.status >= 200 && result.status < 300 && result.data.success) {
+                        alert('Cập nhật đánh giá thành công qua REST API');
+                        window.location.href = BASE_URL + 'Danhgia/danhsach';
+                        return;
+                    }
+
+                    alert('Cập nhật đánh giá thất bại: ' + (result.data.message || 'Lỗi không xác định'));
+                })
+                .catch((error) => {
+                    alert('Không thể kết nối API cập nhật đánh giá: ' + error.message);
+                });
+        });
+    </script>
 </body>
 
 </html>

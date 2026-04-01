@@ -18,6 +18,7 @@ class DanhGia_m extends connectDB
     // Hàm kiểm tra trùng mã đánh giá
     function checktrungMaDG($ma_danh_gia)
     {
+        $ma_danh_gia = mysqli_real_escape_string($this->con, $ma_danh_gia);
         $sql = "SELECT * FROM danh_gia WHERE ma_danh_gia = '$ma_danh_gia'";
         $result = mysqli_query($this->con, $sql);
         if (mysqli_num_rows($result) > 0)
@@ -29,6 +30,10 @@ class DanhGia_m extends connectDB
     // Hàm tìm kiếm đánh giá (kèm tên khách hàng, tên sản phẩm)
     function DanhGia_find($ma_danh_gia, $ten_khach_hang, $ten_san_pham)
     {
+        $ma_danh_gia = mysqli_real_escape_string($this->con, $ma_danh_gia);
+        $ten_khach_hang = mysqli_real_escape_string($this->con, $ten_khach_hang);
+        $ten_san_pham = mysqli_real_escape_string($this->con, $ten_san_pham);
+
         $sql = "SELECT dg.*, u.full_name, sp.ten_san_pham
                 FROM danh_gia dg
                 LEFT JOIN users u ON dg.ma_user = u.ma_user
@@ -59,13 +64,19 @@ class DanhGia_m extends connectDB
             $so_sao = $matches[1];
         }
 
-        $sql = "UPDATE danh_gia SET so_sao = '$so_sao', noi_dung = '$noi_dung', phan_hoi = '$phan_hoi' WHERE ma_danh_gia = '$ma_danh_gia'";
+        $ma_danh_gia = mysqli_real_escape_string($this->con, $ma_danh_gia);
+        $so_sao = (int)$so_sao;
+        $noi_dung = mysqli_real_escape_string($this->con, $noi_dung);
+        $phan_hoi = mysqli_real_escape_string($this->con, $phan_hoi);
+
+        $sql = "UPDATE danh_gia SET so_sao = $so_sao, noi_dung = '$noi_dung', phan_hoi = '$phan_hoi' WHERE ma_danh_gia = '$ma_danh_gia'";
         return mysqli_query($this->con, $sql);
     }
 
     // Hàm xóa đánh giá
     function DanhGia_delete($ma_danh_gia)
     {
+        $ma_danh_gia = mysqli_real_escape_string($this->con, $ma_danh_gia);
         $sql = "DELETE FROM danh_gia WHERE ma_danh_gia = '$ma_danh_gia'";
         return mysqli_query($this->con, $sql);
     }
@@ -84,6 +95,7 @@ class DanhGia_m extends connectDB
     // Hàm lấy chi tiết đánh giá
     function DanhGia_getById($ma_danh_gia)
     {
+        $ma_danh_gia = mysqli_real_escape_string($this->con, $ma_danh_gia);
         $sql = "SELECT dg.*, u.full_name, sp.ten_san_pham
                 FROM danh_gia dg
                 LEFT JOIN users u ON dg.ma_user = u.ma_user
@@ -95,6 +107,7 @@ class DanhGia_m extends connectDB
     // Hàm lấy đánh giá theo sản phẩm
     function DanhGia_getByProduct($ma_san_pham)
     {
+        $ma_san_pham = mysqli_real_escape_string($this->con, $ma_san_pham);
         $sql = "SELECT dg.*, u.full_name
                 FROM danh_gia dg
                 LEFT JOIN users u ON dg.ma_user = u.ma_user
@@ -106,6 +119,7 @@ class DanhGia_m extends connectDB
     // Hàm tính trung bình đánh giá của sản phẩm
     function DanhGia_getAvgRatingByProduct($ma_san_pham)
     {
+        $ma_san_pham = mysqli_real_escape_string($this->con, $ma_san_pham);
         $sql = "SELECT AVG(so_sao) as avg_rating FROM danh_gia WHERE ma_san_pham = '$ma_san_pham'";
         $result = mysqli_query($this->con, $sql);
         $row = mysqli_fetch_assoc($result);
@@ -115,6 +129,7 @@ class DanhGia_m extends connectDB
     // Hàm lấy phân bố đánh giá theo số sao
     function DanhGia_getStarDistribution($ma_san_pham)
     {
+        $ma_san_pham = mysqli_real_escape_string($this->con, $ma_san_pham);
         $sql = "SELECT so_sao, COUNT(*) as count FROM danh_gia WHERE ma_san_pham = '$ma_san_pham' GROUP BY so_sao ORDER BY so_sao DESC";
         $result = mysqli_query($this->con, $sql);
 

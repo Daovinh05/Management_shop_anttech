@@ -217,7 +217,7 @@
 
         </div>
 
-        <form method="post" action="<?php echo BASE_URL; ?>Danhgia/Timkiem" class="form-search"
+        <form id="reviewSearchForm" method="post" action="<?php echo BASE_URL; ?>Danhgia/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -238,99 +238,246 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
                 <a href="<?php echo BASE_URL; ?>Danhgia/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportReviewsExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
         </form>
 
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
+        <div style="margin:10px 0">
+            <strong>Kết quả: <span id="resultCount" class="hint">Đang tải dữ liệu...</span></strong>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã đánh giá</th>
+                        <th>Tên khách hàng</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Số sao</th>
+                        <th>Nội dung</th>
+                        <th>Phản hồi</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <?php
+    $initialReviews = [];
+    if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
+        mysqli_data_seek($data['dulieu'], 0);
+        while ($row = mysqli_fetch_assoc($data['dulieu'])) {
+            $initialReviews[] = $row;
+        }
+    }
+    ?>
+
+    <script>
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+        const INITIAL_REVIEWS = <?php echo json_encode($initialReviews, JSON_UNESCAPED_UNICODE); ?>;
+        let reviewsListLoading = false;
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value == null ? '' : String(value);
+            return div.innerHTML;
         }
 
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            // Giả định $data['dulieu'] là mysqli_result
-            // Đặt lại con trỏ về đầu để có thể đếm và dùng lại bên dưới
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
-            <div style="margin:10px 0">
-                <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mã đánh giá</th>
-                            <th>Tên khách hàng</th>
-                            <th>Tên sản phẩm</th>
-                            <th>Số sao</th>
-                            <th>Nội dung</th>
-                            <th>Phản hồi</th>
-                            <!-- <th>Ngày tạo</th> -->
-                            <th style="text-align:right">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userBody">
-                        <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                                <tr>
-                                    <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                                    </td>
-                                    <td><span
-                                            style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_danh_gia']) ?></span>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($row['full_name']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['so_sao']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['noi_dung']) ?></td>
-                                    <td><?php echo htmlspecialchars($row['phan_hoi']) ?></td>
-                                    <!-- <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars($row['ngay_tao']) : '' ?></td> -->
-                                    <td style="text-align:right">
-                                        <a href="<?php echo BASE_URL; ?>Danhgia/sua/<?php echo urlencode($row['ma_danh_gia']) ?>"><button
-                                                class="btn-edit">✏️
-                                                Sửa</button></a>
-                                        <a href="<?php echo BASE_URL; ?>Danhgia/xoa/<?php echo urlencode($row['ma_danh_gia']) ?>"
-                                            onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                                class="btn-delete">🗑️
-                                                Xóa</button></a>
-                                    </td>
-                                </tr>
-                        <?php }
-                        } ?>
-                    </tbody>
-                </table>
-            </div>
-            <script>
-                // Manual search only (no AJAX)
-                const idInput = document.getElementById('searchId');
-                const nameInput = document.getElementById('searchName');
-                const resultCount = document.getElementById('resultCount');
+        function renderReviewRows(items) {
+            const tbody = document.getElementById('reviewBody');
+            const resultCountEl = document.getElementById('resultCount');
 
-                // khởi tạo đếm
-                resultCount.textContent = '<?php echo $count; ?> bản ghi';
-            </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-            <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
-    </div>
+            if (!tbody || !resultCountEl) {
+                return;
+            }
+
+            resultCountEl.textContent = items.length + ' bản ghi';
+
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map((row, index) => {
+                const ma = row.ma_danh_gia || '';
+                const soSao = Number(row.so_sao || 0);
+                const stars = '★'.repeat(Math.max(0, Math.min(5, soSao))) + '☆'.repeat(Math.max(0, 5 - Math.max(0, Math.min(5, soSao))));
+
+                return '<tr>'
+                    + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                    + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(ma) + '</span></td>'
+                    + '<td>' + escapeHtml(row.full_name || '') + '</td>'
+                    + '<td>' + escapeHtml(row.ten_san_pham || '') + '</td>'
+                    + '<td><span title="' + escapeHtml(String(soSao)) + ' sao">' + escapeHtml(stars) + '</span></td>'
+                    + '<td>' + escapeHtml(row.noi_dung || '') + '</td>'
+                    + '<td>' + escapeHtml(row.phan_hoi || '') + '</td>'
+                    + '<td style="text-align:right">'
+                    + '<a href="' + BASE_URL + 'Danhgia/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                        + '<button type="button" class="btn-delete" onclick="deleteReview(' + JSON.stringify(String(ma)) + ')">🗑️ Xóa API</button>'
+                    + '</td>'
+                    + '</tr>';
+            }).join('');
+        }
+
+        function loadAllReviews() {
+            if (reviewsListLoading) {
+                return;
+            }
+
+            reviewsListLoading = true;
+
+            fetch(BASE_URL + 'Api/Danhgia', {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderReviewRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Không thể tải danh sách đánh giá từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API đánh giá: ' + error.message);
+                })
+                .finally(() => {
+                    reviewsListLoading = false;
+                });
+        }
+
+        function deleteReview(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa đánh giá ' + id + ' bằng REST API không?')) {
+                return;
+            }
+
+            fetch(BASE_URL + 'Api/Danhgia/' + encodeURIComponent(id), {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Đã xóa đánh giá thành công qua REST API');
+                        loadAllReviews();
+                    } else {
+                        alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API xóa: ' + error.message);
+                });
+        }
+
+        function exportReviewsExcel() {
+            const ma = (document.getElementById('searchId') || {}).value || '';
+            const tenKhach = (document.getElementById('searchName') || {}).value || '';
+            const tenSP = (document.getElementById('searchProduct') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Danhgia');
+
+            if (ma.trim() !== '') {
+                url.searchParams.set('ma_danh_gia', ma.trim());
+            }
+
+            if (tenKhach.trim() !== '') {
+                url.searchParams.set('ten_khach_hang', tenKhach.trim());
+            }
+
+            if (tenSP.trim() !== '') {
+                url.searchParams.set('ten_san_pham', tenSP.trim());
+            }
+
+            url.searchParams.set('format', 'xlsx');
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = 'DanhSachDanhGia.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(blobUrl);
+                })
+                .catch(error => {
+                    alert('Không thể xuất Excel qua API: ' + error.message);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.__reviewListInitialized) {
+                return;
+            }
+            window.__reviewListInitialized = true;
+
+            renderReviewRows(Array.isArray(INITIAL_REVIEWS) ? INITIAL_REVIEWS : []);
+            loadAllReviews();
+
+            const searchForm = document.getElementById('reviewSearchForm');
+            if (!searchForm) {
+                return;
+            }
+
+            searchForm.addEventListener('submit', function(event) {
+                const submitter = event.submitter;
+                const submitName = submitter && submitter.name ? submitter.name : '';
+
+                if (submitName !== 'btnTim') {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const ma = (document.getElementById('searchId') || {}).value || '';
+                const tenKhach = (document.getElementById('searchName') || {}).value || '';
+                const tenSP = (document.getElementById('searchProduct') || {}).value || '';
+                const url = new URL(BASE_URL + 'Api/Danhgia');
+
+                if (ma.trim() !== '') {
+                    url.searchParams.set('ma_danh_gia', ma.trim());
+                }
+
+                if (tenKhach.trim() !== '') {
+                    url.searchParams.set('ten_khach_hang', tenKhach.trim());
+                }
+
+                if (tenSP.trim() !== '') {
+                    url.searchParams.set('ten_san_pham', tenSP.trim());
+                }
+
+                fetch(url.toString(), {
+                        method: 'GET'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            renderReviewRows(Array.isArray(data.data) ? data.data : []);
+                        } else {
+                            alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                            renderReviewRows([]);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                    });
+            });
+        });
+    </script>
 
 </body>
 
