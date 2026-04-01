@@ -226,7 +226,7 @@
             </div>
         </div>
 
-        <form method="post" action="<?php echo BASE_URL; ?>Danhmuc/Timkiem" class="form-search"
+        <form id="categorySearchForm" method="post" action="<?php echo BASE_URL; ?>Danhmuc/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -242,10 +242,10 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
                 <a href="<?php echo BASE_URL ?>Danhmuc/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportCategoriesExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
@@ -307,10 +307,7 @@
                             <a href="<?php echo BASE_URL; ?>Danhmuc/sua/<?php echo urlencode($row['ma_danh_muc']) ?>"><button
                                     class="btn-edit">✏️
                                     Sửa</button></a>
-                            <a href="<?php echo BASE_URL; ?>Danhmuc/xoa/<?php echo urlencode($row['ma_danh_muc']) ?>"
-                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                    class="btn-delete">🗑️
-                                    Xóa</button></a>
+                            <button type="button" class="btn-delete" onclick="deleteCategory('<?php echo htmlspecialchars($row['ma_danh_muc']) ?>')">🗑️ Xóa API</button>
                         </td>
                     </tr>
                     <?php }
@@ -319,12 +316,7 @@
             </table>
         </div>
         <script>
-        // Manual search only (no AJAX)
-        const idInput = document.getElementById('searchId');
-        const nameInput = document.getElementById('searchName');
         const resultCount = document.getElementById('resultCount');
-
-        // khởi tạo đếm
         resultCount.textContent = '<?php echo $count; ?> bản ghi';
         </script>
         <?php } ?>
@@ -333,6 +325,199 @@
         <?php } ?>
 
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function formatDateTime(dateTimeString) {
+        if (!dateTimeString) {
+            return '';
+        }
+
+        const date = new Date(dateTimeString.replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(dateTimeString);
+        }
+
+        const pad = (n) => String(n).padStart(2, '0');
+        return pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds())
+            + ' ' + pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear();
+    }
+
+    function renderCategoryRows(items) {
+        const tbody = document.getElementById('dmBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const maDanhMuc = row.ma_danh_muc || '';
+            const tenDanhMuc = row.ten_danh_muc || '';
+
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(maDanhMuc) + '</span></td>'
+                + '<td>' + escapeHtml(tenDanhMuc) + '</td>'
+                + '<td>' + formatDateTime(row.ngay_tao || '') + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'Danhmuc/sua/' + encodeURIComponent(maDanhMuc) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deleteCategory(\'' + escapeHtml(maDanhMuc) + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    function deleteCategory(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa danh mục ' + id + ' bằng REST API không?')) {
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Danhmuc/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    alert('Đã xóa danh mục thành công qua REST API');
+                    location.reload();
+                } else {
+                    alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API xóa: ' + error.message);
+            });
+    }
+
+    function exportCategoriesExcel() {
+        const maDanhMuc = (document.getElementById('searchId') || {}).value || '';
+        const tenDanhMuc = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Danhmuc');
+
+        if (maDanhMuc.trim() !== '') {
+            url.searchParams.set('ma_danh_muc', maDanhMuc.trim());
+        }
+
+        if (tenDanhMuc.trim() !== '') {
+            url.searchParams.set('ten_danh_muc', tenDanhMuc.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachDanhMuc.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                alert('Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
+    function loadAllCategories() {
+        const resultCountEl = document.getElementById('resultCount');
+        if (resultCountEl) {
+            resultCountEl.textContent = 'Đang tải danh mục...';
+        }
+
+        fetch(BASE_URL + 'Api/Danhmuc', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderCategoryRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('Không thể tải danh sách danh mục từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API danh mục: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAllCategories();
+
+        const searchForm = document.getElementById('categorySearchForm');
+        if (!searchForm) {
+            return;
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const submitName = submitter && submitter.name ? submitter.name : '';
+
+            if (submitName !== 'btnTim') {
+                return;
+            }
+
+            event.preventDefault();
+
+            const maDanhMuc = (document.getElementById('searchId') || {}).value || '';
+            const tenDanhMuc = (document.getElementById('searchName') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Danhmuc');
+
+            if (maDanhMuc.trim() !== '') {
+                url.searchParams.set('ma_danh_muc', maDanhMuc.trim());
+            }
+
+            if (tenDanhMuc.trim() !== '') {
+                url.searchParams.set('ten_danh_muc', tenDanhMuc.trim());
+            }
+
+            const resultCountEl = document.getElementById('resultCount');
+            if (resultCountEl) {
+                resultCountEl.textContent = 'Đang tìm kiếm...';
+            }
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderCategoryRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        renderCategoryRows([]);
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>

@@ -238,6 +238,21 @@ class Products extends api_controller {
         $sheet = $objExcel->getSheet(0);
         $sheetData = $sheet->toArray(null, true, true, true);
 
+        $headerA = $this->normalizeImportHeader($sheetData[1]['A'] ?? '');
+        $headerB = $this->normalizeImportHeader($sheetData[1]['B'] ?? '');
+        $headerC = $this->normalizeImportHeader($sheetData[1]['C'] ?? '');
+        $headerF = $this->normalizeImportHeader($sheetData[1]['F'] ?? '');
+
+        $isTemplateAE = ($headerA === 'mã sản phẩm' && $headerB === 'tên sản phẩm' && $headerC === 'mã danh mục');
+        $isExportAH = ($headerA === 'mã sản phẩm' && $headerB === 'tên sản phẩm' && $headerF === 'tên danh mục');
+
+        if (!$isTemplateAE && !$isExportAH) {
+            $this->sendResponse(400, [
+                'success' => false,
+                'message' => 'Sai định dạng file. Dùng file mẫu A-E hoặc file export sản phẩm A-H.'
+            ]);
+        }
+
         $created = 0;
         $skipped_empty = 0;
         $duplicated_codes = [];
@@ -246,9 +261,16 @@ class Products extends api_controller {
         for ($i = 2; $i <= count($sheetData); $i++) {
             $ma_san_pham = isset($sheetData[$i]['A']) ? trim($sheetData[$i]['A']) : '';
             $ten_san_pham = isset($sheetData[$i]['B']) ? trim($sheetData[$i]['B']) : '';
-            $ma_danh_muc = isset($sheetData[$i]['C']) ? trim($sheetData[$i]['C']) : '';
-            $ma_thuong_hieu = isset($sheetData[$i]['D']) ? trim($sheetData[$i]['D']) : '';
-            $ma_nha_cung_cap = isset($sheetData[$i]['E']) ? trim($sheetData[$i]['E']) : '';
+
+            if ($isExportAH) {
+                $rawDanhMuc = isset($sheetData[$i]['F']) ? trim($sheetData[$i]['F']) : '';
+                $rawThuongHieu = isset($sheetData[$i]['G']) ? trim($sheetData[$i]['G']) : '';
+                $rawNhaCungCap = isset($sheetData[$i]['H']) ? trim($sheetData[$i]['H']) : '';
+            } else {
+                $rawDanhMuc = isset($sheetData[$i]['C']) ? trim($sheetData[$i]['C']) : '';
+                $rawThuongHieu = isset($sheetData[$i]['D']) ? trim($sheetData[$i]['D']) : '';
+                $rawNhaCungCap = isset($sheetData[$i]['E']) ? trim($sheetData[$i]['E']) : '';
+            }
 
             if ($ma_san_pham === '') {
                 $skipped_empty++;
@@ -264,11 +286,11 @@ class Products extends api_controller {
                 continue;
             }
 
-            if ($ma_danh_muc === '') {
+            if ($rawDanhMuc === '') {
                 $failed_rows[] = [
                     'row' => $i,
                     'ma_san_pham' => $ma_san_pham,
-                    'reason' => 'Thiếu mã danh mục (cột C)'
+                    'reason' => $isExportAH ? 'Thiếu tên danh mục (cột F)' : 'Thiếu mã danh mục (cột C)'
                 ];
                 continue;
             }
@@ -278,9 +300,41 @@ class Products extends api_controller {
                 continue;
             }
 
-            // Chuẩn hóa chuỗi rỗng về NULL để không vi phạm khóa ngoại
-            $ma_thuong_hieu = ($ma_thuong_hieu === '') ? null : $ma_thuong_hieu;
-            $ma_nha_cung_cap = ($ma_nha_cung_cap === '') ? null : $ma_nha_cung_cap;
+            $ma_danh_muc = $this->resolveReferenceCode('danh_muc', 'ma_danh_muc', 'ten_danh_muc', $rawDanhMuc);
+            if ($ma_danh_muc === '') {
+                $failed_rows[] = [
+                    'row' => $i,
+                    'ma_san_pham' => $ma_san_pham,
+                    'reason' => 'Danh mục không tồn tại: ' . $rawDanhMuc
+                ];
+                continue;
+            }
+
+            $ma_thuong_hieu = null;
+            if ($rawThuongHieu !== '') {
+                $ma_thuong_hieu = $this->resolveReferenceCode('thuong_hieu', 'ma_thuong_hieu', 'ten_thuong_hieu', $rawThuongHieu);
+                if ($ma_thuong_hieu === '') {
+                    $failed_rows[] = [
+                        'row' => $i,
+                        'ma_san_pham' => $ma_san_pham,
+                        'reason' => 'Thương hiệu không tồn tại: ' . $rawThuongHieu
+                    ];
+                    continue;
+                }
+            }
+
+            $ma_nha_cung_cap = null;
+            if ($rawNhaCungCap !== '') {
+                $ma_nha_cung_cap = $this->resolveReferenceCode('nha_cung_cap', 'ma_nha_cung_cap', 'ten_nha_cung_cap', $rawNhaCungCap);
+                if ($ma_nha_cung_cap === '') {
+                    $failed_rows[] = [
+                        'row' => $i,
+                        'ma_san_pham' => $ma_san_pham,
+                        'reason' => 'Nhà cung cấp không tồn tại: ' . $rawNhaCungCap
+                    ];
+                    continue;
+                }
+            }
 
             $inserted = $this->sanpham_model->sanpham_ins(
                 $ma_san_pham,
@@ -333,6 +387,38 @@ class Products extends api_controller {
         }
 
         $this->sendResponse(200, $response);
+    }
+
+    private function normalizeImportHeader($value) {
+        $value = trim((string)$value);
+        $value = preg_replace('/\s+/', ' ', $value);
+        return mb_strtolower($value, 'UTF-8');
+    }
+
+    private function resolveReferenceCode($table, $codeColumn, $nameColumn, $rawValue) {
+        $rawValue = trim((string)$rawValue);
+        if ($rawValue === '') {
+            return '';
+        }
+
+        $con = $this->sanpham_model->con;
+        $escaped = mysqli_real_escape_string($con, $rawValue);
+
+        $sqlByCode = "SELECT $codeColumn FROM $table WHERE $codeColumn = '$escaped' LIMIT 1";
+        $resultByCode = mysqli_query($con, $sqlByCode);
+        if ($resultByCode && mysqli_num_rows($resultByCode) > 0) {
+            $row = mysqli_fetch_assoc($resultByCode);
+            return $row[$codeColumn];
+        }
+
+        $sqlByName = "SELECT $codeColumn FROM $table WHERE $nameColumn = '$escaped' LIMIT 1";
+        $resultByName = mysqli_query($con, $sqlByName);
+        if ($resultByName && mysqli_num_rows($resultByName) > 0) {
+            $row = mysqli_fetch_assoc($resultByName);
+            return $row[$codeColumn];
+        }
+
+        return '';
     }
 
     /**
