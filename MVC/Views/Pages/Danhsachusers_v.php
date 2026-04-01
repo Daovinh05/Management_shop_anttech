@@ -206,6 +206,13 @@
         color: var(--muted);
         margin-top: 6px
     }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
     </style>
 
     <div class="card">
@@ -218,56 +225,37 @@
                 <a href="<?php echo BASE_URL; ?>Users/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
                     Thêm người dùng</a>
                 <a href="<?php echo BASE_URL; ?>Users/import_form" class="btn-ghost"><i
-                        class="fa-solid fa-file-excel"></i> Nhập
-                    Excel</a>
+                        class="fa-solid fa-file-excel"></i> Nhập Excel</a>
             </div>
         </div>
 
-        <form method="post" action="<?php echo BASE_URL; ?>Users/Timkiem" class="form-search"
+        <form id="userSearchForm" method="post" action="<?php echo BASE_URL; ?>Users/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã user</label>
                     <input type="text" id="searchId" name="txtMauser" placeholder="Nhập mã user..."
-                        value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : '' ?>" />
+                        value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : ''; ?>" />
                 </div>
                 <div>
                     <label for="searchName">Tên user</label>
                     <input type="text" id="searchName" name="txtTenuser" placeholder="Nhập tên user..."
-                        value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />
+                        value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : ''; ?>" />
                 </div>
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
-                    kiếm</button>
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
                 <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportUsersExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
         </form>
 
-        <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            // Giả định $data['dulieu'] là mysqli_result
-            // Đặt lại con trỏ về đầu để có thể đếm và dùng lại bên dưới
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
+            <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
         <div style="margin:10px 0">
-            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+            <strong>Kết quả: <span id="resultCount" class="hint">Đang tải dữ liệu...</span></strong>
         </div>
         <div class="table-container">
             <table>
@@ -285,65 +273,248 @@
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="userBody">
-                    <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                        </td>
-                        <td>
-                            <?php if (!empty($row['avatar'])): ?>
-                                <img src="<?php echo UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($row['avatar']); ?>"
-                                     alt="Avatar" style="width: 40px; height: 40px; border-radius: 5px; object-fit: fill;">
-                            <?php else: ?>
-                                <img src="<?php echo UrlHelper::url('Public/Images/avatar.png'); ?>"
-                                     alt="No Avatar" style="width: 40px; height: 40px; border-radius: 5px; object-fit: fill;">
-                            <?php endif; ?>
-                        </td>
-                        <td><span
-                                style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_user']) ?></span>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['full_name']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ten_user']) ?></td>
-                        <td><?php echo htmlspecialchars($row['password']) ?></td>
-                        <td><?php echo htmlspecialchars($row['email']) ?></td>
-                        <td><?php echo htmlspecialchars($row['phan_quyen']) ?></td>
-                        <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
-                        </td>
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL; ?>Users/sua/<?php echo urlencode($row['ma_user']) ?>"><button
-                                    class="btn-edit">✏️
-                                    Sửa</button></a>
-                            <a href="<?php echo BASE_URL; ?>Users/xoa/<?php echo urlencode($row['ma_user']) ?>"
-                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                    class="btn-delete">🗑️
-                                    Xóa</button></a>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
-                </tbody>
+                <tbody id="userBody"></tbody>
             </table>
         </div>
-        <script>
-        // Manual search only (no AJAX)
-        const idInput = document.getElementById('searchId');
-        const nameInput = document.getElementById('searchName');
-        const resultCount = document.getElementById('resultCount');
-
-        // khởi tạo đếm
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
     </div>
 
+        <?php
+        $initialUsers = [];
+        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
+            mysqli_data_seek($data['dulieu'], 0);
+            while ($row = mysqli_fetch_assoc($data['dulieu'])) {
+                $initialUsers[] = $row;
+            }
+        }
+        ?>
+        <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+        const INITIAL_USERS = <?php echo json_encode($initialUsers, JSON_UNESCAPED_UNICODE); ?>;
+    const DEFAULT_AVATAR_DATA_URI = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="%23e5e7eb"/><circle cx="20" cy="15" r="7" fill="%239ca3af"/><path d="M8 34c1.7-6 6.5-10 12-10s10.3 4 12 10" fill="%239ca3af"/></svg>';
+    let usersListLoading = false;
+    let usersListLastFetchAt = 0;
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function formatDateTime(dateTimeString) {
+        if (!dateTimeString) {
+            return '';
+        }
+
+        const date = new Date(String(dateTimeString).replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(dateTimeString);
+        }
+
+        const pad = (n) => String(n).padStart(2, '0');
+        return pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds())
+            + ' ' + pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear();
+    }
+
+    function getAvatarUrl(avatar) {
+        if (avatar && String(avatar).trim() !== '') {
+            return BASE_URL + 'Public/Pictures/users/' + encodeURIComponent(avatar);
+        }
+            return DEFAULT_AVATAR_DATA_URI;
+    }
+
+    function renderUserRows(items) {
+        const tbody = document.getElementById('userBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const ma = row.ma_user || '';
+            const avatarUrl = getAvatarUrl(row.avatar || '');
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                    + '<td><img class="avatar" src="' + avatarUrl + '" alt="Avatar" loading="lazy" /></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(ma) + '</span></td>'
+                + '<td>' + escapeHtml(row.full_name || '') + '</td>'
+                + '<td>' + escapeHtml(row.ten_user || '') + '</td>'
+                + '<td>' + escapeHtml(row.password || '') + '</td>'
+                + '<td>' + escapeHtml(row.email || '') + '</td>'
+                + '<td>' + escapeHtml(row.phan_quyen || '') + '</td>'
+                + '<td>' + formatDateTime(row.ngay_tao || '') + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'Users/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deleteUser(\'' + escapeHtml(ma) + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    function loadAllUsers(force = false) {
+        const now = Date.now();
+        if (!force && (now - usersListLastFetchAt) < 1500) {
+            return;
+        }
+
+        if (usersListLoading) {
+            return;
+        }
+
+        usersListLoading = true;
+        usersListLastFetchAt = now;
+
+        const resultCountEl = document.getElementById('resultCount');
+        if (resultCountEl) {
+            resultCountEl.textContent = 'Đang tải users...';
+        }
+
+        fetch(BASE_URL + 'Api/Users', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderUserRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('Không thể tải danh sách users từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API users: ' + error.message);
+            })
+            .finally(() => {
+                usersListLoading = false;
+            });
+    }
+
+    function deleteUser(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa user ' + id + ' bằng REST API không?')) {
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Users/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    alert('Đã xóa user thành công qua REST API');
+                    loadAllUsers(true);
+                } else {
+                    alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API xóa: ' + error.message);
+            });
+    }
+
+    function exportUsersExcel() {
+        const ma = (document.getElementById('searchId') || {}).value || '';
+        const ten = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Users');
+
+        if (ma.trim() !== '') {
+            url.searchParams.set('ma_user', ma.trim());
+        }
+
+        if (ten.trim() !== '') {
+            url.searchParams.set('ten_user', ten.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachUsers.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                alert('Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.__usersListInitialized) {
+            return;
+        }
+        window.__usersListInitialized = true;
+
+            renderUserRows(Array.isArray(INITIAL_USERS) ? INITIAL_USERS : []);
+            loadAllUsers(true);
+
+        const searchForm = document.getElementById('userSearchForm');
+        if (!searchForm) {
+            return;
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const submitName = submitter && submitter.name ? submitter.name : '';
+
+            if (submitName !== 'btnTim') {
+                return;
+            }
+
+            event.preventDefault();
+
+            const ma = (document.getElementById('searchId') || {}).value || '';
+            const ten = (document.getElementById('searchName') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Users');
+
+            if (ma.trim() !== '') {
+                url.searchParams.set('ma_user', ma.trim());
+            }
+
+            if (ten.trim() !== '') {
+                url.searchParams.set('ten_user', ten.trim());
+            }
+
+            const resultCountEl = document.getElementById('resultCount');
+            if (resultCountEl) {
+                resultCountEl.textContent = 'Đang tìm kiếm...';
+            }
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderUserRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        renderUserRows([]);
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>
