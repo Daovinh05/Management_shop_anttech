@@ -27,6 +27,18 @@ class app
                 $this->controller = $arr[0];
                 unset($arr[0]);
             } else if ($is_api) {
+                // Hỗ trợ URL lowercase kiểu REST: /api/products
+                $normalized_api_controller = ucfirst(strtolower($arr[0]));
+                if (file_exists(__DIR__ . $controller_dir . $normalized_api_controller . '.php')) {
+                    $this->controller = $normalized_api_controller;
+                    unset($arr[0]);
+                } else {
+                    header('Content-Type: application/json; charset=utf-8');
+                    http_response_code(404);
+                    echo json_encode(['success' => false, 'error' => 'API Controller Not Found']);
+                    exit;
+                }
+            } else if ($is_api) {
                 header('Content-Type: application/json; charset=utf-8');
                 http_response_code(404);
                 echo json_encode(['success' => false, 'error' => 'API Controller Not Found']);

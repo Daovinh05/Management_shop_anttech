@@ -243,7 +243,7 @@
                     Tìmkiếm</button>
 
                 <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" id="btnExportApi" class="btn-excel" onclick="exportProductsExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
@@ -441,6 +441,46 @@
         }).join('');
     }
 
+    function exportProductsExcel() {
+        const maSanPham = (document.getElementById('searchId') || {}).value || '';
+        const tenSanPham = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Products');
+
+        if (maSanPham.trim() !== '') {
+            url.searchParams.set('ma_san_pham', maSanPham.trim());
+        }
+
+        if (tenSanPham.trim() !== '') {
+            url.searchParams.set('ten_san_pham', tenSanPham.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachSanPham.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                console.error('Lỗi xuất Excel API:', error);
+                alert('❌ Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const searchForm = document.getElementById('productSearchForm');
         if (searchForm) {
@@ -448,7 +488,7 @@
                 const submitter = event.submitter;
                 const submitName = submitter && submitter.name ? submitter.name : '';
 
-                // Chỉ chặn submit của nút tìm kiếm, cho phép nút xuất Excel chạy luồng cũ
+                // Chỉ chặn submit của nút tìm kiếm
                 if (submitName !== 'btnTim') {
                     return;
                 }
