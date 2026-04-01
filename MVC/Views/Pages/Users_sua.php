@@ -10,7 +10,6 @@
 
         .card {
             width: 100%;
-            /* max-width: 1220px; */
             background: #fff;
             padding: 28px;
             border-radius: 12px
@@ -67,37 +66,37 @@
 
     <main class="card">
         <h1>Sửa thông tin User</h1>
-        <form method="post" action="<?php echo BASE_URL; ?>Users/update" enctype="multipart/form-data">
+        <form id="updateUserForm" method="post" action="<?php echo BASE_URL; ?>Users/update" enctype="multipart/form-data">
             <div>
                 <label>Mã user</label>
-                <input type="text" name="txtMauser" readonly
-                    value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : '' ?>" />
+                <input type="text" id="txtMauser" name="txtMauser" readonly
+                    value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : ''; ?>" />
             </div>
             <div>
                 <label>Họ và tên <span style="color:red">*</span></label>
                 <input type="text" name="txtHoten" required
-                    value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : '' ?>" />
+                    value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : ''; ?>" />
             </div>
             <div>
                 <label>Tên tài khoản</label>
                 <input type="text" name="txtTenuser" required
-                    value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />
+                    value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : ''; ?>" />
             </div>
 
             <div>
                 <label>Mật khẩu</label>
                 <input type="text" name="txtPassword"
-                    value="<?php echo isset($data['password']) ? htmlspecialchars($data['password']) : '' ?>" />
+                    value="<?php echo isset($data['password']) ? htmlspecialchars($data['password']) : ''; ?>" />
             </div>
             <div>
                 <label>Email</label>
                 <input type="email" name="txtEmail"
-                    value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : '' ?>" />
+                    value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : ''; ?>" />
             </div>
             <div>
                 <label>Số điện thoại</label>
                 <input type="text" name="txtSoDienThoai"
-                    value="<?php echo isset($data['so_dien_thoai']) ? htmlspecialchars($data['so_dien_thoai']) : '' ?>" />
+                    value="<?php echo isset($data['so_dien_thoai']) ? htmlspecialchars($data['so_dien_thoai']) : ''; ?>" />
             </div>
             <div>
                 <label>Phân quyền</label>
@@ -126,63 +125,101 @@
                             <img src="<?php echo UrlHelper::url('Public/Images/avatar.png'); ?>"
                                  alt="Avatar người dùng" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" id="avatar-preview">
                         <?php endif; ?>
-                        
+
                         <div class="camera-btn" id="camera-btn" style="position: absolute; bottom: 0; right: 0; background: #2463ff; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                             <i class="fa-solid fa-camera"></i>
                         </div>
                     </div>
-                    
+
                     <input type="file" name="txtAvatar" id="avatar-input" accept="image/*" style="display: none;" />
                     <p style="margin-top: 10px;">Chọn file mới để thay đổi avatar</p>
                 </div>
             </div>
 
             <div class="actions">
-                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-back"><i
-                        class="fa-solid fa-arrow-left"></i>
+                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>
             </div>
         </form>
     </main>
-    
+
     <script>
-        // Avatar upload functionality for admin user edit page
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
         document.addEventListener('DOMContentLoaded', function() {
             const cameraBtn = document.getElementById('camera-btn');
             const avatarInput = document.getElementById('avatar-input');
             const avatarPreview = document.getElementById('avatar-preview');
-            
+
             if (cameraBtn && avatarInput && avatarPreview) {
                 cameraBtn.addEventListener('click', function() {
                     avatarInput.click();
                 });
-                
+
                 avatarInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
                     if (file) {
-                        // Validate file type
                         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                         if (!validTypes.includes(file.type)) {
                             alert('Vui lòng chọn file ảnh (JPEG, PNG, GIF, WEBP)');
                             return;
                         }
-                        
-                        // Validate file size (max 5MB)
+
                         if (file.size > 5 * 1024 * 1024) {
                             alert('File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
                             return;
                         }
-                        
-                        // Preview the selected image
+
                         const reader = new FileReader();
-                        reader.onload = function(e) {
-                            avatarPreview.src = e.target.result;
+                        reader.onload = function(ev) {
+                            avatarPreview.src = ev.target.result;
                         };
                         reader.readAsDataURL(file);
                     }
                 });
             }
+
+            const form = document.getElementById('updateUserForm');
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const maUser = (document.getElementById('txtMauser') || {}).value || '';
+                if (!maUser.trim()) {
+                    alert('Thiếu mã user để cập nhật');
+                    return;
+                }
+
+                const formData = new FormData(form);
+
+                fetch(BASE_URL + 'Api/Users/update/' + encodeURIComponent(maUser.trim()), {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        return {
+                            status: response.status,
+                            data
+                        };
+                    })
+                    .then((result) => {
+                        if (result.status >= 200 && result.status < 300 && result.data.success) {
+                            alert('Cập nhật user thành công qua REST API');
+                            window.location.href = BASE_URL + 'Users/danhsach';
+                            return;
+                        }
+
+                        alert('Cập nhật user thất bại: ' + (result.data.message || 'Lỗi không xác định'));
+                    })
+                    .catch((error) => {
+                        alert('Không thể kết nối API cập nhật user: ' + error.message);
+                    });
+            });
         });
     </script>
 </body>
