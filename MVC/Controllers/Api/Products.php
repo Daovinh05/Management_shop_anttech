@@ -40,6 +40,12 @@ class Products extends api_controller {
             $products[] = $row;
         }
 
+        // Hỗ trợ xuất Excel theo chuẩn: GET /Api/Products?format=xlsx
+        $format = isset($_GET['format']) ? strtolower(trim($_GET['format'])) : '';
+        if ($format === 'xlsx') {
+            $this->exportXlsx($products);
+        }
+
         $response = [
             'success' => true,
             'message' => $is_search ? 'Tìm kiếm sản phẩm thành công' : 'Lấy danh sách sản phẩm thành công',
@@ -55,6 +61,50 @@ class Products extends api_controller {
         }
 
         $this->sendResponse(200, $response);
+    }
+
+    private function exportXlsx($products) {
+        $objExcel = new PHPExcel();
+        $objExcel->setActiveSheetIndex(0);
+        $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachSanPham');
+
+        $sheet->setCellValue('A1', 'Mã sản phẩm');
+        $sheet->setCellValue('B1', 'Tên sản phẩm');
+        $sheet->setCellValue('C1', 'Hình ảnh biến thể');
+        $sheet->setCellValue('D1', 'Giá');
+        $sheet->setCellValue('E1', 'Số lượng');
+        $sheet->setCellValue('F1', 'Tên danh mục');
+        $sheet->setCellValue('G1', 'Tên thương hiệu');
+        $sheet->setCellValue('H1', 'Tên nhà cung cấp');
+
+        $rowCount = 2;
+        foreach ($products as $row) {
+            $sheet->setCellValue('A' . $rowCount, $row['ma_san_pham'] ?? '');
+            $sheet->setCellValue('B' . $rowCount, $row['ten_san_pham'] ?? '');
+            $sheet->setCellValue('C' . $rowCount, $row['img_bien_the'] ?? '');
+            $sheet->setCellValue('D' . $rowCount, $row['gia'] ?? '');
+            $sheet->setCellValue('E' . $rowCount, $row['so_luong_kho'] ?? '');
+            $sheet->setCellValue('F' . $rowCount, $row['ten_danh_muc'] ?? '');
+            $sheet->setCellValue('G' . $rowCount, $row['ten_thuong_hieu'] ?? '');
+            $sheet->setCellValue('H' . $rowCount, $row['ten_nha_cung_cap'] ?? '');
+            $rowCount++;
+        }
+
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="DanhSachSanPham.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+        $writer->save('php://output');
+        exit;
     }
 
     /**
@@ -146,6 +196,143 @@ class Products extends api_controller {
                 'message' => 'Đã có lỗi xảy ra khi lưu vào Database'
             ]);
         }
+    }
+
+    /**
+     * Endpoint: POST /Api/Products/import
+     * Nhập danh sách sản phẩm từ file Excel (.xlsx/.xls)
+     * Form-data key hỗ trợ: file hoặc txtfile
+     */
+    public function import() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use POST']);
+        }
+
+        $uploadKey = null;
+        if (isset($_FILES['file'])) {
+            $uploadKey = 'file';
+        } elseif (isset($_FILES['txtfile'])) {
+            $uploadKey = 'txtfile';
+        }
+
+        if ($uploadKey === null) {
+            $this->sendResponse(400, [
+                'success' => false,
+                'message' => 'Thiếu file upload. Vui lòng gửi multipart/form-data với key file hoặc txtfile'
+            ]);
+        }
+
+        if ($_FILES[$uploadKey]['error'] !== 0 || empty($_FILES[$uploadKey]['tmp_name'])) {
+            $this->sendResponse(400, ['success' => false, 'message' => 'Upload file lỗi']);
+        }
+
+        $file = $_FILES[$uploadKey]['tmp_name'];
+
+        try {
+            $objReader = PHPExcel_IOFactory::createReaderForFile($file);
+            $objExcel = $objReader->load($file);
+        } catch (Exception $e) {
+            $this->sendResponse(400, ['success' => false, 'message' => 'File Excel không hợp lệ']);
+        }
+
+        $sheet = $objExcel->getSheet(0);
+        $sheetData = $sheet->toArray(null, true, true, true);
+
+        $created = 0;
+        $skipped_empty = 0;
+        $duplicated_codes = [];
+        $failed_rows = [];
+
+        for ($i = 2; $i <= count($sheetData); $i++) {
+            $ma_san_pham = isset($sheetData[$i]['A']) ? trim($sheetData[$i]['A']) : '';
+            $ten_san_pham = isset($sheetData[$i]['B']) ? trim($sheetData[$i]['B']) : '';
+            $ma_danh_muc = isset($sheetData[$i]['C']) ? trim($sheetData[$i]['C']) : '';
+            $ma_thuong_hieu = isset($sheetData[$i]['D']) ? trim($sheetData[$i]['D']) : '';
+            $ma_nha_cung_cap = isset($sheetData[$i]['E']) ? trim($sheetData[$i]['E']) : '';
+
+            if ($ma_san_pham === '') {
+                $skipped_empty++;
+                continue;
+            }
+
+            if ($ten_san_pham === '') {
+                $failed_rows[] = [
+                    'row' => $i,
+                    'ma_san_pham' => $ma_san_pham,
+                    'reason' => 'Thiếu tên sản phẩm (cột B)'
+                ];
+                continue;
+            }
+
+            if ($ma_danh_muc === '') {
+                $failed_rows[] = [
+                    'row' => $i,
+                    'ma_san_pham' => $ma_san_pham,
+                    'reason' => 'Thiếu mã danh mục (cột C)'
+                ];
+                continue;
+            }
+
+            if ($this->sanpham_model->checktrungMaSP($ma_san_pham)) {
+                $duplicated_codes[] = $ma_san_pham;
+                continue;
+            }
+
+            // Chuẩn hóa chuỗi rỗng về NULL để không vi phạm khóa ngoại
+            $ma_thuong_hieu = ($ma_thuong_hieu === '') ? null : $ma_thuong_hieu;
+            $ma_nha_cung_cap = ($ma_nha_cung_cap === '') ? null : $ma_nha_cung_cap;
+
+            $inserted = $this->sanpham_model->sanpham_ins(
+                $ma_san_pham,
+                $ten_san_pham,
+                $ma_danh_muc,
+                $ma_thuong_hieu,
+                $ma_nha_cung_cap
+            );
+
+            if ($inserted) {
+                $created++;
+            } else {
+                $failed_rows[] = [
+                    'row' => $i,
+                    'ma_san_pham' => $ma_san_pham,
+                    'reason' => mysqli_error($this->sanpham_model->con)
+                ];
+            }
+        }
+
+        $duplicated_details = [];
+        foreach ($duplicated_codes as $duplicate_code) {
+            $duplicated_details[] = [
+                'ma_san_pham' => $duplicate_code,
+                'reason' => 'Mã sản phẩm đã tồn tại'
+            ];
+        }
+
+        $response = [
+            'success' => true,
+            'message' => 'Import sản phẩm hoàn tất',
+            'created' => $created,
+            'skipped_empty_code' => $skipped_empty,
+            'duplicated_count' => count($duplicated_codes),
+            'duplicated_codes' => $duplicated_codes,
+            'failed_count' => count($failed_rows),
+            'failed_rows' => $failed_rows
+        ];
+
+        if ($created === 0 && (count($duplicated_codes) > 0 || count($failed_rows) > 0)) {
+            $response['success'] = false;
+            $response['message'] = 'Import không tạo được bản ghi nào';
+            $response['duplicates'] = $duplicated_details;
+            $this->sendResponse(422, $response);
+        }
+
+        if (count($duplicated_codes) > 0 || count($failed_rows) > 0) {
+            $response['message'] = 'Import hoàn tất (có một số dòng bị bỏ qua/lỗi)';
+            $response['duplicates'] = $duplicated_details;
+        }
+
+        $this->sendResponse(200, $response);
     }
 
     /**
