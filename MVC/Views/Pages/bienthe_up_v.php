@@ -1,131 +1,215 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhập khẩu Biến thể</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Upload file biến thể</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+        }
+
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
+            background: #eef2f7;
+            color: #0f1724
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .wrap {
+            min-height: 50vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .card {
+            width: 680px;
+            max-width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+            padding: 30px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="file"] {
-            width: 100%;
-            padding: 8px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
+        .file-upload-wrapper {
+            border: 2px dashed #d0d7e2;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .file-input-wrapper {
             position: relative;
-            display: inline-block;
-            cursor: pointer;
-            background: #f8fafc;
-            padding: 10px 15px;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            transition: border-color 0.3s;
+            margin-bottom: 20px;
         }
 
-        .file-input-wrapper:hover {
-            border-color: #9ca3af;
-        }
-
-        .file-input-wrapper input[type="file"] {
+        .file-upload-wrapper input[type="file"] {
             position: absolute;
             left: 0;
             top: 0;
-            opacity: 0;
             width: 100%;
             height: 100%;
+            opacity: 0;
             cursor: pointer;
         }
 
-        .file-name {
-            margin-top: 8px;
-            font-size: 14px;
+        .btn {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
             color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .summary-box {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #f8fafc;
+            display: none;
+            white-space: pre-wrap;
+            font-size: 13px;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Nhập khẩu Biến thể từ Excel</h1>
-        
-        <form method="post" action="<?php echo BASE_URL; ?>BienThe/up_l" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>Chọn file Excel:</label>
-                <div class="file-input-wrapper">
-                    <span>Chọn file Excel...</span>
-                    <input type="file" name="txtfile" accept=".xlsx,.xls" required />
+    <div class="wrap">
+        <div class="card">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file Biến thể</h2>
+                <p style="color:#6b7280">Sử dụng form dưới đây để tải lên file biến thể qua REST API.</p>
+            </div>
+
+            <form id="importVariantForm" method="POST" action="<?php echo BASE_URL; ?>BienThe/up_l" enctype="multipart/form-data">
+                <label>Chọn file (*Bắt buộc)</label>
+                <div class="file-upload-wrapper" id="file-wrapper">
+                    <h4 style="margin-bottom: 5px; font-size: 16px;">Nhấn vào đây để chọn file</h4>
+                    <p style="color:#6b7280">.xls, .xlsx</p>
+                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" required onchange="updateFileName(this)" />
                 </div>
-                <div class="file-name" id="fileName">Chưa chọn file</div>
-            </div>
-            
-            <div style="margin-top: 20px;">
-                <button type="submit" class="btn btn-primary">Upload</button>
-                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn btn-secondary">Quay lại</a>
-            </div>
-        </form>
-        
-        <div style="margin-top: 30px;">
-            <h3>Hướng dẫn:</h3>
-            <p>- File Excel phải có các cột theo thứ tự: Mã biến thể, Mã sản phẩm, Tên biến thể, Màu sắc, Ram, Dung lượng, Giá, Số lượng kho</p>
-            <p>- Dữ liệu bắt đầu từ dòng thứ 2 (dòng đầu tiên là tiêu đề cột)</p>
-            <p>- Cột hình ảnh biến thể không được nhập qua Excel, vui lòng thêm hình ảnh sau khi tạo biến thể</p>
+
+                <div id="fileNameDisplay" style="margin-top:-10px;margin-bottom:20px;text-align:center;font-weight:600;color:var(--primary);display:none;">
+                    <i class="fa-solid fa-check"></i> Đã chọn: <span id="fName"></span>
+                </div>
+
+                <div class="form-actions">
+                    <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" name="btnUpload" class="btn btn-primary">
+                        <i class="fa-solid fa-upload"></i> Tải lên ngay
+                    </button>
+                </div>
+            </form>
+
+            <div class="summary-box" id="importSummary"></div>
         </div>
     </div>
 
     <script>
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            const fileNameDisplay = document.getElementById('fileName');
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
+        function updateFileName(input) {
+            const display = document.getElementById('fileNameDisplay');
+            const nameSpan = document.getElementById('fName');
+
+            if (input.files && input.files.length > 0) {
+                nameSpan.textContent = input.files[0].name;
+                display.style.display = 'block';
             } else {
-                fileNameDisplay.textContent = 'Chưa chọn file';
+                display.style.display = 'none';
             }
+        }
+
+        function renderSummary(payload) {
+            const box = document.getElementById('importSummary');
+            if (!box) {
+                return;
+            }
+
+            const lines = [];
+            lines.push((payload && payload.message) ? payload.message : 'Hoàn tất import');
+            lines.push('Tạo mới: ' + (payload.created || 0));
+            lines.push('Bỏ qua mã rỗng: ' + (payload.skipped_empty_code || 0));
+            lines.push('Trùng mã: ' + (payload.duplicated_count || 0));
+            lines.push('Lỗi: ' + (payload.failed_count || 0));
+
+            if (Array.isArray(payload.duplicated_codes) && payload.duplicated_codes.length > 0) {
+                lines.push('Mã trùng: ' + payload.duplicated_codes.join(', '));
+            }
+
+            if (Array.isArray(payload.failed_rows) && payload.failed_rows.length > 0) {
+                lines.push('Chi tiết lỗi:');
+                payload.failed_rows.forEach(function(item) {
+                    lines.push('- Dòng ' + item.row + ' (' + (item.ma_bien_the || 'N/A') + '): ' + (item.reason || 'Lỗi không xác định'));
+                });
+            }
+
+            box.textContent = lines.join('\n');
+            box.style.display = 'block';
+            box.style.borderColor = payload.success ? '#16a34a' : '#dc2626';
+            box.style.background = payload.success ? '#f0fdf4' : '#fef2f2';
+        }
+
+        document.getElementById('importVariantForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch(BASE_URL + 'Api/Bienthe/import', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(async (response) => {
+                    const data = await response.json().catch(() => ({}));
+                    return {
+                        status: response.status,
+                        data
+                    };
+                })
+                .then((result) => {
+                    renderSummary(result.data || {});
+                    if (result.status >= 200 && result.status < 300 && result.data.success) {
+                        alert('Import biến thể thành công qua REST API');
+                    } else {
+                        alert('Import biến thể có lỗi: ' + ((result.data && result.data.message) ? result.data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch((error) => {
+                    alert('Không thể kết nối API import biến thể: ' + error.message);
+                });
         });
     </script>
 </body>

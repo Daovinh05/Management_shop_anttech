@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sửa Biến thể</title>
-</head>
-
 <body>
     <style>
-        /* Simple form styles following existing pattern */
         .card {
             width: 100%;
             background: #fff;
@@ -49,14 +42,6 @@
             gap: 8px
         }
 
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid #e6e9f2;
-            color: #6b7280;
-            padding: 10px 16px;
-            border-radius: 10px
-        }
-
         .btn-primary {
             background: #2463ff;
             color: #fff;
@@ -69,10 +54,10 @@
     <div class="card">
         <h1>Sửa Biến thể</h1>
         <p class="lead">Chỉnh sửa thông tin biến thể sản phẩm.</p>
-        <form method="post" action="<?php echo BASE_URL; ?>BienThe/update" enctype="multipart/form-data">
+        <form id="updateVariantForm" method="post" action="<?php echo BASE_URL; ?>BienThe/update" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
-                <input type="text" name="txtMaBienThe" required readonly
+                <input type="text" id="txtMaBienThe" name="txtMaBienThe" required readonly
                     value="<?php echo isset($data['mabienthe']) ? htmlspecialchars($data['mabienthe']) : '' ?>" />
             </div>
             <div>
@@ -132,8 +117,7 @@
             </div>
 
             <div class="actions">
-                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn-back"><i
-                        class="fa-solid fa-arrow-left"></i>
+                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật</button>
@@ -141,6 +125,74 @@
             </div>
         </form>
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.getElementById('updateVariantForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const maBienThe = (document.getElementById('txtMaBienThe') || {}).value || '';
+        if (!maBienThe.trim()) {
+            alert('Thiếu mã biến thể để cập nhật');
+            return;
+        }
+
+        const form = this;
+        const formData = new FormData(form);
+        const selectedImage = form.querySelector('input[name="txtImage"]') ? form.querySelector('input[name="txtImage"]').files[0] : null;
+
+        let requestPromise;
+
+        if (selectedImage) {
+            // PHP native chỉ parse multipart upload qua POST, nên trường hợp có ảnh giữ POST.
+            requestPromise = fetch(BASE_URL + 'Api/Bienthe/update/' + encodeURIComponent(maBienThe.trim()), {
+                method: 'POST',
+                body: formData
+            });
+        } else {
+            const payload = {
+                ma_bien_the: maBienThe.trim(),
+                ma_san_pham: formData.get('ddlSanPham') || '',
+                ten_bien_the: formData.get('txtTenBienThe') || '',
+                mau_sac: formData.get('txtMauSac') || '',
+                ram: formData.get('txtRAM') || '',
+                dung_luong: formData.get('txtDungLuong') || '',
+                gia: formData.get('txtGia') || '0',
+                so_luong_kho: formData.get('txtSoLuongKho') || '0'
+            };
+
+            requestPromise = fetch(BASE_URL + 'Api/Bienthe/' + encodeURIComponent(maBienThe.trim()), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        }
+
+        requestPromise
+            .then(async (response) => {
+                const data = await response.json().catch(() => ({}));
+                return {
+                    status: response.status,
+                    data
+                };
+            })
+            .then((result) => {
+                if (result.status >= 200 && result.status < 300 && result.data.success) {
+                    alert('Cập nhật biến thể thành công qua REST API');
+                    window.location.href = BASE_URL + 'BienThe/danhsach';
+                    return;
+                }
+
+                alert('Cập nhật biến thể thất bại: ' + (result.data.message || 'Lỗi không xác định'));
+            })
+            .catch((error) => {
+                alert('Không thể kết nối API cập nhật biến thể: ' + error.message);
+            });
+    });
+    </script>
 </body>
 
 </html>
