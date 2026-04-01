@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biến thể sản phẩm</title>
-</head>
-
 <body>
     <style>
-        /* Simple form styles following existing pattern */
         .card {
             width: 100%;
             background: #fff;
@@ -69,7 +62,7 @@
     <div class="card">
         <h1>Thêm mới Biến thể</h1>
         <p class="lead">Nhập thông tin biến thể sản phẩm.</p>
-        <form method="post" action="<?php echo BASE_URL; ?>BienThe/ins" enctype="multipart/form-data">
+        <form id="createVariantForm" method="post" action="<?php echo BASE_URL; ?>BienThe/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
                 <input type="text" name="txtMaBienThe" required
@@ -97,12 +90,6 @@
             <div>
                 <label>Hình ảnh biến thể</label>
                 <input type="file" name="txtImage" accept="image/*" />
-                <?php if (isset($data['imgbienthe']) && !empty($data['imgbienthe'])): ?>
-                    <div style="margin-top: 10px;">
-                        <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($data['imgbienthe']); ?>"
-                             alt="Hình ảnh biến thể" style="max-width: 100px; max-height: 100px;">
-                    </div>
-                <?php endif; ?>
             </div>
             <div>
                 <label>Màu sắc</label>
@@ -131,8 +118,7 @@
             </div>
 
             <div class="actions">
-                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn-back"><i
-                        class="fa-solid fa-arrow-left"></i>
+                <a href="<?php echo BASE_URL; ?>BienThe/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
@@ -141,6 +127,40 @@
             </div>
         </form>
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.getElementById('createVariantForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch(BASE_URL + 'Api/Bienthe', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async (response) => {
+                const data = await response.json().catch(() => ({}));
+                return {
+                    status: response.status,
+                    data
+                };
+            })
+            .then((result) => {
+                if (result.status >= 200 && result.status < 300 && result.data.success) {
+                    alert('Thêm biến thể thành công qua REST API');
+                    window.location.href = BASE_URL + 'BienThe/danhsach';
+                    return;
+                }
+
+                alert('Thêm biến thể thất bại: ' + (result.data.message || 'Lỗi không xác định'));
+            })
+            .catch((error) => {
+                alert('Không thể kết nối API thêm biến thể: ' + error.message);
+            });
+    });
+    </script>
 </body>
 
 </html>

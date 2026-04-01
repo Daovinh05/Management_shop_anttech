@@ -5,7 +5,6 @@
     <style>
     .btn-create {
         background: #10b981;
-        /* Màu xanh lá cây */
         padding: 8px 15px;
         border-radius: 10px;
         color: #fff;
@@ -32,7 +31,6 @@
         display: inline-block;
     }
 
-    /* Các style cơ bản khác giữ nguyên */
     :root {
         --bg: #f5f7fb;
         --card: #ffffff;
@@ -207,6 +205,14 @@
         color: var(--muted);
         margin-top: 6px
     }
+
+    .variant-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 1px solid #e5e7eb;
+    }
     </style>
 
     <div class="card">
@@ -219,12 +225,11 @@
                 <a href="<?php echo BASE_URL ?>BienThe/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
                     Thêm mới</a>
                 <a href="<?php echo BASE_URL ?>BienThe/import_form" class="btn-ghost"><i
-                        class="fa-solid fa-file-excel"></i> Nhập
-                    Excel</a>
+                        class="fa-solid fa-file-excel"></i> Nhập Excel</a>
             </div>
         </div>
 
-        <form method="post" action="<?php echo BASE_URL ?>BienThe/Timkiem" class="form-search"
+        <form id="variantSearchForm" method="post" action="<?php echo BASE_URL ?>BienThe/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -240,10 +245,9 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
-                    kiếm</button>
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
                 <a href="<?php echo BASE_URL ?>BienThe/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportVariantsExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
@@ -252,25 +256,8 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            // Giả định $data['dulieu'] là mysqli_result
-            // Đặt lại con trỏ về đầu để có thể đếm và dùng lại bên dưới
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
-            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+            <strong>Kết quả: <span id="resultCount" class="hint">Đang tải dữ liệu...</span></strong>
         </div>
         <div class="table-container">
             <table>
@@ -286,83 +273,234 @@
                         <th>Dung lượng</th>
                         <th>Giá</th>
                         <th>Số lượng kho</th>
-                        <!-- <th>Ngày tạo</th> -->
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="dmBody">
-                    <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                        </td>
-                        <td><span
-                                style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_bien_the']) ?></span>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
-                        <td>
-                            <?php if (!empty($row['img_bien_the'])): ?>
-                            <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($row['img_bien_the']); ?>"
-                                alt="<?php echo htmlspecialchars($row['ten_bien_the']); ?>"
-                                style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
-                            <?php else: ?>
-                            <span>Không có hình</span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['mau_sac']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ram']) ?></td>
-                        <td><?php echo htmlspecialchars($row['dung_luong']) ?></td>
-                        <td><?php echo number_format($row['gia'], 2) ?></td>
-                        <td>
-                            <?php if (isset($row['so_luong_kho']) && $row['so_luong_kho'] > 0): ?>
-                            <span
-                                style="background:#d1fae5;color:#065f46;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                Còn
-                                <?php echo htmlspecialchars(isset($row['so_luong_kho']) ? $row['so_luong_kho'] : 'N/A'); ?>
-                            </span>
-                            <?php else: ?>
-                            <span
-                                style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                Hết hàng
-                            </span>
-                            <?php endif; ?>
-                        </td>
-                        <!-- <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars($row['ngay_tao']) : '' ?></td> -->
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL ?>BienThe/sua/<?php echo urlencode($row['ma_bien_the']) ?>"><button
-                                    class="btn-edit">✏️
-                                    Sửa</button></a>
-                            <a href="<?php echo BASE_URL ?>BienThe/xoa/<?php echo urlencode($row['ma_bien_the']) ?>"
-                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                    class="btn-delete">🗑️
-                                    Xóa</button></a>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
-                </tbody>
+                <tbody id="variantBody"></tbody>
             </table>
         </div>
-        <script>
-        // Manual search only (no AJAX)
-        const idInput = document.getElementById('searchId');
-        const nameInput = document.getElementById('searchName');
-        const resultCount = document.getElementById('resultCount');
-
-        // khởi tạo đếm
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
-
     </div>
+
+    <?php
+    $initialVariants = [];
+    if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
+        mysqli_data_seek($data['dulieu'], 0);
+        while ($row = mysqli_fetch_assoc($data['dulieu'])) {
+            $initialVariants[] = $row;
+        }
+    }
+    ?>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+    const INITIAL_VARIANTS = <?php echo json_encode($initialVariants, JSON_UNESCAPED_UNICODE); ?>;
+    let variantsListLoading = false;
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function formatPrice(value) {
+        const num = Number(value || 0);
+        return num.toLocaleString('vi-VN', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function variantImageHtml(fileName, tenBienThe) {
+        if (!fileName || String(fileName).trim() === '') {
+            return '<span>Không có hình</span>';
+        }
+
+        const src = BASE_URL + 'Public/Pictures/bien_the/' + encodeURIComponent(fileName);
+        return '<img class="variant-image" src="' + src + '" alt="' + escapeHtml(tenBienThe || 'Biến thể') + '" />';
+    }
+
+    function renderVariantRows(items) {
+        const tbody = document.getElementById('variantBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const ma = row.ma_bien_the || '';
+            const soLuong = Number(row.so_luong_kho || 0);
+            const stockBadge = soLuong > 0
+                ? '<span style="background:#d1fae5;color:#065f46;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">Còn ' + escapeHtml(soLuong) + '</span>'
+                : '<span style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">Hết hàng</span>';
+
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(ma) + '</span></td>'
+                + '<td>' + escapeHtml(row.ten_san_pham || row.ma_san_pham || '') + '</td>'
+                + '<td>' + escapeHtml(row.ten_bien_the || '') + '</td>'
+                + '<td>' + variantImageHtml(row.img_bien_the || '', row.ten_bien_the || '') + '</td>'
+                + '<td>' + escapeHtml(row.mau_sac || '') + '</td>'
+                + '<td>' + escapeHtml(row.ram || '') + '</td>'
+                + '<td>' + escapeHtml(row.dung_luong || '') + '</td>'
+                + '<td>' + formatPrice(row.gia || 0) + '</td>'
+                + '<td>' + stockBadge + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'BienThe/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deleteVariant(\'' + escapeHtml(ma) + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    function loadAllVariants() {
+        if (variantsListLoading) {
+            return;
+        }
+
+        variantsListLoading = true;
+
+        fetch(BASE_URL + 'Api/Bienthe', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderVariantRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('Không thể tải danh sách biến thể từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API biến thể: ' + error.message);
+            })
+            .finally(() => {
+                variantsListLoading = false;
+            });
+    }
+
+    function deleteVariant(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa biến thể ' + id + ' bằng REST API không?')) {
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Bienthe/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    alert('Đã xóa biến thể thành công qua REST API');
+                    loadAllVariants();
+                } else {
+                    alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API xóa: ' + error.message);
+            });
+    }
+
+    function exportVariantsExcel() {
+        const ma = (document.getElementById('searchId') || {}).value || '';
+        const ten = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Bienthe');
+
+        if (ma.trim() !== '') {
+            url.searchParams.set('ma_bien_the', ma.trim());
+        }
+
+        if (ten.trim() !== '') {
+            url.searchParams.set('ten_bien_the', ten.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachBienThe.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                alert('Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.__variantListInitialized) {
+            return;
+        }
+        window.__variantListInitialized = true;
+
+        renderVariantRows(Array.isArray(INITIAL_VARIANTS) ? INITIAL_VARIANTS : []);
+        loadAllVariants();
+
+        const searchForm = document.getElementById('variantSearchForm');
+        if (!searchForm) {
+            return;
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const submitName = submitter && submitter.name ? submitter.name : '';
+
+            if (submitName !== 'btnTim') {
+                return;
+            }
+
+            event.preventDefault();
+
+            const ma = (document.getElementById('searchId') || {}).value || '';
+            const ten = (document.getElementById('searchName') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Bienthe');
+
+            if (ma.trim() !== '') {
+                url.searchParams.set('ma_bien_the', ma.trim());
+            }
+
+            if (ten.trim() !== '') {
+                url.searchParams.set('ten_bien_the', ten.trim());
+            }
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderVariantRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        renderVariantRows([]);
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>
