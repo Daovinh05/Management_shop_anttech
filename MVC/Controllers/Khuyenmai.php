@@ -201,4 +201,11 @@ class Khuyenmai extends controller
         else
             echo "<script>alert('Xóa thất bại!'); window.location='" . $this->url('Khuyenmai/danhsach') . "';</script>";
     }
+
+    function import_form()
+    {
+        $this->view('Master', [
+            'page' => 'Khuyenmai_up_v'
+        ]);
+    }
 }

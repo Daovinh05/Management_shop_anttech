@@ -178,4 +178,11 @@ class Nhacungcap extends controller
         else
             echo "<script>alert('Xóa thất bại!'); window.location='" . $this->url('Nhacungcap/danhsach') . "';</script>";
     }
+
+    function import_form()
+    {
+        $this->view('Master', [
+            'page' => 'Nhacungcap_up_v'
+        ]);
+    }
 }

@@ -94,7 +94,7 @@
     <div class="card">
         <h1>Thêm mới nhà cung cấp</h1>
         <p class="lead">Nhập thông tin nhà cung cấp mới.</p>
-        <form method="post" action="<?php echo BASE_URL; ?>Nhacungcap/ins" enctype="multipart/form-data">
+        <form id="createSupplierForm" method="post" action="<?php echo BASE_URL; ?>Nhacungcap/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã nhà cung cấp <span style="color:red">*</span></label>
                 <input type="text" name="txtManhacungcap" required
@@ -126,11 +126,70 @@
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnLuu" class="btn-primary">Lưu thông tin</button>
+                    <button type="submit" id="createSupplierBtn" name="btnLuu" class="btn-primary">Lưu thông tin</button>
                 </div>
             </div>
         </form>
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('createSupplierForm');
+        const submitBtn = document.getElementById('createSupplierBtn');
+
+        if (!form || !submitBtn) {
+            return;
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const ma = (form.querySelector('input[name="txtManhacungcap"]') || {}).value || '';
+            const ten = (form.querySelector('input[name="txtTennhacungcap"]') || {}).value || '';
+            const diaChi = (form.querySelector('textarea[name="txtDiaChi"]') || {}).value || '';
+            const dienThoai = (form.querySelector('input[name="txtDienThoai"]') || {}).value || '';
+
+            if (!ma.trim() || !ten.trim()) {
+                alert('Vui lòng nhập đầy đủ mã và tên nhà cung cấp.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang lưu...';
+
+            fetch(BASE_URL + 'Api/Nhacungcap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ma_nha_cung_cap: ma.trim(),
+                        ten_nha_cung_cap: ten.trim(),
+                        dia_chi: diaChi.trim(),
+                        dien_thoai: dienThoai.trim()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Thêm nhà cung cấp thành công qua REST API');
+                        window.location.href = BASE_URL + 'Nhacungcap/danhsach';
+                    } else {
+                        alert('Lưu thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tạo nhà cung cấp: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Lưu thông tin';
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>
