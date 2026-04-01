@@ -225,7 +225,7 @@
             </div>
         </div>
 
-        <form method="post" action="<?php echo BASE_URL; ?>Thuonghieu/Timkiem" class="form-search"
+        <form id="brandSearchForm" method="post" action="<?php echo BASE_URL; ?>Thuonghieu/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -241,10 +241,10 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
                 <a href="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportBrandsExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
@@ -285,7 +285,7 @@
                             <th style="text-align:right">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody id="dmBody">
+                    <tbody id="brandBody">
                         <?php
                         // Render dữ liệu tĩnh ban đầu
                         if ($count > 0) {
@@ -307,10 +307,7 @@
                                             href="<?php echo BASE_URL; ?>Thuonghieu/sua/<?php echo urlencode($row['ma_thuong_hieu']) ?>"><button
                                                 class="btn-edit">✏️
                                                 Sửa</button></a>
-                                        <a href="<?php echo BASE_URL; ?>Thuonghieu/xoa/<?php echo urlencode($row['ma_thuong_hieu']) ?>"
-                                            onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                                class="btn-delete">🗑️
-                                                Xóa</button></a>
+                                        <button type="button" class="btn-delete" onclick="deleteBrand('<?php echo htmlspecialchars($row['ma_thuong_hieu']) ?>')">🗑️ Xóa API</button>
                                     </td>
                                 </tr>
                         <?php }
@@ -319,12 +316,7 @@
                 </table>
             </div>
             <script>
-                // Manual search only (no AJAX)
-                const idInput = document.getElementById('searchId');
-                const nameInput = document.getElementById('searchName');
                 const resultCount = document.getElementById('resultCount');
-
-                // khởi tạo đếm
                 resultCount.textContent = '<?php echo $count; ?> bản ghi';
             </script>
         <?php } ?>
@@ -333,6 +325,199 @@
         <?php } ?>
 
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function formatDateTime(dateTimeString) {
+        if (!dateTimeString) {
+            return '';
+        }
+
+        const date = new Date(dateTimeString.replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(dateTimeString);
+        }
+
+        const pad = (n) => String(n).padStart(2, '0');
+        return pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds())
+            + ' ' + pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear();
+    }
+
+    function renderBrandRows(items) {
+        const tbody = document.getElementById('brandBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const maThuongHieu = row.ma_thuong_hieu || '';
+            const tenThuongHieu = row.ten_thuong_hieu || '';
+
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(maThuongHieu) + '</span></td>'
+                + '<td>' + escapeHtml(tenThuongHieu) + '</td>'
+                + '<td>' + formatDateTime(row.ngay_tao || '') + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'Thuonghieu/sua/' + encodeURIComponent(maThuongHieu) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deleteBrand(\'' + escapeHtml(maThuongHieu) + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    function loadAllBrands() {
+        const resultCountEl = document.getElementById('resultCount');
+        if (resultCountEl) {
+            resultCountEl.textContent = 'Đang tải thương hiệu...';
+        }
+
+        fetch(BASE_URL + 'Api/Thuonghieu', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderBrandRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('Không thể tải danh sách thương hiệu từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API thương hiệu: ' + error.message);
+            });
+    }
+
+    function deleteBrand(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa thương hiệu ' + id + ' bằng REST API không?')) {
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Thuonghieu/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    alert('Đã xóa thương hiệu thành công qua REST API');
+                    loadAllBrands();
+                } else {
+                    alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API xóa: ' + error.message);
+            });
+    }
+
+    function exportBrandsExcel() {
+        const maThuongHieu = (document.getElementById('searchId') || {}).value || '';
+        const tenThuongHieu = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Thuonghieu');
+
+        if (maThuongHieu.trim() !== '') {
+            url.searchParams.set('ma_thuong_hieu', maThuongHieu.trim());
+        }
+
+        if (tenThuongHieu.trim() !== '') {
+            url.searchParams.set('ten_thuong_hieu', tenThuongHieu.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachThuongHieu.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                alert('Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAllBrands();
+
+        const searchForm = document.getElementById('brandSearchForm');
+        if (!searchForm) {
+            return;
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const submitName = submitter && submitter.name ? submitter.name : '';
+
+            if (submitName !== 'btnTim') {
+                return;
+            }
+
+            event.preventDefault();
+
+            const maThuongHieu = (document.getElementById('searchId') || {}).value || '';
+            const tenThuongHieu = (document.getElementById('searchName') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Thuonghieu');
+
+            if (maThuongHieu.trim() !== '') {
+                url.searchParams.set('ma_thuong_hieu', maThuongHieu.trim());
+            }
+
+            if (tenThuongHieu.trim() !== '') {
+                url.searchParams.set('ten_thuong_hieu', tenThuongHieu.trim());
+            }
+
+            const resultCountEl = document.getElementById('resultCount');
+            if (resultCountEl) {
+                resultCountEl.textContent = 'Đang tìm kiếm...';
+            }
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderBrandRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        renderBrandRows([]);
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>
