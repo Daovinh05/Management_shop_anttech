@@ -4,17 +4,26 @@ class DonHang_m extends connectDB
     // Hàm thêm đơn hàng
     function donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $thanh_toan, $trang_thai_don_hang)
     {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+        $ma_user = mysqli_real_escape_string($this->con, $ma_user);
+        $ma_dia_chi = mysqli_real_escape_string($this->con, $ma_dia_chi);
+        $ma_khuyen_mai = mysqli_real_escape_string($this->con, $ma_khuyen_mai);
+        $tong_tien_hang = (float)$tong_tien_hang;
+        $thanh_toan = mysqli_real_escape_string($this->con, $thanh_toan);
+        $trang_thai_don_hang = mysqli_real_escape_string($this->con, $trang_thai_don_hang);
+
         // Handle empty promotion code by converting to NULL for proper foreign key constraint
         $ma_khuyen_mai_value = !empty($ma_khuyen_mai) ? "'$ma_khuyen_mai'" : 'NULL';
 
         $sql = "INSERT INTO don_hang (ma_don_hang, ma_user, ma_dia_chi, ma_khuyen_mai, tong_tien_hang, thanh_toan, trang_thai_don_hang, ngay_tao)
-                VALUES ('$ma_don_hang', '$ma_user', '$ma_dia_chi', $ma_khuyen_mai_value, '$tong_tien_hang', '$thanh_toan', '$trang_thai_don_hang', NOW())";
+            VALUES ('$ma_don_hang', '$ma_user', '$ma_dia_chi', $ma_khuyen_mai_value, $tong_tien_hang, '$thanh_toan', '$trang_thai_don_hang', NOW())";
         return mysqli_query($this->con, $sql);
     }
 
     // Hàm kiểm tra trùng mã đơn hàng
     function checktrungMaDH($ma_don_hang)
     {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
         $sql = "SELECT * FROM don_hang WHERE ma_don_hang = '$ma_don_hang'";
         $result = mysqli_query($this->con, $sql);
         if (mysqli_num_rows($result) > 0)
@@ -26,6 +35,8 @@ class DonHang_m extends connectDB
     // Hàm tìm kiếm đơn hàng
     function DonHang_find($ma_don_hang, $full_name)
     {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+        $full_name = mysqli_real_escape_string($this->con, $full_name);
         $sql = "SELECT dh.*, u.full_name, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai
                 FROM don_hang dh
                 LEFT JOIN users u ON dh.ma_user = u.ma_user
@@ -38,11 +49,18 @@ class DonHang_m extends connectDB
     // Hàm sửa đơn hàng
     function DonHang_update($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $trang_thai_don_hang)
     {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+        $ma_user = mysqli_real_escape_string($this->con, $ma_user);
+        $ma_dia_chi = mysqli_real_escape_string($this->con, $ma_dia_chi);
+        $ma_khuyen_mai = mysqli_real_escape_string($this->con, $ma_khuyen_mai);
+        $tong_tien_hang = (float)$tong_tien_hang;
+        $trang_thai_don_hang = mysqli_real_escape_string($this->con, $trang_thai_don_hang);
+
         // Handle empty promotion code by converting to NULL for proper foreign key constraint
         $ma_khuyen_mai_value = !empty($ma_khuyen_mai) ? "'$ma_khuyen_mai'" : 'NULL';
 
         $sql = "UPDATE don_hang SET ma_user = '$ma_user', ma_dia_chi = '$ma_dia_chi',
-                ma_khuyen_mai = $ma_khuyen_mai_value, tong_tien_hang = '$tong_tien_hang',
+            ma_khuyen_mai = $ma_khuyen_mai_value, tong_tien_hang = $tong_tien_hang,
                 trang_thai_don_hang = '$trang_thai_don_hang' WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
@@ -50,6 +68,7 @@ class DonHang_m extends connectDB
     // Hàm xóa đơn hàng
     function DonHang_delete($ma_don_hang)
     {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
         $sql = "DELETE FROM don_hang WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
@@ -69,6 +88,7 @@ class DonHang_m extends connectDB
     // Hàm lấy chi tiết đơn hàng
     function DonHang_getById($ma_don_hang)
     {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
         $sql = "SELECT dh.*, u.full_name, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai
                 FROM don_hang dh
                 LEFT JOIN users u ON dh.ma_user = u.ma_user
@@ -278,6 +298,7 @@ class DonHang_m extends connectDB
 
     // Thêm hàm này vào cuối file Model
     function getChiTietDonHang($ma_don_hang) {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
         // Sử dụng LEFT JOIN để đảm bảo nếu sản phẩm bị xóa thì vẫn hiện đơn hàng
         $sql = "SELECT
                     ct.*,
@@ -318,18 +339,23 @@ class DonHang_m extends connectDB
 
     // Hàm cập nhật trạng thái đơn hàng
     function DonHang_updateStatus($ma_don_hang, $trang_thai_don_hang) {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+        $trang_thai_don_hang = mysqli_real_escape_string($this->con, $trang_thai_don_hang);
         $sql = "UPDATE don_hang SET trang_thai_don_hang = '$trang_thai_don_hang' WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
 
     // Hàm cập nhật trạng thái đơn hàng thành hoàn thành sau khi thanh toán thành công
     function DonHang_updateStatusToComplete($ma_don_hang) {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
         $sql = "UPDATE don_hang SET trang_thai_don_hang = 'hoan_thanh' WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
 
     // Hàm cập nhật trạng thái thanh toán của đơn hàng
     function DonHang_updatePaymentStatus($ma_don_hang, $trang_thai_thanh_toan) {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+        $trang_thai_thanh_toan = mysqli_real_escape_string($this->con, $trang_thai_thanh_toan);
         $sql = "UPDATE don_hang SET thanh_toan = '$trang_thai_thanh_toan' WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }

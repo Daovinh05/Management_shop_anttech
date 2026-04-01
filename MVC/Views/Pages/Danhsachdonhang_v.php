@@ -842,7 +842,7 @@
             </div>
         </div>
 
-        <form method="post" action="<?php echo BASE_URL; ?>Donhang/Timkiem" class="form-search"
+        <form id="orderSearchForm" method="post" action="<?php echo BASE_URL; ?>Donhang/Timkiem" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -858,10 +858,10 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
                 <a href="<?php echo BASE_URL; ?>Donhang/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportOrdersExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
@@ -870,23 +870,8 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
-            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+            <strong>Kết quả: <span id="resultCount" class="hint">Đang tải dữ liệu...</span></strong>
         </div>
         <div class="table-container">
             <table>
@@ -904,101 +889,227 @@
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="dhBody">
-                    <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span></td>
-                        <td><?php echo htmlspecialchars($row['ma_don_hang']) ?></td>
-                        <td>
-                            <div style="font-weight: 500;">
-                                <?php echo htmlspecialchars($row['full_name']) ?>
-                            </div>
-
-                            <div style="font-size: 13px; color: #666; margin-top: 2px;">
-                                <i class="fa-solid fa-phone" style="font-size: 11px;"></i>
-                                <?php echo htmlspecialchars($row['so_dien_thoai'] ?? 'Không có SĐT') ?>
-                            </div>
-                        </td>
-                        <td><span class="currency"><?php echo number_format($row['tong_tien_hang'], 0, ',', '.') ?>
-                                ₫</span>
-                        </td>
-                        <td><span
-                                class="currency discount">-<?php echo number_format($row['tien_khuyen_mai'] ?? 0, 0, ',', '.') ?>
-                                ₫</span></td>
-
-                        <td><span
-                                class="currency"><?php echo number_format($row['tong_tien_hang'] - ($row['tien_khuyen_mai'] ?? 0), 0, ',', '.') ?>
-                                ₫</span></td>
-                        <td>
-                            <?php
-                            $status = $row['trang_thai_don_hang'];
-                            switch($status) {
-                                case 'cho_duyet':
-                                    $bg = '#fef3c7';
-                                    $color = '#92400e';
-                                    $label = 'Chờ duyệt';
-                                    break;
-                                case 'dang_giao':
-                                    $bg = '#dbeafe';
-                                    $color = '#1e40af';
-                                    $label = 'Đang giao';
-                                    break;
-                                case 'hoan_thanh':
-                                    $bg = '#d1fae5';
-                                    $color = '#065f46';
-                                    $label = 'Hoàn thành';
-                                    break;
-                                case 'da_huy':
-                                    $bg = '#fee2e2';
-                                    $color = '#991b1b';
-                                    $label = 'Đã hủy';
-                                    break;
-                                default:
-                                    $bg = '#f3f4f6';
-                                    $color = '#374151';
-                                    $label = 'Không rõ';
-                                    break;
-                            }
-                            ?>
-                            <span style="background:<?= $bg ?>; color:<?= $color ?>; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600">
-                                <?= $label ?>
-                            </span>
-                        </td>
-                        <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
-                        </td>
-
-                        <td>
-                            <button class="detail-btn" onclick="showOrderDetails('<?php echo $row['ma_don_hang']; ?>')">
-                                <i class="fa-solid fa-eye"></i> Xem
-                            </button>
-                        </td>
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL; ?>Donhang/xoa/<?php echo urlencode($row['ma_don_hang']) ?>"
-                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                    class="btn-delete">🗑️
-                                    Xóa</button></a>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
-                </tbody>
+                <tbody id="dhBody"></tbody>
             </table>
         </div>
-        <script>
-            // --- CẤU HÌNH ---
-            // Kiểm tra đúng tên thư mục trên localhost của bạn (Banhang hay QLSP?)
-            const BASE_URL = '<?php echo UrlHelper::url(); ?>'.slice(0, -1);
-            const baseUrl = BASE_URL; 
 
-            // Hiển thị số lượng bản ghi
-            const resultCount = document.getElementById('resultCount');
-            if(resultCount) {
-                resultCount.textContent = '<?php echo $count; ?> bản ghi';
+        <?php
+        $initialOrders = [];
+        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
+            mysqli_data_seek($data['dulieu'], 0);
+            while ($row = mysqli_fetch_assoc($data['dulieu'])) {
+                $initialOrders[] = $row;
+            }
+        }
+        ?>
+
+        <script>
+            const BASE_URL = '<?php echo BASE_URL; ?>';
+            const INITIAL_ORDERS = <?php echo json_encode($initialOrders, JSON_UNESCAPED_UNICODE); ?>;
+            let ordersListLoading = false;
+
+            function escapeHtml(value) {
+                const div = document.createElement('div');
+                div.textContent = value == null ? '' : String(value);
+                return div.innerHTML;
+            }
+
+            function formatCurrency(value) {
+                return Number(value || 0).toLocaleString('vi-VN') + ' ₫';
+            }
+
+            function formatDate(value) {
+                if (!value) {
+                    return '';
+                }
+
+                const date = new Date(value);
+                if (isNaN(date.getTime())) {
+                    return escapeHtml(String(value));
+                }
+
+                return date.toLocaleString('vi-VN');
+            }
+
+            function renderStatusBadge(status) {
+                let bg = '#f3f4f6';
+                let color = '#374151';
+                let label = 'Không rõ';
+
+                switch (status) {
+                    case 'cho_duyet':
+                        bg = '#fef3c7';
+                        color = '#92400e';
+                        label = 'Chờ duyệt';
+                        break;
+                    case 'dang_giao':
+                        bg = '#dbeafe';
+                        color = '#1e40af';
+                        label = 'Đang giao';
+                        break;
+                    case 'hoan_thanh':
+                        bg = '#d1fae5';
+                        color = '#065f46';
+                        label = 'Hoàn thành';
+                        break;
+                    case 'da_huy':
+                        bg = '#fee2e2';
+                        color = '#991b1b';
+                        label = 'Đã hủy';
+                        break;
+                }
+
+                return '<span style="background:' + bg + '; color:' + color + '; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600">'
+                    + label + '</span>';
+            }
+
+            function renderOrderRows(items) {
+                const tbody = document.getElementById('dhBody');
+                const resultCount = document.getElementById('resultCount');
+
+                if (!tbody || !resultCount) {
+                    return;
+                }
+
+                resultCount.textContent = items.length + ' bản ghi';
+
+                if (!items.length) {
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = items.map((row, index) => {
+                    const ma = row.ma_don_hang || '';
+                    const tongTien = Number(row.tong_tien_hang || 0);
+                    const giamGia = Number(row.tien_khuyen_mai || 0);
+                    const canThanhToan = tongTien - giamGia;
+                    const orderIdAttr = escapeHtml(String(ma));
+
+                    return '<tr>'
+                        + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                        + '<td>' + escapeHtml(ma) + '</td>'
+                        + '<td><div style="font-weight: 500;">' + escapeHtml(row.full_name || '') + '</div>'
+                        + '<div style="font-size: 13px; color: #666; margin-top: 2px;"><i class="fa-solid fa-phone" style="font-size: 11px;"></i> '
+                        + escapeHtml(row.so_dien_thoai || 'Không có SĐT') + '</div></td>'
+                        + '<td><span class="currency">' + formatCurrency(tongTien) + '</span></td>'
+                        + '<td><span class="currency discount">-' + formatCurrency(giamGia) + '</span></td>'
+                        + '<td><span class="currency">' + formatCurrency(canThanhToan) + '</span></td>'
+                        + '<td>' + renderStatusBadge(row.trang_thai_don_hang || '') + '</td>'
+                        + '<td>' + formatDate(row.ngay_tao || '') + '</td>'
+                        + '<td><button class="detail-btn js-view-order" data-order-id="' + orderIdAttr + '"><i class="fa-solid fa-eye"></i> Xem</button></td>'
+                        + '<td style="text-align:right"><button type="button" class="btn-delete js-delete-order" data-order-id="' + orderIdAttr + '">🗑️ Xóa API</button></td>'
+                        + '</tr>';
+                }).join('');
+            }
+
+            const orderBody = document.getElementById('dhBody');
+            if (orderBody && !orderBody.dataset.boundEvents) {
+                orderBody.dataset.boundEvents = '1';
+                orderBody.addEventListener('click', function(event) {
+                    const viewBtn = event.target.closest('.js-view-order');
+                    if (viewBtn) {
+                        const id = viewBtn.getAttribute('data-order-id') || '';
+                        if (id) {
+                            showOrderDetails(id);
+                        }
+                        return;
+                    }
+
+                    const deleteBtn = event.target.closest('.js-delete-order');
+                    if (deleteBtn) {
+                        const id = deleteBtn.getAttribute('data-order-id') || '';
+                        if (id) {
+                            deleteOrderById(id);
+                        }
+                    }
+                });
+            }
+
+            function loadAllOrders() {
+                if (ordersListLoading) {
+                    return;
+                }
+
+                ordersListLoading = true;
+
+                fetch(BASE_URL + 'Api/Donhang', {
+                        method: 'GET'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            renderOrderRows(Array.isArray(data.data) ? data.data : []);
+                        } else {
+                            alert('Không thể tải danh sách đơn hàng từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Không thể kết nối API đơn hàng: ' + error.message);
+                    })
+                    .finally(() => {
+                        ordersListLoading = false;
+                    });
+            }
+
+            function deleteOrderById(orderId) {
+                if (!confirm('Bạn có chắc chắn muốn xóa đơn hàng #' + orderId + '?')) {
+                    return;
+                }
+
+                fetch(BASE_URL + 'Api/Donhang/' + encodeURIComponent(orderId), {
+                        method: 'DELETE'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            alert('Xóa đơn hàng thành công qua REST API');
+                            loadAllOrders();
+                        } else {
+                            alert('Xóa thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Không thể kết nối API xóa: ' + error.message);
+                    });
+            }
+
+            function exportOrdersExcel() {
+                const ma = (document.getElementById('searchId') || {}).value || '';
+                const ten = (document.getElementById('searchName') || {}).value || '';
+                const url = new URL(BASE_URL + 'Api/Donhang');
+
+                if (ma.trim() !== '') {
+                    url.searchParams.set('ma_don_hang', ma.trim());
+                }
+
+                if (ten.trim() !== '') {
+                    url.searchParams.set('full_name', ten.trim());
+                }
+
+                url.searchParams.set('format', 'xlsx');
+
+                fetch(url.toString(), {
+                        method: 'GET'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = 'DanhSachDonHang.xlsx';
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(blobUrl);
+                    })
+                    .catch(error => {
+                        alert('Không thể xuất Excel qua API: ' + error.message);
+                    });
             }
 
             // --- HÀM XEM CHI TIẾT ---
@@ -1013,7 +1124,7 @@
                 modalBody.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>Đang tải dữ liệu...</div>';
 
                 // Gọi API
-                fetch(`${BASE_URL}/Donhang/get_order_details/${orderId}`)
+                fetch(BASE_URL + 'Api/Donhang/' + encodeURIComponent(orderId))
                     .then(response => {
                         const contentType = response.headers.get("content-type");
                         if (contentType && contentType.indexOf("application/json") !== -1) {
@@ -1023,7 +1134,8 @@
                         }
                     })
                     .then(data => {
-                        if (data.order_details && data.order_details.length > 0) {
+                        const payload = data && data.data ? data.data : null;
+                        if (payload && payload.order_details && payload.order_details.length > 0) {
                             let html = '';
 
                             // --- SỬA LỖI TẠI ĐÂY: KHÔNG BAO QUANH BỞI <div class="modal-body"> NỮA ---
@@ -1034,32 +1146,32 @@
                                 <div class="column-left">
                                     <div class="card customer-info">
                                         <div class="avatar">
-                                            ${data.user_info?.avatar ?
-                                            `<img src="${baseUrl}Public/Pictures/users/${data.user_info.avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
+                                            ${payload.user_info?.avatar ?
+                                            `<img src="${BASE_URL}Public/Pictures/users/${payload.user_info.avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` :
                                             `<i class="fa-solid fa-user"></i>`
                                             }
                                         </div>
-                                        <div class="customer-name">${data.user_info?.full_name || 'Khách hàng'}</div>
+                                        <div class="customer-name">${payload.user_info?.full_name || 'Khách hàng'}</div>
                                         <div class="customer-role">Khách hàng</div>
                                         <div class="contact-row">
                                             <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
-                                            <div><span class="contact-label">SỐ ĐIỆN THOẠI</span><span class="contact-value">${data.user_info?.so_dien_thoai || 'N/A'}</span></div>
+                                            <div><span class="contact-label">SỐ ĐIỆN THOẠI</span><span class="contact-value">${payload.user_info?.so_dien_thoai || 'N/A'}</span></div>
                                         </div>
                                         <div class="contact-row" style="border-bottom: none;">
                                             <div class="contact-icon" style="color: #dc3545;"><i class="fa-solid fa-envelope"></i></div>
-                                            <div><span class="contact-label">EMAIL</span><span class="contact-value">${data.user_info?.email || 'N/A'}</span></div>
+                                            <div><span class="contact-label">EMAIL</span><span class="contact-value">${payload.user_info?.email || 'N/A'}</span></div>
                                         </div>
                                     </div>
 
                                     <div class="card status-section">
                                         <div class="status-title">CẬP NHẬT TRẠNG THÁI</div>
-                                        <div class="current-status">Hiện tại: ${getStatusBadge(data.order_info?.trang_thai_don_hang)}</div>
+                                        <div class="current-status">Hiện tại: ${getStatusBadge(payload.order_info?.trang_thai_don_hang)}</div>
                                         <div class="status-select-wrapper">
                                             <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" style="font-weight:600">
-                                                <option value="cho_duyet" style="color:#92400e" ${data.order_info?.trang_thai_don_hang === 'cho_duyet' ? 'selected' : ''}>Chờ duyệt</option>
-                                                <option value="dang_giao" style="color:#1e40af" ${data.order_info?.trang_thai_don_hang === 'dang_giao' ? 'selected' : ''}>Đang giao hàng</option>
-                                                <option value="hoan_thanh" style="color:#065f46" ${data.order_info?.trang_thai_don_hang === 'hoan_thanh' ? 'selected' : ''}>Hoàn thành</option>
-                                                <option value="da_huy" style="color:#991b1b" ${data.order_info?.trang_thai_don_hang === 'da_huy' ? 'selected' : ''}>Đã hủy</option>
+                                                <option value="cho_duyet" style="color:#92400e" ${payload.order_info?.trang_thai_don_hang === 'cho_duyet' ? 'selected' : ''}>Chờ duyệt</option>
+                                                <option value="dang_giao" style="color:#1e40af" ${payload.order_info?.trang_thai_don_hang === 'dang_giao' ? 'selected' : ''}>Đang giao hàng</option>
+                                                <option value="hoan_thanh" style="color:#065f46" ${payload.order_info?.trang_thai_don_hang === 'hoan_thanh' ? 'selected' : ''}>Hoàn thành</option>
+                                                <option value="da_huy" style="color:#991b1b" ${payload.order_info?.trang_thai_don_hang === 'da_huy' ? 'selected' : ''}>Đã hủy</option>
                                             </select>
                                             <div class="status-lock"><i class="fa-solid fa-lock"></i></div>
                                         </div>
@@ -1071,18 +1183,18 @@
                                 <div class="column-mid">
                                     <div class="card">
                                         <div class="section-header text-red"><i class="fa-solid fa-location-dot"></i> Địa chỉ nhận hàng</div>
-                                        <div class="address-box">${data.address_info?.dia_chi || 'N/A'}</div>
+                                        <div class="address-box">${payload.address_info?.dia_chi || 'N/A'}</div>
                                     </div>
                                     <div class="card">
                                         <div class="section-header" style="color: var(--success-green);"><i class="fa-solid fa-money-bill-wave"></i> Chi tiết thanh toán</div>
-                                        <div class="payment-row"><span>Tạm tính:</span><b>${calculateSubtotal(data.order_details).toLocaleString('vi-VN')}đ</b></div>
+                                        <div class="payment-row"><span>Tạm tính:</span><b>${calculateSubtotal(payload.order_details).toLocaleString('vi-VN')}đ</b></div>
                                         <div class="payment-row">
                                             <span class="text-red">Giảm giá:</span>
-                                            <b class="discount-val">-${parseInt(data.promotion_info?.tien_khuyen_mai || 0).toLocaleString('vi-VN')}đ</b>
+                                            <b class="discount-val">-${parseInt(payload.promotion_info?.tien_khuyen_mai || 0).toLocaleString('vi-VN')}đ</b>
                                         </div>
                                         <div class="payment-row total">
                                             <span class="total-label">TỔNG THANH TOÁN:</span>
-                                            <span class="total-price">${parseInt(data.order_info?.thanh_toan || 0).toLocaleString('vi-VN')}đ</span>
+                                            <span class="total-price">${parseInt(payload.order_info?.tong_tien_hang || 0).toLocaleString('vi-VN')}đ</span>
                                         </div>
                                     </div>
                                 </div>`;
@@ -1093,7 +1205,7 @@
                                     <div class="card">
                                         <div class="section-header" style="color: #ffc107;"><i class="fa-solid fa-bag-shopping"></i> Sản phẩm đơn hàng</div>`;
                             
-                            data.order_details.forEach(item => {
+                            payload.order_details.forEach(item => {
                                 let gia = parseFloat(item.gia_tai_thoi_diem_dat || item.gia_luc_mua || 0);
                                 
                                 
@@ -1102,7 +1214,7 @@
                                 // [SỬA LỖI 2]: Kiểm tra đường dẫn. Thường ảnh biến thể nằm trong folder 'bien_the'
                                 // Nếu web của bạn để ảnh trong 'products' thì sửa 'bien_the' thành 'products'
                                 let imgSrc = imgName
-                                    ? BASE_URL + 'Public/Pictures/bien_the/' + imgName
+                                    ? BASE_URL + 'Public/Pictures/bien_the/' + encodeURIComponent(imgName)
                                     : 'https://placehold.co/60x60?text=No+Img';
 
                                 html += `
@@ -1127,7 +1239,7 @@
                             html += `   </div>
                                     <div class="card">
                                         <div class="section-header" style="font-size: 0.9rem;"><i class="fa-solid fa-pen"></i> GHI CHÚ KHÁCH HÀNG:</div>
-                                        <textarea class="note-input" rows="2" disabled>${data.order_notes || 'Không có ghi chú'}</textarea>
+                                        <textarea class="note-input" rows="2" disabled>${payload.order_notes || 'Không có ghi chú'}</textarea>
                                     </div>
                                 </div>`;
 
@@ -1188,14 +1300,14 @@
             // Hàm cập nhật trạng thái đơn hàng
             function updateOrderStatus(orderId, newStatus) {
                 if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái đơn hàng?')) {
-                    fetch(`${BASE_URL}/Donhang/update_status`, {
-                        method: 'POST',
+                    fetch(BASE_URL + 'Api/Donhang/update_status/' + encodeURIComponent(orderId), {
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            orderId: orderId,
-                            status: newStatus
+                            ma_don_hang: orderId,
+                            trang_thai_don_hang: newStatus
                         })
                     })
                     .then(response => response.json())
@@ -1225,11 +1337,58 @@
             document.onkeydown = function(event) {
                 if (event.key === "Escape") closeModal();
             }
+
+            const searchForm = document.getElementById('orderSearchForm');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(event) {
+                    const submitter = event.submitter;
+                    const submitName = submitter && submitter.name ? submitter.name : '';
+
+                    if (submitName !== 'btnTim') {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    const ma = (document.getElementById('searchId') || {}).value || '';
+                    const ten = (document.getElementById('searchName') || {}).value || '';
+                    const url = new URL(BASE_URL + 'Api/Donhang');
+
+                    if (ma.trim() !== '') {
+                        url.searchParams.set('ma_don_hang', ma.trim());
+                    }
+                    if (ten.trim() !== '') {
+                        url.searchParams.set('full_name', ten.trim());
+                    }
+
+                    fetch(url.toString(), {
+                            method: 'GET'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.success) {
+                                renderOrderRows(Array.isArray(data.data) ? data.data : []);
+                            } else {
+                                alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                                renderOrderRows([]);
+                            }
+                        })
+                        .catch(error => {
+                            alert('Không thể kết nối API tìm kiếm đơn hàng: ' + error.message);
+                        });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.__orderListInitialized) {
+                    return;
+                }
+                window.__orderListInitialized = true;
+
+                renderOrderRows(Array.isArray(INITIAL_ORDERS) ? INITIAL_ORDERS : []);
+                loadAllOrders();
+            });
         </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
     </div>
 
     <!-- Modal for order details -->
@@ -1258,7 +1417,7 @@
             const orderId = document.getElementById('modalTitle').textContent.match(/#(\w+)/);
             if (orderId && orderId[1]) {
                 if (confirm('Bạn có chắc chắn muốn xóa đơn hàng #' + orderId[1] + '?')) {
-                    window.location.href = `${BASE_URL}/Donhang/xoa/${orderId[1]}`;
+                    deleteOrderById(orderId[1]);
                 }
             }
         }
