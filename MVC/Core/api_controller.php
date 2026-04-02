@@ -9,7 +9,7 @@ class api_controller {
         // Luôn trả về JSON headers
         header('Content-Type: application/json; charset=utf-8');
         header('Access-Control-Allow-Origin: *'); // Hỗ trợ CORS nếu cần
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE");
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
         // Phản hồi cho preflight request (OPTIONS) của trình duyệt

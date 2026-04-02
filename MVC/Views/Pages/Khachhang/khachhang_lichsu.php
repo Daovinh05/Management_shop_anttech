@@ -241,6 +241,33 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         box-shadow: 0 2px 8px rgba(45, 114, 210, 0.3);
     }
 
+    .btn-cancel-order {
+        background-color: #fff;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+        padding: 8px 22px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-cancel-order:hover {
+        background-color: #dc2626;
+        color: #fff;
+    }
+
+    .btn-cancel-order:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
     /* --- 8. MODAL / POPUP CSS (MỚI THÊM) --- */
     .modal-overlay {
         position: fixed;
@@ -445,12 +472,12 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         <h1 class="page-title">Đơn hàng của bạn</h1>
 
         <div class="order-tabs">
-            <div class="tab-item active">Tất cả (<?php echo count($data['don_hang']); ?>)</div>
-            <div class="tab-item">Chờ xác nhận (<?php echo $data['status_counts']['cho_duyet']; ?>)</div>
-            <div class="tab-item">Đã xác nhận (<?php echo $data['status_counts']['da_duyet']; ?>)</div>
-            <div class="tab-item">Đang giao (<?php echo $data['status_counts']['dang_giao']; ?>)</div>
-            <div class="tab-item">Hoàn thành (<?php echo $data['status_counts']['hoan_thanh']; ?>)</div>
-            <div class="tab-item">Đã hủy (<?php echo $data['status_counts']['da_huy']; ?>)</div>
+            <div class="tab-item active" data-status-key="all" data-count="<?php echo count($data['don_hang']); ?>">Tất cả (<span class="tab-count"><?php echo count($data['don_hang']); ?></span>)</div>
+            <div class="tab-item" data-status-key="cho_duyet" data-count="<?php echo $data['status_counts']['cho_duyet']; ?>">Chờ xác nhận (<span class="tab-count"><?php echo $data['status_counts']['cho_duyet']; ?></span>)</div>
+            <div class="tab-item" data-status-key="da_duyet" data-count="<?php echo $data['status_counts']['da_duyet']; ?>">Đã xác nhận (<span class="tab-count"><?php echo $data['status_counts']['da_duyet']; ?></span>)</div>
+            <div class="tab-item" data-status-key="dang_giao" data-count="<?php echo $data['status_counts']['dang_giao']; ?>">Đang giao (<span class="tab-count"><?php echo $data['status_counts']['dang_giao']; ?></span>)</div>
+            <div class="tab-item" data-status-key="hoan_thanh" data-count="<?php echo $data['status_counts']['hoan_thanh']; ?>">Hoàn thành (<span class="tab-count"><?php echo $data['status_counts']['hoan_thanh']; ?></span>)</div>
+            <div class="tab-item" data-status-key="da_huy" data-count="<?php echo $data['status_counts']['da_huy']; ?>">Đã hủy (<span class="tab-count"><?php echo $data['status_counts']['da_huy']; ?></span>)</div>
         </div>
 
         <?php if ($data['don_hang'] && count($data['don_hang']) > 0): ?>
@@ -534,9 +561,22 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                         ?>
                         </div>
                         <div class="order-actions-right">
-                            <div class="total-money"><span class="total-label">Số tiền thanh toán</span><span
-                                    class="total-value"><?php echo number_format($dh['thanh_toan'], 0, ',', '.');
-                                                        ?>₫</span></div><button type="button" class="btn-detail"
+                            <?php
+                            $display_total = 0;
+                            if (isset($dh['so_tien_thanh_toan']) && is_numeric($dh['so_tien_thanh_toan'])) {
+                                $display_total = (float)$dh['so_tien_thanh_toan'];
+                            } elseif (isset($dh['thanh_toan']) && is_numeric($dh['thanh_toan'])) {
+                                $display_total = (float)$dh['thanh_toan'];
+                            } elseif (isset($dh['tong_tien_hang']) && is_numeric($dh['tong_tien_hang'])) {
+                                $display_total = (float)$dh['tong_tien_hang'];
+                            }
+                            ?>
+                            <div class="total-money">
+                                <span class="total-label">Số tiền thanh toán</span>
+                                <span class="total-value"><?php echo number_format($display_total, 0, ',', '.'); ?>₫</span>
+                            </div>
+
+                            <button type="button" class="btn-detail"
                                 data-id="<?php echo $dh['ma_don_hang']; ?>"
                                 data-date="<?php echo $this->formatDate($dh['ngay_tao']); ?>" data-status="<?php
                                                                                                             switch ($dh['trang_thai_don_hang']) {
@@ -601,7 +641,14 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
                                             echo json_encode($items);
                                             ?>'>
-                                <i class="fa-regular fa-eye"></i>Xem chi tiết</button>
+                                <i class="fa-regular fa-eye"></i>Xem chi tiết
+                            </button>
+
+                            <?php if ($dh['trang_thai_don_hang'] === 'cho_duyet'): ?>
+                                <button type="button" class="btn-cancel-order" data-order-id="<?php echo $dh['ma_don_hang']; ?>">
+                                    <i class="fa-solid fa-ban"></i>Hủy đơn
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div><?php endforeach;
@@ -696,6 +743,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     </div>
 </div>
 <script>
+    const CHECKOUT_API_BASE = '<?php echo UrlHelper::url('Api/Checkout'); ?>';
+
     // Tab functionality with order filtering
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -754,6 +803,117 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 }
 
             );
+
+            function getStatusLabel(status) {
+                switch (status) {
+                    case 'cho_duyet':
+                        return 'Chờ xác nhận';
+                    case 'da_duyet':
+                        return 'Đã xác nhận';
+                    case 'dang_giao':
+                        return 'Đang giao hàng';
+                    case 'hoan_thanh':
+                        return 'Đã hoàn thành';
+                    case 'da_huy':
+                        return 'Đã hủy';
+                    default:
+                        return status;
+                }
+            }
+
+            function getStatusClass(status) {
+                switch (status) {
+                    case 'cho_duyet':
+                    case 'da_duyet':
+                    case 'hoan_thanh':
+                        return 'status-confirmed';
+                    case 'dang_giao':
+                        return 'status-shipping';
+                    case 'da_huy':
+                    default:
+                        return 'status-cancelled';
+                }
+            }
+
+            function refreshCurrentTab() {
+                const activeTab = document.querySelector('.tab-item.active');
+                if (activeTab) {
+                    activeTab.click();
+                }
+            }
+
+            function changeTabCount(statusKey, delta) {
+                const tab = document.querySelector('.tab-item[data-status-key="' + statusKey + '"]');
+                if (!tab) {
+                    return;
+                }
+
+                const currentCount = parseInt(tab.getAttribute('data-count') || '0', 10) || 0;
+                const nextCount = Math.max(0, currentCount + delta);
+                tab.setAttribute('data-count', String(nextCount));
+
+                const countEl = tab.querySelector('.tab-count');
+                if (countEl) {
+                    countEl.textContent = String(nextCount);
+                }
+            }
+
+            document.querySelectorAll('.btn-cancel-order').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    if (!orderId) {
+                        return;
+                    }
+
+                    if (!confirm('Bạn có chắc muốn hủy đơn hàng #' + orderId + ' không?')) {
+                        return;
+                    }
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Đang hủy...';
+
+                    fetch(CHECKOUT_API_BASE + '/' + encodeURIComponent(orderId), {
+                        method: 'DELETE'
+                    })
+                        .then(response => response.json().catch(() => ({
+                            success: false,
+                            message: 'Phan hoi API khong hop le'
+                        })))
+                        .then(json => {
+                            if (!json || !json.success) {
+                                throw new Error((json && json.message) ? json.message : 'Khong the huy don');
+                            }
+
+                            const card = this.closest('.order-card');
+                            if (card) {
+                                card.setAttribute('data-status', 'da_huy');
+
+                                const headerBadge = card.querySelector('.order-header .status-badge');
+                                if (headerBadge) {
+                                    headerBadge.className = 'status-badge ' + getStatusClass('da_huy');
+                                    headerBadge.textContent = getStatusLabel('da_huy');
+                                }
+
+                                const detailBtn = card.querySelector('.btn-detail');
+                                if (detailBtn) {
+                                    detailBtn.setAttribute('data-status', getStatusLabel('da_huy'));
+                                    detailBtn.setAttribute('data-status-class', getStatusClass('da_huy'));
+                                }
+                            }
+
+                            this.remove();
+                            changeTabCount('cho_duyet', -1);
+                            changeTabCount('da_huy', 1);
+                            alert('Hủy đơn hàng thành công.');
+                            refreshCurrentTab();
+                        })
+                        .catch(err => {
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fa-solid fa-ban"></i>Hủy đơn';
+                            alert(err.message || 'Không thể hủy đơn hàng.');
+                        });
+                });
+            });
         }
 
     );
