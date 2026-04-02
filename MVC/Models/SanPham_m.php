@@ -1,6 +1,93 @@
 <?php
 class SanPham_m extends connectDB
 {
+    private function buildStorefrontConditions($category_id = '', $price_range = '', $brand_id = '', $search_query = '')
+    {
+        $conditions = [];
+
+        if (!empty($category_id) && $category_id !== 'tat-ca') {
+            $category_id = mysqli_real_escape_string($this->con, $category_id);
+            $conditions[] = "s.ma_danh_muc = '$category_id'";
+        }
+
+        if (!empty($brand_id) && $brand_id !== 'tat-ca') {
+            $brand_id = mysqli_real_escape_string($this->con, $brand_id);
+            $conditions[] = "s.ma_thuong_hieu = '$brand_id'";
+        }
+
+        if (!empty($search_query)) {
+            $search_query = mysqli_real_escape_string($this->con, $search_query);
+            $conditions[] = "s.ten_san_pham LIKE '%$search_query%'";
+        }
+
+        if (!empty($price_range) && $price_range !== 'tat-ca') {
+            switch ($price_range) {
+                case 'duoi-2-trieu':
+                    $conditions[] = "EXISTS (SELECT 1 FROM bien_the bt WHERE bt.ma_san_pham = s.ma_san_pham AND bt.gia < 2000000)";
+                    break;
+                case '2-4-trieu':
+                    $conditions[] = "EXISTS (SELECT 1 FROM bien_the bt WHERE bt.ma_san_pham = s.ma_san_pham AND bt.gia >= 2000000 AND bt.gia < 4000000)";
+                    break;
+                case '4-7-trieu':
+                    $conditions[] = "EXISTS (SELECT 1 FROM bien_the bt WHERE bt.ma_san_pham = s.ma_san_pham AND bt.gia >= 4000000 AND bt.gia < 7000000)";
+                    break;
+                case '7-13-trieu':
+                    $conditions[] = "EXISTS (SELECT 1 FROM bien_the bt WHERE bt.ma_san_pham = s.ma_san_pham AND bt.gia >= 7000000 AND bt.gia < 13000000)";
+                    break;
+                case 'tren-13-trieu':
+                    $conditions[] = "EXISTS (SELECT 1 FROM bien_the bt WHERE bt.ma_san_pham = s.ma_san_pham AND bt.gia >= 13000000)";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $conditions;
+    }
+
+    function SanPham_getStorefront($category_id = '', $price_range = '', $brand_id = '', $search_query = '', $page = 1, $limit = 12)
+    {
+        $page = max(1, (int)$page);
+        $limit = max(1, (int)$limit);
+        $offset = ($page - 1) * $limit;
+
+        $conditions = $this->buildStorefrontConditions($category_id, $price_range, $brand_id, $search_query);
+        $where_clause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        $sql = "SELECT s.*,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia_moi,
+                       (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as so_luong_kho,
+                       (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
+                       dm.ten_danh_muc, th.ten_thuong_hieu
+                FROM san_pham s
+                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                $where_clause
+                ORDER BY CAST(SUBSTRING(s.ma_san_pham, 3) AS UNSIGNED) DESC
+                LIMIT $limit OFFSET $offset";
+
+        return mysqli_query($this->con, $sql);
+    }
+
+    function SanPham_countStorefront($category_id = '', $price_range = '', $brand_id = '', $search_query = '')
+    {
+        $conditions = $this->buildStorefrontConditions($category_id, $price_range, $brand_id, $search_query);
+        $where_clause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        $sql = "SELECT COUNT(*) as total
+                FROM san_pham s
+                $where_clause";
+
+        $result = mysqli_query($this->con, $sql);
+        if (!$result) {
+            return 0;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return (int)($row['total'] ?? 0);
+    }
+
     // Hàm thêm sản phẩm
     function sanpham_ins($ma_san_pham, $ten_san_pham, $ma_danh_muc, $ma_thuong_hieu, $ma_nha_cung_cap)
     {
