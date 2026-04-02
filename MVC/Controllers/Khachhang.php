@@ -1051,112 +1051,37 @@ class Khachhang extends controller
     // Lọc sản phẩm theo mức giá
     function filter_by_price()
     {
-        header('Content-Type: application/json');
-
-        if (isset($_POST['price_range'])) {
-            $price_range = $_POST['price_range'];
-            $brand_id = isset($_POST['brand_id']) ? $_POST['brand_id'] : '';
-
-            // Gọi phương thức từ model để lọc sản phẩm theo mức giá
-            $result = $this->sp->SanPham_filterByCategoryAndPrice('', $price_range, $brand_id);
-
-            // Check if query was successful
-            if (!$result) {
-                echo json_encode([
-                    'products' => [],
-                    'count' => 0,
-                    'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
-                ]);
-                return;
-            }
-
-            $products = [];
-            while ($row = mysqli_fetch_assoc($result)) {
-                $products[] = $row;
-            }
-
-            echo json_encode([
-                'products' => $products,
-                'count' => count($products)
-            ]);
-        } else {
-            echo json_encode([
-                'products' => [],
-                'count' => 0
-            ]);
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Storefront'
+        ]);
+        return;
     }
 
     // Lọc sản phẩm theo danh mục
     function filter_by_category()
     {
-        header('Content-Type: application/json');
-
-        if (isset($_POST['category_id'])) {
-            $category_id = $_POST['category_id'];
-            $brand_id = isset($_POST['brand_id']) ? $_POST['brand_id'] : '';
-
-            // Gọi phương thức từ model để lọc sản phẩm theo danh mục
-            $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, '', $brand_id);
-
-            // Check if query was successful
-            if (!$result) {
-                echo json_encode([
-                    'products' => [],
-                    'count' => 0,
-                    'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
-                ]);
-                return;
-            }
-
-            $products = [];
-            while ($row = mysqli_fetch_assoc($result)) {
-                $products[] = $row;
-            }
-
-            echo json_encode([
-                'products' => $products,
-                'count' => count($products)
-            ]);
-        } else {
-            echo json_encode([
-                'products' => [],
-                'count' => 0
-            ]);
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Storefront'
+        ]);
+        return;
     }
 
     // Lọc sản phẩm theo cả danh mục và mức giá
     function filter_by_both()
     {
-        header('Content-Type: application/json');
-
-        $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : '';
-        $price_range = isset($_POST['price_range']) ? $_POST['price_range'] : '';
-        $brand_id = isset($_POST['brand_id']) ? $_POST['brand_id'] : '';
-
-        // Gọi phương thức từ model để lọc sản phẩm
-        $result = $this->sp->SanPham_filterByCategoryAndPrice($category_id, $price_range, $brand_id);
-
-        // Check if query was successful
-        if (!$result) {
-            echo json_encode([
-                'products' => [],
-                'count' => 0,
-                'error' => 'Database query failed: ' . mysqli_error($this->sp->con)
-            ]);
-            return;
-        }
-
-        $products = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $products[] = $row;
-        }
-
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
         echo json_encode([
-            'products' => $products,
-            'count' => count($products)
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Storefront'
         ]);
+        return;
     }
 
     // Lấy dữ liệu giỏ hàng dưới dạng JSON

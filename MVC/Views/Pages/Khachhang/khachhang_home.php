@@ -971,10 +971,14 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         }
     });
 
+    const STOREFRONT_API_BASE = '<?php echo UrlHelper::url("Api/Storefront"); ?>';
+
     // Variables to store current filter selections
     let currentCategory = '';
     let currentPriceRange = '';
     let currentBrand = '';
+    let currentPage = 1;
+    const pageSize = 12;
 
     // Handle price filter selection
     const priceFilters = document.querySelectorAll('input[name="price"]');
@@ -983,7 +987,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             if (this.checked && this.value) {
                 currentPriceRange = this.value;
                 // Filter products based on selected price range, current category and current brand
-                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+                currentPage = 1;
+                fetchStorefrontProducts();
             }
         });
     });
@@ -1000,7 +1005,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     currentCategory = '';
                 }
                 // Filter products based on selected category, current price range and current brand
-                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+                currentPage = 1;
+                fetchStorefrontProducts();
             }
         });
     });
@@ -1017,38 +1023,31 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     currentBrand = '';
                 }
                 // Filter products based on selected brand, current category and current price range
-                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+                currentPage = 1;
+                fetchStorefrontProducts();
             }
         });
     });
 
+    function buildApiUrl() {
+        const params = new URLSearchParams();
+        params.set('page', currentPage);
+        params.set('limit', pageSize);
+
+        if (currentCategory) params.set('category_id', currentCategory);
+        if (currentPriceRange) params.set('price_range', currentPriceRange);
+        if (currentBrand) params.set('brand_id', currentBrand);
+
+        return `${STOREFRONT_API_BASE}?${params.toString()}`;
+    }
+
     // Function to filter products by category, price range and brand
-    function filterProductsByBoth(categoryId, priceRange, brandId) {
+    function fetchStorefrontProducts() {
         // Show loading indicator
         const productGrid = document.querySelector('.product-grid');
         productGrid.innerHTML = '<div class="loading">Đang tải sản phẩm...</div>';
 
-        // Prepare form data
-        let formData = new FormData();
-        if (categoryId) {
-            formData.append('category_id', categoryId);
-        }
-        if (priceRange) {
-            formData.append('price_range', priceRange);
-        }
-        if (brandId) {
-            formData.append('brand_id', brandId);
-        }
-
-        // Log the URL for debugging
-        console.log('Request URL:', '<?php echo UrlHelper::url("Khachhang/filter_by_both"); ?>');
-        console.log('Category ID:', categoryId, 'Price Range:', priceRange, 'Brand ID:', brandId);
-
-        // Make an AJAX request to get filtered products
-        fetch('<?php echo UrlHelper::url("Khachhang/filter_by_both"); ?>', {
-                method: 'POST',
-                body: formData
-            })
+        fetch(buildApiUrl(), { method: 'GET' })
             .then(response => {
                 console.log('Response status:', response.status);
                 if (!response.ok) {
@@ -1058,18 +1057,88 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             })
             .then(data => {
                 console.log('Received data:', data);
-                if (data.error) {
-                    console.error('Server error:', data.error);
-                    productGrid.innerHTML = `<p class="error">Lỗi máy chủ: ${data.error}</p>`;
+                if (!data.success) {
+                    productGrid.innerHTML = `<p class="error">Lỗi máy chủ: ${data.message || 'Không xác định'}</p>`;
                     return;
                 }
-                updateProductGrid(data.products);
-                document.querySelector('.results-count').textContent = `Tìm thấy ${data.count} kết quả`;
+
+                const items = data.data?.items || [];
+                const pagination = data.data?.pagination || { total: 0, total_pages: 0, page: 1 };
+
+                updateProductGrid(items);
+                updatePagination(pagination);
+                document.querySelector('.results-count').textContent = `Tìm thấy ${pagination.total || 0} kết quả`;
             })
             .catch(error => {
                 console.error('Error details:', error);
                 productGrid.innerHTML = '<p class="error">Lỗi khi tải sản phẩm. Vui lòng thử lại sau.</p>';
             });
+    }
+
+    function updatePagination(meta) {
+        const container = document.querySelector('.pagination-container');
+        if (!container) {
+            return;
+        }
+
+        const totalPages = Number(meta.total_pages || 0);
+        const page = Number(meta.page || 1);
+
+        if (totalPages <= 1) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+
+        let html = '<div class="pagination">';
+        if (page > 1) {
+            html += `<a href="#" class="pagination-btn" data-page="${page - 1}">&laquo; Trước</a>`;
+        } else {
+            html += '<span class="pagination-btn disabled">&laquo; Trước</span>';
+        }
+
+        const startPage = Math.max(1, page - 2);
+        const endPage = Math.min(totalPages, page + 2);
+
+        if (startPage > 1) {
+            html += '<a href="#" class="pagination-btn" data-page="1">1</a>';
+            if (startPage > 2) {
+                html += '<span class="pagination-ellipsis">...</span>';
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === page) {
+                html += `<span class="pagination-btn active">${i}</span>`;
+            } else {
+                html += `<a href="#" class="pagination-btn" data-page="${i}">${i}</a>`;
+            }
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += '<span class="pagination-ellipsis">...</span>';
+            }
+            html += `<a href="#" class="pagination-btn" data-page="${totalPages}">${totalPages}</a>`;
+        }
+
+        if (page < totalPages) {
+            html += `<a href="#" class="pagination-btn" data-page="${page + 1}">Tiếp &raquo;</a>`;
+        } else {
+            html += '<span class="pagination-btn disabled">Tiếp &raquo;</span>';
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+
+        container.querySelectorAll('a.pagination-btn[data-page]').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentPage = Number(this.getAttribute('data-page'));
+                fetchStorefrontProducts();
+            });
+        });
     }
 
     // Function to update the product grid with new data
@@ -1159,4 +1228,12 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             productGrid.innerHTML = '<p class="no-products">Không tìm thấy sản phẩm nào phù hợp.</p>';
         }
     }
+
+    // Khoi dong du lieu theo API de dong bo hoan toan REST cho trang chu
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const p = parseInt(urlParams.get('page') || '1', 10);
+        currentPage = Number.isNaN(p) || p < 1 ? 1 : p;
+        fetchStorefrontProducts();
+    });
 </script>
