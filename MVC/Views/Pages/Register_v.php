@@ -182,7 +182,7 @@
             <h2>Đăng ký tài khoản</h2>
             <p>Quản lý quán cà phê</p>
 
-            <form method="post" action="<?php echo BASE_URL; ?>Login/process_register">
+            <form id="registerForm" method="post" action="<?php echo BASE_URL; ?>Api/Auth/register">
                 <div class="form-group">
                     <label>Tên tài khoản</label>
                     <!-- <input type="text" name="username" placeholder="Nhập tên đăng nhập" required> -->
@@ -243,7 +243,7 @@
                 <?php unset($_SESSION['success']);
                 endif; ?>
 
-                <button class="btn">Đăng ký</button>
+                <button class="btn" type="submit">Đăng ký</button>
             </form>
 
             <div style="text-align: center; margin-top: 15px;">
@@ -270,5 +270,53 @@
     </div>
 
 </body>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch('<?php echo BASE_URL; ?>Api/Auth/register', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json().catch(() => ({
+                success: false,
+                error: 'Phan hoi API khong hop le'
+            })))
+            .then(data => {
+                form.querySelector('.error')?.remove();
+                form.querySelector('.success')?.remove();
+
+                if (data.success) {
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'success';
+                    successDiv.textContent = data.message || 'Dang ky thanh cong';
+                    form.appendChild(successDiv);
+
+                    setTimeout(function() {
+                        window.location.href = '<?php echo BASE_URL; ?>Login';
+                    }, 900);
+                    return;
+                }
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = data.error || data.message || 'Dang ky that bai';
+                form.appendChild(errorDiv);
+            })
+            .catch(() => {
+                form.querySelector('.error')?.remove();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = 'Co loi xay ra khi dang ky';
+                form.appendChild(errorDiv);
+            });
+    });
+</script>
 
 </html>

@@ -118,6 +118,8 @@ class Users_m extends connectDB
 
     function validateUser($username, $password)
     {
+        $username = $this->esc($username);
+        $password = $this->esc($password);
         // Check login by username OR email
         $sql = "SELECT * FROM users WHERE (ten_user = '$username' OR email = '$username') AND password = '$password'";
         $result = mysqli_query($this->con, $sql);
@@ -143,6 +145,7 @@ class Users_m extends connectDB
     // lấy tên để check tên đăng nhập và email có tồn tại không
     function getUserByUsername($username)
     {
+        $username = $this->esc($username);
         $sql = "SELECT * FROM users WHERE ten_user = '$username' OR email = '$username'";
         $result = mysqli_query($this->con, $sql);
         if ($result && mysqli_num_rows($result) > 0) {
@@ -154,6 +157,14 @@ class Users_m extends connectDB
     // Hàm tạo user mới với mã user tự động tăng U01, U02, ...U10 nhé dùng cho đăng ký
     function createUser($username, $email,  $full_name, $password, $role, $so_dien_thoai, $avatar = '')
     {
+        $username = $this->esc($username);
+        $email = $this->esc($email);
+        $full_name = $this->esc($full_name);
+        $password = $this->esc($password);
+        $role = $this->esc($role);
+        $so_dien_thoai = $this->esc($so_dien_thoai);
+        $avatar = $this->esc($avatar);
+
         $sql_max = "SELECT ma_user FROM users WHERE ma_user LIKE 'U%' ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC LIMIT 1";
         $result = mysqli_query($this->con, $sql_max);
         if ($result && mysqli_num_rows($result) > 0) {
