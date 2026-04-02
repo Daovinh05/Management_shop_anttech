@@ -1000,7 +1000,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                             <a href="<?php echo UrlHelper::url('Khachhang/lichsumuahang'); ?>"><i
                                     class="fa-solid fa-box-open"></i> Đơn hàng của tôi</a>
                             <div class="divider"></div>
-                            <a href="<?php echo UrlHelper::url('Login/logout'); ?>" style="color: #d70018;"><i
+                                <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="js-api-logout" data-redirect="<?php echo UrlHelper::url('Home'); ?>" style="color: #d70018;"><i
                                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
                         <?php else: ?>
                             <a href="<?php echo UrlHelper::url('Login'); ?>"><i class="fa-solid fa-user"></i> Đăng nhập</a>
@@ -1172,6 +1172,30 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                 }
             });
         }
+
+        document.addEventListener('click', function(event) {
+            var logoutLink = event.target.closest('.js-api-logout');
+            if (!logoutLink) {
+                return;
+            }
+
+            event.preventDefault();
+            var redirectUrl = logoutLink.getAttribute('data-redirect') || '<?php echo UrlHelper::url('Home'); ?>';
+
+            fetch('<?php echo UrlHelper::url('Api/Auth/logout'); ?>', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(function() {
+                window.location.href = redirectUrl;
+            })
+            .catch(function() {
+                window.location.href = logoutLink.getAttribute('href') || redirectUrl;
+            });
+        });
 
         // --- 2. XỬ LÝ GIAO DIỆN CƠ BẢN ---
         var thumbs = document.querySelectorAll('.thumb-item');
