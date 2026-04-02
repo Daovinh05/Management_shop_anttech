@@ -101,6 +101,9 @@ class app
                     return 'get_all';
                 case 'POST':
                     return 'create';
+                case 'PUT':
+                case 'PATCH':
+                    return 'update';
                 default:
                     return null;
             }
