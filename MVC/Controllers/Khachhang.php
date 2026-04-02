@@ -459,13 +459,21 @@ class Khachhang extends controller
                             $ct['qty_in_db'] = $ct['so_luong'];
 
                             // Check if forced_qty is set in POST for individual items (used in some cases)
-                            $item_forced_qty = isset($_POST['forced_qty']) ? (int)$_POST['forced_qty'] : null;
-                            if ($item_forced_qty !== null) {
+                            $forced_qty_raw = isset($_POST['forced_qty']) ? trim((string)$_POST['forced_qty']) : '';
+                            $item_forced_qty = ($forced_qty_raw !== '' && ctype_digit($forced_qty_raw)) ? (int)$forced_qty_raw : null;
+                            if ($item_forced_qty !== null && $item_forced_qty > 0) {
                                 $ct['so_luong'] = $item_forced_qty;
                             }
 
                             $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
                             $bt_info = mysqli_fetch_assoc($bien_the);
+
+                            if (!$bt_info) {
+                                continue;
+                            }
+
+                            // Gia luc mua phai lay tu bien_the, bang chi_tiet_gio_hang khong co cot gia
+                            $ct['gia'] = (float)$bt_info['gia'];
 
                             if ($ct['so_luong'] > $bt_info['so_luong_kho']) {
                                 $out_of_stock_items[] = $bt_info['ten_bien_the'] . " (chỉ còn " . $bt_info['so_luong_kho'] . " sản phẩm)";
