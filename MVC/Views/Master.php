@@ -99,7 +99,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="logout-btn1" title="Đăng xuất">
+                        <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="logout-btn1 js-api-logout" data-redirect="<?php echo UrlHelper::url('Login'); ?>" title="Đăng xuất">
                             <i class="fa-solid fa-sign-out-alt"></i> Đăng xuất
                         </a>
                     </li>
@@ -209,7 +209,29 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     <script>
         // JavaScript for additional functionality if needed
         document.addEventListener('DOMContentLoaded', function() {
-            // Add any JavaScript functionality here
+            document.addEventListener('click', function(event) {
+                var logoutLink = event.target.closest('.js-api-logout');
+                if (!logoutLink) {
+                    return;
+                }
+
+                event.preventDefault();
+                var redirectUrl = logoutLink.getAttribute('data-redirect') || '<?php echo UrlHelper::url('Login'); ?>';
+
+                fetch('<?php echo UrlHelper::url('Api/Auth/logout'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                    .then(function() {
+                        window.location.href = redirectUrl;
+                    })
+                    .catch(function() {
+                        window.location.href = logoutLink.getAttribute('href') || redirectUrl;
+                    });
+            });
         });
     </script>
 </body>
