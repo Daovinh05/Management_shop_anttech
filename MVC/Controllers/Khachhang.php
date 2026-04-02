@@ -734,9 +734,6 @@ class Khachhang extends controller
                     
                     // $don_hang_model->DonHang_updateStatusToComplete($vnp_TxnRef);
 
-                    // Cập nhật trạng thái thanh toán của đơn hàng thành 'da_thanh_toan'
-                    $don_hang_model->DonHang_updatePaymentStatus($vnp_TxnRef, 'da_thanh_toan');
-
                     // Cập nhật trạng thái thanh toán trong bảng thanh_toan
                     $thanh_toan_model = $this->model("ThanhToan_m");
 
@@ -748,7 +745,8 @@ class Khachhang extends controller
                         $ma_giao_dich = $payment_row['ma_giao_dich'];
 
                         // Cập nhật trạng thái thanh toán
-                        $thanh_toan_model->ThanhToan_update($ma_giao_dich, $vnp_TxnRef, 'VNPAY', $dh_info['tong_tien_hang'], 'da_thanh_toan');
+                        $amount = is_numeric($dh_info['thanh_toan']) ? (float)$dh_info['thanh_toan'] : (float)$dh_info['tong_tien_hang'];
+                        $thanh_toan_model->ThanhToan_update($ma_giao_dich, $vnp_TxnRef, 'VNPAY', $amount, 'da_thanh_toan');
                     } else {
                         // Nếu không có giao dịch hiện có, tạo mới (trường hợp hiếm)
                         // Generate sequential transaction ID
@@ -764,7 +762,7 @@ class Khachhang extends controller
                         }
                         $ma_thanh_toan = 'GD' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as GD01, GD02, etc.
 
-                        $so_tien = $dh_info['tong_tien_hang'];
+                        $so_tien = is_numeric($dh_info['thanh_toan']) ? (float)$dh_info['thanh_toan'] : (float)$dh_info['tong_tien_hang'];
                         $thanh_toan_model->thanhtoan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'da_thanh_toan', date('Y-m-d H:i:s'));
                     }
                 }
@@ -815,7 +813,7 @@ class Khachhang extends controller
         $ma_user = $_SESSION['user_id'];
 
         // Lấy các đơn hàng của người dùng cùng với phương thức thanh toán và thông tin khuyến mãi
-        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai, tt.phuong_thuc, km.tien_khuyen_mai
+        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai, tt.phuong_thuc, tt.so_tien_thanh_toan, km.tien_khuyen_mai
                 FROM don_hang dh
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
@@ -915,136 +913,25 @@ class Khachhang extends controller
     // Cập nhật thông tin tài khoản
     function capnhatTaikhoan()
     {
-        // Kiểm tra nếu có dữ liệu được gửi qua POST (bao gồm cả file upload)
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $ma_user = $_POST['txtMaUser'] ?? '';
-            $ten_user = $_POST['txtTenUser'] ?? '';
-            $full_name = $_POST['txtFullName'] ?? '';
-            $email = $_POST['txtEmail'] ?? '';
-            $dia_chi = $_POST['txtDiaChi'] ?? '';
-            $so_dien_thoai = $_POST['txtSoDienThoai'] ?? '';
-
-            // Xử lý upload avatar nếu có
-            $avatar = '';
-            if (isset($_FILES['txtAvatar']) && $_FILES['txtAvatar']['error'] == 0) {
-                $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-                $file_type = $_FILES['txtAvatar']['type'];
-                
-                if (in_array($file_type, $allowed_types)) {
-                    $file_size = $_FILES['txtAvatar']['size'];
-                    if ($file_size <= 5 * 1024 * 1024) { // Max 5MB
-                        $upload_dir = __DIR__ . '/../../Public/Pictures/users/';
-                        
-                        // Tạo thư mục nếu chưa tồn tại
-                        if (!file_exists($upload_dir)) {
-                            mkdir($upload_dir, 0777, true);
-                        }
-                        
-                        // Lấy phần mở rộng của file
-                        $file_extension = pathinfo($_FILES['txtAvatar']['name'], PATHINFO_EXTENSION);
-                        
-                        // Tạo tên file mới để tránh trùng lặp
-                        $new_filename = $ma_user . '_' . time() . '.' . $file_extension;
-                        $target_path = $upload_dir . $new_filename;
-                        
-                        if (move_uploaded_file($_FILES['txtAvatar']['tmp_name'], $target_path)) {
-                            $avatar = $new_filename;
-                            
-                            // Nếu người dùng đã có avatar cũ, xóa file đó đi
-                            $current_user = $this->user->Users_getById($ma_user);
-                            $current_user_data = mysqli_fetch_assoc($current_user);
-                            if ($current_user_data && !empty($current_user_data['avatar']) && $current_user_data['avatar'] != 'avatar.png') {
-                                $old_avatar_path = __DIR__ . '/../../Public/Pictures/users/' . $current_user_data['avatar'];
-                                if (file_exists($old_avatar_path)) {
-                                    unlink($old_avatar_path);
-                                }
-                            }
-                        } else {
-                            // Trả về lỗi nếu không thể upload
-                            $response = array('success' => false, 'message' => 'Không thể upload file ảnh. Vui lòng thử lại.');
-                            header('Content-Type: application/json');
-                            echo json_encode($response);
-                            return;
-                        }
-                    } else {
-                        $response = array('success' => false, 'message' => 'File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
-                        header('Content-Type: application/json');
-                        echo json_encode($response);
-                        return;
-                    }
-                } else {
-                    $response = array('success' => false, 'message' => 'Định dạng file không hợp lệ. Chỉ chấp nhận JPEG, PNG, GIF, WEBP.');
-                    header('Content-Type: application/json');
-                    echo json_encode($response);
-                    return;
-                }
-            } else {
-                // Nếu không có avatar mới được upload, giữ nguyên avatar cũ
-                $current_user = $this->user->Users_getById($ma_user);
-                $current_user_data = mysqli_fetch_assoc($current_user);
-                $avatar = $current_user_data ? $current_user_data['avatar'] : '';
-            }
-
-            // Cập nhật thông tin người dùng (chỉ cập nhật những trường cần thiết)
-            $result = $this->user->Users_update_profile($ma_user, $full_name, $so_dien_thoai, $email, $dia_chi, $avatar);
-
-            if ($result) {
-                // Trả về kết quả thành công theo định dạng JSON
-                $response = array('success' => true, 'message' => 'Cập nhật thông tin thành công!');
-                header('Content-Type: application/json');
-                echo json_encode($response);
-            } else {
-                // Trả về lỗi theo định dạng JSON
-                $response = array('success' => false, 'message' => 'Cập nhật thông tin thất bại!');
-                header('Content-Type: application/json');
-                echo json_encode($response);
-            }
-            return; // Kết thúc hàm sau khi trả về JSON
-        }
-        
-        // Nếu không phải POST request, chuyển hướng về trang tài khoản
-        header('Location: ' . $this->url('Khachhang/taikhoan'));
+        http_response_code(410);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung su dung. Vui long dung PATCH /Api/Profile'
+        ]);
+        exit;
     }
 
     // Đổi mật khẩu
     function doimatkhau()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $ma_user = $_POST['txtMaUser'];
-            $current_password = $_POST['txtCurrentPassword'];
-            $new_password = $_POST['txtNewPassword'];
-
-            // Lấy thông tin người dùng hiện tại
-            $user_info = $this->user->Users_getById($ma_user);
-            $user = mysqli_fetch_assoc($user_info);
-
-            if ($user) {
-                // Kiểm tra mật khẩu hiện tại có đúng không (mật khẩu không được mã hóa)
-                if ($current_password === $user['password']) {
-                    // Cập nhật mật khẩu mới (không mã hóa)
-                    $result = $this->user->Users_update(
-                        $ma_user,
-                        $user['ten_user'],
-                        $user['full_name'],
-                        $new_password,
-                        $user['email'],
-                        $user['phan_quyen'],
-                        $user['so_dien_thoai'],
-                        $user['avatar']
-                    );
-
-                    if ($result) {
-                        echo json_encode(['success' => true, 'message' => 'Đổi mật khẩu thành công!']);
-                    } else {
-                        echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật mật khẩu!']);
-                    }
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'Mật khẩu hiện tại không đúng!']);
-                }
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Không tìm thấy người dùng!']);
-            }
-        }
+        http_response_code(410);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung su dung. Vui long dung PATCH /Api/Profile/password'
+        ]);
+        exit;
     }
 
     // Thêm địa chỉ giao hàng

@@ -226,4 +226,13 @@ class Users_m extends connectDB
         // Return true only if both operations succeeded
         return $result_users && $result_address;
     }
+
+    // Cập nhật mật khẩu cho user hiện tại
+    function Users_update_password($ma_user, $new_password)
+    {
+        $ma_user = $this->esc($ma_user);
+        $new_password = $this->esc($new_password);
+        $sql = "UPDATE users SET password = '$new_password' WHERE ma_user = '$ma_user'";
+        return mysqli_query($this->con, $sql);
+    }
 }
