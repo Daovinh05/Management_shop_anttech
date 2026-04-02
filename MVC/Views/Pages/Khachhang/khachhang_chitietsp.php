@@ -1950,23 +1950,6 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
 
     <script>
-        // Lấy các phần tử
-        const accountBtn = document.getElementById('accountBtn');
-        const accountMenu = document.getElementById('accountMenu');
-
-        // Toggle Account Menu
-        accountBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            accountMenu.classList.toggle('active');
-        });
-
-        // Close when clicking outside
-        window.addEventListener('click', function(event) {
-            if (!accountBtn.contains(event.target)) {
-                accountMenu.classList.remove('active');
-            }
-        });
-
         // --- 1. BIẾN TOÀN CỤC GIỎ HÀNG ---
         var cart = []; // Mảng chứa các object sản phẩm
 
