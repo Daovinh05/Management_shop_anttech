@@ -827,7 +827,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         <div class="login-container">
             <span class="close-btn" id="btnCloseLogin">&times;</span>
             <div class="login-title">ĐĂNG NHẬP</div>
-            <form id="loginForm" method="post" action="<?php echo UrlHelper::url('Login/process'); ?>">
+            <form id="loginForm" method="post" action="<?php echo UrlHelper::url('Api/Auth/login'); ?>">
                 <div class="input-group">
                     <label>Tài khoản</label>
                     <input type="text" name="username" placeholder="Nhập tài khoản" required>
@@ -865,7 +865,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         <div class="login-container">
             <span class="close-btn" id="btnCloseRegister">&times;</span>
             <div class="login-title">ĐĂNG KÝ</div>
-            <form id="registerForm" method="post" action="<?php echo UrlHelper::url('Login/process_register'); ?>">
+            <form id="registerForm" method="post" action="<?php echo UrlHelper::url('Api/Auth/register'); ?>">
                 <div class="input-group">
                     <label>Họ và tên</label>
                     <input type="text" name="fullname" placeholder="Nhập họ và tên" required
@@ -1121,7 +1121,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             const formData = new FormData(this);
             
             // Get the URL
-            const loginUrl = '<?php echo UrlHelper::url('Login/process'); ?>';
+            const loginUrl = '<?php echo UrlHelper::url('Api/Auth/login'); ?>';
             
             // Debug log
             console.log('=== LOGIN DEBUG ===');
@@ -1185,7 +1185,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'error';
                         errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
-                        errorDiv.textContent = data.error || 'Đăng nhập thất bại!';
+                        errorDiv.textContent = data.error || data.message || 'Đăng nhập thất bại!';
                         document.querySelector('#loginForm').appendChild(errorDiv);
                     }
                 })
@@ -1203,7 +1203,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             const formData = new FormData(this);
 
             // Send AJAX request
-            fetch('<?php echo UrlHelper::url('Login/process_register'); ?>', {
+                fetch('<?php echo UrlHelper::url('Api/Auth/register'); ?>', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -1259,7 +1259,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'error';
                         errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
-                        errorDiv.textContent = data.error || 'Đăng ký thất bại!';
+                        errorDiv.textContent = data.error || data.message || 'Đăng ký thất bại!';
                         document.querySelector('#registerForm').appendChild(errorDiv);
                     }
                 })
