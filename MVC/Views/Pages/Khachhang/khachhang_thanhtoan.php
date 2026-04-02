@@ -1063,22 +1063,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
 
     <script>
-        // Lấy các phần tử
-        const accountBtn = document.getElementById('accountBtn');
-        const accountMenu = document.getElementById('accountMenu');
-
-        // Toggle Account Menu (GIỜ ĐÃ HOẠT ĐỘNG VÌ ĐÃ CÓ HTML accountMenu)
-        accountBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            accountMenu.classList.toggle('active');
-        });
-
-        // Close when clicking outside
-        window.addEventListener('click', function(event) {
-            if (!accountBtn.contains(event.target)) {
-                accountMenu.classList.remove('active');
-            }
-        });
+        const CHECKOUT_API_URL = '<?php echo UrlHelper::url('Api/Checkout'); ?>';
 
         // --- LOGIC GIỎ HÀNG ---
         // Khởi tạo giỏ hàng từ dữ liệu PHP đã hiển thị trong bảng đơn hàng
@@ -1148,6 +1133,8 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             const finalTotalElement = document.getElementById('finalTotal');
             const finalTotalInput = document.getElementById('finalTotalInput');
             const subtotalValue = <?php echo $tong_tien; ?>; // Giá trị tạm tính
+            const checkoutForm = document.querySelector('.checkout-wrapper form');
+            const submitBtn = checkoutForm ? checkoutForm.querySelector('button[name="btnDatHang"]') : null;
 
             // Hàm tính toán lại tổng sau khi áp dụng khuyến mãi
             function updateTotal() {
@@ -1177,6 +1164,97 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
             // Gọi hàm cập nhật ban đầu
             updateTotal();
+
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const selectedItemsRaw = (checkoutForm.querySelector('input[name="selected_items_str"]') || {}).value || '';
+                    const forcedQtyRaw = (checkoutForm.querySelector('input[name="forced_qty"]') || {}).value || '';
+                    const isBuyNow = ((checkoutForm.querySelector('input[name="is_buy_now"]') || {}).value || '0') === '1';
+
+                    const payload = {
+                        mode: isBuyNow ? 'buy_now' : 'cart',
+                        payment_method: ((checkoutForm.querySelector('input[name="payment_method"]:checked') || {}).value || 'cod'),
+                        ma_khuyen_mai: (voucherSelect ? voucherSelect.value : ''),
+                        ddlDiaChi: ((checkoutForm.querySelector('select[name="ddlDiaChi"]') || {}).value || ''),
+                        txtHoTen: ((checkoutForm.querySelector('input[name="txtHoTen"]') || {}).value || ''),
+                        txtHoTenNguoiNhan: ((checkoutForm.querySelector('input[name="txtHoTenNguoiNhan"]') || {}).value || ''),
+                        txtDiaChiGiaoHang: ((checkoutForm.querySelector('input[name="txtDiaChiGiaoHang"]') || {}).value || ''),
+                        txtSoDienThoai: ((checkoutForm.querySelector('input[name="txtSoDienThoai"]') || {}).value || ''),
+                        txtEmail: ((checkoutForm.querySelector('input[name="txtEmail"]') || {}).value || ''),
+                        txtGhiChu: ((checkoutForm.querySelector('textarea[name="txtGhiChu"]') || {}).value || '')
+                    };
+
+                    if (isBuyNow) {
+                        payload.ma_bien_the = selectedItemsRaw;
+                        payload.so_luong = parseInt(forcedQtyRaw || '1', 10) || 1;
+                    } else if (selectedItemsRaw.trim() !== '') {
+                        payload.selected_items = selectedItemsRaw
+                            .split(',')
+                            .map(function(id) {
+                                return id.trim();
+                            })
+                            .filter(function(id) {
+                                return id !== '';
+                            });
+                    }
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'ĐANG XỬ LÝ...';
+                    }
+
+                    fetch(CHECKOUT_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(function(response) {
+                            return response.json().catch(function() {
+                                return {
+                                    success: false,
+                                    message: 'Phan hoi API khong hop le'
+                                };
+                            });
+                        })
+                        .then(function(json) {
+                            if (!json || !json.success) {
+                                var msg = (json && json.message) ? json.message : 'Khong the dat hang. Vui long thu lai.';
+                                if (json && Array.isArray(json.errors) && json.errors.length > 0) {
+                                    msg += '\n- ' + json.errors.join('\n- ');
+                                }
+                                alert(msg);
+                                return;
+                            }
+
+                            var data = json.data || {};
+                            if (data.payment_method === 'bank' && data.payment_url) {
+                                window.location.href = data.payment_url;
+                                return;
+                            }
+
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                                return;
+                            }
+
+                            alert('Dat hang thanh cong!');
+                            window.location.href = '<?php echo UrlHelper::url('Khachhang/lichsumuahang'); ?>';
+                        })
+                        .catch(function() {
+                            alert('Khong the ket noi den Checkout API. Vui long thu lai sau.');
+                        })
+                        .finally(function() {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = 'ĐẶT HÀNG';
+                            }
+                        });
+                });
+            }
         });
     </script>
 
