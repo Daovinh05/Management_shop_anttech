@@ -309,18 +309,41 @@ class Khachhang extends controller
 
         if (isset($_POST['btnDatHang'])) {
             $ma_user = $_SESSION['user_id'];
-            $ma_dia_chi = trim($_POST['ddlDiaChi']);
             $ma_khuyen_mai = !empty($_POST['ddlKhuyenMai']) ? trim($_POST['ddlKhuyenMai']) : null;
             $ghi_chu = trim($_POST['txtGhiChu']) ?? '';
             $payment_method = trim($_POST['payment_method']) ?? 'cod';
             $ho_ten = trim($_POST['txtHoTen']);
             $so_dien_thoai = trim($_POST['txtSoDienThoai']);
             $email = trim($_POST['txtEmail']);
+            
+            // Lấy thông tin địa chỉ giao hàng từ 3 trường nhập trực tiếp
+            $ho_ten = trim($_POST['txtHoTenNguoiNhan']);
+            $dia_chi = trim($_POST['txtDiaChiGiaoHang']);
+            $so_dien_thoai = trim($_POST['txtSoDienThoai']);
 
             // Validate cơ bản
             $errors = [];
-            if (empty($ma_dia_chi)) $errors[] = "Vui lòng chọn địa chỉ giao hàng.";
 
+            // Validate thông tin người nhận
+            if (empty($ho_ten)) {
+                $errors[] = "Vui lòng nhập họ và tên người nhận.";
+            } elseif (strlen($ho_ten) < 2) {
+                $errors[] = "Họ và tên người nhận phải có ít nhất 2 ký tự.";
+            }
+
+            if (empty($dia_chi)) {
+                $errors[] = "Vui lòng nhập địa chỉ giao hàng.";
+            }
+
+            if (empty($so_dien_thoai)) {
+                $errors[] = "Vui lòng nhập số điện thoại người nhận.";
+            } elseif (!preg_match('/^0[0-9]{9,10}$/', $so_dien_thoai)) {
+                $errors[] = "Số điện thoại người nhận không hợp lệ.";
+            }
+
+            // Validate thông tin người nhận (đã dùng $ho_ten, $dia_chi, $so_dien_thoai ở trên)
+            
+            // Validate thông tin liên hệ (trùng với người nhận)
             if (empty($ho_ten)) {
                 $errors[] = "Vui lòng nhập họ và tên.";
             } elseif (strlen($ho_ten) < 2) {
@@ -333,11 +356,7 @@ class Khachhang extends controller
                 $errors[] = "Số điện thoại không hợp lệ.";
             }
 
-            if (empty($email)) {
-                $errors[] = "Vui lòng nhập email.";
-            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors[] = "Email không hợp lệ.";
-            }
+           
 
             // Check if payment method is valid
             if (!in_array($payment_method, ['cod', 'bank'])) {
@@ -395,7 +414,7 @@ class Khachhang extends controller
                         'so_dien_thoai' => $so_dien_thoai,
                         'email' => $email,
                         'ghi_chu' => $ghi_chu,
-                        'dia_chi_selected' => $ma_dia_chi,
+                        'dia_chi' => $dia_chi,
                         'payment_method' => $payment_method
                     ]
                 ]);
@@ -448,7 +467,7 @@ class Khachhang extends controller
                     if ($row) {
                         $ma_gio_hang = $row['ma_gio_hang'];
                         $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-                        
+
                         // ... Copy lại đoạn while loop lấy từ DB như code cũ của bạn ...
                         // Lưu ý: Đoạn này dùng để xử lý khi mua từ Giỏ Hàng
                         while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
@@ -532,7 +551,7 @@ class Khachhang extends controller
                             'so_dien_thoai' => $so_dien_thoai,
                             'email' => $email,
                             'ghi_chu' => $ghi_chu,
-                            'dia_chi_selected' => $ma_dia_chi,
+                            'dia_chi' => $dia_chi,
                             'payment_method' => $payment_method
                         ]
                     ]);
@@ -555,10 +574,27 @@ class Khachhang extends controller
                 $so_tien_thanh_toan = $tong_tien_hang - $tien_giam;
                 if ($so_tien_thanh_toan < 0) $so_tien_thanh_toan = 0;
 
+                // Tạo mã địa chỉ giao hàng mới và insert vào bảng dia_chi_giao_hang
+                // Generate sequential address ID
+                $last_address = mysqli_query($this->dc->con, "SELECT MAX(ma_dia_chi) as max_id FROM dia_chi_giao_hang WHERE ma_dia_chi LIKE 'DC%'");
+                $last_addr_row = mysqli_fetch_assoc($last_address);
+                $last_addr_id = $last_addr_row['max_id'];
+
+                if ($last_addr_id) {
+                    $addr_number = intval(substr($last_addr_id, 2)); // Extract number after 'DC'
+                    $new_addr_number = $addr_number + 1;
+                } else {
+                    $new_addr_number = 1; // Start from 1 if no previous addresses
+                }
+                $ma_dia_chi = 'DC' . str_pad($new_addr_number, 2, '0', STR_PAD_LEFT); // Format as DC01, DC02, etc.
+
+                // Insert địa chỉ giao hàng mới (không đặt làm mặc định)
+                $this->dc->diachigiaohang_ins($ma_dia_chi, $ma_user, $ho_ten, $so_dien_thoai, $dia_chi, 0);
+
                 // Tạo mã đơn hàng theo thứ tự tăng dần
                 $ma_don_hang = $this->dh->getNextOrderId();
 
-                // Thêm đơn hàng vào cơ sở dữ liệu
+                // Thêm đơn hàng vào cơ sở dữ liệu với địa chỉ mới tạo
                 $this->dh->donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $so_tien_thanh_toan, 'cho_duyet');
 
                 // Thêm chi tiết đơn hàng
@@ -624,7 +660,7 @@ class Khachhang extends controller
                             $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ct['ma_bien_the']);
                         }
                         // ... Logic xóa cũ của bạn ...
-                        
+
                     }
                 }
 
@@ -656,7 +692,7 @@ class Khachhang extends controller
                                 'so_dien_thoai' => $so_dien_thoai,
                                 'email' => $email,
                                 'ghi_chu' => $ghi_chu,
-                                'dia_chi_selected' => $ma_dia_chi,
+                                'dia_chi' => $dia_chi,
                                 'payment_method' => $payment_method
                             ]
                         ]);
