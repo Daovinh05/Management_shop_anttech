@@ -467,7 +467,7 @@ class Khachhang extends controller
                     if ($row) {
                         $ma_gio_hang = $row['ma_gio_hang'];
                         $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-
+                        
                         // ... Copy lại đoạn while loop lấy từ DB như code cũ của bạn ...
                         // Lưu ý: Đoạn này dùng để xử lý khi mua từ Giỏ Hàng
                         while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
@@ -503,6 +503,7 @@ class Khachhang extends controller
                         }
                     }
                 }
+
 
                 
 
