@@ -976,14 +976,14 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                         <span class="info-label">Email</span>
                         <span class="info-value"><?php echo htmlspecialchars($email); ?></span>
                     </div>
-                    <div class="info-row">
+                    <!-- <div class="info-row">
                         <span class="info-label">Địa chỉ</span>
                         <span class="info-value"><?php echo htmlspecialchars($dia_chi_value); ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Thông tin chi tiết</span>
                         <span class="info-value"><?php echo htmlspecialchars(is_string($dia_chi_text) ? $dia_chi_text : ''); ?></span>
-                    </div>
+                    </div> -->
 
                     <button class="btn-black-outline" onclick="openModal()">CẬP NHẬT</button>
                 </div>

@@ -83,4 +83,20 @@ class DiaChiGiaoHang_m extends connectDB
         $sql = "SELECT * FROM dia_chi_giao_hang WHERE ma_user = '$ma_user' AND mac_dinh = 1 LIMIT 1";
         return mysqli_query($this->con, $sql);
     }
+
+    // Hàm lấy mã địa chỉ tiếp theo
+    function getNextMaDiaChi()
+    {
+        $sql = "SELECT MAX(ma_dia_chi) as max_id FROM dia_chi_giao_hang WHERE ma_dia_chi LIKE 'DC%'";
+        $result = mysqli_query($this->con, $sql);
+        $row = mysqli_fetch_assoc($result);
+        
+        if ($row && $row['max_id']) {
+            $number = intval(substr($row['max_id'], 2)); // Extract number after 'DC'
+            $new_number = $number + 1;
+        } else {
+            $new_number = 1; // Start from 1 if no previous addresses
+        }
+        return 'DC' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as DC01, DC02, etc.
+    }
 }

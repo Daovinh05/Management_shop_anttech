@@ -4,7 +4,8 @@ class ChiTietDonHang_m extends connectDB
     // Hàm thêm chi tiết đơn hàng
     function chitietdonhang_ins($ma_ctdh, $ma_don_hang, $ma_bien_the, $so_luong, $gia_luc_mua)
     {
-        $sql = "INSERT INTO chi_tiet_don_hang VALUES ('$ma_ctdh', '$ma_don_hang', '$ma_bien_the', '$so_luong', '$gia_luc_mua')";
+        $sql = "INSERT INTO chi_tiet_don_hang (ma_ctdh, ma_don_hang, ma_bien_the, so_luong, gia_luc_mua)
+                VALUES ('$ma_ctdh', '$ma_don_hang', '$ma_bien_the', '$so_luong', '$gia_luc_mua')";
         return mysqli_query($this->con, $sql);
     }
 

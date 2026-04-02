@@ -165,15 +165,58 @@ class Khachhang extends controller
     // Thêm vào giỏ hàng
     function themvaogio($ma_bien_the)
     {
-        // Kiểm tra xem người dùng đã đăng nhập chưa
+        header('Content-Type: application/json; charset=utf-8');
+        
+        // Kiểm tra đăng nhập
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . $this->url('Login'));
-            exit;
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Bạn cần đăng nhập để thêm vào giỏ hàng'
+            ]);
+            return;
         }
 
         $ma_user = $_SESSION['user_id'];
 
+        // Lấy thông tin từ POST hoặc parameter
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ma_bien_the = $_POST['ma_bien_the'] ?? $ma_bien_the;
+        }
+        
+        if (!$ma_bien_the) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Vui lòng chọn sản phẩm'
+            ]);
+            return;
+        }
+
         $so_luong_them = isset($_POST['so_luong']) ? (int)$_POST['so_luong'] : 1;
+        if ($so_luong_them < 1) $so_luong_them = 1;
+
+        // Kiểm tra tồn kho
+        $bt_query = $this->bt->BienThe_getById($ma_bien_the);
+        $bt_info = mysqli_fetch_assoc($bt_query);
+        
+        if (!$bt_info) {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại'
+            ]);
+            return;
+        }
+
+        if ($so_luong_them > $bt_info['so_luong_kho']) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Số lượng vượt quá tồn kho (còn lại: ' . $bt_info['so_luong_kho'] . ')'
+            ]);
+            return;
+        }
 
         // Kiểm tra xem đã có giỏ hàng chưa, nếu chưa thì tạo mới
         $gio_hang = $this->gh->GioHang_getByUser($ma_user);
@@ -181,7 +224,7 @@ class Khachhang extends controller
 
         if (!$row) {
             // Tạo giỏ hàng mới
-            $ma_gio_hang = $this->gh->getNextCartId(); // Tạo mã giỏ hàng duy nhất theo thứ tự tăng dần
+            $ma_gio_hang = $this->gh->getNextCartId();
             $this->gh->giohang_ins($ma_gio_hang, $ma_user);
         } else {
             $ma_gio_hang = $row['ma_gio_hang'];
@@ -190,13 +233,28 @@ class Khachhang extends controller
         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
         $ctgh_check = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
         $found = false;
+        $cart_item_count = 0;
 
         while ($ct_row = mysqli_fetch_assoc($ctgh_check)) {
+            $cart_item_count += $ct_row['so_luong'];
+            
             if ($ct_row['ma_bien_the'] == $ma_bien_the) {
-                // Nếu đã có, tăng số lượng lên 1
+                // Nếu đã có, tăng số lượng lên
                 $new_so_luong = $ct_row['so_luong'] + $so_luong_them;
+                
+                // Kiểm tra tồn kho khi cập nhật
+                if ($new_so_luong > $bt_info['so_luong_kho']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Số lượng trong giỏ vượt quá tồn kho (còn lại: ' . $bt_info['so_luong_kho'] . ')'
+                    ]);
+                    return;
+                }
+                
                 $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $new_so_luong);
                 $found = true;
+                $cart_item_count = $cart_item_count + $so_luong_them;
                 break;
             }
         }
@@ -204,12 +262,25 @@ class Khachhang extends controller
         // Nếu chưa có, thêm mới vào giỏ hàng
         if (!$found) {
             $this->ctgh->chitietgiohang_ins($ma_gio_hang, $ma_bien_the, $so_luong_them);
+            $cart_item_count += $so_luong_them;
         }
 
-        // Quay lại trang trước đó
-        if (!isset($_POST['so_luong'])) {
-            header('Location: ' . $_SERVER['HTTP_REFERER']);
+        // Cập nhật trạng thái giỏ hàng
+        $this->gh->GioHang_update($ma_gio_hang, $ma_user, 'active');
+
+        // Nếu là AJAX request thì trả về JSON
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_POST['ma_bien_the'])) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Đã thêm sản phẩm vào giỏ hàng',
+                'cart_count' => $cart_item_count,
+                'product_name' => $bt_info['ten_bien_the']
+            ]);
+            return;
         }
+
+        // Nếu là request thường thì redirect
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
     }
 
     // Hiển thị giỏ hàng
@@ -373,7 +444,8 @@ class Khachhang extends controller
         }
 
         // Lấy thông tin phụ (Địa chỉ, Khuyến mãi...)
-        $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+        $dia_chi_result = $this->dc->DiaChiGiaoHang_getDefaultByUser($ma_user);
+        $dia_chi = mysqli_fetch_assoc($dia_chi_result);
         $ds_khuyen_mai = $this->model("KhuyenMai_m")->KhuyenMai_getAvailable();
 
         $this->view('Khachhang_Master', [
@@ -395,22 +467,25 @@ class Khachhang extends controller
 
         if (isset($_POST['btnDatHang'])) {
             $ma_user = $_SESSION['user_id'];
-            $ma_dia_chi = trim($_POST['ddlDiaChi']);
+            $dia_chi = trim($_POST['txtDiaChiGiaoHang']);
             $ma_khuyen_mai = !empty($_POST['ddlKhuyenMai']) ? trim($_POST['ddlKhuyenMai']) : null;
             $ghi_chu = trim($_POST['txtGhiChu']) ?? '';
             $payment_method = trim($_POST['payment_method']) ?? 'cod';
-            $ho_ten = trim($_POST['txtHoTen']);
+            $ho_ten = trim($_POST['txtHoTenNguoiNhan']);
             $so_dien_thoai = trim($_POST['txtSoDienThoai']);
-            $email = trim($_POST['txtEmail']);
 
             // Validate cơ bản
             $errors = [];
-            if (empty($ma_dia_chi)) $errors[] = "Vui lòng chọn địa chỉ giao hàng.";
+            if (empty($dia_chi)) {
+                $errors[] = "Vui lòng nhập địa chỉ giao hàng.";
+            }
+
+            
 
             if (empty($ho_ten)) {
-                $errors[] = "Vui lòng nhập họ và tên.";
+                $errors[] = "Vui lòng nhập họ và tên người nhận.";
             } elseif (strlen($ho_ten) < 2) {
-                $errors[] = "Họ và tên phải có ít nhất 2 ký tự.";
+                $errors[] = "Họ và tên người nhận phải có ít nhất 2 ký tự.";
             }
 
             if (empty($so_dien_thoai)) {
@@ -419,28 +494,30 @@ class Khachhang extends controller
                 $errors[] = "Số điện thoại không hợp lệ.";
             }
 
-            if (empty($email)) {
-                $errors[] = "Vui lòng nhập email.";
-            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors[] = "Email không hợp lệ.";
-            }
-
             // Check if payment method is valid
             if (!in_array($payment_method, ['cod', 'bank'])) {
                 $errors[] = "Phương thức thanh toán không hợp lệ.";
             }
 
-            // Lấy giỏ hàng của người dùng
-            $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-            $row = mysqli_fetch_assoc($gio_hang);
+            $is_buy_now = isset($_POST['is_buy_now']) && $_POST['is_buy_now'] == '1';
 
-            if (!$row) {
-                $errors[] = "Giỏ hàng của bạn đang trống.";
+            // Lấy giỏ hàng của người dùng (chỉ cần cho luồng giỏ hàng)
+            $row = null;
+            if (!$is_buy_now) {
+                $gio_hang = $this->gh->GioHang_getByUser($ma_user);
+                $row = mysqli_fetch_assoc($gio_hang);
+
+                if (!$row) {
+                    $errors[] = "Giỏ hàng của bạn đang trống.";
+                }
             }
 
             if (!empty($errors)) {
                 // Trả về view báo lỗi (giữ nguyên logic cũ của bạn)
-                $gio_hang_chi_tiet = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang'] ?? '');
+                $gio_hang_chi_tiet = null;
+                if (!$is_buy_now && $row) {
+                    $gio_hang_chi_tiet = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang']);
+                }
 
                 // Chuyển đổi giỏ hàng chi tiết thành định dạng phù hợp với view
                 $filtered_cart_items = [];
@@ -469,28 +546,31 @@ class Khachhang extends controller
                     }
                 }
 
-                $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+                $dia_chi_result = $this->dc->DiaChiGiaoHang_getDefaultByUser($ma_user);
+                $dia_chi_arr = mysqli_fetch_assoc($dia_chi_result);
 
                 $this->view('Khachhang_Master', [
                     'page' => 'Khachhang/khachhang_thanhtoan',
                     'ds_sp_thanh_toan' => $filtered_cart_items,
-                    'dia_chi' => $dia_chi,
+                    'dia_chi' => $dia_chi_arr,
                     'errors' => $errors,
                     'old_data' => [
                         'ho_ten' => $ho_ten,
                         'so_dien_thoai' => $so_dien_thoai,
-                        'email' => $email,
                         'ghi_chu' => $ghi_chu,
-                        'dia_chi_selected' => $ma_dia_chi,
+                        'dia_chi' => $dia_chi_arr['dia_chi'] ?? '',
                         'payment_method' => $payment_method
                     ]
                 ]);
                 return;
             }
 
-            if ($row) {
-                $ma_gio_hang = $row['ma_gio_hang'];
-                $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+            if ($is_buy_now || $row) {
+                $ma_gio_hang = $row ? $row['ma_gio_hang'] : null;
+                $chi_tiet_gio_hang = null;
+                if (!$is_buy_now && $row) {
+                    $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
+                }
 
                 // 1. Lấy danh sách ID sản phẩm cần mua
                 $selected_items_filter = [];
@@ -499,7 +579,6 @@ class Khachhang extends controller
                 }
 
                 // --- 2. KHỞI TẠO BIẾN TỔNG TIỀN (FIX LỖI UNDEFINED VARIABLE) ---
-                $is_buy_now = isset($_POST['is_buy_now']) && $_POST['is_buy_now'] == '1';
                 $tong_tien_hang = 0; // Quan trọng: Phải khởi tạo ở đây
                 $chi_tiet_gio_hang_array = [];
                 $out_of_stock_items = [];
@@ -553,6 +632,9 @@ class Khachhang extends controller
                             $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
                             $bt_info = mysqli_fetch_assoc($bien_the);
 
+                            // Gán giá từ biến thể
+                            $ct['gia'] = $bt_info['gia'];
+
                             if ($ct['so_luong'] > $bt_info['so_luong_kho']) {
                                 $out_of_stock_items[] = $bt_info['ten_bien_the'] . " (chỉ còn " . $bt_info['so_luong_kho'] . " sản phẩm)";
                             } else {
@@ -569,7 +651,10 @@ class Khachhang extends controller
                 if (!empty($out_of_stock_items)) {
                     $errors[] = "Một số sản phẩm đã hết hàng: " . implode(', ', $out_of_stock_items);
 
-                    $gio_hang_chi_tiet = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang']);
+                    $gio_hang_chi_tiet = null;
+                    if (!$is_buy_now && $row) {
+                        $gio_hang_chi_tiet = $this->ctgh->ChiTietGioHang_getByCartId($row['ma_gio_hang']);
+                    }
 
                     // Chuyển đổi giỏ hàng chi tiết thành định dạng phù hợp với view
                     $filtered_cart_items = [];
@@ -598,26 +683,68 @@ class Khachhang extends controller
                         }
                     }
 
-                    $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+                    $dia_chi_result = $this->dc->DiaChiGiaoHang_getDefaultByUser($ma_user);
+                    $dia_chi_arr = mysqli_fetch_assoc($dia_chi_result);
 
                     $this->view('Khachhang_Master', [
                         'page' => 'Khachhang/khachhang_thanhtoan',
                         'ds_sp_thanh_toan' => $filtered_cart_items,
-                        'dia_chi' => $dia_chi,
+                        'dia_chi' => $dia_chi_arr,
                         'errors' => $errors,
                         'old_data' => [
                             'ho_ten' => $ho_ten,
                             'so_dien_thoai' => $so_dien_thoai,
-                            'email' => $email,
                             'ghi_chu' => $ghi_chu,
-                            'dia_chi_selected' => $ma_dia_chi,
+                            'dia_chi' => $dia_chi_arr['dia_chi'] ?? '',
                             'payment_method' => $payment_method
                         ]
                     ]);
                     return;
                 }
 
-                // --- 3. TÍNH TIỀN THANH TOÁN ---
+                if (empty($chi_tiet_gio_hang_array)) {
+                    $errors[] = $is_buy_now
+                        ? "Không tìm thấy sản phẩm để mua ngay. Vui lòng thử lại."
+                        : "Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi đặt hàng.";
+
+                    $dia_chi_result = $this->dc->DiaChiGiaoHang_getDefaultByUser($ma_user);
+                    $dia_chi_arr = mysqli_fetch_assoc($dia_chi_result);
+
+                    $this->view('Khachhang_Master', [
+                        'page' => 'Khachhang/khachhang_thanhtoan',
+                        'ds_sp_thanh_toan' => [],
+                        'dia_chi' => $dia_chi_arr,
+                        'errors' => $errors,
+                        'old_data' => [
+                            'ho_ten' => $ho_ten,
+                            'so_dien_thoai' => $so_dien_thoai,
+                            'ghi_chu' => $ghi_chu,
+                            'dia_chi' => $dia_chi_arr['dia_chi'] ?? '',
+                            'payment_method' => $payment_method
+                        ]
+                    ]);
+                    return;
+                }
+
+                // --- 3. THÊM ĐỊA CHỈ GIAO HÀNG MỚI VÀO CƠ SỞ DỮ LIỆU ---
+                // Tạo mã địa chỉ mới
+                $ma_dia_chi = $this->dc->getNextMaDiaChi();
+                
+                // Xác định xem đây có phải là địa chỉ mặc định không (nếu người dùng chỉ có 1 địa chỉ thì set mặc định)
+                $dia_chi_hien_co = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
+                $mac_dinh = (mysqli_num_rows($dia_chi_hien_co) == 0) ? 1 : 0;
+
+                // Thêm địa chỉ mới vào bảng dia_chi_giao_hang
+                $this->dc->diachigiaohang_ins(
+                    $ma_dia_chi,
+                    $ma_user,
+                    $ho_ten,  // Lưu họ tên người nhận vào cột ho_ten
+                    $so_dien_thoai,      // Lưu số điện thoại vào cột so_dien_thoai
+                    $dia_chi,        // Lưu địa chỉ vào cột dia_chi
+                    $mac_dinh
+                );
+
+                // --- 4. TÍNH TIỀN THANH TOÁN ---
                 $so_tien_thanh_toan = $tong_tien_hang;
                 $tien_giam = 0;
 
@@ -636,13 +763,16 @@ class Khachhang extends controller
                 // Tạo mã đơn hàng theo thứ tự tăng dần
                 $ma_don_hang = $this->dh->getNextOrderId();
 
-                // Thêm đơn hàng vào cơ sở dữ liệu
+                // Thêm đơn hàng vào cơ sở dữ liệu với mã địa chỉ mới
                 $this->dh->donhang_ins($ma_don_hang, $ma_user, $ma_dia_chi, $ma_khuyen_mai, $tong_tien_hang, $so_tien_thanh_toan, 'cho_duyet');
 
                 // Thêm chi tiết đơn hàng
                 foreach ($chi_tiet_gio_hang_array as $ct) {
                     $ma_ctdh = $this->ctdh->getNextDetailOrderId();
-                    $this->ctdh->chitietdonhang_ins($ma_ctdh, $ma_don_hang, $ct['ma_bien_the'], $ct['so_luong'], $ct['gia']);
+                    $insert_ok = $this->ctdh->chitietdonhang_ins($ma_ctdh, $ma_don_hang, $ct['ma_bien_the'], $ct['so_luong'], $ct['gia']);
+                    if (!$insert_ok) {
+                        error_log("CTDH insert failed for order " . $ma_don_hang . ": " . mysqli_error($this->ctdh->con));
+                    }
 
                     // Cập nhật kho
                     $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
@@ -691,7 +821,7 @@ class Khachhang extends controller
                 );
 
                 // Xóa món đã mua khỏi giỏ
-                if (!$is_buy_now) {
+                if (!$is_buy_now && $row) {
                     // Logic xóa sản phẩm khỏi giỏ hàng sau khi mua thành công
                     foreach ($chi_tiet_gio_hang_array as $ct) {
                         if (isset($ct['qty_in_db']) && $ct['qty_in_db'] > $ct['so_luong']) {
@@ -708,7 +838,9 @@ class Khachhang extends controller
 
 
                 // Cập nhật trạng thái giỏ hàng thành 'ordered'
-                $this->gh->GioHang_update($ma_gio_hang, $ma_user, 'ordered');
+                if (!$is_buy_now && $row) {
+                    $this->gh->GioHang_update($ma_gio_hang, $ma_user, 'ordered');
+                }
 
                 // Nếu là thanh toán online (VNPAY), chuyển hướng đến cổng thanh toán
                 if ($payment_method === 'bank') {
@@ -732,9 +864,8 @@ class Khachhang extends controller
                             'old_data' => [
                                 'ho_ten' => $ho_ten,
                                 'so_dien_thoai' => $so_dien_thoai,
-                                'email' => $email,
                                 'ghi_chu' => $ghi_chu,
-                                'dia_chi_selected' => $ma_dia_chi,
+                                'dia_chi' => $dia_chi,
                                 'payment_method' => $payment_method
                             ]
                         ]);
@@ -842,7 +973,8 @@ class Khachhang extends controller
         $ma_user = $_SESSION['user_id'];
 
         // Lấy các đơn hàng của người dùng cùng với phương thức thanh toán và thông tin khuyến mãi
-        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai, tt.phuong_thuc, km.tien_khuyen_mai
+        $sql = "SELECT dh.ma_don_hang, dh.ngay_tao, dh.trang_thai_don_hang, dh.tong_tien_hang, dh.thanh_toan, dh.ma_dia_chi, dh.ma_khuyen_mai, dh.ma_user,
+                       dc.ho_ten, dc.dia_chi, dc.so_dien_thoai, tt.phuong_thuc, km.tien_khuyen_mai
                 FROM don_hang dh
                 LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
                 LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
@@ -863,6 +995,9 @@ class Khachhang extends controller
             $dh['chi_tiet'] = $chi_tiet_array;
             $don_hang_with_details[] = $dh;
         }
+
+        // Debug: Xem dữ liệu chi tiết đơn hàng
+        // echo "<pre>"; print_r($don_hang_with_details); echo "</pre>"; exit;
 
         // Count orders by status
         $status_counts = [

@@ -301,13 +301,17 @@ class DonHang_m extends connectDB
         $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
         // Sử dụng LEFT JOIN để đảm bảo nếu sản phẩm bị xóa thì vẫn hiện đơn hàng
         $sql = "SELECT
-                    ct.*,
-                    sp.ten_san_pham,
-                    bt.img_bien_the as hinh_anh,
-                    bt.ten_bien_the,
-                    bt.mau_sac,
-                    bt.ram,
-                    bt.dung_luong
+                    ct.ma_ctdh,
+                    ct.ma_don_hang,
+                    ct.ma_bien_the,
+                    ct.so_luong,
+                    ct.gia_luc_mua,
+                    COALESCE(sp.ten_san_pham, 'Sản phẩm đã xóa') as ten_san_pham,
+                    COALESCE(bt.img_bien_the, '') as hinh_anh,
+                    COALESCE(bt.ten_bien_the, '') as ten_bien_the,
+                    COALESCE(bt.mau_sac, '') as mau_sac,
+                    COALESCE(bt.ram, '') as ram,
+                    COALESCE(bt.dung_luong, '') as dung_luong
                 FROM chi_tiet_don_hang ct
                 LEFT JOIN bien_the bt ON ct.ma_bien_the = bt.ma_bien_the
                 LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham

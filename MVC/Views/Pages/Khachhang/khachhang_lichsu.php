@@ -514,11 +514,14 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                 foreach ($chi_tiet_don_hang as $ct):
                             ?>
                                     <div class="order-product">
-                                        <img src="<?php echo !empty($ct['hinh_anh']) ? UrlHelper::url('Public/Pictures/bien_the/') . $ct['hinh_anh'] : UrlHelper::url('Public/Images/no-image.png'); ?>"
-                                            alt="<?php echo $ct['ten_san_pham']; ?>" class="product-thumb">
+                                        <?php
+                                        $product_image = $ct['hinh_anh'] ?? ($ct['img_bien_the'] ?? ($ct['img_hinh_anh'] ?? ''));
+                                        $product_name = $ct['ten_san_pham'] ?? ($ct['ten_bien_the'] ?? 'Sản phẩm đã xóa');
+                                        ?>
+                                        <img src="<?php echo !empty($product_image) ? UrlHelper::url('Public/Pictures/bien_the/') . $product_image : UrlHelper::url('Public/Images/no-image.png'); ?>"
+                                            alt="<?php echo htmlspecialchars($product_name); ?>" class="product-thumb">
                                         <div class="product-info">
-                                            <span
-                                                class="product-name"><?php echo $ct['ten_san_pham'] ? $ct['ten_san_pham'] : 'Sản phẩm đã xóa'; ?></span>
+                                            <span class="product-name"><?php echo htmlspecialchars($product_name); ?></span>
                                             <div class="product-meta">Số lượng: <?php echo $ct['so_luong']; ?></div>
                                             <?php if ($ct['ten_bien_the']): ?>
                                                 <div class="product-meta">Biến thể: <?php echo $ct['ten_bien_the']; ?></div>
@@ -534,9 +537,9 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                         ?>
                         </div>
                         <div class="order-actions-right">
-                            <div class="total-money"><span class="total-label">Số tiền thanh toán</span><span
-                                    class="total-value"><?php echo number_format($dh['thanh_toan'], 0, ',', '.');
-                                                        ?>₫</span></div><button type="button" class="btn-detail"
+                                <div class="total-money"><span class="total-label">Số tiền thanh toán</span><span
+                                    class="total-value"><?php echo number_format($dh['tong_tien_hang'], 0, ',', '.');
+                                            ?>₫</span></div><button type="button" class="btn-detail"
                                 data-id="<?php echo $dh['ma_don_hang']; ?>"
                                 data-date="<?php echo $this->formatDate($dh['ngay_tao']); ?>" data-status="<?php
                                                                                                             switch ($dh['trang_thai_don_hang']) {
@@ -580,7 +583,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 }
 
 ?>" data-total="<?php echo number_format($dh['tong_tien_hang'], 0, ',', '.');
-                ?>₫" data-receiver="<?php echo htmlspecialchars($dh['ten_nguoi_nhan'] ?? 'N/A'); ?>"
+                ?>₫" data-receiver="<?php echo htmlspecialchars($dh['ho_ten'] ?? 'N/A'); ?>"
                                 data-phone="<?php echo htmlspecialchars($dh['so_dien_thoai'] ?? 'N/A'); ?>"
                                 data-address="<?php echo htmlspecialchars($dh['dia_chi'] ?? 'N/A'); ?>"
                                 data-payment-method="<?php echo htmlspecialchars($dh['phuong_thuc'] ?? 'N/A'); ?>"
@@ -644,8 +647,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 </div>
                 <div class="detail-box">
                     <h3>Thông tin giao hàng</h3>
-                    <div class="info-row"><span class="info-label">Người nhận:</span><span class="info-value"
-                            id="modalReceiver">Hoàng Văn Thành</span></div>
+                        <div class="info-row"><span class="info-label">Người nhận:</span><span class="info-value"
+                            id="modalReceiver">-</span></div>
                     <div class="info-row"><span class="info-label">Số điện thoại:</span><span class="info-value"
                             id="modalPhone">0912345678</span></div>
                     <div class="info-row"><span class="info-label">Địa chỉ:</span><span class="info-value"

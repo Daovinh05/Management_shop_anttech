@@ -893,57 +893,46 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
                         // Lấy dữ liệu cũ nếu có lỗi
                         $old_data = isset($data['old_data']) ? $data['old_data'] : [];
+                        
+                        // Debug: Xem giá trị của $dia_chi
+                        // echo "<pre>"; var_dump($dia_chi); echo "</pre>";
                         ?>
 
                         <div class="form-group">
                             <label for="fullname">Họ và tên *</label>
                             <input type="text" id="fullname" class="form-control" name="txtHoTen"
                                 placeholder="Nhập họ và tên của bạn"
-                                value="<?php echo isset($old_data['ho_ten']) ? htmlspecialchars($old_data['ho_ten']) : ($user_info ? htmlspecialchars($user_info['full_name']) : ''); ?>"
+                                value="<?php echo isset($old_data['full_name']) ? htmlspecialchars($old_data['full_name']) : ($user_info ? htmlspecialchars($user_info['full_name']) : ''); ?>"
                                 required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ho_ten">Họ và tên người nhận*</label>
+                            <input type="text" id="ho_ten" class="form-control" name="txtHoTenNguoiNhan"
+                                placeholder="Nhập họ và tên của bạn"
+                                value="<?php echo isset($old_data['ho_ten']) ? htmlspecialchars($old_data['ho_ten']) : (isset($dia_chi['ho_ten']) ? htmlspecialchars($dia_chi['ho_ten']) : ''); ?>"
+                                required >
                         </div>
 
                         <div class="form-group">
-                            <label for="address">Địa chỉ *</label>
-                            <select class="form-control" id="address" name="ddlDiaChi" required>
-                                <option value="">Chọn địa chỉ</option>
-                                <?php if ($data['dia_chi'] && mysqli_num_rows($data['dia_chi']) > 0): ?>
-                                    <?php while ($dc = mysqli_fetch_assoc($data['dia_chi'])): ?>
-                                        <option value="<?php echo $dc['ma_dia_chi']; ?>" <?php
-                                                                                            if (isset($old_data['dia_chi_selected'])) {
-                                                                                                echo $old_data['dia_chi_selected'] == $dc['ma_dia_chi'] ? 'selected' : '';
-                                                                                            } else {
-                                                                                                echo $dc['mac_dinh'] == 1 ? 'selected' : '';
-                                                                                            }
-                                                                                            ?>>
-                                            <?php echo $dc['dia_chi'] . ' - ' . $dc['ho_ten'] . ' - ' . $dc['so_dien_thoai']; ?>
-                                            <?php echo $dc['mac_dinh'] == 1 ? ' (Mặc định)' : ''; ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <option value="">Bạn chưa có địa chỉ nào</option>
-                                <?php endif; ?>
-                            </select>
-                            <a href="Khachhang/taikhoan" class="mt-2 d-block" style="color: var(--primary-green);">+
-                                Thêm địa chỉ mới</a>
+                            <label for="address">Địa chỉ giao hàng *</label>
+                            <input type="text" id="address" class="form-control" name="txtDiaChiGiaoHang"
+                                placeholder="Nhập địa chỉ giao hàng (Số nhà, tên đường, phường/xã, quận/huyện)"
+                                value="<?php echo isset($old_data['dia_chi']) ? htmlspecialchars($old_data['dia_chi']) : (isset($dia_chi['dia_chi']) ? htmlspecialchars($dia_chi['dia_chi']) : ''); ?>"
+                                required>
+                            <small class="form-text text-muted" style="color: #888; font-size: 12px; margin-top: 5px; display: block;">
+                                <i class="fas fa-info-circle"></i> Nhập địa chỉ cụ thể để giao hàng chính xác
+                            </small>
                         </div>
 
                         <div class="form-group">
                             <label for="phone">Số điện thoại *</label>
                             <input type="tel" id="phone" class="form-control" name="txtSoDienThoai"
                                 placeholder="Nhập số điện thoại"
-                                value="<?php echo isset($old_data['so_dien_thoai']) ? htmlspecialchars($old_data['so_dien_thoai']) : ($user_info ? htmlspecialchars($user_info['so_dien_thoai']) : ''); ?>"
+                                value="<?php echo isset($old_data['so_dien_thoai']) ? htmlspecialchars($old_data['so_dien_thoai']) : (isset($dia_chi['so_dien_thoai']) ? htmlspecialchars($dia_chi['so_dien_thoai']) : ''); ?>"
                                 required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="email">Địa chỉ email *</label>
-                            <input type="email" id="email" class="form-control" name="txtEmail"
-                                placeholder="Nhập email để nhận thông báo đơn hàng"
-                                value="<?php echo isset($old_data['email']) ? htmlspecialchars($old_data['email']) : ($user_info ? htmlspecialchars($user_info['email']) : ''); ?>"
-                                required>
-                        </div>
-
+       
                         <h3 class="section-title" style="margin-top: 30px;">Thông tin bổ sung</h3>
                         <div class="form-group">
                             <label for="note">Ghi chú đơn hàng (Tùy chọn)</label>
