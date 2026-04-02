@@ -246,7 +246,8 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             height: 100%;
             border: 2px solid var(--border-color);
             border-radius: 4px;
-            overflow: hidden;
+            overflow: visible;
+            position: relative;
         }
 
         .search-box input {
@@ -280,6 +281,97 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         .search-btn-text {
             margin-left: 5px;
             font-weight: 600;
+        }
+
+        .search-suggest-list {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 1200;
+            display: none;
+        }
+
+        .search-suggest-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #1f1f1f;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .search-suggest-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggest-item:hover {
+            background: #f3fbfa;
+        }
+
+        .search-suggest-thumb {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #f9f9f9;
+            border: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .search-suggest-name {
+            font-size: 13px;
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-suggest-empty {
+            padding: 10px 12px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .search-suggest-section {
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 700;
+            border-bottom: 1px solid #f2f2f2;
+            background: #fcfcfc;
+            text-transform: uppercase;
+        }
+
+        .search-suggest-history-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #1f1f1f;
+            border-bottom: 1px solid #f2f2f2;
+            font-size: 13px;
+        }
+
+        .search-suggest-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggest-history-item:hover {
+            background: #f3fbfa;
+        }
+
+        .search-suggest-history-item i {
+            color: #7b7b7b;
+            font-size: 12px;
         }
 
         .header-actions {
@@ -828,9 +920,10 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
 
             <div class="middle-section">
                 <div class="search-box">
-                    <form action="<?php echo $this->url('Khachhang/timkiem'); ?>" method="GET">
+                    <form action="<?php echo $this->url('Khachhang'); ?>" method="GET" id="homeSearchForm" autocomplete="off">
                         <input
                             type="text"
+                            id="homeSearchInput"
                             name="q"
                             placeholder="Hôm nay bạn muốn tìm kiếm gì?"
                             value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>">
@@ -838,6 +931,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <span class="search-btn-text">Tìm kiếm ngay </span>
                         </button>
+                        <div class="search-suggest-list" id="homeSearchSuggest"></div>
                     </form>
                 </div>
 
@@ -1224,9 +1318,229 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         // Trang gio hang da tu goi GET /Api/Cart de render bang,
         // nen bo qua auto-load o master de tranh request trung lap.
         var khIsCartPage = <?php echo (isset($data['page']) && $data['page'] === 'Khachhang/khachhang_giohang') ? 'true' : 'false'; ?>;
+        var khSearchSuggestApi = '<?php echo UrlHelper::url('Api/Search/suggestions'); ?>';
+        var khSearchHistoryApi = '<?php echo UrlHelper::url('Api/Search/history'); ?>';
+        var khSearchSaveApi = '<?php echo UrlHelper::url('Api/Search'); ?>';
+        var khSearchHomeUrl = '<?php echo UrlHelper::url('Khachhang'); ?>';
+
+        function khEscapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function khCloseSearchSuggestions() {
+            var box = document.getElementById('homeSearchSuggest');
+            if (!box) {
+                return;
+            }
+            box.style.display = 'none';
+            box.innerHTML = '';
+        }
+
+        function khRenderSearchSuggestions(items, keyword) {
+            var box = document.getElementById('homeSearchSuggest');
+            if (!box) {
+                return;
+            }
+
+            if (!items || items.length === 0) {
+                box.innerHTML = '<div class="search-suggest-empty">Không có gợi ý cho "' + khEscapeHtml(keyword) + '"</div>';
+                box.style.display = 'block';
+                return;
+            }
+
+            var html = '';
+            var baseUrl = '<?php echo UrlHelper::url(); ?>';
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i] || {};
+                var productId = item.ma_san_pham || '';
+                var productName = item.ten_san_pham || '';
+                var img = item.img_bien_the ? (baseUrl + 'Public/Pictures/bien_the/' + encodeURIComponent(item.img_bien_the)) : (baseUrl + 'Public/Images/no-image.png');
+                var href = '<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>' + productId;
+
+                html += '<a class="search-suggest-item" href="' + href + '">'
+                    + '<img class="search-suggest-thumb" src="' + img + '" alt="">'
+                    + '<span class="search-suggest-name">' + khEscapeHtml(productName) + '</span>'
+                    + '</a>';
+            }
+
+            box.innerHTML = html;
+            box.style.display = 'block';
+        }
+
+        function khRenderSearchHistory(historyItems) {
+            var box = document.getElementById('homeSearchSuggest');
+            if (!box) {
+                return;
+            }
+
+            if (!historyItems || historyItems.length === 0) {
+                box.innerHTML = '<div class="search-suggest-empty">Chưa có lịch sử tìm kiếm</div>';
+                box.style.display = 'block';
+                return;
+            }
+
+            var html = '<div class="search-suggest-section">Tìm kiếm gần đây</div>';
+
+            for (var i = 0; i < historyItems.length; i++) {
+                var keyword = (historyItems[i] && historyItems[i].keyword) ? String(historyItems[i].keyword).trim() : '';
+                if (!keyword) {
+                    continue;
+                }
+
+                var params = new URLSearchParams();
+                params.set('q', keyword);
+                params.set('page', '1');
+
+                html += '<a class="search-suggest-history-item" href="' + khSearchHomeUrl + '?' + params.toString() + '">'
+                    + '<i class="fa-solid fa-clock-rotate-left"></i>'
+                    + '<span>' + khEscapeHtml(keyword) + '</span>'
+                    + '</a>';
+            }
+
+            box.innerHTML = html;
+            box.style.display = 'block';
+        }
+
+        function khLoadSearchHistory() {
+            return fetch(khSearchHistoryApi, { method: 'GET' })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch history');
+                    }
+                    return response.json();
+                })
+                .then(function(json) {
+                    if (!json || !json.success) {
+                        khRenderSearchHistory([]);
+                        return;
+                    }
+                    khRenderSearchHistory(Array.isArray(json.data) ? json.data : []);
+                })
+                .catch(function() {
+                    khRenderSearchHistory([]);
+                });
+        }
+
+        function khSaveSearchKeyword(keyword) {
+            return fetch(khSearchSaveApi, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        keyword: keyword
+                    }),
+                    keepalive: true
+                })
+                .then(function() {
+                    return true;
+                })
+                .catch(function() {
+                    return false;
+                });
+        }
+
+        function khInitSearchRestFlow() {
+            var form = document.getElementById('homeSearchForm');
+            var input = document.getElementById('homeSearchInput');
+            var suggestBox = document.getElementById('homeSearchSuggest');
+
+            if (!form || !input || !suggestBox) {
+                return;
+            }
+
+            var debounceTimer = null;
+            var requestCounter = 0;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var keyword = (input.value || '').trim();
+                if (!keyword) {
+                    window.location.href = khSearchHomeUrl;
+                    return;
+                }
+
+                khSaveSearchKeyword(keyword).finally(function() {
+                    var params = new URLSearchParams();
+                    params.set('q', keyword);
+                    params.set('page', '1');
+                    window.location.href = khSearchHomeUrl + '?' + params.toString();
+                });
+            });
+
+            input.addEventListener('input', function() {
+                var keyword = (input.value || '').trim();
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+
+                if (!keyword || keyword.length < 2) {
+                    if (!keyword) {
+                        khLoadSearchHistory();
+                    } else {
+                        khCloseSearchSuggestions();
+                    }
+                    return;
+                }
+
+                debounceTimer = setTimeout(function() {
+                    requestCounter += 1;
+                    var currentReq = requestCounter;
+                    var url = khSearchSuggestApi + '?q=' + encodeURIComponent(keyword) + '&limit=8';
+
+                    fetch(url, { method: 'GET' })
+                        .then(function(response) {
+                            if (!response.ok) {
+                                throw new Error('Failed to fetch suggestions');
+                            }
+                            return response.json();
+                        })
+                        .then(function(json) {
+                            if (currentReq !== requestCounter) {
+                                return;
+                            }
+
+                            if (!json || !json.success) {
+                                khCloseSearchSuggestions();
+                                return;
+                            }
+
+                            khRenderSearchSuggestions(json.data || [], keyword);
+                        })
+                        .catch(function() {
+                            khCloseSearchSuggestions();
+                        });
+                }, 220);
+            });
+
+            input.addEventListener('focus', function() {
+                var keyword = (input.value || '').trim();
+                if (!keyword) {
+                    khLoadSearchHistory();
+                    return;
+                }
+
+                if (keyword.length >= 2 && suggestBox.innerHTML.trim() !== '') {
+                    suggestBox.style.display = 'block';
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!form.contains(e.target)) {
+                    khCloseSearchSuggestions();
+                }
+            });
+        }
 
         // Đồng bộ badge ngay khi tải layout
         document.addEventListener('DOMContentLoaded', function() {
+            khInitSearchRestFlow();
             if (!khIsCartPage) {
                 loadMiniCartFromApi();
             }
