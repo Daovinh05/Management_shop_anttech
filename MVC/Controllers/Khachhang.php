@@ -790,6 +790,20 @@ class Khachhang extends controller
         }
     }
 
+    // Trang cảm ơn sau khi đặt hàng thành công (COD/REST redirect)
+    function camon($ma_don_hang = '')
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . $this->url('Login'));
+            exit;
+        }
+
+        $this->view('Khachhang_Master', [
+            'page' => 'Khachhang/khachhang_camon',
+            'ma_don_hang' => $ma_don_hang
+        ]);
+    }
+
     // Hiển thị lịch sử mua hàng
     function lichsumuahang()
     {
