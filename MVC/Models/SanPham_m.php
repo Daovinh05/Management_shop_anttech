@@ -252,6 +252,102 @@ class SanPham_m extends connectDB
                 ORDER BY LENGTH(s.ma_san_pham), s.ma_san_pham";
         return mysqli_query($this->con, $sql);
     }
+
+    function SanPham_searchStorefront($search_query, $page = 1, $limit = 12)
+    {
+        $search_query = trim((string)$search_query);
+        if ($search_query === '') {
+            return false;
+        }
+
+        $page = max(1, (int)$page);
+        $limit = max(1, (int)$limit);
+        $offset = ($page - 1) * $limit;
+
+        $escaped = mysqli_real_escape_string($this->con, $search_query);
+
+        $sql = "SELECT s.*,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia_moi,
+                       (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as so_luong_kho,
+                       (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
+                       dm.ten_danh_muc, th.ten_thuong_hieu
+                FROM san_pham s
+                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                WHERE s.ten_san_pham LIKE '%$escaped%'
+                   OR s.ma_san_pham LIKE '%$escaped%'
+                ORDER BY CAST(SUBSTRING(s.ma_san_pham, 3) AS UNSIGNED) DESC
+                LIMIT $limit OFFSET $offset";
+
+        return mysqli_query($this->con, $sql);
+    }
+
+    function SanPham_countSearchStorefront($search_query)
+    {
+        $search_query = trim((string)$search_query);
+        if ($search_query === '') {
+            return 0;
+        }
+
+        $escaped = mysqli_real_escape_string($this->con, $search_query);
+        $sql = "SELECT COUNT(*) as total
+                FROM san_pham s
+                WHERE s.ten_san_pham LIKE '%$escaped%'
+                   OR s.ma_san_pham LIKE '%$escaped%'";
+
+        $result = mysqli_query($this->con, $sql);
+        if (!$result) {
+            return 0;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return (int)($row['total'] ?? 0);
+    }
+
+    function SanPham_getSearchSuggestions($search_query, $limit = 8)
+    {
+        $search_query = trim((string)$search_query);
+        if ($search_query === '') {
+            return false;
+        }
+
+        $limit = max(1, min(20, (int)$limit));
+        $escaped = mysqli_real_escape_string($this->con, $search_query);
+
+        $sql = "SELECT s.ma_san_pham,
+                       s.ten_san_pham,
+                       (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the
+                FROM san_pham s
+                WHERE s.ten_san_pham LIKE '%$escaped%'
+                   OR s.ma_san_pham LIKE '%$escaped%'
+                ORDER BY CHAR_LENGTH(s.ten_san_pham), s.ten_san_pham ASC
+                LIMIT $limit";
+
+        return mysqli_query($this->con, $sql);
+    }
+
+    function SanPham_getStorefrontDetail($ma_san_pham)
+    {
+        $ma_san_pham = mysqli_real_escape_string($this->con, trim((string)$ma_san_pham));
+        if ($ma_san_pham === '') {
+            return false;
+        }
+
+        $sql = "SELECT s.*,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia,
+                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia_moi,
+                       (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as so_luong_kho,
+                       (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
+                       dm.ten_danh_muc, th.ten_thuong_hieu
+                FROM san_pham s
+                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                WHERE s.ma_san_pham = '$ma_san_pham'
+                LIMIT 1";
+
+        return mysqli_query($this->con, $sql);
+    }
     
     // Hàm lấy tổng số lượng sản phẩm
     function SanPham_getTotalCount()

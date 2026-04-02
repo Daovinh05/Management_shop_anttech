@@ -730,6 +730,76 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         font-size: 16px;
         color: #d70018;
     }
+
+    .no-results-box {
+        grid-column: 1 / -1;
+        background: #fff;
+        border: 1px solid #ebebeb;
+        border-radius: 10px;
+        padding: 28px 22px;
+    }
+
+    .no-results-title {
+        font-size: 28px;
+        color: #c7c7c7;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .no-results-box h3 {
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .no-results-box p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-title {
+        margin-top: 18px;
+        margin-bottom: 12px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .suggestion-products {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        padding-bottom: 6px;
+    }
+
+    .suggestion-product {
+        text-decoration: none;
+        color: inherit;
+        text-align: center;
+        min-width: 140px;
+        max-width: 140px;
+        flex: 0 0 140px;
+    }
+
+    .suggestion-product img {
+        width: 100%;
+        height: 110px;
+        object-fit: contain;
+        border: 1px solid #efefef;
+        border-radius: 8px;
+        padding: 8px;
+        background: #fafafa;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-product-name {
+        font-size: 12px;
+        color: #444;
+        line-height: 1.35;
+        height: 32px;
+        overflow: hidden;
+    }
     
     /* Pagination Styles */
     .pagination {
@@ -954,23 +1024,6 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 </div>
 
 <script>
-    // Lấy các phần tử
-    const accountBtn = document.getElementById('accountBtn');
-    const accountMenu = document.getElementById('accountMenu');
-
-    // Toggle Account Menu
-    accountBtn.addEventListener('click', function(event) {
-        event.stopPropagation();
-        accountMenu.classList.toggle('active');
-    });
-
-    // Close when clicking outside
-    window.addEventListener('click', function(event) {
-        if (!accountBtn.contains(event.target)) {
-            accountMenu.classList.remove('active');
-        }
-    });
-
     const STOREFRONT_API_BASE = '<?php echo UrlHelper::url("Api/Storefront"); ?>';
 
     // Variables to store current filter selections
@@ -978,6 +1031,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     let currentPriceRange = '';
     let currentBrand = '';
     let currentPage = 1;
+    let currentSearchKeyword = '';
     const pageSize = 12;
 
     // Handle price filter selection
@@ -1037,6 +1091,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         if (currentCategory) params.set('category_id', currentCategory);
         if (currentPriceRange) params.set('price_range', currentPriceRange);
         if (currentBrand) params.set('brand_id', currentBrand);
+        if (currentSearchKeyword) params.set('q', currentSearchKeyword);
 
         return `${STOREFRONT_API_BASE}?${params.toString()}`;
     }
@@ -1067,7 +1122,11 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
                 updateProductGrid(items);
                 updatePagination(pagination);
-                document.querySelector('.results-count').textContent = `Tìm thấy ${pagination.total || 0} kết quả`;
+                const resultCountEl = document.querySelector('.results-count');
+                if (resultCountEl) {
+                    const suffix = currentSearchKeyword ? ` cho "${currentSearchKeyword}"` : '';
+                    resultCountEl.textContent = `Tìm thấy ${pagination.total || 0} kết quả${suffix}`;
+                }
             })
             .catch(error => {
                 console.error('Error details:', error);
@@ -1139,6 +1198,98 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 fetchStorefrontProducts();
             });
         });
+    }
+
+    function rankSuggestionProducts(products, maxItems) {
+        if (!Array.isArray(products)) {
+            return [];
+        }
+
+        const strong = [];
+        const normal = [];
+
+        products.forEach(product => {
+            const hasImage = !!(product && product.img_bien_the);
+            const inStock = Number(product && product.so_luong_kho ? product.so_luong_kho : 0) > 0;
+            const hasName = !!(product && String(product.ten_san_pham || '').trim().length >= 4);
+
+            if (!hasName) {
+                return;
+            }
+
+            if (hasImage && inStock) {
+                strong.push(product);
+            } else {
+                normal.push(product);
+            }
+        });
+
+        return strong.concat(normal).slice(0, maxItems);
+    }
+
+    function renderNoResultSuggestions(products) {
+        const productGrid = document.querySelector('.product-grid');
+        if (!productGrid) {
+            return;
+        }
+
+        const keywordSafe = (currentSearchKeyword || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let suggestionsHtml = '';
+
+        const rankedProducts = rankSuggestionProducts(products, 7);
+
+        if (rankedProducts.length > 0) {
+            const baseUrl = '<?php echo UrlHelper::url(); ?>';
+            suggestionsHtml += '<div class="suggestion-title">Một số gợi ý tìm kiếm:</div>';
+            suggestionsHtml += '<div class="suggestion-products">';
+
+            rankedProducts.forEach(product => {
+                const href = `<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>${product.ma_san_pham || ''}`;
+                const img = product.img_bien_the
+                    ? `${baseUrl}Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}`
+                    : `${baseUrl}Public/Images/no-image.png`;
+
+                suggestionsHtml += `
+                    <a href="${href}" class="suggestion-product">
+                        <img src="${img}" alt="${product.ten_san_pham || ''}" onerror="this.onerror=null;this.src='${baseUrl}Public/Images/no-image.png';">
+                        <div class="suggestion-product-name">${product.ten_san_pham || ''}</div>
+                    </a>
+                `;
+            });
+
+            suggestionsHtml += '</div>';
+        }
+
+        productGrid.innerHTML = `
+            <div class="no-results-box">
+                <div class="no-results-title"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3>Không tìm thấy sản phẩm nào</h3>
+                <p>Chúng tôi không tìm thấy sản phẩm nào phù hợp với từ khóa "<strong>${keywordSafe}</strong>"</p>
+                <p>Vui lòng thử lại với từ khóa khác</p>
+                ${suggestionsHtml}
+            </div>
+        `;
+    }
+
+    function fetchNoResultSuggestions() {
+        const recommendationUrl = `${STOREFRONT_API_BASE}?page=1&limit=20`;
+
+        fetch(recommendationUrl, { method: 'GET' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch suggestions');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const items = data && data.success && data.data && Array.isArray(data.data.items)
+                    ? data.data.items
+                    : [];
+                renderNoResultSuggestions(items);
+            })
+            .catch(() => {
+                renderNoResultSuggestions([]);
+            });
     }
 
     // Function to update the product grid with new data
@@ -1225,7 +1376,11 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 productGrid.appendChild(productCard);
             });
         } else {
-            productGrid.innerHTML = '<p class="no-products">Không tìm thấy sản phẩm nào phù hợp.</p>';
+            if (currentSearchKeyword) {
+                fetchNoResultSuggestions();
+            } else {
+                productGrid.innerHTML = '<p class="no-products">Không tìm thấy sản phẩm nào phù hợp.</p>';
+            }
         }
     }
 
@@ -1233,7 +1388,11 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const p = parseInt(urlParams.get('page') || '1', 10);
+        const q = (urlParams.get('q') || '').trim();
+
         currentPage = Number.isNaN(p) || p < 1 ? 1 : p;
+        currentSearchKeyword = q;
+
         fetchStorefrontProducts();
     });
 </script>
