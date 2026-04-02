@@ -165,51 +165,13 @@ class Khachhang extends controller
     // Thêm vào giỏ hàng
     function themvaogio($ma_bien_the)
     {
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . $this->url('Login'));
-            exit;
-        }
-
-        $ma_user = $_SESSION['user_id'];
-
-        $so_luong_them = isset($_POST['so_luong']) ? (int)$_POST['so_luong'] : 1;
-
-        // Kiểm tra xem đã có giỏ hàng chưa, nếu chưa thì tạo mới
-        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-        $row = mysqli_fetch_assoc($gio_hang);
-
-        if (!$row) {
-            // Tạo giỏ hàng mới
-            $ma_gio_hang = $this->gh->getNextCartId(); // Tạo mã giỏ hàng duy nhất theo thứ tự tăng dần
-            $this->gh->giohang_ins($ma_gio_hang, $ma_user);
-        } else {
-            $ma_gio_hang = $row['ma_gio_hang'];
-        }
-
-        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        $ctgh_check = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-        $found = false;
-
-        while ($ct_row = mysqli_fetch_assoc($ctgh_check)) {
-            if ($ct_row['ma_bien_the'] == $ma_bien_the) {
-                // Nếu đã có, tăng số lượng lên 1
-                $new_so_luong = $ct_row['so_luong'] + $so_luong_them;
-                $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $new_so_luong);
-                $found = true;
-                break;
-            }
-        }
-
-        // Nếu chưa có, thêm mới vào giỏ hàng
-        if (!$found) {
-            $this->ctgh->chitietgiohang_ins($ma_gio_hang, $ma_bien_the, $so_luong_them);
-        }
-
-        // Quay lại trang trước đó
-        if (!isset($_POST['so_luong'])) {
-            header('Location: ' . $_SERVER['HTTP_REFERER']);
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung POST /Api/Cart'
+        ]);
+        return;
     }
 
     // Hiển thị giỏ hàng
@@ -219,81 +181,33 @@ class Khachhang extends controller
             header('Location: ' . $this->url('Login'));
             exit;
         }
-
-        $ma_user = $_SESSION['user_id'];
-
-        // Lấy giỏ hàng của người dùng
-        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-        $row = mysqli_fetch_assoc($gio_hang);
-
-        $detailed_cart = []; // Mảng chứa dữ liệu đầy đủ chi tiết
-
-        if ($row) {
-            $ma_gio_hang = $row['ma_gio_hang'];
-            // Lấy danh sách sản phẩm thô trong giỏ
-            $result = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-
-            if ($result) {
-                while ($ct = mysqli_fetch_assoc($result)) {
-                    // 1. Lấy chi tiết BIẾN THỂ (để có Màu, RAM, Dung lượng...)
-                    $bt_query = $this->bt->BienThe_getById($ct['ma_bien_the']);
-                    $bt_info = mysqli_fetch_assoc($bt_query);
-
-                    // 2. Lấy chi tiết SẢN PHẨM (để có Tên, Ảnh gốc)
-                    $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
-                    $sp_info = mysqli_fetch_assoc($sp_query);
-
-                    // 3. Gộp dữ liệu vào mảng item
-                    $item = $ct; // Bắt đầu với dữ liệu giỏ hàng (số lượng...)
-
-                    // Bổ sung thông tin từ bảng Sản Phẩm
-                    $item['ten_san_pham'] = $sp_info['ten_san_pham'];
-
-                    // Bổ sung thông tin từ bảng Biến Thể (QUAN TRỌNG)
-                    $item['ten_bien_the'] = $bt_info['ten_bien_the'];
-                    $item['mau_sac'] = $bt_info['mau_sac'];
-                    $item['dung_luong'] = $bt_info['dung_luong'];
-                    $item['ram'] = $bt_info['ram'];
-                    $item['gia'] = $bt_info['gia']; // Lấy giá hiện tại
-                    $item['img_bien_the'] = $bt_info['img_bien_the']; // Ảnh riêng của biến thể
-
-                    $detailed_cart[] = $item;
-                }
-            }
-        }
-
-        // Truyền biến 'detailed_cart' sang View
         $this->view('Khachhang_Master', [
-            'page' => 'Khachhang/khachhang_giohang',
-            'detailed_cart' => $detailed_cart
+            'page' => 'Khachhang/khachhang_giohang'
         ]);
     }
 
     // Cập nhật số lượng trong giỏ hàng
     function capnhatgiohang()
     {
-        if (isset($_POST['update_cart'])) {
-            $ma_gio_hang = $_POST['ma_gio_hang'];
-            $ma_bien_the = $_POST['ma_bien_the'];
-            $so_luong = $_POST['so_luong'];
-
-            if ($so_luong <= 0) {
-                // Nếu số lượng <= 0 thì xóa sản phẩm khỏi giỏ
-                $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ma_bien_the);
-            } else {
-                // Cập nhật số lượng
-                $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $so_luong);
-            }
-
-            header('Location: ' . $this->url('Khachhang/giohang'));
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung PATCH /Api/Cart/update/{ma_bien_the}'
+        ]);
+        return;
     }
 
     // Xóa sản phẩm khỏi giỏ hàng
     function xoakhoigio($ma_gio_hang, $ma_bien_the)
     {
-        $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ma_bien_the);
-        header('Location: ' . $this->url('Khachhang/giohang'));
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung DELETE /Api/Cart/{ma_bien_the}'
+        ]);
+        return;
     }
 
     // Tiến hành thanh toán
@@ -1248,60 +1162,13 @@ class Khachhang extends controller
     // Lấy dữ liệu giỏ hàng dưới dạng JSON
     function getgiohang()
     {
-        header('Content-Type: application/json');
-
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['cart' => []]);
-            return;
-        }
-
-        $ma_user = $_SESSION['user_id'];
-
-        // Lấy giỏ hàng của người dùng
-        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-        $row = mysqli_fetch_assoc($gio_hang);
-
-        if ($row) {
-            $ma_gio_hang = $row['ma_gio_hang'];
-            $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-
-            $cart_items = [];
-            while ($ct = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
-                // Lấy thông tin biến thể và sản phẩm
-                $bien_the = $this->bt->BienThe_getById($ct['ma_bien_the']);
-                $bt_info = mysqli_fetch_assoc($bien_the);
-
-                $san_pham = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
-                $sp_info = mysqli_fetch_assoc($san_pham);
-
-                // Tạo đường dẫn hình ảnh
-                $img_url = !empty($bt_info['img_bien_the'])
-                    ? BASE_URL . 'Public/Pictures/bien_the/' . htmlspecialchars($bt_info['img_bien_the'])
-                    : (!empty($sp_info['img_hinh_anh'])
-                        ? BASE_URL . 'Public/Pictures/sanpham/' . htmlspecialchars($sp_info['img_hinh_anh'])
-                        : BASE_URL . 'Public/Images/no-image.png');
-
-                // Tạo tên biến thể
-                $variant_parts = [];
-                if (!empty($bt_info['mau_sac'])) $variant_parts[] = $bt_info['mau_sac'];
-                if (!empty($bt_info['dung_luong'])) $variant_parts[] = $bt_info['dung_luong'];
-                if (!empty($bt_info['ram'])) $variant_parts[] = $bt_info['ram'];
-                $variant_name = !empty($variant_parts) ? implode(' - ', $variant_parts) : $bt_info['ten_bien_the'];
-
-                $cart_items[] = [
-                    'ma_bien_the' => $ct['ma_bien_the'],
-                    'img' => $img_url,
-                    'name' => $sp_info['ten_san_pham'],
-                    'variant' => $variant_name,
-                    'quantity' => (int)$ct['so_luong'], // <-- Thêm (int) để ép kiểu số
-                    'price' => (int)$bt_info['gia']     // <-- Nên ép kiểu giá tiền luôn cho chắc
-                ];
-            }
-
-            echo json_encode(['cart' => $cart_items]);
-        } else {
-            echo json_encode(['cart' => []]);
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Cart'
+        ]);
+        return;
     }
 
     // Thêm đánh giá cho sản phẩm
@@ -1359,82 +1226,25 @@ class Khachhang extends controller
 
     function capnhatgiohang_ajax()
     {
-        header('Content-Type: application/json');
-
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
-            return;
-        }
-
-        if (isset($_POST['ma_bien_the']) && isset($_POST['so_luong'])) {
-            $ma_user = $_SESSION['user_id'];
-            $ma_bien_the = $_POST['ma_bien_the'];
-            $so_luong = (int)$_POST['so_luong'];
-
-            $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-            $row = mysqli_fetch_assoc($gio_hang);
-
-            if ($row) {
-                $ma_gio_hang = $row['ma_gio_hang'];
-
-                if ($so_luong <= 0) {
-                     echo json_encode(['success' => false, 'message' => 'Số lượng phải lớn hơn 0']);
-                     return;
-                } else {
-                    // Cập nhật số lượng mới vào DB
-                    $result = $this->ctgh->ChiTietGioHang_update($ma_gio_hang, $ma_bien_the, $so_luong);
-                    
-                    if($result) {
-                        // --- [THÊM ĐOẠN NÀY] Tính lại tổng số lượng trong giỏ ---
-                        $total_qty = 0;
-                        $items = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-                        if ($items) {
-                            while ($item = mysqli_fetch_assoc($items)) {
-                                $total_qty += $item['so_luong'];
-                            }
-                        }
-                        // Trả về thêm 'new_total_qty'
-                        echo json_encode(['success' => true, 'new_total_qty' => $total_qty]);
-                        // --------------------------------------------------------
-                    } else {
-                         echo json_encode(['success' => false, 'message' => 'Lỗi khi cập nhật database']);
-                    }
-                }
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Không tìm thấy giỏ hàng']);
-            }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu']);
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung PATCH /Api/Cart/update/{ma_bien_the}'
+        ]);
+        return;
     }
 
 
     function xoakhoigio_ajax($ma_bien_the)
     {
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
-            return;
-        }
-
-        $ma_user = $_SESSION['user_id'];
-        
-        // Lấy giỏ hàng của user
-        $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-        $row = mysqli_fetch_assoc($gio_hang);
-
-        if ($row) {
-            $ma_gio_hang = $row['ma_gio_hang'];
-            // Gọi model để xóa
-            $result = $this->ctgh->ChiTietGioHang_delete($ma_gio_hang, $ma_bien_the);
-            
-            if ($result) {
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Lỗi database']);
-            }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Không tìm thấy giỏ hàng']);
-        }
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung DELETE /Api/Cart/{ma_bien_the}'
+        ]);
+        return;
     }
 
     // Tìm kiếm sản phẩm

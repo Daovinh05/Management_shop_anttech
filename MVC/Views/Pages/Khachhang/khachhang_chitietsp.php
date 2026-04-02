@@ -2026,6 +2026,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         }
 
         // --- 3. LOGIC GIỎ HÀNG (MỚI & QUAN TRỌNG) ---
+        var CART_API_BASE = "<?php echo $this->url('Api/Cart'); ?>";
 
         // Hàm mở/đóng Sidebar
         function toggleCart() {
@@ -2062,53 +2063,54 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             var ma_bien_the = selectedVariantInput.value;
             var quantity = parseInt(document.getElementById('quantityInput').value);
 
-            // Gọi AJAX để thêm vào giỏ hàng trên server
+            // Gọi REST API để thêm vào giỏ hàng
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "<?php echo $this->url('Khachhang/themvaogio/'); ?>" + ma_bien_the, true);
+            xhr.open("POST", CART_API_BASE, true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    // Sau khi thêm thành công, cập nhật lại giỏ hàng từ server
-                    updateCartFromServer();
-
-                    // Hiển thị sidebar giỏ hàng
-                    var overlay = document.querySelector('.cart-overlay');
+                if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
+                    // Hiển thị sidebar giỏ hàng va chi refresh 1 lan de tranh goi API trung lap
                     var sidebar = document.querySelector('.cart-sidebar');
                     if (!sidebar.classList.contains('active')) {
+                        // toggleCart (tu master) se tu goi loadMiniCartFromApi() khi mo sidebar
                         toggleCart();
+                    } else {
+                        // Neu sidebar dang mo thi refresh thu cong 1 lan
+                        updateCartFromServer();
                     }
                 } else if (xhr.readyState === 4) {
-                    // Nếu có lỗi, vẫn hiển thị sidebar với thông báo lỗi (nếu cần)
-                    updateCartFromServer();
-
-                    var overlay = document.querySelector('.cart-overlay');
+                    if (xhr.status === 401) {
+                        alert("Ban can dang nhap de them vao gio hang");
+                        window.location.href = '<?php echo $this->url('Login'); ?>';
+                        return;
+                    }
+                    // Neu loi thi chi mo sidebar (neu dang dong) de tranh GET trung lap
                     var sidebar = document.querySelector('.cart-sidebar');
                     if (!sidebar.classList.contains('active')) {
                         toggleCart();
                     }
                 }
             };
-            xhr.send("so_luong=" + encodeURIComponent(quantity));
+            xhr.send("ma_bien_the=" + encodeURIComponent(ma_bien_the) + "&so_luong=" + encodeURIComponent(quantity));
         }
 
         // Hàm cập nhật giỏ hàng từ server
         function updateCartFromServer() {
-            // Gọi AJAX để lấy dữ liệu giỏ hàng mới từ server
+            // Gọi REST API để lấy dữ liệu giỏ hàng mới
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", "<?php echo $this->url('Khachhang/getgiohang'); ?>", true);
+            xhr.open("GET", CART_API_BASE, true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
                     // Cập nhật mảng cart với dữ liệu từ server
-                    cart = response.cart;
+                    cart = (response && response.data && response.data.items) ? response.data.items : [];
                     // Cập nhật giao diện giỏ hàng
                     renderCart();
 
                     // Cập nhật số lượng trên badge trong header
                     var totalQuantity = 0;
                     cart.forEach(item => {
-                        totalQuantity += parseInt(item.quantity); 
-                        totalPrice += (item.price * parseInt(item.quantity));
+                        totalQuantity += parseInt(item.quantity || 0);
                     });
 
                     // Cập nhật badge trong header (sử dụng ID duy nhất)
@@ -2125,10 +2127,9 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         function removeFromCart(ma_bien_the) {
             if(!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
 
-            // Gọi AJAX để xóa trong Database
+            // Gọi REST API để xóa item giỏ hàng
             var xhr = new XMLHttpRequest();
-            // Gọi đến hàm mới chúng ta vừa tạo ở Controller
-            xhr.open("POST", "<?php echo $this->url('Khachhang/xoakhoigio_ajax/'); ?>" + ma_bien_the, true);
+            xhr.open("DELETE", CART_API_BASE + "/" + encodeURIComponent(ma_bien_the), true);
             
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
@@ -2154,8 +2155,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             var totalPrice = 0;
 
             cart.forEach(item => {
-                totalQuantity += item.quantity;
-                totalPrice += (item.price * item.quantity);
+                totalQuantity += parseInt(item.quantity || 0);
+                totalPrice += ((item.price || 0) * parseInt(item.quantity || 0));
             });
 
             // Cập nhật badge trong header (element có ID 'cartBadge')

@@ -71,6 +71,14 @@ class GioHang_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Hàm lấy giỏ hàng active theo người dùng
+    function GioHang_getActiveByUser($ma_user)
+    {
+        $ma_user = mysqli_real_escape_string($this->con, $ma_user);
+        $sql = "SELECT * FROM gio_hang WHERE ma_user = '$ma_user' AND trang_thai = 'active' ORDER BY ngay_tao DESC LIMIT 1";
+        return mysqli_query($this->con, $sql);
+    }
+
     // Hàm lấy mã giỏ hàng tiếp theo theo thứ tự tăng dần
     function getNextCartId() {
         $sql = "SELECT ma_gio_hang FROM gio_hang WHERE ma_gio_hang LIKE 'GH%' ORDER BY LENGTH(ma_gio_hang), ma_gio_hang DESC LIMIT 1";
