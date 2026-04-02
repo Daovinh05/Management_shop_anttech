@@ -175,7 +175,7 @@
 
 
 
-            <form method="post" action="<?php echo BASE_URL; ?>Login/process">
+            <form id="loginForm" method="post" action="<?php echo BASE_URL; ?>Api/Auth/login">
                 <div class="form-group">
                     <label>Tài khoản</label>
                     <input type="text" name="username" placeholder="Nhập tài khoản" required>
@@ -193,7 +193,7 @@
                 <?php unset($_SESSION['error']);
                 endif; ?>
 
-                <button class="btn">Đăng nhập</button>
+                <button class="btn" type="submit">Đăng nhập</button>
             </form>
 
             <div style="text-align: center; margin-top: 15px;">
@@ -222,5 +222,45 @@
     </div>
 
 </body>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch('<?php echo BASE_URL; ?>Api/Auth/login', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json().catch(() => ({
+                success: false,
+                error: 'Phan hoi API khong hop le'
+            })))
+            .then(data => {
+                form.querySelector('.error')?.remove();
+
+                if (data.success) {
+                    window.location.href = data.redirect || '<?php echo BASE_URL; ?>Khachhang';
+                    return;
+                }
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = data.error || data.message || 'Dang nhap that bai';
+                form.appendChild(errorDiv);
+            })
+            .catch(() => {
+                form.querySelector('.error')?.remove();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = 'Co loi xay ra khi dang nhap';
+                form.appendChild(errorDiv);
+            });
+    });
+</script>
 
 </html>
