@@ -96,9 +96,9 @@
             <div>
                 <label>Phân quyền</label>
                 <select name="ddlPhanquyen">
-                    <option value="nhan_vien"
+                    <!-- <option value="nhan_vien"
                         <?php echo (isset($data['phan_quyen']) && $data['phan_quyen'] == 'nhan_vien') ? 'selected' : ''; ?>>
-                        Nhân viên</option>
+                        Nhân viên</option> -->
                     <option value="admin"
                         <?php echo (isset($data['phan_quyen']) && $data['phan_quyen'] == 'admin') ? 'selected' : ''; ?>>
                         Admin

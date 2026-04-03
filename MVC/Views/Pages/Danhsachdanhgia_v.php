@@ -312,7 +312,7 @@
                 const stars = '★'.repeat(Math.max(0, Math.min(5, soSao))) + '☆'.repeat(Math.max(0, 5 - Math.max(0, Math.min(5, soSao))));
 
                 return '<tr>'
-                    + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                    + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                     + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(ma) + '</span></td>'
                     + '<td>' + escapeHtml(row.full_name || '') + '</td>'
                     + '<td>' + escapeHtml(row.ten_san_pham || '') + '</td>'

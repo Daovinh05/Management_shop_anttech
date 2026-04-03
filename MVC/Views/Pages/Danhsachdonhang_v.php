@@ -753,6 +753,7 @@
         margin-bottom: 4px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -986,7 +987,7 @@
                     const orderIdAttr = escapeHtml(String(ma));
 
                     return '<tr>'
-                        + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                        + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                         + '<td>' + escapeHtml(ma) + '</td>'
                         + '<td><div style="font-weight: 500;">' + escapeHtml(row.full_name || '') + '</div>'
                         + '<div style="font-size: 13px; color: #666; margin-top: 2px;"><i class="fa-solid fa-phone" style="font-size: 11px;"></i> '

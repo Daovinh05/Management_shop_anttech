@@ -341,7 +341,7 @@
             const ma = row.ma_user || '';
             const avatarUrl = getAvatarUrl(row.avatar || '');
             return '<tr>'
-                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                     + '<td><img class="avatar" src="' + avatarUrl + '" alt="Avatar" loading="lazy" /></td>'
                 + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(ma) + '</span></td>'
                 + '<td>' + escapeHtml(row.full_name || '') + '</td>'

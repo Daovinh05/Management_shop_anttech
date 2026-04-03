@@ -13,7 +13,7 @@ class app
 
         $arr = $this->processURL();
         $is_api = false;
-        $controller_dir = '/../Controllers/';
+        $controller_dir = '/../Controllers/Web/';
 
         if ($arr != null && strtolower($arr[0]) === 'api') {
             $is_api = true;

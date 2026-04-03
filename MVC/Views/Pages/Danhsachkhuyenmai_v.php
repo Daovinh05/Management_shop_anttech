@@ -377,7 +377,7 @@
         tbody.innerHTML = items.map((row, index) => {
             const ma = row.ma_khuyen_mai || '';
             return '<tr>'
-                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                 + '<td>' + escapeHtml(ma) + '</td>'
                 + '<td>' + escapeHtml(row.ten_khuyen_mai || '') + '</td>'
                 + '<td>' + formatCurrency(row.tien_khuyen_mai || 0) + '</td>'
