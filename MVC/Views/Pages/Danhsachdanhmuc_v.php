@@ -370,7 +370,7 @@
             const tenDanhMuc = row.ten_danh_muc || '';
 
             return '<tr>'
-                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                 + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(maDanhMuc) + '</span></td>'
                 + '<td>' + escapeHtml(tenDanhMuc) + '</td>'
                 + '<td>' + formatDateTime(row.ngay_tao || '') + '</td>'
