@@ -370,7 +370,7 @@
             const tenThuongHieu = row.ten_thuong_hieu || '';
 
             return '<tr>'
-                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                 + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(maThuongHieu) + '</span></td>'
                 + '<td>' + escapeHtml(tenThuongHieu) + '</td>'
                 + '<td>' + formatDateTime(row.ngay_tao || '') + '</td>'

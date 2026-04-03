@@ -293,11 +293,11 @@
                     <?php
 
                         if ($count > 0) {
-                            $serial = 1;
+                            $serial = $count + 1;
                             while ($row = mysqli_fetch_array($data['dulieu'])) {
                         ?>
                     <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
+                        <td><span style="font-weight:600;color:var(--accent)"><?php echo --$serial; ?></span>
                         </td>
                         <td><?php echo htmlspecialchars($row['ma_san_pham']) ?></td>
                         <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
@@ -423,7 +423,7 @@
                 : '<span style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">Hết hàng</span>';
 
             return '<tr>'
-                + '<td><span style="font-weight:600;color:var(--accent)">' + (index + 1) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
                 + '<td>' + escapeHtml(row.ma_san_pham || '') + '</td>'
                 + '<td>' + escapeHtml(row.ten_san_pham || '') + '</td>'
                 + '<td>' + escapeHtml(row.ten_bien_the || '') + '</td>'
