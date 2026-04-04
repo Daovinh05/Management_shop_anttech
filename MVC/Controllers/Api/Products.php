@@ -488,6 +488,14 @@ class Products extends api_controller {
             $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy sản phẩm có mã: ' . $id]);
         }
 
+        // Chặn xóa nếu sản phẩm đã phát sinh trong chi tiết đơn hàng
+        if ($this->sanpham_model->SanPham_hasOrderDetails($id)) {
+            $this->sendResponse(409, [
+                'success' => false,
+                'message' => 'Không thể xóa vì sản phẩm ' . $id . ' đã có trong chi tiết đơn hàng.'
+            ]);
+        }
+
         // Thực thi xóa
         $delete_result = $this->sanpham_model->SanPham_delete($id);
 

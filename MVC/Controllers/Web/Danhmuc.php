@@ -161,6 +161,11 @@ class Danhmuc extends controller
 
     function xoa($ma_danh_muc)
     {
+        if ($this->dm->DanhMuc_hasProducts($ma_danh_muc)) {
+            echo "<script>alert('Không thể xóa vì đang có sản phẩm thuộc Danh mục " . $ma_danh_muc . "'); window.location='" . $this->url('Danhmuc/danhsach') . "';</script>";
+            return;
+        }
+
         $kq = $this->dm->Danhmuc_delete($ma_danh_muc);
         if ($kq)
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Danhmuc/danhsach') . "';</script>"; // Chuyển về trang danh sách

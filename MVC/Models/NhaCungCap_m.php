@@ -56,6 +56,21 @@ class NhaCungCap_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Kiểm tra nhà cung cấp có đang được sản phẩm sử dụng không
+    function NhaCungCap_hasProducts($ma_nha_cung_cap)
+    {
+        $ma_nha_cung_cap = mysqli_real_escape_string($this->con, $ma_nha_cung_cap);
+        $sql = "SELECT COUNT(*) AS total FROM san_pham WHERE ma_nha_cung_cap = '$ma_nha_cung_cap'";
+        $result = mysqli_query($this->con, $sql);
+
+        if (!$result) {
+            return false;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return isset($row['total']) && (int)$row['total'] > 0;
+    }
+
     // Hàm lấy tất cả nhà cung cấp
     function NhaCungCap_getAll()
     {

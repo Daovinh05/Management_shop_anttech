@@ -132,6 +132,8 @@ class SanPham_m extends connectDB
     // Hàm xóa sản phẩm
     function SanPham_delete($ma_san_pham)
     {
+        $ma_san_pham = mysqli_real_escape_string($this->con, $ma_san_pham);
+
         // Xóa các biến thể liên quan trước
         $delete_variants_sql = "DELETE FROM bien_the WHERE ma_san_pham = '$ma_san_pham'";
         mysqli_query($this->con, $delete_variants_sql);
@@ -139,6 +141,24 @@ class SanPham_m extends connectDB
         // Sau đó xóa sản phẩm
         $sql = "DELETE FROM san_pham WHERE ma_san_pham = '$ma_san_pham'";
         return mysqli_query($this->con, $sql);
+    }
+
+    // Kiểm tra sản phẩm đã phát sinh chi tiết đơn hàng hay chưa
+    function SanPham_hasOrderDetails($ma_san_pham)
+    {
+        $ma_san_pham = mysqli_real_escape_string($this->con, $ma_san_pham);
+        $sql = "SELECT COUNT(*) AS total
+                FROM chi_tiet_don_hang ctdh
+                INNER JOIN bien_the bt ON ctdh.ma_bien_the = bt.ma_bien_the
+                WHERE bt.ma_san_pham = '$ma_san_pham'";
+
+        $result = mysqli_query($this->con, $sql);
+        if (!$result) {
+            return false;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return isset($row['total']) && (int)$row['total'] > 0;
     }
 
     // Hàm lấy tất cả sản phẩm với thông tin danh mục, thương hiệu, nhà cung cấp

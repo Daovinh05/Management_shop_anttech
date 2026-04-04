@@ -215,6 +215,13 @@ class Nhacungcap extends api_controller {
             $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy nhà cung cấp có mã: ' . $id]);
         }
 
+        if ($this->nhacungcap_model->NhaCungCap_hasProducts($id)) {
+            $this->sendResponse(409, [
+                'success' => false,
+                'message' => 'Không thể xóa vì đang có sản phẩm thuộc Nhà cung cấp "' . $id . '"'
+            ]);
+        }
+
         $deleteResult = $this->nhacungcap_model->NhaCungCap_delete($id);
         if (!$deleteResult) {
             $this->sendResponse(500, [
