@@ -536,7 +536,11 @@ class Checkout extends api_controller {
             $this->sendResponse(409, ['success' => false, 'message' => 'Chi co the huy don o trang thai cho_duyet']);
         }
 
-        $ok = $this->dh->DonHang_updateStatus($ma_don_hang, $status);
+        if ($status === 'da_huy' && ($order['trang_thai_don_hang'] ?? '') !== 'da_huy') {
+            $ok = $this->dh->DonHang_cancelWithRestock($ma_don_hang);
+        } else {
+            $ok = $this->dh->DonHang_updateStatus($ma_don_hang, $status);
+        }
         if (!$ok) {
             $this->sendResponse(500, ['success' => false, 'message' => 'Khong the cap nhat don hang']);
         }
@@ -590,7 +594,7 @@ class Checkout extends api_controller {
             $this->sendResponse(409, ['success' => false, 'message' => 'Chi huy duoc don o trang thai cho_duyet']);
         }
 
-        $ok = $this->dh->DonHang_updateStatus($ma_don_hang, 'da_huy');
+        $ok = $this->dh->DonHang_cancelWithRestock($ma_don_hang);
         if (!$ok) {
             $this->sendResponse(500, ['success' => false, 'message' => 'Khong the huy don']);
         }
