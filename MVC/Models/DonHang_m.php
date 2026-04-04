@@ -345,6 +345,50 @@ class DonHang_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Hủy đơn và hoàn lại tồn kho biến thể theo chi tiết đơn hàng
+    function DonHang_cancelWithRestock($ma_don_hang)
+    {
+        $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
+
+        mysqli_begin_transaction($this->con);
+
+        try {
+            $sqlUpdateOrder = "UPDATE don_hang SET trang_thai_don_hang = 'da_huy' WHERE ma_don_hang = '$ma_don_hang'";
+            if (!mysqli_query($this->con, $sqlUpdateOrder)) {
+                mysqli_rollback($this->con);
+                return false;
+            }
+
+            $sqlDetails = "SELECT ma_bien_the, so_luong FROM chi_tiet_don_hang WHERE ma_don_hang = '$ma_don_hang'";
+            $detailsResult = mysqli_query($this->con, $sqlDetails);
+            if (!$detailsResult) {
+                mysqli_rollback($this->con);
+                return false;
+            }
+
+            while ($detail = mysqli_fetch_assoc($detailsResult)) {
+                $ma_bien_the = mysqli_real_escape_string($this->con, $detail['ma_bien_the'] ?? '');
+                $so_luong = (int)($detail['so_luong'] ?? 0);
+
+                if ($ma_bien_the === '' || $so_luong <= 0) {
+                    continue;
+                }
+
+                $sqlRestoreStock = "UPDATE bien_the SET so_luong_kho = so_luong_kho + $so_luong WHERE ma_bien_the = '$ma_bien_the'";
+                if (!mysqli_query($this->con, $sqlRestoreStock)) {
+                    mysqli_rollback($this->con);
+                    return false;
+                }
+            }
+
+            mysqli_commit($this->con);
+            return true;
+        } catch (Exception $e) {
+            mysqli_rollback($this->con);
+            return false;
+        }
+    }
+
     // Hàm cập nhật trạng thái đơn hàng thành hoàn thành sau khi thanh toán thành công
     function DonHang_updateStatusToComplete($ma_don_hang) {
         $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);

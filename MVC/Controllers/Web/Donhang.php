@@ -390,8 +390,22 @@ class Donhang extends controller
         $orderId = $input['orderId'];
         $status = $input['status'];
 
+        $currentOrderResult = $this->dh->DonHang_getById($orderId);
+        if (!$currentOrderResult || mysqli_num_rows($currentOrderResult) === 0) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Không tìm thấy đơn hàng']);
+            exit();
+        }
+
+        $currentOrder = mysqli_fetch_assoc($currentOrderResult);
+        $currentStatus = $currentOrder['trang_thai_don_hang'] ?? '';
+
         // Cập nhật trạng thái đơn hàng
-        $result = $this->dh->DonHang_updateStatus($orderId, $status);
+        if ($status === 'da_huy' && $currentStatus !== 'da_huy') {
+            $result = $this->dh->DonHang_cancelWithRestock($orderId);
+        } else {
+            $result = $this->dh->DonHang_updateStatus($orderId, $status);
+        }
 
         if ($result) {
             header('Content-Type: application/json');

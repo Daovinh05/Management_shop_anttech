@@ -295,7 +295,20 @@ class Donhang extends api_controller {
             $this->sendResponse(422, ['success' => false, 'message' => 'Trạng thái đơn hàng không hợp lệ']);
         }
 
-        $updated = $this->dh->DonHang_updateStatus($ma_don_hang, $status);
+        $orderResult = $this->dh->DonHang_getById($ma_don_hang);
+        if (!$orderResult || mysqli_num_rows($orderResult) === 0) {
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy đơn hàng có mã: ' . $ma_don_hang]);
+        }
+
+        $order = mysqli_fetch_assoc($orderResult);
+        $currentStatus = $order['trang_thai_don_hang'] ?? '';
+
+        if ($status === 'da_huy' && $currentStatus !== 'da_huy') {
+            $updated = $this->dh->DonHang_cancelWithRestock($ma_don_hang);
+        } else {
+            $updated = $this->dh->DonHang_updateStatus($ma_don_hang, $status);
+        }
+
         if (!$updated) {
             $this->sendResponse(500, [
                 'success' => false,
