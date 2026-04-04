@@ -50,6 +50,7 @@ class Thongke extends controller
 
         $data = [
             'cho_duyet' => 0,
+            'da_duyet' => 0,
             'dang_giao' => 0,
             'hoan_thanh' => 0,
             'da_huy' => 0,
@@ -65,6 +66,9 @@ class Thongke extends controller
                     case 'cho_duyet':
                         $data['cho_duyet'] = $soLuong;
                         break;
+                    case 'da_duyet':
+                        $data['da_duyet'] = $soLuong;
+                        break;
                     case 'dang_giao':
                         $data['dang_giao'] = $soLuong;
                         break;
@@ -78,7 +82,7 @@ class Thongke extends controller
             }
         }
 
-        $data['tong_don'] = $data['cho_duyet'] + $data['dang_giao'] + $data['hoan_thanh'];
+        $data['tong_don'] = $data['cho_duyet'] + $data['da_duyet'] + $data['dang_giao'] + $data['hoan_thanh'];
 
         return $data;
     }

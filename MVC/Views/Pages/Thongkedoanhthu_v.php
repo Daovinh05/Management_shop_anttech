@@ -257,6 +257,11 @@
             color: #92400e;
         }
 
+        .status-da-duyet {
+            background: #dbeafe;
+            color: #510c25;
+        }
+
         .status-dang-giao {
             background: #dbeafe;
             color: #1e40af;
@@ -577,10 +582,14 @@
                                     $status = $order['trang_thai_don_hang'] ?? '';
                                     switch ($status) {
                                         case 'cho_duyet':
-                                        case 'da_duyet':
                                             $bg = '#fef3c7';
                                             $color = '#92400e';
-                                            $label = $status === 'cho_duyet' ? 'Chờ xác nhận' : 'Đã xác nhận';
+                                            $label = 'Chờ xác nhận';
+                                            break;
+                                        case 'da_duyet':
+                                            $bg = '#dbeafe';
+                                            $color = '#1d4ed8';
+                                            $label = 'Đã xác nhận';
                                             break;
                                         case 'dang_giao':
                                             $bg = '#dbeafe';

@@ -107,9 +107,19 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         font-weight: 600;
     }
 
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
     .status-confirmed {
-        background-color: #e3f9e5;
-        color: #1f8b24;
+        background-color: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-completed {
+        background-color: #dcfce7;
+        color: #166534;
     }
 
     /* Xanh lá nhạt */
@@ -492,6 +502,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                         <?php
                         switch ($dh['trang_thai_don_hang']) {
                             case 'cho_duyet':
+                                echo 'status-pending';
+                                break;
                             case 'da_duyet':
                                 echo 'status-confirmed';
                                 break;
@@ -499,7 +511,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                 echo 'status-shipping';
                                 break;
                             case 'hoan_thanh':
-                                echo 'status-confirmed';
+                                echo 'status-completed';
                                 break;
                             case 'da_huy':
                                 echo 'status-cancelled';
@@ -603,6 +615,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                                 data-status-class="
 <?php switch ($dh['trang_thai_don_hang']) {
                     case 'cho_duyet':
+                        echo 'status-pending';
+                        break;
                     case 'da_duyet':
                         echo 'status-confirmed';
                         break;
@@ -610,7 +624,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                         echo 'status-shipping';
                         break;
                     case 'hoan_thanh':
-                        echo 'status-confirmed';
+                        echo 'status-completed';
                         break;
                     case 'da_huy':
                         echo 'status-cancelled';
@@ -824,9 +838,11 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             function getStatusClass(status) {
                 switch (status) {
                     case 'cho_duyet':
+                        return 'status-pending';
                     case 'da_duyet':
-                    case 'hoan_thanh':
                         return 'status-confirmed';
+                    case 'hoan_thanh':
+                        return 'status-completed';
                     case 'dang_giao':
                         return 'status-shipping';
                     case 'da_huy':
