@@ -160,6 +160,11 @@ class Thuonghieu extends controller
 
     function xoa($ma_thuong_hieu)
     {
+        if ($this->th->ThuongHieu_hasProducts($ma_thuong_hieu)) {
+            echo "<script>alert('Không thể xóa vì đang có sản phẩm thuộc Thương hiệu này. Vui lòng chuyển các sản phẩm sang thương hiệu khác trước khi xóa.'); window.location='" . $this->url('Thuonghieu/danhsach') . "';</script>";
+            return;
+        }
+
         $kq = $this->th->ThuongHieu_delete($ma_thuong_hieu);
         if ($kq)
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Thuonghieu/danhsach') . "';</script>";

@@ -50,6 +50,21 @@ class DanhMuc_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Kiểm tra danh mục có đang được sản phẩm sử dụng không
+    function DanhMuc_hasProducts($ma_danh_muc)
+    {
+        $ma_danh_muc = mysqli_real_escape_string($this->con, $ma_danh_muc);
+        $sql = "SELECT COUNT(*) AS total FROM san_pham WHERE ma_danh_muc = '$ma_danh_muc'";
+        $result = mysqli_query($this->con, $sql);
+
+        if (!$result) {
+            return false;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return isset($row['total']) && (int)$row['total'] > 0;
+    }
+
     // Hàm lấy tất cả danh mục
     function DanhMuc_getAll()
     {

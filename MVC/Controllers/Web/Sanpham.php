@@ -216,6 +216,11 @@ class Sanpham extends controller
 
     function xoa($ma_san_pham)
     {
+        if ($this->sp->SanPham_hasOrderDetails($ma_san_pham)) {
+            echo "<script>alert(''Không thể xóa vì sản phẩm ' . $ma_san_pham . ' đã có trong chi tiết đơn hàng.'); window.location='" . $this->url('Sanpham/danhsach') . "';</script>";
+            return;
+        }
+
         $kq = $this->sp->SanPham_delete($ma_san_pham);
         if ($kq)
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Sanpham/danhsach') . "';</script>";

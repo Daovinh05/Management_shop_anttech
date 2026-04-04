@@ -172,6 +172,11 @@ class Nhacungcap extends controller
 
     function xoa($ma_nha_cung_cap)
     {
+        if ($this->ncc->NhaCungCap_hasProducts($ma_nha_cung_cap)) {
+            echo "<script>alert('Không thể xóa vì đang có sản phẩm thuộc NCC này. Vui lòng chuyển các sản phẩm sang nhà cung cấp khác trước khi xóa.'); window.location='" . $this->url('Nhacungcap/danhsach') . "';</script>";
+            return;
+        }
+
         $kq = $this->ncc->NhaCungCap_delete($ma_nha_cung_cap);
         if ($kq)
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Nhacungcap/danhsach') . "';</script>";

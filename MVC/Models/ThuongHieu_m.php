@@ -50,6 +50,21 @@ class ThuongHieu_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Kiểm tra thương hiệu có đang được sản phẩm sử dụng không
+    function ThuongHieu_hasProducts($ma_thuong_hieu)
+    {
+        $ma_thuong_hieu = mysqli_real_escape_string($this->con, $ma_thuong_hieu);
+        $sql = "SELECT COUNT(*) AS total FROM san_pham WHERE ma_thuong_hieu = '$ma_thuong_hieu'";
+        $result = mysqli_query($this->con, $sql);
+
+        if (!$result) {
+            return false;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return isset($row['total']) && (int)$row['total'] > 0;
+    }
+
     // Hàm lấy tất cả thương hiệu
     function ThuongHieu_getAll()
     {
