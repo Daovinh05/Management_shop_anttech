@@ -131,6 +131,7 @@
                     $status = $data['order_info']['trang_thai_don_hang'] ?? '';
                     echo match($status) {
                         'cho_duyet'  => 'Chờ duyệt',
+                        'da_duyet'   => 'Đã xác nhận)',
                         'dang_giao'  => 'Đang giao',
                         'hoan_thanh' => 'Hoàn thành',
                         'da_huy'     => 'Đã hủy',

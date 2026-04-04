@@ -471,20 +471,30 @@ tr:hover td {
     font-weight: 600;
 }
 
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
 .status-confirmed {
-    background-color: #e3f9e5;
-    color: #1f8b24;
-} /* Xanh lá nhạt */
+  background-color: #edeff2;
+  color: #871783;
+}
 
 .status-shipping {
-    background-color: #e0f2fe;
-    color: #0284c7;
-} /* Xanh dương nhạt */
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
 
 .status-cancelled {
-    background-color: #fee2e2;
-    color: #dc2626;
-} /* Đỏ nhạt */
+  background-color: #fee2e2;
+  color: #dc2626;
+}
 
 /* --- SỬA CẤU TRÚC BODY: CHIA 2 CỘT NGANG HÀNG --- */
 .order-body-flex {
