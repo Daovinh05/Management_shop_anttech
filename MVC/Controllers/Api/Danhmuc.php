@@ -201,6 +201,13 @@ class Danhmuc extends api_controller {
             $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy danh mục có mã: ' . $id]);
         }
 
+        if ($this->danhmuc_model->DanhMuc_hasProducts($id)) {
+            $this->sendResponse(409, [
+                'success' => false,
+                'message' => 'Không thể xóa vì đang có sản phẩm thuộc Danh mục "' . $id . '"'
+            ]);
+        }
+
         $deleteResult = $this->danhmuc_model->DanhMuc_delete($id);
         if (!$deleteResult) {
             $this->sendResponse(500, [

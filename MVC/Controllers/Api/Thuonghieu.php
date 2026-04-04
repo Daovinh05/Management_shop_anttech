@@ -201,6 +201,13 @@ class Thuonghieu extends api_controller {
             $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy thương hiệu có mã: ' . $id]);
         }
 
+        if ($this->thuonghieu_model->ThuongHieu_hasProducts($id)) {
+            $this->sendResponse(409, [
+                'success' => false,
+                'message' => 'Không thể xóa vì đang có sản phẩm thuộc Thương hiệu "' . $id . '"'
+            ]);
+        }
+
         $deleteResult = $this->thuonghieu_model->ThuongHieu_delete($id);
         if (!$deleteResult) {
             $this->sendResponse(500, [
