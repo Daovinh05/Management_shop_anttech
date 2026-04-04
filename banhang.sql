@@ -239,7 +239,7 @@ CREATE TABLE `don_hang` (
   `ma_khuyen_mai` varchar(20) DEFAULT NULL,
   `tong_tien_hang` decimal(15,2) DEFAULT NULL,
   `thanh_toan` decimal(15,2) DEFAULT 0.00,
-  `trang_thai_don_hang` enum('cho_duyet','dang_giao','hoan_thanh','da_huy') DEFAULT NULL,
+  `trang_thai_don_hang` enum('cho_duyet','da_duyet','dang_giao','hoan_thanh','da_huy') DEFAULT NULL,
   `ngay_tao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

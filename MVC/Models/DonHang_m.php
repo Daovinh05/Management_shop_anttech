@@ -69,8 +69,56 @@ class DonHang_m extends connectDB
     function DonHang_delete($ma_don_hang)
     {
         $ma_don_hang = mysqli_real_escape_string($this->con, $ma_don_hang);
-        $sql = "DELETE FROM don_hang WHERE ma_don_hang = '$ma_don_hang'";
-        return mysqli_query($this->con, $sql);
+
+        mysqli_begin_transaction($this->con);
+
+        try {
+            $orderSql = "SELECT trang_thai_don_hang FROM don_hang WHERE ma_don_hang = '$ma_don_hang'";
+            $orderResult = mysqli_query($this->con, $orderSql);
+            if (!$orderResult || mysqli_num_rows($orderResult) === 0) {
+                mysqli_rollback($this->con);
+                return false;
+            }
+
+            $order = mysqli_fetch_assoc($orderResult);
+            $status = $order['trang_thai_don_hang'] ?? '';
+
+            if ($status === 'cho_duyet') {
+                $detailSql = "SELECT ma_bien_the, so_luong FROM chi_tiet_don_hang WHERE ma_don_hang = '$ma_don_hang'";
+                $detailResult = mysqli_query($this->con, $detailSql);
+                if (!$detailResult) {
+                    mysqli_rollback($this->con);
+                    return false;
+                }
+
+                while ($detail = mysqli_fetch_assoc($detailResult)) {
+                    $ma_bien_the = mysqli_real_escape_string($this->con, $detail['ma_bien_the'] ?? '');
+                    $so_luong = (int)($detail['so_luong'] ?? 0);
+
+                    if ($ma_bien_the === '' || $so_luong <= 0) {
+                        continue;
+                    }
+
+                    $restoreSql = "UPDATE bien_the SET so_luong_kho = so_luong_kho + $so_luong WHERE ma_bien_the = '$ma_bien_the'";
+                    if (!mysqli_query($this->con, $restoreSql)) {
+                        mysqli_rollback($this->con);
+                        return false;
+                    }
+                }
+            }
+
+            $deleteSql = "DELETE FROM don_hang WHERE ma_don_hang = '$ma_don_hang'";
+            if (!mysqli_query($this->con, $deleteSql)) {
+                mysqli_rollback($this->con);
+                return false;
+            }
+
+            mysqli_commit($this->con);
+            return true;
+        } catch (Exception $e) {
+            mysqli_rollback($this->con);
+            return false;
+        }
     }
 
     // Hàm lấy tất cả đơn hàng với thông tin người dùng

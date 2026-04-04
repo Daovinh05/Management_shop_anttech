@@ -943,6 +943,11 @@
                         color = '#92400e';
                         label = 'Chờ duyệt';
                         break;
+                    case 'da_duyet':
+                        bg = '#f1e0f0';
+                        color = '#900e92';
+                        label = 'Đã xác nhận';
+                        break;
                     case 'dang_giao':
                         bg = '#dbeafe';
                         color = '#1e40af';
@@ -1170,6 +1175,7 @@
                                         <div class="status-select-wrapper">
                                             <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" style="font-weight:600">
                                                 <option value="cho_duyet" style="color:#92400e" ${payload.order_info?.trang_thai_don_hang === 'cho_duyet' ? 'selected' : ''}>Chờ duyệt</option>
+                                                <option value="da_duyet" style="color:#92400e" ${payload.order_info?.trang_thai_don_hang === 'da_duyet' ? 'selected' : ''}>Đã xác nhận</option>
                                                 <option value="dang_giao" style="color:#1e40af" ${payload.order_info?.trang_thai_don_hang === 'dang_giao' ? 'selected' : ''}>Đang giao hàng</option>
                                                 <option value="hoan_thanh" style="color:#065f46" ${payload.order_info?.trang_thai_don_hang === 'hoan_thanh' ? 'selected' : ''}>Hoàn thành</option>
                                                 <option value="da_huy" style="color:#991b1b" ${payload.order_info?.trang_thai_don_hang === 'da_huy' ? 'selected' : ''}>Đã hủy</option>
@@ -1259,6 +1265,7 @@
             function getStatusText(status) {
                 switch(status) {
                     case 'cho_duyet': return 'Chờ duyệt';
+                    case 'da_duyet': return 'Đã xác nhận';
                     case 'dang_giao': return 'Đang giao hàng';
                     case 'hoan_thanh': return 'Hoàn thành';
                     case 'da_huy': return 'Đã hủy';
@@ -1272,6 +1279,9 @@
             switch(status) {
                 case 'cho_duyet':
                     bg = '#fef3c7'; color = '#92400e'; text = 'Chờ duyệt';
+                    break;
+                case 'da_duyet':
+                    bg = '#fef3c7'; color = '#92400e'; text = 'Đã duyệt';
                     break;
                 case 'dang_giao':
                     bg = '#dbeafe'; color = '#1e40af'; text = 'Đang giao';

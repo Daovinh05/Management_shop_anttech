@@ -213,6 +213,17 @@ class Donhang extends controller
 
     function xoa($ma_don_hang)
     {
+        $orderResult = $this->dh->DonHang_getById($ma_don_hang);
+        if ($orderResult && mysqli_num_rows($orderResult) > 0) {
+            $order = mysqli_fetch_assoc($orderResult);
+            $status = $order['trang_thai_don_hang'] ?? '';
+
+            if ($status === 'da_duyet' || $status === 'dang_giao') {
+                echo "<script>alert('Không thể xóa đơn hàng ở trạng thái Đã xác nhận hoặc Đang giao.'); window.location='" . $this->url('Donhang/danhsach') . "';</script>";
+                return;
+            }
+        }
+
         $kq = $this->dh->DonHang_delete($ma_don_hang);
         if ($kq)
             echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Donhang/danhsach') . "';</script>";

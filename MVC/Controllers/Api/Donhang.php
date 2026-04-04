@@ -290,7 +290,7 @@ class Donhang extends api_controller {
             $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã đơn hàng hoặc trạng thái']);
         }
 
-        $allowed = ['cho_duyet', 'dang_giao', 'hoan_thanh', 'da_huy'];
+        $allowed = ['cho_duyet', 'da_duyet', 'dang_giao', 'hoan_thanh', 'da_huy'];
         if (!in_array($status, $allowed, true)) {
             $this->sendResponse(422, ['success' => false, 'message' => 'Trạng thái đơn hàng không hợp lệ']);
         }
@@ -331,6 +331,19 @@ class Donhang extends api_controller {
 
         if (!$this->dh->checktrungMaDH($id)) {
             $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy đơn hàng có mã: ' . $id]);
+        }
+
+        $orderResult = $this->dh->DonHang_getById($id);
+        if ($orderResult && mysqli_num_rows($orderResult) > 0) {
+            $order = mysqli_fetch_assoc($orderResult);
+            $status = $order['trang_thai_don_hang'] ?? '';
+
+            if ($status === 'da_duyet' || $status === 'dang_giao') {
+                $this->sendResponse(409, [
+                    'success' => false,
+                    'message' => 'Không thể xóa đơn hàng ở trạng thái Đã xác nhận hoặc Đang giao'
+                ]);
+            }
         }
 
         $deleted = $this->dh->DonHang_delete($id);
