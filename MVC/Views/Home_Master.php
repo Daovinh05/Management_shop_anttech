@@ -31,6 +31,8 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     }
     ?>
 
+    <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
+
     <script>
     // Common JavaScript can go here
     </script>
