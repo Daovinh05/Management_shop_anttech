@@ -206,6 +206,8 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         </div>
     </div>
 
+    <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
+
     <script>
         // JavaScript for additional functionality if needed
         document.addEventListener('DOMContentLoaded', function() {

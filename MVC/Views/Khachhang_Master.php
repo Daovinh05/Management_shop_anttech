@@ -1089,6 +1089,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         echo "<div class='alert alert-danger'>Không có nội dung để hiển thị!</div>";
     }
     ?>
+        <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
 
     <footer class="main-footer">
         <div class="container">
