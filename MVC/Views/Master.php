@@ -56,12 +56,12 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                             <i class="fa-solid fa-truck"></i> Quản lý nhà cung cấp
                         </a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a href="<?php echo UrlHelper::url('Danhgia/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachdanhgia') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-truck"></i> Quản lý đánh giá
                         </a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="<?php echo UrlHelper::url('Sanpham/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachsanpham_v') !== false) ? 'active' : ''; ?>">
@@ -77,7 +77,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                     <li>
                         <a href="<?php echo UrlHelper::url('Khuyenmai/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachkhuyenmai_v') !== false) ? 'active' : ''; ?>">
-                            <i class="fa-solid fa-percentage"></i> Quản lý khuyến mãi
+                            <i class="fa-solid fa-gift"></i> Quản lý khuyến mãi
                         </a>
                     </li>
                     <li>
@@ -241,6 +241,8 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             right: 24px;
             width: 340px;
             max-width: 90vw;
+            max-height: 450px;
+            height: 450px;
             background: #fff;
             border-radius: 12px 12px 0 12px;
             box-shadow: 0 4px 24px rgba(0,0,0,0.18);
@@ -265,6 +267,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             background: #f8f8f8;
             overflow-y: auto;
             font-size: 15px;
+            max-height: 320px;
         }
         .chatbot-msg {
             margin-bottom: 10px;
