@@ -3,16 +3,34 @@ class Techbot extends api_controller {
     private $sanpham_model;
     private $bienthe_model;
     private $donhang_model;
+    private $ctdh_model;
+    private $thanhtoan_model;
     private $khuyenmai_model;
     private $users_model;
+    private $giohang_model;
+    private $ctgh_model;
+    private $danhgia_model;
+    private $diachi_model;
+    private $danhmuc_model;
+    private $thuonghieu_model;
+    private $nhacungcap_model;
 
     public function __construct() {
         parent::__construct();
         $this->sanpham_model = $this->model('SanPham_m');
         $this->bienthe_model = $this->model('BienThe_m');
         $this->donhang_model = $this->model('DonHang_m');
+        $this->ctdh_model = $this->model('ChiTietDonHang_m');
+        $this->thanhtoan_model = $this->model('ThanhToan_m');
         $this->khuyenmai_model = $this->model('KhuyenMai_m');
         $this->users_model = $this->model('Users_m');
+        $this->giohang_model = $this->model('GioHang_m');
+        $this->ctgh_model = $this->model('ChiTietGioHang_m');
+        $this->danhgia_model = $this->model('DanhGia_m');
+        $this->diachi_model = $this->model('DiaChiGiaoHang_m');
+        $this->danhmuc_model = $this->model('DanhMuc_m');
+        $this->thuonghieu_model = $this->model('ThuongHieu_m');
+        $this->nhacungcap_model = $this->model('NhaCungCap_m');
     }
 
     public function ask() {
@@ -36,6 +54,8 @@ class Techbot extends api_controller {
             ]);
         }
 
+        $priceFilter = $this->extractPriceFilter($message);
+
         $role = $this->resolveRole();
         $intentMeta = $this->detectIntent($message, $role);
         $intent = $intentMeta['intent'];
@@ -46,7 +66,31 @@ class Techbot extends api_controller {
             $intent = ($role === 'admin') ? 'admin_revenue_report' : 'restricted_info';
         }
 
-        if ($role !== 'admin' && in_array($intent, ['admin_pending_orders', 'admin_inventory_alert', 'admin_users_list', 'admin_api_help', 'admin_full_access', 'admin_revenue_report'], true)) {
+        if (
+            ($role === 'admin')
+            && (strpos($messageLower, 'đơn hàng') !== false || strpos($messageLower, 'don hang') !== false)
+            && $this->extractOrderCode($message) === ''
+            && (
+                strpos($messageLower, 'bao nhiêu') !== false
+                || strpos($messageLower, 'bao nhieu') !== false
+                || strpos($messageLower, 'thống kê') !== false
+                || strpos($messageLower, 'thong ke') !== false
+                || strpos($messageLower, 'đếm') !== false
+                || strpos($messageLower, 'dem') !== false
+                || strpos($messageLower, 'đã hủy') !== false
+                || strpos($messageLower, 'da huy') !== false
+                || strpos($messageLower, 'đang giao') !== false
+                || strpos($messageLower, 'dang giao') !== false
+                || strpos($messageLower, 'chờ duyệt') !== false
+                || strpos($messageLower, 'cho duyet') !== false
+                || strpos($messageLower, 'hoàn thành') !== false
+                || strpos($messageLower, 'hoan thanh') !== false
+            )
+        ) {
+            $intent = 'admin_order_stats';
+        }
+
+        if ($role !== 'admin' && in_array($intent, ['admin_pending_orders', 'admin_inventory_alert', 'admin_users_list', 'admin_api_help', 'admin_full_access', 'admin_revenue_report', 'admin_order_stats'], true)) {
             $intent = 'restricted_info';
         }
 
@@ -57,10 +101,24 @@ class Techbot extends api_controller {
             'data' => []
         ];
 
+        if ($intent === 'customer_my_orders' && $role !== 'admin') {
+            $myOrders = $this->getCurrentCustomerOrders($message);
+            $payload['data'] = $myOrders;
+            $reply = $this->buildResponse($payload);
+
+            $this->sendResponse(200, [
+                'success' => true,
+                'role' => $role,
+                'intent' => $intent,
+                'reply' => $reply,
+                'data' => $myOrders
+            ]);
+        }
+
         if ($intent === 'order_status') {
             $orderCode = trim((string)($entities['order_code'] ?? $this->extractOrderCode($message)));
             if ($orderCode === '') {
-                $reply = $this->buildNeedOrderCodeReply();
+                $reply = $this->normalizeReplyForChat($this->buildNeedOrderCodeReply());
                 $this->sendResponse(200, [
                     'success' => true,
                     'role' => $role,
@@ -86,6 +144,8 @@ class Techbot extends api_controller {
         if ($role === 'admin') {
             if ($intent === 'admin_full_access') {
                 $payload['data'] = $this->getAdminFullShopData();
+            } else if ($intent === 'admin_order_stats') {
+                $payload['data'] = $this->getAdminOrderStats($message);
             } else if ($intent === 'admin_revenue_report') {
                 $range = $this->extractRevenueRange($message);
                 $payload['data'] = $this->getRevenueReport($range);
@@ -103,8 +163,8 @@ class Techbot extends api_controller {
             } else if ($intent === 'promotion_lookup') {
                 $payload['data'] = $this->getActivePromotions();
             } else {
-                $keyword = trim((string)($entities['product_keyword'] ?? $this->extractProductKeyword($message)));
-                $payload['data'] = $this->getProducts($keyword, true);
+                $keyword = $this->resolveProductKeyword($entities, $message, $priceFilter);
+                $payload['data'] = $this->getProducts($keyword, true, $priceFilter);
 
                 if (empty($payload['data']['items']) && $intent !== 'product_lookup') {
                     $payload['data'] = $this->getAdminOverview();
@@ -126,15 +186,15 @@ class Techbot extends api_controller {
         if ($intent === 'promotion_lookup') {
             $payload['data'] = $this->getActivePromotions();
         } else if ($intent === 'product_variant_lookup') {
-            $keyword = trim((string)($entities['product_keyword'] ?? $this->extractProductKeyword($message)));
+            $keyword = $this->resolveProductKeyword($entities, $message, $priceFilter);
             $payload['data'] = $this->getProductVariants($keyword, false);
         } else if ($intent === 'restricted_info') {
             $payload['data'] = [];
         } else if ($intent === 'greeting') {
             $payload['data'] = [];
         } else {
-            $keyword = trim((string)($entities['product_keyword'] ?? $this->extractProductKeyword($message)));
-            $payload['data'] = $this->getProducts($keyword, false);
+            $keyword = $this->resolveProductKeyword($entities, $message, $priceFilter);
+            $payload['data'] = $this->getProducts($keyword, false, $priceFilter);
 
             if (empty($payload['data']['items']) && $intent !== 'product_lookup') {
                 $payload['intent'] = 'unknown';
@@ -158,6 +218,12 @@ class Techbot extends api_controller {
 
     private function detectIntent($message, $role) {
         $fallback = $this->detectIntentByHeuristic($message, $role);
+
+        // Ưu tiên intent cứng cho "đơn hàng của tôi" để không bị classifier kéo về order_status.
+        if (($fallback['intent'] ?? '') === 'customer_my_orders') {
+            return $fallback;
+        }
+
         $groqIntent = $this->detectIntentByGroq($message, $role);
 
         if (!is_array($groqIntent) || empty($groqIntent['intent'])) {
@@ -175,6 +241,60 @@ class Techbot extends api_controller {
 
     private function detectIntentByHeuristic($message, $role) {
         $text = mb_strtolower($message, 'UTF-8');
+
+        if ($role !== 'admin') {
+            $hasOrderWord = (
+                strpos($text, 'đơn') !== false
+                || strpos($text, 'don') !== false
+                || strpos($text, 'order') !== false
+            );
+            $statusFilter = $this->extractOrderStatusFilter($message);
+
+            if ($hasOrderWord && $statusFilter !== null && $this->extractOrderCode($message) === '') {
+                return ['intent' => 'customer_my_orders', 'entities' => ['order_code' => '', 'product_keyword' => '']];
+            }
+
+            $hasMyOrderPhrase = (
+                strpos($text, 'đơn hàng của tôi') !== false
+                || strpos($text, 'don hang cua toi') !== false
+                || strpos($text, 'đơn hàng tôi') !== false
+                || strpos($text, 'don hang toi') !== false
+                || strpos($text, 'tôi đã mua') !== false
+                || strpos($text, 'toi da mua') !== false
+                || strpos($text, 'lịch sử mua') !== false
+                || strpos($text, 'lich su mua') !== false
+                || strpos($text, 'đơn đã mua') !== false
+                || strpos($text, 'don da mua') !== false
+            );
+
+            if ($hasMyOrderPhrase && $this->extractOrderCode($message) === '') {
+                return ['intent' => 'customer_my_orders', 'entities' => ['order_code' => '', 'product_keyword' => '']];
+            }
+        }
+
+        if ($role === 'admin') {
+            $hasOrderPhrase = (strpos($text, 'đơn hàng') !== false || strpos($text, 'don hang') !== false);
+            $hasCountPhrase = (
+                strpos($text, 'bao nhiêu') !== false
+                || strpos($text, 'bao nhieu') !== false
+                || strpos($text, 'thống kê') !== false
+                || strpos($text, 'thong ke') !== false
+                || strpos($text, 'đếm') !== false
+                || strpos($text, 'dem') !== false
+                || strpos($text, 'đã hủy') !== false
+                || strpos($text, 'da huy') !== false
+                || strpos($text, 'đang giao') !== false
+                || strpos($text, 'dang giao') !== false
+                || strpos($text, 'chờ duyệt') !== false
+                || strpos($text, 'cho duyet') !== false
+                || strpos($text, 'hoàn thành') !== false
+                || strpos($text, 'hoan thanh') !== false
+            );
+
+            if ($hasOrderPhrase && $hasCountPhrase && $this->extractOrderCode($message) === '') {
+                return ['intent' => 'admin_order_stats', 'entities' => ['order_code' => '', 'product_keyword' => '']];
+            }
+        }
 
         if (strpos($text, 'đơn hàng') !== false || strpos($text, 'ma don hang') !== false || strpos($text, 'mã đơn hàng') !== false || strpos($text, 'trạng thái') !== false) {
             return ['intent' => 'order_status', 'entities' => ['order_code' => $this->extractOrderCode($message), 'product_keyword' => '']];
@@ -275,7 +395,7 @@ class Techbot extends api_controller {
 
         $prompt = "Bạn là bộ phân loại intent cho TechZone.\n"
             . "Chỉ trả về JSON thuần theo schema: {\"intent\":\"...\",\"entities\":{\"order_code\":\"\",\"product_keyword\":\"\"}}.\n"
-            . "Intent hợp lệ: greeting, product_lookup, product_variant_lookup, order_status, promotion_lookup, admin_revenue_report, admin_pending_orders, admin_inventory_alert, admin_users_list, admin_api_help, admin_full_access, restricted_info, unknown.\n"
+            . "Intent hợp lệ: greeting, product_lookup, product_variant_lookup, order_status, customer_my_orders, promotion_lookup, admin_revenue_report, admin_order_stats, admin_pending_orders, admin_inventory_alert, admin_users_list, admin_api_help, admin_full_access, restricted_info, unknown.\n"
             . "Vai trò hiện tại: " . $role . ".\n"
             . "Câu hỏi: " . $message;
 
@@ -296,10 +416,13 @@ class Techbot extends api_controller {
         return $decoded;
     }
 
-    private function getProducts($keyword, $includeOutOfStock) {
-        $result = ($keyword !== '')
-            ? $this->sanpham_model->SanPham_find('', $keyword)
-            : $this->sanpham_model->SanPham_getAll();
+    private function getProducts($keyword, $includeOutOfStock, $priceFilter = null) {
+        if (is_array($priceFilter)) {
+            return $this->getProductsByVariantPriceFilter($keyword, $includeOutOfStock, $priceFilter);
+        }
+
+        // Luôn lấy full list và lọc local theo token để hiểu tốt câu tự nhiên của người dùng.
+        $result = $this->sanpham_model->SanPham_getAll();
 
         $map = [];
         if ($result) {
@@ -313,11 +436,17 @@ class Techbot extends api_controller {
                     $map[$id] = [
                         'ma_san_pham' => $id,
                         'ten_san_pham' => $row['ten_san_pham'] ?? '',
+                        'ma_danh_muc' => $row['ma_danh_muc'] ?? '',
+                        'ma_thuong_hieu' => $row['ma_thuong_hieu'] ?? '',
+                        'ma_nha_cung_cap' => $row['ma_nha_cung_cap'] ?? '',
+                        'ten_nha_cung_cap' => $row['ten_nha_cung_cap'] ?? '',
+                        'ngay_tao' => $row['ngay_tao'] ?? '',
                         'gia' => isset($row['gia']) ? (float)$row['gia'] : 0,
                         'so_luong_kho' => isset($row['so_luong_kho']) ? (int)$row['so_luong_kho'] : 0,
                         'ten_danh_muc' => $row['ten_danh_muc'] ?? '',
                         'ten_thuong_hieu' => $row['ten_thuong_hieu'] ?? '',
-                        'img_bien_the' => $row['img_bien_the'] ?? ''
+                        'img_bien_the' => $row['img_bien_the'] ?? '',
+                        'ten_bien_the' => $row['ten_bien_the'] ?? ''
                     ];
                 } else {
                     $currentPrice = isset($row['gia']) ? (float)$row['gia'] : 0;
@@ -328,14 +457,111 @@ class Techbot extends api_controller {
                     if ($map[$id]['img_bien_the'] === '' && !empty($row['img_bien_the'])) {
                         $map[$id]['img_bien_the'] = $row['img_bien_the'];
                     }
+                    if (($map[$id]['ten_nha_cung_cap'] ?? '') === '' && !empty($row['ten_nha_cung_cap'])) {
+                        $map[$id]['ten_nha_cung_cap'] = $row['ten_nha_cung_cap'];
+                    }
+                    if (($map[$id]['ten_bien_the'] ?? '') === '' && !empty($row['ten_bien_the'])) {
+                        $map[$id]['ten_bien_the'] = $row['ten_bien_the'];
+                    }
                 }
             }
         }
 
         $items = array_values($map);
+
+        // Đồng bộ giá và tồn kho theo toàn bộ biến thể để lọc theo giá chính xác.
+        foreach ($items as &$item) {
+            $productId = trim((string)($item['ma_san_pham'] ?? ''));
+            if ($productId === '' || !$this->bienthe_model) {
+                continue;
+            }
+
+            $variantResult = $this->bienthe_model->BienThe_getByProduct($productId);
+            if (!$variantResult) {
+                continue;
+            }
+
+            $minPrice = null;
+            $totalStock = 0;
+            $firstImage = (string)($item['img_bien_the'] ?? '');
+            $firstVariantName = (string)($item['ten_bien_the'] ?? '');
+            $matchedMinPrice = null;
+            $matchedStock = 0;
+            $matchedVariantCount = 0;
+
+            $filterMin = (is_array($priceFilter) && array_key_exists('min', $priceFilter) && $priceFilter['min'] !== null)
+                ? (float)$priceFilter['min'] : null;
+            $filterMax = (is_array($priceFilter) && array_key_exists('max', $priceFilter) && $priceFilter['max'] !== null)
+                ? (float)$priceFilter['max'] : null;
+
+            while ($variant = mysqli_fetch_assoc($variantResult)) {
+                $price = isset($variant['gia']) ? (float)$variant['gia'] : 0;
+                $stock = isset($variant['so_luong_kho']) ? (int)$variant['so_luong_kho'] : 0;
+
+                if ($minPrice === null || ($price > 0 && $price < $minPrice)) {
+                    $minPrice = $price;
+                }
+                $totalStock += $stock;
+
+                if ($firstImage === '' && !empty($variant['img_bien_the'])) {
+                    $firstImage = (string)$variant['img_bien_the'];
+                }
+                if ($firstVariantName === '' && !empty($variant['ten_bien_the'])) {
+                    $firstVariantName = (string)$variant['ten_bien_the'];
+                }
+
+                if (is_array($priceFilter)) {
+                    $isMatched = true;
+                    if ($filterMin !== null && $price < $filterMin) {
+                        $isMatched = false;
+                    }
+                    if ($filterMax !== null && $price > $filterMax) {
+                        $isMatched = false;
+                    }
+
+                    if ($isMatched) {
+                        $matchedVariantCount++;
+                        $matchedStock += $stock;
+                        if ($matchedMinPrice === null || ($price > 0 && $price < $matchedMinPrice)) {
+                            $matchedMinPrice = $price;
+                        }
+                    }
+                }
+            }
+
+            if (is_array($priceFilter)) {
+                $item['_match_price'] = ($matchedVariantCount > 0);
+                $item['matched_variant_count'] = $matchedVariantCount;
+                $item['so_luong_kho'] = $matchedStock;
+                if ($matchedMinPrice !== null) {
+                    $item['gia'] = $matchedMinPrice;
+                }
+            } else {
+                if ($minPrice !== null) {
+                    $item['gia'] = $minPrice;
+                }
+                $item['so_luong_kho'] = $totalStock;
+            }
+            $item['img_bien_the'] = $firstImage;
+            $item['ten_bien_the'] = $firstVariantName;
+        }
+        unset($item);
+
         if (!$includeOutOfStock) {
             $items = array_values(array_filter($items, function($item) {
                 return (int)($item['so_luong_kho'] ?? 0) > 0;
+            }));
+        }
+
+        if (trim((string)$keyword) !== '') {
+            $items = array_values(array_filter($items, function($item) use ($keyword) {
+                return $this->productMatchesKeyword($item, $keyword);
+            }));
+        }
+
+        if (is_array($priceFilter)) {
+            $items = array_values(array_filter($items, function($item) {
+                return !empty($item['_match_price']);
             }));
         }
 
@@ -345,9 +571,196 @@ class Techbot extends api_controller {
 
         return [
             'keyword' => $keyword,
+            'price_filter' => $priceFilter,
+            'total' => count($items),
+            'items' => array_slice(array_map(function($item) {
+                unset($item['_match_price']);
+                return $item;
+            }, $items), 0, 8)
+        ];
+    }
+
+    private function isPriceMatched($price, $priceFilter) {
+        $value = (float)$price;
+        $minPrice = (is_array($priceFilter) && array_key_exists('min', $priceFilter) && $priceFilter['min'] !== null)
+            ? (float)$priceFilter['min'] : null;
+        $maxPrice = (is_array($priceFilter) && array_key_exists('max', $priceFilter) && $priceFilter['max'] !== null)
+            ? (float)$priceFilter['max'] : null;
+
+        if ($minPrice !== null && $value < $minPrice) {
+            return false;
+        }
+        if ($maxPrice !== null && $value > $maxPrice) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getProductsByVariantPriceFilter($keyword, $includeOutOfStock, $priceFilter) {
+        $productMeta = [];
+        $productsResult = $this->sanpham_model->SanPham_getAll();
+        if ($productsResult) {
+            while ($row = mysqli_fetch_assoc($productsResult)) {
+                $id = (string)($row['ma_san_pham'] ?? '');
+                if ($id === '') {
+                    continue;
+                }
+
+                $productMeta[$id] = [
+                    'ma_san_pham' => $id,
+                    'ten_san_pham' => $row['ten_san_pham'] ?? '',
+                    'ma_danh_muc' => $row['ma_danh_muc'] ?? '',
+                    'ma_thuong_hieu' => $row['ma_thuong_hieu'] ?? '',
+                    'ma_nha_cung_cap' => $row['ma_nha_cung_cap'] ?? '',
+                    'ten_nha_cung_cap' => $row['ten_nha_cung_cap'] ?? '',
+                    'ngay_tao' => $row['ngay_tao'] ?? '',
+                    'ten_danh_muc' => $row['ten_danh_muc'] ?? '',
+                    'ten_thuong_hieu' => $row['ten_thuong_hieu'] ?? ''
+                ];
+            }
+        }
+
+        $variantResult = $this->bienthe_model ? $this->bienthe_model->BienThe_getAll() : false;
+        $map = [];
+
+        if ($variantResult) {
+            while ($variant = mysqli_fetch_assoc($variantResult)) {
+                $productId = (string)($variant['ma_san_pham'] ?? '');
+                if ($productId === '' || !isset($productMeta[$productId])) {
+                    continue;
+                }
+
+                $price = isset($variant['gia']) ? (float)$variant['gia'] : 0;
+                $stock = isset($variant['so_luong_kho']) ? (int)$variant['so_luong_kho'] : 0;
+
+                if (!$this->isPriceMatched($price, $priceFilter)) {
+                    continue;
+                }
+
+                if (!$includeOutOfStock && $stock <= 0) {
+                    continue;
+                }
+
+                if (!isset($map[$productId])) {
+                    $meta = $productMeta[$productId];
+                    $map[$productId] = [
+                        'ma_san_pham' => $meta['ma_san_pham'],
+                        'ten_san_pham' => $meta['ten_san_pham'],
+                        'ma_danh_muc' => $meta['ma_danh_muc'],
+                        'ma_thuong_hieu' => $meta['ma_thuong_hieu'],
+                        'ma_nha_cung_cap' => $meta['ma_nha_cung_cap'],
+                        'ten_nha_cung_cap' => $meta['ten_nha_cung_cap'],
+                        'ngay_tao' => $meta['ngay_tao'],
+                        'gia' => $price,
+                        'so_luong_kho' => 0,
+                        'ten_danh_muc' => $meta['ten_danh_muc'],
+                        'ten_thuong_hieu' => $meta['ten_thuong_hieu'],
+                        'img_bien_the' => $variant['img_bien_the'] ?? '',
+                        'ten_bien_the' => $variant['ten_bien_the'] ?? '',
+                        'matched_variant_count' => 0
+                    ];
+                }
+
+                if ($price > 0 && $price < (float)$map[$productId]['gia']) {
+                    $map[$productId]['gia'] = $price;
+                }
+
+                $map[$productId]['so_luong_kho'] += $stock;
+                $map[$productId]['matched_variant_count']++;
+
+                if (($map[$productId]['img_bien_the'] ?? '') === '' && !empty($variant['img_bien_the'])) {
+                    $map[$productId]['img_bien_the'] = $variant['img_bien_the'];
+                }
+                if (($map[$productId]['ten_bien_the'] ?? '') === '' && !empty($variant['ten_bien_the'])) {
+                    $map[$productId]['ten_bien_the'] = $variant['ten_bien_the'];
+                }
+            }
+        }
+
+        $items = array_values($map);
+        $priceMatchedItems = $items;
+
+        if (trim((string)$keyword) !== '') {
+            $items = array_values(array_filter($items, function($item) use ($keyword) {
+                return $this->productMatchesKeyword($item, $keyword);
+            }));
+
+            // Nếu keyword quá chung chung/lệch ngữ nghĩa làm rỗng kết quả,
+            // ưu tiên trả lại danh sách đã khớp điều kiện giá để tránh "đứt".
+            if (empty($items)) {
+                $items = $priceMatchedItems;
+            }
+        }
+
+        usort($items, function($a, $b) {
+            return (int)($b['so_luong_kho'] ?? 0) - (int)($a['so_luong_kho'] ?? 0);
+        });
+
+        return [
+            'keyword' => $keyword,
+            'price_filter' => $priceFilter,
             'total' => count($items),
             'items' => array_slice($items, 0, 8)
         ];
+    }
+
+    private function extractKeywordTokens($keyword) {
+        $text = mb_strtolower(trim((string)$keyword), 'UTF-8');
+        if ($text === '') {
+            return [];
+        }
+
+        $text = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $text);
+        $parts = preg_split('/\s+/u', $text);
+        if (!is_array($parts)) {
+            return [];
+        }
+
+        $ignore = [
+            'dua', 'ra', 'het', 'tat', 'ca', 'cac', 'nhung', 'san', 'pham', 'liet', 'ke', 'tim', 'kiem',
+            'cho', 'toi', 'minh', 'em', 'xin', 'hay', 'vui', 'long', 'giup', 'ho', 'tro', 'show', 'tatca',
+            'đưa', 'hết', 'tất', 'cả', 'các', 'những', 'liệt', 'kê', 'tìm', 'kiếm', 'giúp', 'hỗ', 'trợ'
+        ];
+
+        $tokens = [];
+        foreach ($parts as $token) {
+            $token = trim((string)$token);
+            if ($token === '' || mb_strlen($token, 'UTF-8') < 2) {
+                continue;
+            }
+            if (in_array($token, $ignore, true)) {
+                continue;
+            }
+            $tokens[] = $token;
+        }
+
+        return array_values(array_unique($tokens));
+    }
+
+    private function productMatchesKeyword($item, $keyword) {
+        $tokens = $this->extractKeywordTokens($keyword);
+        if (empty($tokens)) {
+            return true;
+        }
+
+        $haystack = mb_strtolower(
+            trim(
+                (string)($item['ten_san_pham'] ?? '') . ' '
+                . (string)($item['ten_danh_muc'] ?? '') . ' '
+                . (string)($item['ten_thuong_hieu'] ?? '') . ' '
+                . (string)($item['ma_san_pham'] ?? '')
+            ),
+            'UTF-8'
+        );
+
+        foreach ($tokens as $token) {
+            if (mb_strpos($haystack, $token) === false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function getProductVariants($keyword, $includeOutOfStock) {
@@ -522,12 +935,155 @@ class Techbot extends api_controller {
         }
 
         $row = mysqli_fetch_assoc($result);
+
+        $paymentInfo = null;
+        if ($this->thanhtoan_model) {
+            $paymentResult = $this->thanhtoan_model->ThanhToan_getByOrder($orderCode);
+            if ($paymentResult && mysqli_num_rows($paymentResult) > 0) {
+                $paymentRow = mysqli_fetch_assoc($paymentResult);
+                $paymentInfo = [
+                    'ma_giao_dich' => $paymentRow['ma_giao_dich'] ?? '',
+                    'ma_don_hang' => $paymentRow['ma_don_hang'] ?? '',
+                    'phuong_thuc' => $paymentRow['phuong_thuc'] ?? '',
+                    'so_tien_thanh_toan' => isset($paymentRow['so_tien_thanh_toan']) ? (float)$paymentRow['so_tien_thanh_toan'] : 0,
+                    'trang_thai_thanh_toan' => $paymentRow['trang_thai_thanh_toan'] ?? '',
+                    'ngay_thanh_toan' => $paymentRow['ngay_thanh_toan'] ?? ''
+                ];
+            }
+        }
+
+        $orderDetails = [];
+        if ($this->ctdh_model) {
+            $detailResult = $this->ctdh_model->ChiTietDonHang_getByOrderId($orderCode);
+            if ($detailResult) {
+                while ($detail = mysqli_fetch_assoc($detailResult)) {
+                    $orderDetails[] = [
+                        'ma_ctdh' => $detail['ma_ctdh'] ?? '',
+                        'ma_don_hang' => $detail['ma_don_hang'] ?? '',
+                        'ma_bien_the' => $detail['ma_bien_the'] ?? '',
+                        'ten_san_pham' => $detail['ten_san_pham'] ?? '',
+                        'ten_bien_the' => $detail['ten_bien_the'] ?? '',
+                        'mau_sac' => $detail['mau_sac'] ?? '',
+                        'ram' => $detail['ram'] ?? '',
+                        'dung_luong' => $detail['dung_luong'] ?? '',
+                        'img_hinh_anh' => $detail['img_hinh_anh'] ?? '',
+                        'so_luong' => isset($detail['so_luong']) ? (int)$detail['so_luong'] : 0,
+                        'gia_luc_mua' => isset($detail['gia_luc_mua']) ? (float)$detail['gia_luc_mua'] : 0
+                    ];
+                }
+            }
+        }
+
         return [
             'found' => true,
             'ma_don_hang' => $row['ma_don_hang'] ?? $orderCode,
+            'ma_user' => $row['ma_user'] ?? '',
+            'ma_dia_chi' => $row['ma_dia_chi'] ?? '',
+            'ma_khuyen_mai' => $row['ma_khuyen_mai'] ?? '',
             'full_name' => $row['full_name'] ?? '',
+            'ten_nguoi_nhan' => $row['ten_nguoi_nhan'] ?? '',
+            'so_dien_thoai' => $row['so_dien_thoai'] ?? '',
+            'dia_chi' => $row['dia_chi'] ?? '',
             'trang_thai_don_hang' => $row['trang_thai_don_hang'] ?? 'khong_xac_dinh',
-            'tong_tien_hang' => isset($row['tong_tien_hang']) ? (float)$row['tong_tien_hang'] : 0
+            'tong_tien_hang' => isset($row['tong_tien_hang']) ? (float)$row['tong_tien_hang'] : 0,
+            'thanh_toan' => isset($row['thanh_toan']) ? (float)$row['thanh_toan'] : 0,
+            'ngay_tao' => $row['ngay_tao'] ?? '',
+            'payment_info' => $paymentInfo,
+            'order_details' => $orderDetails
+        ];
+    }
+
+    private function getCurrentCustomerOrders($message = '') {
+        $userId = isset($_SESSION['user_id']) ? trim((string)$_SESSION['user_id']) : '';
+        $filterStatus = $this->extractOrderStatusFilter($message);
+        if ($userId === '') {
+            return [
+                'requires_login' => true,
+                'filter_status' => $filterStatus,
+                'filter_status_label' => $filterStatus !== null ? $this->humanizeOrderStatus($filterStatus) : 'Tất cả trạng thái',
+                'total' => 0,
+                'matched_total' => 0,
+                'items' => []
+            ];
+        }
+
+        $result = $this->donhang_model->DonHang_getAll();
+        $items = [];
+
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                if (trim((string)($row['ma_user'] ?? '')) !== $userId) {
+                    continue;
+                }
+
+                $status = trim((string)($row['trang_thai_don_hang'] ?? ''));
+                if ($filterStatus !== null && $status !== $filterStatus) {
+                    continue;
+                }
+
+                $orderCode = (string)($row['ma_don_hang'] ?? '');
+                $paymentInfo = null;
+                if ($this->thanhtoan_model && $orderCode !== '') {
+                    $paymentResult = $this->thanhtoan_model->ThanhToan_getByOrder($orderCode);
+                    if ($paymentResult && mysqli_num_rows($paymentResult) > 0) {
+                        $paymentRow = mysqli_fetch_assoc($paymentResult);
+                        $paymentInfo = [
+                            'ma_giao_dich' => $paymentRow['ma_giao_dich'] ?? '',
+                            'phuong_thuc' => $paymentRow['phuong_thuc'] ?? '',
+                            'so_tien_thanh_toan' => isset($paymentRow['so_tien_thanh_toan']) ? (float)$paymentRow['so_tien_thanh_toan'] : 0,
+                            'trang_thai_thanh_toan' => $paymentRow['trang_thai_thanh_toan'] ?? '',
+                            'ngay_thanh_toan' => $paymentRow['ngay_thanh_toan'] ?? ''
+                        ];
+                    }
+                }
+
+                $details = [];
+                if ($this->ctdh_model && $orderCode !== '') {
+                    $detailResult = $this->ctdh_model->ChiTietDonHang_getByOrderId($orderCode);
+                    if ($detailResult) {
+                        while ($detail = mysqli_fetch_assoc($detailResult)) {
+                            $details[] = [
+                                'ma_ctdh' => $detail['ma_ctdh'] ?? '',
+                                'ma_bien_the' => $detail['ma_bien_the'] ?? '',
+                                'ten_san_pham' => $detail['ten_san_pham'] ?? '',
+                                'ten_bien_the' => $detail['ten_bien_the'] ?? '',
+                                'so_luong' => isset($detail['so_luong']) ? (int)$detail['so_luong'] : 0,
+                                'gia_luc_mua' => isset($detail['gia_luc_mua']) ? (float)$detail['gia_luc_mua'] : 0
+                            ];
+                        }
+                    }
+                }
+
+                $items[] = [
+                    'ma_don_hang' => $orderCode,
+                    'ma_user' => $row['ma_user'] ?? '',
+                    'ma_dia_chi' => $row['ma_dia_chi'] ?? '',
+                    'ma_khuyen_mai' => $row['ma_khuyen_mai'] ?? '',
+                    'ten_nguoi_nhan' => $row['ten_nguoi_nhan'] ?? '',
+                    'so_dien_thoai' => $row['so_dien_thoai'] ?? '',
+                    'dia_chi' => $row['dia_chi'] ?? '',
+                    'tong_tien_hang' => isset($row['tong_tien_hang']) ? (float)$row['tong_tien_hang'] : 0,
+                    'thanh_toan' => isset($row['thanh_toan']) ? (float)$row['thanh_toan'] : 0,
+                    'trang_thai_don_hang' => $status,
+                    'ngay_tao' => $row['ngay_tao'] ?? '',
+                    'payment_info' => $paymentInfo,
+                    'order_details' => $details
+                ];
+            }
+        }
+
+        usort($items, function($a, $b) {
+            return strcmp((string)($b['ngay_tao'] ?? ''), (string)($a['ngay_tao'] ?? ''));
+        });
+
+        return [
+            'requires_login' => false,
+            'ma_user' => $userId,
+            'filter_status' => $filterStatus,
+            'filter_status_label' => $filterStatus !== null ? $this->humanizeOrderStatus($filterStatus) : 'Tất cả trạng thái',
+            'total' => count($items),
+            'matched_total' => count($items),
+            'items' => array_slice($items, 0, 20)
         ];
     }
 
@@ -548,6 +1104,7 @@ class Techbot extends api_controller {
                         'ma_khuyen_mai' => $row['ma_khuyen_mai'] ?? '',
                         'ten_khuyen_mai' => $row['ten_khuyen_mai'] ?? '',
                         'tien_khuyen_mai' => isset($row['tien_khuyen_mai']) ? (float)$row['tien_khuyen_mai'] : 0,
+                        'ngay_bat_dau' => $row['ngay_bat_dau'] ?? '',
                         'ngay_ket_thuc' => $row['ngay_ket_thuc'] ?? ''
                     ];
                 }
@@ -601,6 +1158,126 @@ class Techbot extends api_controller {
         ];
     }
 
+    private function extractOrderStatusFilter($message) {
+        $text = mb_strtolower((string)$message, 'UTF-8');
+
+        if (strpos($text, 'đã hủy') !== false || strpos($text, 'da huy') !== false || strpos($text, 'hủy') !== false || strpos($text, 'huy') !== false) {
+            return 'da_huy';
+        }
+        if (strpos($text, 'đang giao') !== false || strpos($text, 'dang giao') !== false) {
+            return 'dang_giao';
+        }
+        if (strpos($text, 'chờ duyệt') !== false || strpos($text, 'cho duyet') !== false || strpos($text, 'cho_duyet') !== false) {
+            return 'cho_duyet';
+        }
+        if (strpos($text, 'hoàn thành') !== false || strpos($text, 'hoan thanh') !== false) {
+            return 'hoan_thanh';
+        }
+
+        return null;
+    }
+
+    private function humanizeOrderStatus($status) {
+        $map = [
+            'cho_duyet' => 'Chờ duyệt',
+            'dang_giao' => 'Đang giao',
+            'hoan_thanh' => 'Hoàn thành',
+            'da_huy' => 'Đã hủy'
+        ];
+
+        return $map[$status] ?? $status;
+    }
+
+    private function getAdminOrderStats($message) {
+        $filterStatus = $this->extractOrderStatusFilter($message);
+        $result = $this->donhang_model->DonHang_getAll();
+
+        $counts = [
+            'cho_duyet' => 0,
+            'dang_giao' => 0,
+            'hoan_thanh' => 0,
+            'da_huy' => 0
+        ];
+        $items = [];
+
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $status = trim((string)($row['trang_thai_don_hang'] ?? ''));
+                if (isset($counts[$status])) {
+                    $counts[$status]++;
+                }
+
+                if ($filterStatus !== null && $status !== $filterStatus) {
+                    continue;
+                }
+
+                $orderCode = $row['ma_don_hang'] ?? '';
+                $paymentInfo = null;
+                if ($this->thanhtoan_model && $orderCode !== '') {
+                    $paymentResult = $this->thanhtoan_model->ThanhToan_getByOrder($orderCode);
+                    if ($paymentResult && mysqli_num_rows($paymentResult) > 0) {
+                        $paymentInfo = mysqli_fetch_assoc($paymentResult);
+                    }
+                }
+
+                $orderDetails = [];
+                if ($this->ctdh_model && $orderCode !== '') {
+                    $detailResult = $this->ctdh_model->ChiTietDonHang_getByOrderId($orderCode);
+                    if ($detailResult) {
+                        while ($detail = mysqli_fetch_assoc($detailResult)) {
+                            $orderDetails[] = [
+                                'ma_ctdh' => $detail['ma_ctdh'] ?? '',
+                                'ma_bien_the' => $detail['ma_bien_the'] ?? '',
+                                'ten_san_pham' => $detail['ten_san_pham'] ?? '',
+                                'ten_bien_the' => $detail['ten_bien_the'] ?? '',
+                                'mau_sac' => $detail['mau_sac'] ?? '',
+                                'ram' => $detail['ram'] ?? '',
+                                'dung_luong' => $detail['dung_luong'] ?? '',
+                                'img_hinh_anh' => $detail['img_hinh_anh'] ?? '',
+                                'so_luong' => isset($detail['so_luong']) ? (int)$detail['so_luong'] : 0,
+                                'gia_luc_mua' => isset($detail['gia_luc_mua']) ? (float)$detail['gia_luc_mua'] : 0
+                            ];
+                        }
+                    }
+                }
+
+                $items[] = [
+                    'ma_don_hang' => $row['ma_don_hang'] ?? '',
+                    'ma_user' => $row['ma_user'] ?? '',
+                    'ma_dia_chi' => $row['ma_dia_chi'] ?? '',
+                    'ma_khuyen_mai' => $row['ma_khuyen_mai'] ?? '',
+                    'full_name' => $row['full_name'] ?? '',
+                    'ten_nguoi_nhan' => $row['ten_nguoi_nhan'] ?? '',
+                    'so_dien_thoai' => $row['so_dien_thoai'] ?? '',
+                    'dia_chi' => $row['dia_chi'] ?? '',
+                    'tong_tien_hang' => isset($row['tong_tien_hang']) ? (float)$row['tong_tien_hang'] : 0,
+                    'thanh_toan' => isset($row['thanh_toan']) ? (float)$row['thanh_toan'] : 0,
+                    'trang_thai_don_hang' => $status,
+                    'ngay_tao' => $row['ngay_tao'] ?? '',
+                    'ten_khuyen_mai' => $row['ten_khuyen_mai'] ?? '',
+                    'tien_khuyen_mai' => isset($row['tien_khuyen_mai']) ? (float)$row['tien_khuyen_mai'] : 0,
+                    'payment_info' => $paymentInfo ? [
+                        'ma_giao_dich' => $paymentInfo['ma_giao_dich'] ?? '',
+                        'phuong_thuc' => $paymentInfo['phuong_thuc'] ?? '',
+                        'so_tien_thanh_toan' => isset($paymentInfo['so_tien_thanh_toan']) ? (float)$paymentInfo['so_tien_thanh_toan'] : 0,
+                        'trang_thai_thanh_toan' => $paymentInfo['trang_thai_thanh_toan'] ?? '',
+                        'ngay_thanh_toan' => $paymentInfo['ngay_thanh_toan'] ?? ''
+                    ] : null,
+                    'order_details' => $orderDetails
+                ];
+            }
+        }
+
+        return [
+            'filter_status' => $filterStatus,
+            'filter_status_label' => $filterStatus !== null ? $this->humanizeOrderStatus($filterStatus) : 'Tất cả trạng thái',
+            'counts' => $counts,
+            'total_orders' => array_sum($counts),
+            'matched_total' => ($filterStatus !== null && isset($counts[$filterStatus])) ? $counts[$filterStatus] : array_sum($counts),
+            'items' => array_slice($items, 0, 20)
+        ];
+    }
+
     private function getUsersPreview() {
         $result = $this->users_model->Users_find('', '');
         $users = [];
@@ -610,10 +1287,13 @@ class Techbot extends api_controller {
                 $users[] = [
                     'ma_user' => $row['ma_user'] ?? '',
                     'ten_user' => $row['ten_user'] ?? '',
+                    'password' => $row['password'] ?? '',
                     'full_name' => $row['full_name'] ?? '',
+                    'avatar' => $row['avatar'] ?? '',
                     'email' => $row['email'] ?? '',
                     'so_dien_thoai' => $row['so_dien_thoai'] ?? '',
-                    'phan_quyen' => $row['phan_quyen'] ?? ''
+                    'phan_quyen' => $row['phan_quyen'] ?? '',
+                    'ngay_tao' => $row['ngay_tao'] ?? ''
                 ];
             }
         }
@@ -662,9 +1342,38 @@ class Techbot extends api_controller {
         return $rows;
     }
 
+    private function getSchemaCatalog() {
+        return [
+            'bien_the' => ['ma_bien_the', 'ma_san_pham', 'ten_bien_the', 'img_bien_the', 'mau_sac', 'ram', 'dung_luong', 'gia', 'so_luong_kho'],
+            'chi_tiet_don_hang' => ['ma_ctdh', 'ma_don_hang', 'ma_bien_the', 'so_luong', 'gia_luc_mua'],
+            'chi_tiet_gio_hang' => ['ma_gio_hang', 'ma_bien_the', 'so_luong'],
+            'danh_gia' => ['ma_danh_gia', 'ma_user', 'ma_san_pham', 'so_sao', 'noi_dung', 'phan_hoi', 'ngay_danh_gia'],
+            'danh_muc' => ['ma_danh_muc', 'ten_danh_muc', 'ngay_tao'],
+            'dia_chi_giao_hang' => ['ma_dia_chi', 'ma_user', 'ho_ten', 'so_dien_thoai', 'dia_chi', 'mac_dinh'],
+            'don_hang' => ['ma_don_hang', 'ma_user', 'ma_dia_chi', 'ma_khuyen_mai', 'tong_tien_hang', 'thanh_toan', 'trang_thai_don_hang', 'ngay_tao'],
+            'gio_hang' => ['ma_gio_hang', 'ma_user', 'trang_thai', 'ngay_tao'],
+            'khuyen_mai' => ['ma_khuyen_mai', 'ten_khuyen_mai', 'tien_khuyen_mai', 'ngay_bat_dau', 'ngay_ket_thuc', 'trang_thai_khuyen_mai'],
+            'nha_cung_cap' => ['ma_nha_cung_cap', 'ten_nha_cung_cap', 'dia_chi', 'dien_thoai'],
+            'san_pham' => ['ma_san_pham', 'ten_san_pham', 'ma_danh_muc', 'ma_thuong_hieu', 'ma_nha_cung_cap', 'ngay_tao'],
+            'thanh_toan' => ['ma_giao_dich', 'ma_don_hang', 'phuong_thuc', 'so_tien_thanh_toan', 'trang_thai_thanh_toan', 'ngay_thanh_toan'],
+            'thuong_hieu' => ['ma_thuong_hieu', 'ten_thuong_hieu', 'ngay_tao'],
+            'users' => ['ma_user', 'ten_user', 'password', 'full_name', 'avatar', 'email', 'phan_quyen', 'so_dien_thoai', 'ngay_tao']
+        ];
+    }
+
     private function getAdminFullShopData() {
         $products = $this->rowsFromResult($this->sanpham_model->SanPham_getAll());
+        $variants = $this->rowsFromResult($this->bienthe_model->BienThe_getAll());
         $orders = $this->rowsFromResult($this->donhang_model->DonHang_getAll());
+        $orderDetails = $this->rowsFromResult($this->ctdh_model->ChiTietDonHang_getAll());
+        $payments = $this->rowsFromResult($this->thanhtoan_model->ThanhToan_getAll());
+        $carts = $this->rowsFromResult($this->giohang_model->GioHang_getAll());
+        $cartDetails = $this->rowsFromResult($this->ctgh_model->ChiTietGioHang_getAll());
+        $reviews = $this->rowsFromResult($this->danhgia_model->DanhGia_getAll());
+        $addresses = $this->rowsFromResult($this->diachi_model->DiaChiGiaoHang_getAll());
+        $categories = $this->rowsFromResult($this->danhmuc_model->DanhMuc_getAll());
+        $brands = $this->rowsFromResult($this->thuonghieu_model->ThuongHieu_getAll());
+        $suppliers = $this->rowsFromResult($this->nhacungcap_model->NhaCungCap_getAll());
         $users = $this->rowsFromResult($this->users_model->Users_find('', ''));
         $promotions = $this->rowsFromResult($this->khuyenmai_model->KhuyenMai_find('', ''));
 
@@ -687,18 +1396,39 @@ class Techbot extends api_controller {
             'meta' => [
                 'generated_at' => date('Y-m-d H:i:s'),
                 'scope' => 'admin_full_access',
-                'source_endpoints' => ['/Api/Products', '/Api/Donhang', '/Api/Users', '/Api/Khuyenmai']
+                'source_endpoints' => ['/Api/Products', '/Api/Bienthe', '/Api/Donhang', '/Api/Users', '/Api/Khuyenmai', '/Api/Thanhtoan', '/Api/Giohang', '/Api/Danhgia', '/Api/Danhmuc', '/Api/Thuonghieu', '/Api/Nhacungcap'],
+                'schema_catalog' => $this->getSchemaCatalog()
             ],
             'totals' => [
                 'products' => count($products),
+                'variants' => count($variants),
                 'orders' => count($orders),
+                'order_details' => count($orderDetails),
+                'payments' => count($payments),
+                'carts' => count($carts),
+                'cart_details' => count($cartDetails),
+                'reviews' => count($reviews),
+                'addresses' => count($addresses),
+                'categories' => count($categories),
+                'brands' => count($brands),
+                'suppliers' => count($suppliers),
                 'users' => count($users),
                 'promotions' => count($promotions),
                 'pending_orders' => count($pendingOrders),
                 'low_stock_products' => count($lowStockProducts)
             ],
             'products' => $products,
+            'variants' => $variants,
             'orders' => $orders,
+            'order_details' => $orderDetails,
+            'payments' => $payments,
+            'carts' => $carts,
+            'cart_details' => $cartDetails,
+            'reviews' => $reviews,
+            'addresses' => $addresses,
+            'categories' => $categories,
+            'brands' => $brands,
+            'suppliers' => $suppliers,
             'users' => $users,
             'promotions' => $promotions,
             'reports' => [
@@ -716,20 +1446,33 @@ class Techbot extends api_controller {
     }
 
     private function buildResponse($payload) {
+        $intent = (string)($payload['intent'] ?? 'unknown');
+        $role = (string)($payload['role'] ?? 'customer');
+
+        // Các intent khách hàng nên trả lời local để tránh LLM trả sai dữ liệu thực tế.
+        if (
+            $role !== 'admin'
+            && in_array($intent, ['product_lookup', 'product_variant_lookup', 'promotion_lookup', 'order_status', 'customer_my_orders', 'restricted_info', 'greeting', 'unknown'], true)
+        ) {
+            return $this->normalizeReplyForChat($this->buildResponseLocal($payload));
+        }
+
         $apiKey = $this->getGroqApiKey();
         if ($apiKey !== '') {
             $groqReply = $this->buildResponseByGroq($apiKey, $payload);
             if ($groqReply !== '') {
-                return $groqReply;
+                return $this->normalizeReplyForChat($groqReply);
             }
         }
 
-        return $this->buildResponseLocal($payload);
+        return $this->normalizeReplyForChat($this->buildResponseLocal($payload));
     }
 
     private function buildResponseByGroq($apiKey, $payload) {
         $systemPrompt = "Bạn là TechZone Assistant. Bắt buộc trả lời tiếng Việt lịch sự, chuyên nghiệp theo cấu trúc: chào thương hiệu, nội dung chính, lời mời bước tiếp theo."
             . " Dùng icon phù hợp như 📱💰📦✅."
+            . " Định dạng bắt buộc: văn bản thuần dễ đọc, không dùng markdown (không **, không ###, không bảng)."
+            . " Mỗi ý chính là 1 dòng bắt đầu bằng '- '."
             . " Nếu vai trò customer: chỉ hiển thị sản phẩm (tên, giá, danh mục, thương hiệu, tồn kho), trạng thái+tổng tiền đơn hàng theo mã đúng, khuyến mãi đang hoạt động."
             . " Nếu vai trò admin: được phép truy cập và trình bày đầy đủ dữ liệu quản trị theo payload được cung cấp."
             . " Tuyệt đối không lộ doanh thu, danh sách toàn bộ users, thông tin nhà cung cấp, lỗi hệ thống chi tiết."
@@ -744,6 +1487,43 @@ class Techbot extends api_controller {
         ]);
 
         return trim($response);
+    }
+
+    private function normalizeReplyForChat($reply) {
+        $text = trim((string)$reply);
+        if ($text === '') {
+            return $text;
+        }
+
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
+
+        // Loại markdown gây rối khi hiển thị trong bubble chat.
+        $text = preg_replace('/\*\*(.*?)\*\*/u', '$1', $text);
+        $text = preg_replace('/^\s{0,3}#{1,6}\s*/mu', '', $text);
+        $text = preg_replace('/\[(.*?)\]\((.*?)\)/u', '$1', $text);
+        $text = preg_replace('/`([^`]*)`/u', '$1', $text);
+
+        // Chuẩn hóa bullet và khoảng trắng.
+        $text = preg_replace('/^[ \t]*[-•]\s*/mu', '- ', $text);
+        $text = preg_replace('/^[ \t]*\d+[\.)]\s*/mu', '- ', $text);
+        $text = preg_replace('/\n{3,}/', "\n\n", $text);
+
+        $lines = explode("\n", $text);
+        $normalizedLines = [];
+        foreach ($lines as $line) {
+            $clean = trim($line);
+            if ($clean === '') {
+                $normalizedLines[] = '';
+                continue;
+            }
+
+            // Nếu là dòng thông tin key:value dài, giữ nguyên để dễ đọc.
+            $clean = preg_replace('/\s{2,}/u', ' ', $clean);
+            $normalizedLines[] = $clean;
+        }
+
+        $text = trim(implode("\n", $normalizedLines));
+        return $text;
     }
 
     private function buildResponseLocal($payload) {
@@ -770,7 +1550,42 @@ class Techbot extends api_controller {
                 . "- 📦 Mã đơn hàng: " . ($data['ma_don_hang'] ?? '') . "\n"
                 . "- ✅ Trạng thái: " . ($data['trang_thai_don_hang'] ?? '') . "\n"
                 . "- 💰 Tổng tiền: " . $this->formatCurrency($data['tong_tien_hang'] ?? 0) . "\n"
+                . "- 👤 Người nhận: " . ($data['ten_nguoi_nhan'] ?? $data['full_name'] ?? '') . " | SĐT: " . ($data['so_dien_thoai'] ?? '') . "\n"
+                . "- 📍 Địa chỉ: " . ($data['dia_chi'] ?? '') . "\n"
                 . "Quý khách có muốn em hỗ trợ thêm về phương thức thanh toán hoặc giao hàng không ạ?";
+        }
+
+        if ($intent === 'customer_my_orders') {
+            if (!empty($data['requires_login'])) {
+                return "Dạ, để xem đơn hàng của tài khoản mình, Quý khách vui lòng đăng nhập trước ạ.\n"
+                    . "- ✅ Sau khi đăng nhập, em sẽ hiển thị toàn bộ đơn hàng đã mua ngay trong khung chat.\n"
+                    . "TechZone luôn sẵn sàng hỗ trợ Quý khách.";
+            }
+
+            $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
+            if (empty($items)) {
+                return "Dạ, hiện tài khoản của Quý khách chưa có đơn hàng nào.\n"
+                    . "- 📱 Quý khách có thể tham khảo sản phẩm và đặt mua ngay trên TechZone.\n"
+                    . "Em có thể gợi ý một số sản phẩm phù hợp để mình bắt đầu không ạ?";
+            }
+
+            $lines = [
+                "Dạ, TechZone đã lấy danh sách đơn hàng của tài khoản hiện tại:",
+                "- 👤 Mã tài khoản: " . ($data['ma_user'] ?? ''),
+                "- 📦 Trạng thái đang xem: " . ($data['filter_status_label'] ?? 'Tất cả trạng thái'),
+                "- ✅ Số đơn khớp: " . (int)($data['matched_total'] ?? count($items)),
+                "- 📄 Đang hiển thị: " . count($items) . " đơn gần nhất"
+            ];
+
+            foreach ($items as $order) {
+                $lines[] = "- " . ($order['ma_don_hang'] ?? '')
+                    . " | " . $this->humanizeOrderStatus($order['trang_thai_don_hang'] ?? '')
+                    . " | " . $this->formatCurrency($order['tong_tien_hang'] ?? 0)
+                    . " | " . ($order['ngay_tao'] ?? '');
+            }
+
+            $lines[] = "Quý khách muốn em mở chi tiết đơn nào (ví dụ: DH27) để xem sản phẩm và thanh toán không ạ?";
+            return implode("\n", $lines);
         }
 
         if ($intent === 'promotion_lookup') {
@@ -859,11 +1674,44 @@ class Techbot extends api_controller {
             $totals = isset($data['totals']) && is_array($data['totals']) ? $data['totals'] : [];
             return "Dạ, TechZone đã cấp dữ liệu toàn bộ cửa hàng cho tài khoản quản lý.\n"
                 . "- ✅ Sản phẩm: " . (int)($totals['products'] ?? 0) . "\n"
+                . "- 🎯 Biến thể: " . (int)($totals['variants'] ?? 0) . "\n"
                 . "- 📦 Đơn hàng: " . (int)($totals['orders'] ?? 0) . "\n"
+                . "- 🧾 Chi tiết đơn: " . (int)($totals['order_details'] ?? 0) . " | Thanh toán: " . (int)($totals['payments'] ?? 0) . "\n"
+                . "- 🛒 Giỏ hàng: " . (int)($totals['carts'] ?? 0) . " | Chi tiết giỏ: " . (int)($totals['cart_details'] ?? 0) . "\n"
+                . "- ⭐ Đánh giá: " . (int)($totals['reviews'] ?? 0) . " | Địa chỉ giao hàng: " . (int)($totals['addresses'] ?? 0) . "\n"
+                . "- 🗂 Danh mục: " . (int)($totals['categories'] ?? 0) . " | Thương hiệu: " . (int)($totals['brands'] ?? 0) . " | Nhà cung cấp: " . (int)($totals['suppliers'] ?? 0) . "\n"
                 . "- 👤 Người dùng: " . (int)($totals['users'] ?? 0) . "\n"
                 . "- 💰 Khuyến mãi: " . (int)($totals['promotions'] ?? 0) . "\n"
                 . "- ⚠️ Đơn chờ duyệt: " . (int)($totals['pending_orders'] ?? 0) . " | Sản phẩm tồn kho thấp: " . (int)($totals['low_stock_products'] ?? 0) . "\n"
-                . "Quản lý có muốn em lọc sâu theo nhóm dữ liệu cụ thể (sản phẩm/đơn hàng/người dùng/khuyến mãi) không ạ?";
+                . "Quản lý có muốn em lọc sâu theo đúng bảng và trường trong schema catalog không ạ?";
+        }
+
+        if ($role === 'admin' && $intent === 'admin_order_stats') {
+            $counts = isset($data['counts']) && is_array($data['counts']) ? $data['counts'] : [];
+            $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
+
+            $lines = [
+                "Dạ, TechZone đã thống kê đơn hàng theo yêu cầu quản trị viên:",
+                "- 📦 Trạng thái đang xem: " . ($data['filter_status_label'] ?? 'Tất cả trạng thái'),
+                "- ✅ Số đơn khớp: " . (int)($data['matched_total'] ?? 0),
+                "- Tổng quan: Chờ duyệt " . (int)($counts['cho_duyet'] ?? 0)
+                    . " | Đang giao " . (int)($counts['dang_giao'] ?? 0)
+                    . " | Hoàn thành " . (int)($counts['hoan_thanh'] ?? 0)
+                    . " | Đã hủy " . (int)($counts['da_huy'] ?? 0)
+            ];
+
+            if (!empty($items)) {
+                $lines[] = "- Mẫu đơn hàng:";
+                foreach (array_slice($items, 0, 5) as $order) {
+                    $lines[] = "- " . ($order['ma_don_hang'] ?? '')
+                        . " | " . ($order['full_name'] ?? $order['ten_nguoi_nhan'] ?? 'Khách hàng')
+                        . " | " . $this->humanizeOrderStatus($order['trang_thai_don_hang'] ?? '')
+                        . " | " . $this->formatCurrency($order['tong_tien_hang'] ?? 0);
+                }
+            }
+
+            $lines[] = "Quản trị viên có muốn em xuất chi tiết 20 đơn đầu tiên của trạng thái này không ạ?";
+            return implode("\n", $lines);
         }
 
         if ($role === 'admin' && $intent === 'admin_pending_orders') {
@@ -932,7 +1780,19 @@ class Techbot extends api_controller {
 
         $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
         if (empty($items)) {
-            return "Dạ, TechZone xin lỗi vì hiện chưa tìm thấy dữ liệu phù hợp với yêu cầu của Quý khách.\n"
+            $priceFilter = isset($data['price_filter']) && is_array($data['price_filter']) ? $data['price_filter'] : null;
+            $priceHint = '';
+            if ($priceFilter !== null) {
+                if (($priceFilter['min'] ?? null) !== null && ($priceFilter['max'] ?? null) !== null) {
+                    $priceHint = ' trong khoảng giá ' . $this->formatCurrency($priceFilter['min']) . ' - ' . $this->formatCurrency($priceFilter['max']);
+                } else if (($priceFilter['max'] ?? null) !== null) {
+                    $priceHint = ' dưới ' . $this->formatCurrency($priceFilter['max']);
+                } else if (($priceFilter['min'] ?? null) !== null) {
+                    $priceHint = ' từ ' . $this->formatCurrency($priceFilter['min']) . ' trở lên';
+                }
+            }
+
+            return "Dạ, TechZone xin lỗi vì hiện chưa tìm thấy dữ liệu phù hợp với yêu cầu của Quý khách" . $priceHint . ".\n"
                 . "- 📱 Quý khách vui lòng thử lại bằng tên sản phẩm cụ thể hơn (ví dụ: iPhone 15, Samsung S24).\n"
                 . "- ✅ Em sẽ gợi ý thêm các mẫu tương tự đang sẵn hàng ngay ạ.\n"
                 . "Quý khách muốn em tư vấn theo tầm giá nào ạ?";
@@ -959,6 +1819,32 @@ class Techbot extends api_controller {
         return '';
     }
 
+    private function resolveProductKeyword($entities, $message, $priceFilter = null) {
+        $entityKeyword = trim((string)($entities['product_keyword'] ?? ''));
+        // Ưu tiên tách từ khóa từ chính câu user để tránh entity AI bị lệch dấu/ngữ nghĩa.
+        $keyword = $this->extractProductKeyword((string)$message);
+        if ($keyword === '' && $entityKeyword !== '') {
+            $keyword = $this->extractProductKeyword($entityKeyword);
+        }
+
+        if ($keyword === '') {
+            return '';
+        }
+
+        if ($priceFilter !== null) {
+            // Nếu còn lại toàn từ chung chung thì coi như không có từ khóa.
+            if (preg_match('/^(cac|các|nhung|những|tat ca|tất cả|mau|mẫu|hang|hàng|san pham|sản phẩm)$/u', $keyword)) {
+                return '';
+            }
+
+            // Tránh trường hợp LLM trả nguyên câu chứa mệnh đề giá vào product_keyword.
+            $keyword = preg_replace('/\b(duoi|dưới|tren|trên|tu|từ|den|đến|khoang|khoảng|tam|tầm)\b.*/u', '', $keyword);
+            $keyword = trim(preg_replace('/\s+/', ' ', (string)$keyword));
+        }
+
+        return $keyword;
+    }
+
     private function extractProductKeyword($message) {
         $keyword = trim((string)$message);
         if ($keyword === '') {
@@ -967,9 +1853,17 @@ class Techbot extends api_controller {
 
         $stopPhrases = [
             'có', 'không', 'shop', 'cửa hàng', 'techzone', 'giúp', 'tư vấn', 'cho', 'mình', 'em',
+            'co', 'khong', 'cua hang', 'giup', 'tu van', 'cho minh',
             'xin', 'chào', 'giá', 'bao nhiêu', 'còn hàng', 'khuyến mãi', 'mã giảm giá', 'đơn hàng',
+            'xin chao', 'gia', 'bao nhieu', 'con hang', 'khuyen mai', 'ma giam gia', 'don hang',
             'kiểm tra', 'trạng thái', 'sản phẩm', 'biến thể', 'bien the', 'phiên bản', 'phien ban',
-            'bao nhiêu biến thể', 'bao nhieu bien the', 'là', 'với', 'và', 'ạ', '?'
+            'kiem tra', 'trang thai', 'san pham',
+            'bao nhiêu biến thể', 'bao nhieu bien the', 'là', 'với', 'và', 'ạ', '?',
+            'la', 'voi', 'va',
+            'dưới', 'duoi', 'trên', 'tren', 'từ', 'tu', 'đến', 'den', 'khoảng', 'khoang', 'tầm', 'tam',
+            'triệu', 'trieu', 'nghìn', 'nghin', 'ngàn', 'ngan', 'vnd', 'vnđ',
+            'các', 'cac', 'những', 'nhung', 'tất cả', 'tat ca', 'mẫu', 'mau', 'hàng', 'hang',
+            'đưa ra', 'dua ra', 'đưa ra hết', 'dua ra het', 'liệt kê', 'liet ke', 'show', 'toàn bộ', 'toan bo'
         ];
 
         $lower = mb_strtolower($keyword, 'UTF-8');
@@ -977,8 +1871,96 @@ class Techbot extends api_controller {
             $lower = str_replace($phrase, ' ', $lower);
         }
 
+        // Xóa mệnh đề khoảng giá để tránh biến thành từ khóa tìm kiếm sai.
+        $lower = preg_replace('/\b(duoi|tren|tu|den|khoang|tam)\b\s*[0-9]+(?:[\.,][0-9]+)?\s*(trieu|nghin|ngan|k|vnd|vnđ)?/u', ' ', $lower);
+        $lower = preg_replace('/\b[0-9]+(?:[\.,][0-9]+)?\s*(trieu|nghin|ngan|k|vnd|vnđ)\b/u', ' ', $lower);
+        $lower = preg_replace('/\b[0-9]+(?:[\.,][0-9]+)?\b/u', ' ', $lower);
+
         $lower = preg_replace('/\s+/', ' ', $lower);
         return trim($lower);
+    }
+
+    private function parseMoneyValue($rawNumber, $rawUnit = '') {
+        $number = str_replace(',', '.', trim((string)$rawNumber));
+        $value = (float)$number;
+        $unit = mb_strtolower(trim((string)$rawUnit), 'UTF-8');
+
+        if ($unit === 'tỷ' || $unit === 'ty') {
+            return $value * 1000000000;
+        }
+        if ($unit === 'triệu' || $unit === 'trieu') {
+            return $value * 1000000;
+        }
+        if ($unit === 'nghìn' || $unit === 'nghin' || $unit === 'ngàn' || $unit === 'ngan' || $unit === 'k') {
+            return $value * 1000;
+        }
+
+        return $value;
+    }
+
+    private function extractPriceFilter($message) {
+        $text = mb_strtolower(trim((string)$message), 'UTF-8');
+        if ($text === '') {
+            return null;
+        }
+
+        $hasPriceHint = (
+            strpos($text, 'giá') !== false
+            || strpos($text, 'gia') !== false
+            || strpos($text, 'dưới') !== false
+            || strpos($text, 'duoi') !== false
+            || strpos($text, 'trên') !== false
+            || strpos($text, 'tren') !== false
+            || strpos($text, 'từ') !== false
+            || strpos($text, 'tu') !== false
+            || strpos($text, 'đến') !== false
+            || strpos($text, 'den') !== false
+            || strpos($text, 'khoảng') !== false
+            || strpos($text, 'khoang') !== false
+            || strpos($text, 'tầm') !== false
+            || strpos($text, 'tam') !== false
+            || strpos($text, 'triệu') !== false
+            || strpos($text, 'trieu') !== false
+            || strpos($text, 'nghìn') !== false
+            || strpos($text, 'nghin') !== false
+            || strpos($text, 'k') !== false
+        );
+
+        if (!$hasPriceHint) {
+            return null;
+        }
+
+        if (preg_match('/(?:tu|từ)\s*([0-9]+(?:[\.,][0-9]+)?)\s*(ty|tỷ|trieu|triệu|nghin|nghìn|ngan|ngàn|k)?\s*(?:den|đến)\s*([0-9]+(?:[\.,][0-9]+)?)\s*(ty|tỷ|trieu|triệu|nghin|nghìn|ngan|ngàn|k)?/u', $text, $m)) {
+            $min = $this->parseMoneyValue($m[1], $m[2] ?? '');
+            $max = $this->parseMoneyValue($m[3], $m[4] ?? '');
+            if ($max < $min) {
+                $tmp = $min;
+                $min = $max;
+                $max = $tmp;
+            }
+            return ['min' => $min, 'max' => $max];
+        }
+
+        if (preg_match('/([0-9]+(?:[\.,][0-9]+)?)\s*(ty|tỷ|trieu|triệu|nghin|nghìn|ngan|ngàn|k)?\s*(?:-|~)\s*([0-9]+(?:[\.,][0-9]+)?)\s*(ty|tỷ|trieu|triệu|nghin|nghìn|ngan|ngàn|k)?/u', $text, $m2)) {
+            $min = $this->parseMoneyValue($m2[1], $m2[2] ?? '');
+            $max = $this->parseMoneyValue($m2[3], $m2[4] ?? '');
+            if ($max < $min) {
+                $tmp = $min;
+                $min = $max;
+                $max = $tmp;
+            }
+            return ['min' => $min, 'max' => $max];
+        }
+
+        if (preg_match('/(?:duoi|dưới)\s*([0-9]+(?:[\.,][0-9]+)?)\s*(ty|tỷ|trieu|triệu|nghin|nghìn|ngan|ngàn|k)?/u', $text, $m3)) {
+            return ['min' => null, 'max' => $this->parseMoneyValue($m3[1], $m3[2] ?? '')];
+        }
+
+        if (preg_match('/(?:tren|trên)\s*([0-9]+(?:[\.,][0-9]+)?)\s*(ty|tỷ|trieu|triệu|nghin|nghìn|ngan|ngàn|k)?/u', $text, $m4)) {
+            return ['min' => $this->parseMoneyValue($m4[1], $m4[2] ?? ''), 'max' => null];
+        }
+
+        return null;
     }
 
     private function formatCurrency($value) {
