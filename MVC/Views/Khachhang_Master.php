@@ -1570,6 +1570,150 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             }
         });
     </script>
+    <!-- Chatbot Widget Start -->
+    <style>
+        #chatbot-widget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 340px;
+            max-width: 90vw;
+            background: #fff;
+            border-radius: 12px 12px 0 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #chatbot-header {
+            background: #00483d;
+            color: #fff;
+            padding: 12px 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #chatbot-messages {
+            flex: 1;
+            padding: 12px;
+            background: #f8f8f8;
+            overflow-y: auto;
+            font-size: 15px;
+        }
+        .chatbot-msg {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        .chatbot-msg.user { justify-content: flex-end; }
+        .chatbot-msg .msg {
+            padding: 8px 14px;
+            border-radius: 16px;
+            max-width: 80%;
+        }
+        .chatbot-msg.user .msg {
+            background: #00483d;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chatbot-msg.bot .msg {
+            background: #eaeaea;
+            color: #222;
+            border-bottom-left-radius: 4px;
+        }
+        #chatbot-input-area {
+            display: flex;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+        #chatbot-input {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+        #chatbot-send {
+            background: #00483d;
+            color: #fff;
+            border: none;
+            padding: 0 18px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #chatbot-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #00483d;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 28px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            z-index: 9999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <button id="chatbot-toggle" title="Chatbot" style="display:block;"><i class="fa fa-comments"></i></button>
+    <div id="chatbot-widget" style="display:none;">
+        <div id="chatbot-header">
+            <span>Hỏi đáp sản phẩm & chính sách</span>
+            <button onclick="document.getElementById('chatbot-widget').style.display='none';document.getElementById('chatbot-toggle').style.display='block';" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">&times;</button>
+        </div>
+        <div id="chatbot-messages"></div>
+        <form id="chatbot-input-area" autocomplete="off">
+            <input id="chatbot-input" type="text" placeholder="Nhập câu hỏi về sản phẩm, chính sách..." required />
+            <button id="chatbot-send" type="submit">Gửi</button>
+        </form>
+    </div>
+    <script>
+        // Toggle chatbot
+        document.getElementById('chatbot-toggle').onclick = function() {
+            document.getElementById('chatbot-widget').style.display = 'flex';
+            this.style.display = 'none';
+        };
+        // Chatbot logic
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        function appendMsg(msg, sender) {
+            const div = document.createElement('div');
+            div.className = 'chatbot-msg ' + sender;
+            div.innerHTML = `<div class=\"msg\">${msg}</div>`;
+            chatbotMessages.appendChild(div);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+        // Welcome message
+        appendMsg('Xin chào! Bạn cần hỏi gì về sản phẩm hoặc chính sách?', 'bot');
+        document.getElementById('chatbot-input-area').onsubmit = function(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatbot-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            appendMsg(msg, 'user');
+            input.value = '';
+            // Gửi API PHP (ví dụ: /Api/ChatbotKhach/ask)
+            fetch('<?php echo UrlHelper::url('Api/ChatbotKhach/ask'); ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ message: msg })
+            })
+            .then(r => r.json())
+            .then(data => {
+                appendMsg(data.reply || 'Xin lỗi, tôi chưa hiểu ý bạn.', 'bot');
+            })
+            .catch(() => {
+                appendMsg('Có lỗi xảy ra, vui lòng thử lại sau.', 'bot');
+            });
+        };
+    </script>
+    <!-- Chatbot Widget End -->
 </body>
 
 </html>
