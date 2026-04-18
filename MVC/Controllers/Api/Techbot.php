@@ -14,6 +14,7 @@ class Techbot extends api_controller {
     private $danhmuc_model;
     private $thuonghieu_model;
     private $nhacungcap_model;
+    private $chat_history_model;
 
     public function __construct() {
         parent::__construct();
@@ -31,6 +32,7 @@ class Techbot extends api_controller {
         $this->danhmuc_model = $this->model('DanhMuc_m');
         $this->thuonghieu_model = $this->model('ThuongHieu_m');
         $this->nhacungcap_model = $this->model('NhaCungCap_m');
+        $this->chat_history_model = $this->model('ChatHistory_m');
     }
 
     public function ask() {
@@ -105,40 +107,20 @@ class Techbot extends api_controller {
             $myOrders = $this->getCurrentCustomerOrders($message);
             $payload['data'] = $myOrders;
             $reply = $this->buildResponse($payload);
-
-            $this->sendResponse(200, [
-                'success' => true,
-                'role' => $role,
-                'intent' => $intent,
-                'reply' => $reply,
-                'data' => $myOrders
-            ]);
+            $this->sendChatSuccessResponse($role, $intent, $reply, $myOrders, $message);
         }
 
         if ($intent === 'order_status') {
             $orderCode = trim((string)($entities['order_code'] ?? $this->extractOrderCode($message)));
             if ($orderCode === '') {
                 $reply = $this->normalizeReplyForChat($this->buildNeedOrderCodeReply());
-                $this->sendResponse(200, [
-                    'success' => true,
-                    'role' => $role,
-                    'intent' => $intent,
-                    'reply' => $reply,
-                    'data' => []
-                ]);
+                $this->sendChatSuccessResponse($role, $intent, $reply, [], $message);
             }
 
             $orderInfo = $this->getOrderStatus($orderCode);
             $payload['data'] = $orderInfo;
             $reply = $this->buildResponse($payload);
-
-            $this->sendResponse(200, [
-                'success' => true,
-                'role' => $role,
-                'intent' => $intent,
-                'reply' => $reply,
-                'data' => $orderInfo
-            ]);
+            $this->sendChatSuccessResponse($role, $intent, $reply, $orderInfo, $message);
         }
 
         if ($role === 'admin') {
@@ -173,13 +155,7 @@ class Techbot extends api_controller {
             }
 
             $reply = $this->buildResponse($payload);
-            $this->sendResponse(200, [
-                'success' => true,
-                'role' => $role,
-                'intent' => $payload['intent'],
-                'reply' => $reply,
-                'data' => $payload['data']
-            ]);
+            $this->sendChatSuccessResponse($role, $payload['intent'], $reply, $payload['data'], $message);
         }
 
         // Mặc định cho khách hàng
@@ -202,18 +178,90 @@ class Techbot extends api_controller {
         }
 
         $reply = $this->buildResponse($payload);
+        $this->sendChatSuccessResponse($role, $payload['intent'], $reply, $payload['data'], $message);
+    }
+
+    public function history() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, [
+                'success' => false,
+                'message' => 'Method Not Allowed. Must use GET'
+            ]);
+        }
+
+        $userId = $this->getCurrentUserId();
+        $guestToken = $this->getCurrentGuestToken();
+
+        $history = ['conversation_id' => 0, 'items' => []];
+        if ($this->chat_history_model) {
+            $history = $this->chat_history_model->getHistory($userId, $guestToken, 150);
+        }
+
         $this->sendResponse(200, [
             'success' => true,
-            'role' => $role,
-            'intent' => $payload['intent'],
-            'reply' => $reply,
-            'data' => $payload['data']
+            'conversation_id' => (int)($history['conversation_id'] ?? 0),
+            'items' => isset($history['items']) && is_array($history['items']) ? $history['items'] : []
         ]);
     }
 
     private function resolveRole() {
         $sessionRole = isset($_SESSION['user_role']) ? trim((string)$_SESSION['user_role']) : '';
         return ($sessionRole === 'admin') ? 'admin' : 'customer';
+    }
+
+    private function getCurrentUserId() {
+        return isset($_SESSION['user_id']) ? trim((string)$_SESSION['user_id']) : '';
+    }
+
+    private function getCurrentGuestToken() {
+        if (!isset($_SESSION['techbot_guest_token']) || trim((string)$_SESSION['techbot_guest_token']) === '') {
+            try {
+                $_SESSION['techbot_guest_token'] = 'GST' . bin2hex(random_bytes(12));
+            } catch (Exception $e) {
+                $_SESSION['techbot_guest_token'] = 'GST' . md5(uniqid((string)mt_rand(), true));
+            }
+        }
+
+        return trim((string)$_SESSION['techbot_guest_token']);
+    }
+
+    private function persistChatMessages($question, $reply, $intent) {
+        if (!$this->chat_history_model) {
+            return;
+        }
+
+        $question = trim((string)$question);
+        $reply = trim((string)$reply);
+        if ($question === '' && $reply === '') {
+            return;
+        }
+
+        $userId = $this->getCurrentUserId();
+        $guestToken = $this->getCurrentGuestToken();
+        $conversationId = $this->chat_history_model->getOrCreateConversation($userId, $guestToken);
+        if ($conversationId <= 0) {
+            return;
+        }
+
+        if ($question !== '') {
+            $this->chat_history_model->saveMessage($conversationId, $userId, 'user', $question, $intent);
+        }
+        if ($reply !== '') {
+            $this->chat_history_model->saveMessage($conversationId, $userId, 'bot', $reply, $intent);
+        }
+    }
+
+    private function sendChatSuccessResponse($role, $intent, $reply, $data, $question) {
+        $this->persistChatMessages($question, $reply, (string)$intent);
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'role' => $role,
+            'intent' => $intent,
+            'reply' => $reply,
+            'data' => $data
+        ]);
+        return;
     }
 
     private function detectIntent($message, $role) {
@@ -1440,8 +1488,8 @@ class Techbot extends api_controller {
 
     private function buildNeedOrderCodeReply() {
         return "Dạ, TechZone xin hỗ trợ kiểm tra đơn hàng cho Quý khách.\n"
-            . "- 📦 Quý khách vui lòng cung cấp đúng mã đơn hàng (ví dụ: DH00123).\n"
-            . "- ✅ Em sẽ phản hồi ngay trạng thái và tổng tiền của đơn.\n"
+            . "- Quý khách vui lòng cung cấp đúng mã đơn hàng (ví dụ: DH00123).\n"
+            . "- Em sẽ phản hồi ngay trạng thái và tổng tiền của đơn.\n"
             . "Cảm ơn Quý khách, TechZone luôn sẵn sàng hỗ trợ ạ.";
     }
 
@@ -1470,7 +1518,7 @@ class Techbot extends api_controller {
 
     private function buildResponseByGroq($apiKey, $payload) {
         $systemPrompt = "Bạn là TechZone Assistant. Bắt buộc trả lời tiếng Việt lịch sự, chuyên nghiệp theo cấu trúc: chào thương hiệu, nội dung chính, lời mời bước tiếp theo."
-            . " Dùng icon phù hợp như 📱💰📦✅."
+            . " Không dùng emoji trong câu trả lời."
             . " Định dạng bắt buộc: văn bản thuần dễ đọc, không dùng markdown (không **, không ###, không bảng)."
             . " Mỗi ý chính là 1 dòng bắt đầu bằng '- '."
             . " Nếu vai trò customer: chỉ hiển thị sản phẩm (tên, giá, danh mục, thương hiệu, tồn kho), trạng thái+tổng tiền đơn hàng theo mã đúng, khuyến mãi đang hoạt động."
@@ -1533,48 +1581,48 @@ class Techbot extends api_controller {
 
         if ($intent === 'greeting') {
             return "Dạ, TechZone xin kính chào Quý khách.\n"
-                . "- 📱 Em có thể hỗ trợ tư vấn sản phẩm, kiểm tra mã giảm giá và trạng thái đơn hàng.\n"
-                . "- ✅ Quý khách chỉ cần nhắn tên sản phẩm hoặc mã đơn hàng để em hỗ trợ ngay ạ.\n"
+                . "- Em có thể hỗ trợ tư vấn sản phẩm, kiểm tra mã giảm giá và trạng thái đơn hàng.\n"
+                . "- Quý khách chỉ cần nhắn tên sản phẩm hoặc mã đơn hàng để em hỗ trợ ngay ạ.\n"
                 . "Quý khách muốn tham khảo dòng máy nào trước ạ?";
         }
 
         if ($intent === 'order_status') {
             if (empty($data['found'])) {
                 return "Dạ, TechZone đã kiểm tra nhưng chưa tìm thấy đơn hàng tương ứng.\n"
-                    . "- 📦 Quý khách vui lòng kiểm tra lại mã đơn hàng (ví dụ: DH00123).\n"
-                    . "- ✅ Em sẽ hỗ trợ tra cứu lại ngay khi Quý khách gửi đúng mã ạ.\n"
+                    . "- Quý khách vui lòng kiểm tra lại mã đơn hàng (ví dụ: DH00123).\n"
+                    . "- Em sẽ hỗ trợ tra cứu lại ngay khi Quý khách gửi đúng mã ạ.\n"
                     . "Cảm ơn Quý khách đã liên hệ TechZone.";
             }
 
             return "Dạ, TechZone đã tra cứu đơn hàng cho Quý khách:\n"
-                . "- 📦 Mã đơn hàng: " . ($data['ma_don_hang'] ?? '') . "\n"
-                . "- ✅ Trạng thái: " . ($data['trang_thai_don_hang'] ?? '') . "\n"
-                . "- 💰 Tổng tiền: " . $this->formatCurrency($data['tong_tien_hang'] ?? 0) . "\n"
-                . "- 👤 Người nhận: " . ($data['ten_nguoi_nhan'] ?? $data['full_name'] ?? '') . " | SĐT: " . ($data['so_dien_thoai'] ?? '') . "\n"
-                . "- 📍 Địa chỉ: " . ($data['dia_chi'] ?? '') . "\n"
+                . "- Mã đơn hàng: " . ($data['ma_don_hang'] ?? '') . "\n"
+                . "- Trạng thái: " . ($data['trang_thai_don_hang'] ?? '') . "\n"
+                . "- Tổng tiền: " . $this->formatCurrency($data['tong_tien_hang'] ?? 0) . "\n"
+                . "- Người nhận: " . ($data['ten_nguoi_nhan'] ?? $data['full_name'] ?? '') . " | SĐT: " . ($data['so_dien_thoai'] ?? '') . "\n"
+                . "- Địa chỉ: " . ($data['dia_chi'] ?? '') . "\n"
                 . "Quý khách có muốn em hỗ trợ thêm về phương thức thanh toán hoặc giao hàng không ạ?";
         }
 
         if ($intent === 'customer_my_orders') {
             if (!empty($data['requires_login'])) {
                 return "Dạ, để xem đơn hàng của tài khoản mình, Quý khách vui lòng đăng nhập trước ạ.\n"
-                    . "- ✅ Sau khi đăng nhập, em sẽ hiển thị toàn bộ đơn hàng đã mua ngay trong khung chat.\n"
+                    . "- Sau khi đăng nhập, em sẽ hiển thị toàn bộ đơn hàng đã mua ngay trong khung chat.\n"
                     . "TechZone luôn sẵn sàng hỗ trợ Quý khách.";
             }
 
             $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
             if (empty($items)) {
                 return "Dạ, hiện tài khoản của Quý khách chưa có đơn hàng nào.\n"
-                    . "- 📱 Quý khách có thể tham khảo sản phẩm và đặt mua ngay trên TechZone.\n"
+                    . "- Quý khách có thể tham khảo sản phẩm và đặt mua ngay trên TechZone.\n"
                     . "Em có thể gợi ý một số sản phẩm phù hợp để mình bắt đầu không ạ?";
             }
 
             $lines = [
                 "Dạ, TechZone đã lấy danh sách đơn hàng của tài khoản hiện tại:",
-                "- 👤 Mã tài khoản: " . ($data['ma_user'] ?? ''),
-                "- 📦 Trạng thái đang xem: " . ($data['filter_status_label'] ?? 'Tất cả trạng thái'),
-                "- ✅ Số đơn khớp: " . (int)($data['matched_total'] ?? count($items)),
-                "- 📄 Đang hiển thị: " . count($items) . " đơn gần nhất"
+                "- Mã tài khoản: " . ($data['ma_user'] ?? ''),
+                "- Trạng thái đang xem: " . ($data['filter_status_label'] ?? 'Tất cả trạng thái'),
+                "- Số đơn khớp: " . (int)($data['matched_total'] ?? count($items)),
+                "- Đang hiển thị: " . count($items) . " đơn gần nhất"
             ];
 
             foreach ($items as $order) {
@@ -1592,13 +1640,13 @@ class Techbot extends api_controller {
             $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
             if (empty($items)) {
                 return "Dạ, hiện tại TechZone chưa có mã giảm giá đang hoạt động.\n"
-                    . "- ✅ Quý khách có thể theo dõi thêm trong khung giờ ưu đãi sắp tới.\n"
+                    . "- Quý khách có thể theo dõi thêm trong khung giờ ưu đãi sắp tới.\n"
                     . "TechZone cảm ơn Quý khách và luôn sẵn sàng hỗ trợ ạ.";
             }
 
             $lines = ["Dạ, TechZone đang có các ưu đãi nổi bật dành cho Quý khách:"];
             foreach (array_slice($items, 0, 5) as $promo) {
-                $lines[] = "- 💰 " . ($promo['ma_khuyen_mai'] ?? '') . " - " . ($promo['ten_khuyen_mai'] ?? '')
+                $lines[] = "- " . ($promo['ma_khuyen_mai'] ?? '') . " - " . ($promo['ten_khuyen_mai'] ?? '')
                     . " (" . $this->formatCurrency($promo['tien_khuyen_mai'] ?? 0) . ", đến " . ($promo['ngay_ket_thuc'] ?? '') . ")";
             }
             $lines[] = "Quý khách có muốn em gợi ý sản phẩm phù hợp để áp mã ngay không ạ?";
@@ -1610,8 +1658,8 @@ class Techbot extends api_controller {
             $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
             if (empty($items)) {
                 return "Dạ, TechZone chưa tìm thấy sản phẩm phù hợp để kiểm tra biến thể.\n"
-                    . "- 📱 Quý khách vui lòng nhập rõ tên sản phẩm (ví dụ: iPhone 17 Pro Max).\n"
-                    . "- ✅ Em sẽ liệt kê chi tiết từng biến thể ngay khi có kết quả.\n"
+                    . "- Quý khách vui lòng nhập rõ tên sản phẩm (ví dụ: iPhone 17 Pro Max).\n"
+                    . "- Em sẽ liệt kê chi tiết từng biến thể ngay khi có kết quả.\n"
                     . "Quý khách muốn em kiểm tra lại sản phẩm nào ạ?";
             }
 
@@ -1619,11 +1667,11 @@ class Techbot extends api_controller {
             $variants = isset($product['variants']) && is_array($product['variants']) ? $product['variants'] : [];
             $lines = [
                 "Dạ, TechZone đã kiểm tra biến thể cho sản phẩm " . ($product['ten_san_pham'] ?? 'N/A') . ":",
-                "- ✅ Tổng số biến thể: " . (int)($product['variant_count'] ?? count($variants))
+                "- Tổng số biến thể: " . (int)($product['variant_count'] ?? count($variants))
             ];
 
             if (empty($variants)) {
-                $lines[] = "- 📦 Hiện chưa có biến thể còn hàng để hiển thị.";
+                $lines[] = "- Hiện chưa có biến thể còn hàng để hiển thị.";
             } else {
                 foreach ($variants as $index => $variant) {
                     $line = "- " . ($index + 1) . ". "
@@ -1643,8 +1691,8 @@ class Techbot extends api_controller {
 
         if ($intent === 'restricted_info') {
             return "Dạ, TechZone xin phép chưa thể cung cấp thông tin này cho tài khoản hiện tại của Quý khách.\n"
-                . "- ✅ Theo chính sách bảo mật, các dữ liệu như doanh thu/doanh số, danh sách người dùng hoặc thông tin nhà cung cấp chỉ dành cho quản trị viên đã xác thực.\n"
-                . "- 📱 Em có thể hỗ trợ ngay các nội dung công khai như sản phẩm, khuyến mãi và trạng thái đơn hàng theo mã đơn.\n"
+                . "- Theo chính sách bảo mật, các dữ liệu như doanh thu/doanh số, danh sách người dùng hoặc thông tin nhà cung cấp chỉ dành cho quản trị viên đã xác thực.\n"
+                . "- Em có thể hỗ trợ ngay các nội dung công khai như sản phẩm, khuyến mãi và trạng thái đơn hàng theo mã đơn.\n"
                 . "Quý khách muốn em tư vấn mẫu điện thoại nào tiếp theo ạ?";
         }
 
@@ -1654,15 +1702,15 @@ class Techbot extends api_controller {
 
             $lines = [
                 "Dạ, TechZone đã tổng hợp doanh thu cho quản trị viên:",
-                "- 💰 Tổng doanh thu: " . $this->formatCurrency($data['total_revenue'] ?? 0),
-                "- 📦 Số đơn hợp lệ: " . (int)($data['order_count'] ?? 0),
-                "- ✅ Khoảng thời gian: " . ($range['start_date'] ?? '') . " đến " . ($range['end_date'] ?? '')
+                "- Tổng doanh thu: " . $this->formatCurrency($data['total_revenue'] ?? 0),
+                "- Số đơn hợp lệ: " . (int)($data['order_count'] ?? 0),
+                "- Khoảng thời gian: " . ($range['start_date'] ?? '') . " đến " . ($range['end_date'] ?? '')
             ];
 
             if (!empty($series)) {
-                $lines[] = "- 📊 Doanh thu theo ngày:";
+                $lines[] = "- Doanh thu theo ngày:";
                 foreach (array_slice($series, 0, 10) as $point) {
-                    $lines[] = "  • " . ($point['date'] ?? '') . ": " . $this->formatCurrency($point['revenue'] ?? 0);
+                    $lines[] = "  - " . ($point['date'] ?? '') . ": " . $this->formatCurrency($point['revenue'] ?? 0);
                 }
             }
 
@@ -1673,16 +1721,16 @@ class Techbot extends api_controller {
         if ($role === 'admin' && $intent === 'admin_full_access') {
             $totals = isset($data['totals']) && is_array($data['totals']) ? $data['totals'] : [];
             return "Dạ, TechZone đã cấp dữ liệu toàn bộ cửa hàng cho tài khoản quản lý.\n"
-                . "- ✅ Sản phẩm: " . (int)($totals['products'] ?? 0) . "\n"
-                . "- 🎯 Biến thể: " . (int)($totals['variants'] ?? 0) . "\n"
-                . "- 📦 Đơn hàng: " . (int)($totals['orders'] ?? 0) . "\n"
-                . "- 🧾 Chi tiết đơn: " . (int)($totals['order_details'] ?? 0) . " | Thanh toán: " . (int)($totals['payments'] ?? 0) . "\n"
-                . "- 🛒 Giỏ hàng: " . (int)($totals['carts'] ?? 0) . " | Chi tiết giỏ: " . (int)($totals['cart_details'] ?? 0) . "\n"
-                . "- ⭐ Đánh giá: " . (int)($totals['reviews'] ?? 0) . " | Địa chỉ giao hàng: " . (int)($totals['addresses'] ?? 0) . "\n"
-                . "- 🗂 Danh mục: " . (int)($totals['categories'] ?? 0) . " | Thương hiệu: " . (int)($totals['brands'] ?? 0) . " | Nhà cung cấp: " . (int)($totals['suppliers'] ?? 0) . "\n"
-                . "- 👤 Người dùng: " . (int)($totals['users'] ?? 0) . "\n"
-                . "- 💰 Khuyến mãi: " . (int)($totals['promotions'] ?? 0) . "\n"
-                . "- ⚠️ Đơn chờ duyệt: " . (int)($totals['pending_orders'] ?? 0) . " | Sản phẩm tồn kho thấp: " . (int)($totals['low_stock_products'] ?? 0) . "\n"
+                . "- Sản phẩm: " . (int)($totals['products'] ?? 0) . "\n"
+                . "- Biến thể: " . (int)($totals['variants'] ?? 0) . "\n"
+                . "- Đơn hàng: " . (int)($totals['orders'] ?? 0) . "\n"
+                . "- Chi tiết đơn: " . (int)($totals['order_details'] ?? 0) . " | Thanh toán: " . (int)($totals['payments'] ?? 0) . "\n"
+                . "- Giỏ hàng: " . (int)($totals['carts'] ?? 0) . " | Chi tiết giỏ: " . (int)($totals['cart_details'] ?? 0) . "\n"
+                . "- Đánh giá: " . (int)($totals['reviews'] ?? 0) . " | Địa chỉ giao hàng: " . (int)($totals['addresses'] ?? 0) . "\n"
+                . "- Danh mục: " . (int)($totals['categories'] ?? 0) . " | Thương hiệu: " . (int)($totals['brands'] ?? 0) . " | Nhà cung cấp: " . (int)($totals['suppliers'] ?? 0) . "\n"
+                . "- Người dùng: " . (int)($totals['users'] ?? 0) . "\n"
+                . "- Khuyến mãi: " . (int)($totals['promotions'] ?? 0) . "\n"
+                . "- Đơn chờ duyệt: " . (int)($totals['pending_orders'] ?? 0) . " | Sản phẩm tồn kho thấp: " . (int)($totals['low_stock_products'] ?? 0) . "\n"
                 . "Quản lý có muốn em lọc sâu theo đúng bảng và trường trong schema catalog không ạ?";
         }
 
@@ -1692,8 +1740,8 @@ class Techbot extends api_controller {
 
             $lines = [
                 "Dạ, TechZone đã thống kê đơn hàng theo yêu cầu quản trị viên:",
-                "- 📦 Trạng thái đang xem: " . ($data['filter_status_label'] ?? 'Tất cả trạng thái'),
-                "- ✅ Số đơn khớp: " . (int)($data['matched_total'] ?? 0),
+                "- Trạng thái đang xem: " . ($data['filter_status_label'] ?? 'Tất cả trạng thái'),
+                "- Số đơn khớp: " . (int)($data['matched_total'] ?? 0),
                 "- Tổng quan: Chờ duyệt " . (int)($counts['cho_duyet'] ?? 0)
                     . " | Đang giao " . (int)($counts['dang_giao'] ?? 0)
                     . " | Hoàn thành " . (int)($counts['hoan_thanh'] ?? 0)
@@ -1718,10 +1766,10 @@ class Techbot extends api_controller {
             $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
             $lines = ["Dạ, TechZone xin gửi nhanh danh sách đơn hàng chờ duyệt:"];
             if (empty($items)) {
-                $lines[] = "- ✅ Hiện không có đơn hàng ở trạng thái cho_duyet.";
+                $lines[] = "- Hiện không có đơn hàng ở trạng thái cho_duyet.";
             } else {
                 foreach (array_slice($items, 0, 8) as $order) {
-                    $lines[] = "- 📦 " . ($order['ma_don_hang'] ?? '') . " | " . ($order['full_name'] ?? 'Khách hàng')
+                    $lines[] = "- " . ($order['ma_don_hang'] ?? '') . " | " . ($order['full_name'] ?? 'Khách hàng')
                         . " | " . $this->formatCurrency($order['tong_tien_hang'] ?? 0);
                 }
             }
@@ -1733,10 +1781,10 @@ class Techbot extends api_controller {
             $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
             $lines = ["Dạ, TechZone xin gửi danh sách sản phẩm sắp hết hàng:"];
             if (empty($items)) {
-                $lines[] = "- ✅ Không có sản phẩm dưới ngưỡng tồn kho cảnh báo.";
+                $lines[] = "- Không có sản phẩm dưới ngưỡng tồn kho cảnh báo.";
             } else {
                 foreach (array_slice($items, 0, 8) as $product) {
-                    $lines[] = "- 📱 " . ($product['ten_san_pham'] ?? '') . " (" . ($product['ma_san_pham'] ?? '') . ")"
+                    $lines[] = "- " . ($product['ten_san_pham'] ?? '') . " (" . ($product['ma_san_pham'] ?? '') . ")"
                         . " | Kho: " . (int)($product['so_luong_kho'] ?? 0)
                         . " | Giá: " . $this->formatCurrency($product['gia'] ?? 0);
                 }
@@ -1749,10 +1797,10 @@ class Techbot extends api_controller {
             $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
             $lines = ["Dạ, TechZone xin gửi dữ liệu người dùng (bản xem nhanh):"];
             if (empty($items)) {
-                $lines[] = "- ✅ Chưa có dữ liệu người dùng.";
+                $lines[] = "- Chưa có dữ liệu người dùng.";
             } else {
                 foreach (array_slice($items, 0, 8) as $user) {
-                    $lines[] = "- 👤 " . ($user['ma_user'] ?? '') . " | " . ($user['full_name'] ?? $user['ten_user'] ?? '')
+                    $lines[] = "- " . ($user['ma_user'] ?? '') . " | " . ($user['full_name'] ?? $user['ten_user'] ?? '')
                         . " | " . ($user['email'] ?? '') . " | " . ($user['phan_quyen'] ?? '');
                 }
             }
@@ -1764,7 +1812,7 @@ class Techbot extends api_controller {
             $endpoints = isset($data['endpoints']) && is_array($data['endpoints']) ? $data['endpoints'] : [];
             $lines = ["Dạ, TechZone xin gửi các endpoint chính cho quản trị:"];
             foreach ($endpoints as $item) {
-                $lines[] = "- ✅ [" . ($item['method'] ?? '') . "] " . ($item['path'] ?? '') . " - " . ($item['description'] ?? '');
+                $lines[] = "- [" . ($item['method'] ?? '') . "] " . ($item['path'] ?? '') . " - " . ($item['description'] ?? '');
             }
             $lines[] = "Quản trị viên muốn em hướng dẫn mẫu request cụ thể cho endpoint nào ạ?";
             return implode("\n", $lines);
@@ -1772,9 +1820,9 @@ class Techbot extends api_controller {
 
         if ($role === 'admin' && $intent === 'admin_overview') {
             return "Dạ, TechZone xin gửi nhanh tổng quan quản trị:\n"
-                . "- 📱 Tổng sản phẩm: " . (int)($data['total_products'] ?? 0) . "\n"
-                . "- 📦 Đơn chờ duyệt: " . (int)($data['pending_orders'] ?? 0) . "\n"
-                . "- 👤 Tổng người dùng: " . (int)($data['total_users'] ?? 0) . "\n"
+                . "- Tổng sản phẩm: " . (int)($data['total_products'] ?? 0) . "\n"
+                . "- Đơn chờ duyệt: " . (int)($data['pending_orders'] ?? 0) . "\n"
+                . "- Tổng người dùng: " . (int)($data['total_users'] ?? 0) . "\n"
                 . "Quản trị viên muốn xem chi tiết mục nào tiếp theo ạ?";
         }
 
@@ -1793,18 +1841,18 @@ class Techbot extends api_controller {
             }
 
             return "Dạ, TechZone xin lỗi vì hiện chưa tìm thấy dữ liệu phù hợp với yêu cầu của Quý khách" . $priceHint . ".\n"
-                . "- 📱 Quý khách vui lòng thử lại bằng tên sản phẩm cụ thể hơn (ví dụ: iPhone 15, Samsung S24).\n"
-                . "- ✅ Em sẽ gợi ý thêm các mẫu tương tự đang sẵn hàng ngay ạ.\n"
+                . "- Quý khách vui lòng thử lại bằng tên sản phẩm cụ thể hơn (ví dụ: iPhone 15, Samsung S24).\n"
+                . "- Em sẽ gợi ý thêm các mẫu tương tự đang sẵn hàng ngay ạ.\n"
                 . "Quý khách muốn em tư vấn theo tầm giá nào ạ?";
         }
 
         $lines = ["Dạ, TechZone đã tìm thấy sản phẩm phù hợp cho Quý khách:"];
         foreach (array_slice($items, 0, 5) as $product) {
-            $lines[] = "- 📱 " . ($product['ten_san_pham'] ?? '')
-                . " | 💰 " . $this->formatCurrency($product['gia'] ?? 0)
+            $lines[] = "- " . ($product['ten_san_pham'] ?? '')
+                . " | " . $this->formatCurrency($product['gia'] ?? 0)
                 . " | Danh mục: " . ($product['ten_danh_muc'] ?? 'Đang cập nhật')
                 . " | Thương hiệu: " . ($product['ten_thuong_hieu'] ?? 'Đang cập nhật')
-                . " | ✅ Kho: " . (int)($product['so_luong_kho'] ?? 0);
+                . " | Kho: " . (int)($product['so_luong_kho'] ?? 0);
         }
         $lines[] = "Quý khách có muốn em hỗ trợ thêm sản phẩm này vào giỏ hàng không ạ?";
 
