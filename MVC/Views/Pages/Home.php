@@ -975,14 +975,14 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         <p>anttech.com.vn @gmail.com</p>
                         <p style="margin-top: 15px; display: inline-block;">Tư vấn miễn phí 24/07 : </p>
                         <span class="hotline-large" style="display: inline-block;">0825.303.888</span>
-                        
+
                     </div>
                     <div class="certification-badge" style="margin-top: 20px;">
                         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5558.299033261625!2d105.8153926!3d20.995307299999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ac91bbe794f9%3A0x8a803e39f1952d15!2zMjIxIFAuIFbFqSBUw7RuZyBQaGFuLCBLaMawxqFuZyBUcnVuZywgVGhhbmggWHXDom4sIEjDoCBO4buZaSAxMDAwMDAsIFZp4buHdCBOYW0!5e1!3m2!1svi!2s!4v1769956976377!5m2!1svi!2s" width="250" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>>
-                </div>
+                    </div>
 
+                </div>
             </div>
-        </div>
     </footer>
 
 
@@ -1119,10 +1119,10 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
             // Get form data
             const formData = new FormData(this);
-            
+
             // Get the URL
             const loginUrl = '<?php echo UrlHelper::url('Api/Auth/login'); ?>';
-            
+
             // Debug log
             console.log('=== LOGIN DEBUG ===');
             console.log('Login URL:', loginUrl);
@@ -1137,42 +1137,13 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     }
                 })
                 .then(async response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    let data;
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        throw new Error('Server trả về dữ liệu không hợp lệ');
                     }
-
-                    // Check if the response is JSON or HTML
-                    const contentType = response.headers.get('content-type');
-                    console.log('Content-Type:', contentType);
-                    
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        // If not JSON, try to parse the response as text to see what's happening
-                        const text = await response.text();
-                        console.log('Server response (non-JSON):', text);
-                        console.log('Response length:', text.length);
-
-                        // Try to extract JSON from the response if it contains JSON somewhere
-                        try {
-                            // Look for JSON in the response text
-                            const jsonStart = text.indexOf('{');
-                            const jsonEnd = text.lastIndexOf('}') + 1;
-                            if (jsonStart !== -1 && jsonEnd !== 0) {
-                                const jsonString = text.substring(jsonStart, jsonEnd);
-                                console.log('Extracted JSON:', jsonString);
-                                return JSON.parse(jsonString);
-                            } else {
-                                throw new Error('Server did not return valid JSON. Response: ' + text.substring(0, 200));
-                            }
-                        } catch (e) {
-                            console.error('Could not parse server response as JSON:', e);
-                            throw new Error('Server returned invalid response format: ' + e.message);
-                        }
-                    }
+                    return data;
                 })
                 .then(data => {
                     if (data.success) {
@@ -1190,9 +1161,8 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     }
                 })
                 .catch(error => {
+                    // Chỉ log lỗi, không alert popup
                     console.error('Login Error:', error);
-                    // Show error message to user
-                    alert('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại. Chi tiết: ' + error.message);
                 });
         });
 
@@ -1203,7 +1173,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             const formData = new FormData(this);
 
             // Send AJAX request
-                fetch('<?php echo UrlHelper::url('Api/Auth/register'); ?>', {
+            fetch('<?php echo UrlHelper::url('Api/Auth/register'); ?>', {
                     method: 'POST',
                     body: formData,
                     headers: {
