@@ -228,6 +228,38 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
         box-shadow: 0 8px 20px rgba(255, 138, 0, 0.28);
     }
 
+    .tz-chatbot__mic {
+        border: 1px solid #bedcff;
+        border-radius: 12px;
+        min-width: 44px;
+        padding: 0 10px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        color: #0e3c74;
+        background: #eff6ff;
+        transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .tz-chatbot__mic:hover {
+        background: #e2f0ff;
+        border-color: #96c7ff;
+        transform: translateY(-1px);
+    }
+
+    .tz-chatbot__mic.is-listening {
+        color: #fff;
+        border-color: #e14d4d;
+        background: linear-gradient(145deg, #ff6b6b, #d73b3b);
+        box-shadow: 0 8px 18px rgba(215, 59, 59, 0.24);
+    }
+
+    .tz-chatbot__mic:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+        transform: none;
+    }
+
     .tz-chatbot__typing {
         color: var(--tz-chat-muted);
         font-size: 12px;
@@ -274,6 +306,7 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
                     placeholder="Nhập câu hỏi... Ví dụ: iPhone 15 còn hàng không?"
                     autocomplete="off"
                 >
+                <button class="tz-chatbot__mic" id="tzChatMic" type="button" aria-label="Nhập bằng giọng nói" title="Nhập bằng giọng nói">Mic</button>
                 <button class="tz-chatbot__send" type="submit" aria-label="Gửi tin nhắn">➤</button>
             </form>
             <div class="tz-chatbot__typing" id="tzTyping"></div>
@@ -292,13 +325,18 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
         var closeBtn = document.getElementById('tzChatClose');
         var form = document.getElementById('tzChatForm');
         var input = document.getElementById('tzChatInput');
+        var micBtn = document.getElementById('tzChatMic');
         var body = document.getElementById('tzChatBody');
         var typing = document.getElementById('tzTyping');
         var roleBadge = document.getElementById('tzRoleBadge');
         var role = wrapper.getAttribute('data-role') || 'customer';
         var historyLoaded = false;
+        var isRequestPending = false;
         var askUrl = '<?php echo UrlHelper::url('Api/Techbot/ask'); ?>';
         var historyUrl = '<?php echo UrlHelper::url('Api/Techbot/history'); ?>';
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var recognition = null;
+        var isListening = false;
 
         roleBadge.textContent = role === 'admin' ? 'Quản trị viên' : 'Khách hàng';
 
@@ -370,6 +408,90 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
             }
         }
 
+        function setTypingStatus(message) {
+            if (!isRequestPending) {
+                typing.textContent = message || '';
+            }
+        }
+
+        function setMicListeningState(listening) {
+            isListening = !!listening;
+            if (!micBtn) {
+                return;
+            }
+
+            micBtn.classList.toggle('is-listening', isListening);
+            micBtn.textContent = isListening ? 'Stop' : 'Mic';
+            micBtn.setAttribute('aria-label', isListening ? 'Dừng ghi âm giọng nói' : 'Nhập bằng giọng nói');
+            micBtn.setAttribute('title', isListening ? 'Dừng ghi âm giọng nói' : 'Nhập bằng giọng nói');
+            setTypingStatus(isListening ? 'TechZone đang nghe giọng nói...' : '');
+        }
+
+        function setupSpeechRecognition() {
+            if (!micBtn) {
+                return;
+            }
+
+            if (!SpeechRecognition) {
+                micBtn.disabled = true;
+                micBtn.title = 'Trình duyệt chưa hỗ trợ nhập bằng giọng nói';
+                micBtn.setAttribute('aria-label', 'Trình duyệt chưa hỗ trợ nhập bằng giọng nói');
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'vi-VN';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = function(event) {
+                if (!event || !event.results || !event.results[0] || !event.results[0][0]) {
+                    return;
+                }
+                var transcript = String(event.results[0][0].transcript || '').trim();
+                if (transcript !== '') {
+                    input.value = transcript;
+                    input.focus();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                var errorCode = event && event.error ? String(event.error) : 'unknown';
+                if (errorCode === 'not-allowed' || errorCode === 'service-not-allowed') {
+                    setTypingStatus('Trình duyệt chưa được cấp quyền dùng microphone.');
+                } else if (errorCode === 'no-speech') {
+                    setTypingStatus('Không nhận được giọng nói. Bạn thử nói lại giúp mình.');
+                } else {
+                    setTypingStatus('Không thể nhận diện giọng nói lúc này.');
+                }
+            };
+
+            recognition.onend = function() {
+                setMicListeningState(false);
+            };
+
+            micBtn.addEventListener('click', function() {
+                if (!recognition) {
+                    setTypingStatus('Trình duyệt chưa hỗ trợ nhập bằng giọng nói.');
+                    return;
+                }
+
+                if (isListening) {
+                    recognition.stop();
+                    return;
+                }
+
+                setMicListeningState(true);
+                try {
+                    recognition.start();
+                } catch (err) {
+                    setMicListeningState(false);
+                    setTypingStatus('Không thể bật microphone lúc này.');
+                }
+            });
+        }
+
         function renderHistory(items) {
             clearMessages();
 
@@ -424,6 +546,7 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
 
         toggle.addEventListener('click', openChat);
         closeBtn.addEventListener('click', closeChat);
+        setupSpeechRecognition();
 
         form.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -432,8 +555,13 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
                 return;
             }
 
+            if (recognition && isListening) {
+                recognition.stop();
+            }
+
             appendMessage('user', text);
             input.value = '';
+            isRequestPending = true;
             typing.textContent = 'TechZone đang phản hồi...';
 
             fetch(askUrl, {
@@ -458,6 +586,7 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
                     appendMessage('bot', 'Dạ, hiện tại hệ thống đang bận. Quý khách vui lòng thử lại sau ít phút giúp em ạ.');
                 })
                 .finally(function() {
+                    isRequestPending = false;
                     typing.textContent = '';
                     historyLoaded = true;
                 });
