@@ -1204,6 +1204,31 @@
                                             <span class="total-price">${parseInt(payload.order_info?.tong_tien_hang || 0).toLocaleString('vi-VN')}đ</span>
                                         </div>
                                     </div>
+                                    <div class="card">
+                                        <div class="section-header" style="color: #0d6efd;"><i class="fa-solid fa-clock"></i> Tự động hủy đơn quá hạn</div>
+                                        <div class="payment-row" style="margin-bottom: 8px;">
+                                            <span>Số phút chờ tối đa:</span>
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <input
+                                                id="orderTimeoutMinutesInput"
+                                                type="number"
+                                                min="1"
+                                                max="10080"
+                                                step="1"
+                                                placeholder="VD: 15"
+                                                style="flex:1; padding:8px 10px; border:1px solid #ced4da; border-radius:6px;"
+                                            >
+                                            <button
+                                                type="button"
+                                                onclick="saveOrderTimeoutSetting()"
+                                                style="padding:8px 12px; border:none; border-radius:6px; background:#0d6efd; color:#fff; font-weight:600; cursor:pointer;"
+                                            >Lưu</button>
+                                        </div>
+                                        <div style="margin-top:8px; color:#6c757d; font-size:12px; line-height:1.4;">
+                                            Đơn ở trạng thái chờ duyệt quá số phút này sẽ bị cron hủy tự động và hoàn kho.
+                                        </div>
+                                    </div>
                                 </div>`;
 
                             // CỘT 3: PHẢI
@@ -1251,6 +1276,7 @@
                                 </div>`;
 
                             modalBody.innerHTML = html;
+                            loadOrderTimeoutSetting();
                         } else {
                             modalBody.innerHTML = '<div style="text-align:center; padding:30px; color:#666">Không tìm thấy sản phẩm nào.</div>';
                         }
@@ -1306,6 +1332,71 @@
                     total += parseFloat(item.so_luong) * gia;
                 });
                 return total;
+            }
+
+            function loadOrderTimeoutSetting() {
+                fetch(BASE_URL + 'Api/Settings/order_timeout', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || !data.success) {
+                        return;
+                    }
+
+                    const input = document.getElementById('orderTimeoutMinutesInput');
+                    if (!input) {
+                        return;
+                    }
+
+                    const value = parseInt((data.data && data.data.minutes) ? data.data.minutes : 15, 10);
+                    input.value = Number.isFinite(value) && value > 0 ? value : 15;
+                })
+                .catch(error => {
+                    console.error('Khong the tai cau hinh order_timeout_minutes:', error);
+                });
+            }
+
+            function saveOrderTimeoutSetting() {
+                const input = document.getElementById('orderTimeoutMinutesInput');
+                if (!input) {
+                    alert('Không tìm thấy ô nhập số phút cấu hình.');
+                    return;
+                }
+
+                const minutes = parseInt(input.value, 10);
+                if (!Number.isFinite(minutes) || minutes < 1 || minutes > 10080) {
+                    alert('Vui lòng nhập số phút hợp lệ từ 1 đến 10080.');
+                    input.focus();
+                    return;
+                }
+
+                fetch(BASE_URL + 'Api/Settings/order_timeout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        minutes: minutes
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Đã lưu cấu hình tự động hủy đơn thành công.');
+                    } else {
+                        alert('Lưu cấu hình thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể lưu cấu hình: ' + error.message);
+                });
             }
 
             // Hàm cập nhật trạng thái đơn hàng
