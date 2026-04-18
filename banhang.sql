@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 17, 2026 lúc 07:08 PM
+-- Thời gian đã tạo: Th4 18, 2026 lúc 08:51 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.0.30
 
@@ -107,6 +107,57 @@ INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `img_bien_
 ('BT47', 'SP016', '12GB/ 256GB/ Đen', 'samsung_galaxy_z_fold_7_1_1770022664.webp', 'Đen', '12GB', '256GB', 39500000.00, 3),
 ('BT48', 'SP016', '12GB/ 256GB/ Xám bóng', 'samsung_galaxy_z_fold_7_2_1770022677.webp', 'Xám bóng', '12GB', '512GB', 45990000.00, 2),
 ('BT49', 'SP021', '12GB/ 256GB/ Đen', 'dien_thoai_samsung_galaxy_s25_ultra_3__6_1770186090.webp', 'Đen', '12GB', '256GB', 39500000.00, 5);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `chat_conversations`
+--
+
+CREATE TABLE `chat_conversations` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `conversation_code` varchar(64) NOT NULL,
+  `ma_user` varchar(20) DEFAULT NULL,
+  `guest_token` varchar(64) DEFAULT NULL,
+  `status` enum('active','closed') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `chat_conversations`
+--
+
+INSERT INTO `chat_conversations` (`id`, `conversation_code`, `ma_user`, `guest_token`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'CV6a0d95ea4f1f816a932c', 'U02', 'GST4618034f7e8cfea9b2b5f713', 'active', '2026-04-18 13:42:19', '2026-04-18 13:48:30');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `chat_messages`
+--
+
+CREATE TABLE `chat_messages` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `conversation_id` bigint(20) UNSIGNED NOT NULL,
+  `ma_user` varchar(20) DEFAULT NULL,
+  `sender` enum('user','bot') NOT NULL,
+  `message` text NOT NULL,
+  `intent` varchar(64) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `chat_messages`
+--
+
+INSERT INTO `chat_messages` (`id`, `conversation_id`, `ma_user`, `sender`, `message`, `intent`, `created_at`) VALUES
+(1, 1, 'U02', 'user', 'sản phẩm trên 15 triệu', 'product_lookup', '2026-04-18 13:42:19'),
+(2, 1, 'U02', 'bot', 'Dạ, TechZone đã tìm thấy sản phẩm phù hợp cho Quý khách:\n- ???? Iphone Air | ???? 19.990.000đ | Danh mục: Điện thoại | Thương hiệu: Appleee | ✅ Kho: 112\n- ???? IPhone 17 promax | ???? 29.990.000đ | Danh mục: Điện thoại | Thương hiệu: Appleee | ✅ Kho: 53\n- ???? Samsung s25 Ultra | ???? 26.990.000đ | Danh mục: Điện thoại | Thương hiệu: Samsung | ✅ Kho: 30\n- ???? Sạc Anker 20000mAh | ???? 27.900.000đ | Danh mục: Sạc dự phòng | Thương hiệu: Anker | ✅ Kho: 25\n- ???? Macbook m2 | ???? 24.900.000đ | Danh mục: Iphone | Thương hiệu: Appleee | ✅ Kho: 23\nQuý khách có muốn em hỗ trợ thêm sản phẩm này vào giỏ hàng không ạ?', 'product_lookup', '2026-04-18 13:42:19'),
+(3, 1, 'U02', 'user', 'sản phẩm tôi đã mua', 'customer_my_orders', '2026-04-18 13:42:47'),
+(4, 1, 'U02', 'bot', 'Dạ, TechZone đã lấy danh sách đơn hàng của tài khoản hiện tại:\n- ???? Mã tài khoản: U02\n- ???? Trạng thái đang xem: Tất cả trạng thái\n- ✅ Số đơn khớp: 19\n- ???? Đang hiển thị: 19 đơn gần nhất\n- DH27 | Đang giao | 18.000.000đ | 2026-04-17 23:53:19\n- DH26 | Chờ duyệt | 26.990.000đ | 2026-04-02 21:44:15\n- DH25 | Đã hủy | 20.900.000đ | 2026-04-02 21:32:08\n- DH24 | Đã hủy | 29.990.000đ | 2026-04-02 21:28:35\n- DH23 | Đã hủy | 4.930.000đ | 2026-04-02 21:27:57\n- DH22 | Chờ duyệt | 18.000.000đ | 2026-04-02 21:16:05\n- DH21 | Chờ duyệt | 74.980.000đ | 2026-04-02 20:53:07\n- DH20 | Chờ duyệt | 0đ | 2026-04-02 20:47:25\n- DH19 | Chờ duyệt | 0đ | 2026-04-02 20:46:11\n- DH18 | Chờ duyệt | 29.990.000đ | 2026-04-02 20:43:50\n- DH17 | Chờ duyệt | 0đ | 2026-04-02 20:43:27\n- DH16 | Chờ duyệt | 30.000.000đ | 2026-04-02 17:43:26\n- DH15 | Chờ duyệt | 26.990.000đ | 2026-04-02 15:50:21\n- DH14 | Chờ duyệt | 20.900.000đ | 2026-04-02 11:13:27\n- DH13 | Chờ duyệt | 4.930.000đ | 2026-04-02 11:12:30\n- DH12 | Chờ duyệt | 11.670.000đ | 2026-04-02 11:12:14\n- DH11 | Chờ duyệt | 29.990.000đ | 2026-04-02 11:12:00\n- DH10 | Chờ duyệt | 29.990.000đ | 2026-04-02 11:11:38\n- DH09 | Chờ duyệt | 0đ | 2026-04-02 10:31:18\nQuý khách muốn em mở chi tiết đơn nào (ví dụ: DH27) để xem sản phẩm và thanh toán không ạ?', 'customer_my_orders', '2026-04-18 13:42:47'),
+(5, 1, 'U02', 'user', 'sản phẩm trên 20 triệu', 'product_lookup', '2026-04-18 13:48:30'),
+(6, 1, 'U02', 'bot', 'Dạ, TechZone đã tìm thấy sản phẩm phù hợp cho Quý khách:\n- IPhone 17 promax | 29.990.000đ | Danh mục: Điện thoại | Thương hiệu: Appleee | Kho: 53\n- Samsung s25 Ultra | 26.990.000đ | Danh mục: Điện thoại | Thương hiệu: Samsung | Kho: 30\n- Sạc Anker 20000mAh | 27.900.000đ | Danh mục: Sạc dự phòng | Thương hiệu: Anker | Kho: 25\n- Macbook m2 | 24.900.000đ | Danh mục: Iphone | Thương hiệu: Appleee | Kho: 23\n- Iphone Air | 24.990.000đ | Danh mục: Điện thoại | Thương hiệu: Appleee | Kho: 18\nQuý khách có muốn em hỗ trợ thêm sản phẩm này vào giỏ hàng không ạ?', 'product_lookup', '2026-04-18 13:48:30');
 
 -- --------------------------------------------------------
 
@@ -563,6 +614,25 @@ ALTER TABLE `bien_the`
   ADD KEY `fk_bt_sp` (`ma_san_pham`);
 
 --
+-- Chỉ mục cho bảng `chat_conversations`
+--
+ALTER TABLE `chat_conversations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_conversation_code` (`conversation_code`),
+  ADD KEY `idx_chat_conv_user` (`ma_user`),
+  ADD KEY `idx_chat_conv_guest` (`guest_token`),
+  ADD KEY `idx_chat_conv_status` (`status`);
+
+--
+-- Chỉ mục cho bảng `chat_messages`
+--
+ALTER TABLE `chat_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_chat_msg_conv` (`conversation_id`),
+  ADD KEY `idx_chat_msg_user` (`ma_user`),
+  ADD KEY `idx_chat_msg_created` (`created_at`);
+
+--
 -- Chỉ mục cho bảng `chi_tiet_don_hang`
 --
 ALTER TABLE `chi_tiet_don_hang`
@@ -655,6 +725,22 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`ma_user`);
 
 --
+-- AUTO_INCREMENT cho các bảng đã đổ
+--
+
+--
+-- AUTO_INCREMENT cho bảng `chat_conversations`
+--
+ALTER TABLE `chat_conversations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT cho bảng `chat_messages`
+--
+ALTER TABLE `chat_messages`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- Các ràng buộc cho các bảng đã đổ
 --
 
@@ -663,6 +749,19 @@ ALTER TABLE `users`
 --
 ALTER TABLE `bien_the`
   ADD CONSTRAINT `fk_bt_sp` FOREIGN KEY (`ma_san_pham`) REFERENCES `san_pham` (`ma_san_pham`) ON DELETE CASCADE;
+
+--
+-- Các ràng buộc cho bảng `chat_conversations`
+--
+ALTER TABLE `chat_conversations`
+  ADD CONSTRAINT `fk_chat_conv_user` FOREIGN KEY (`ma_user`) REFERENCES `users` (`ma_user`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `chat_messages`
+--
+ALTER TABLE `chat_messages`
+  ADD CONSTRAINT `fk_chat_msg_conv` FOREIGN KEY (`conversation_id`) REFERENCES `chat_conversations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_chat_msg_user` FOREIGN KEY (`ma_user`) REFERENCES `users` (`ma_user`) ON DELETE SET NULL;
 
 --
 -- Các ràng buộc cho bảng `chi_tiet_don_hang`

@@ -177,6 +177,11 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
         box-shadow: 0 6px 16px rgba(13, 94, 197, 0.08);
     }
 
+    .tz-msg--bot strong {
+        color: #0b3d7a;
+        font-weight: 700;
+    }
+
     .tz-msg--user {
         margin-left: auto;
         background: var(--tz-chat-user);
@@ -297,10 +302,64 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
 
         roleBadge.textContent = role === 'admin' ? 'Quản trị viên' : 'Khách hàng';
 
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatLineWithHighlight(rawLine) {
+            var line = String(rawLine || '');
+            var matchPipe = line.match(/^(\s*-\s*)([^|]+)(\|.*)$/);
+            if (matchPipe) {
+                return escapeHtml(matchPipe[1])
+                    + '<strong>' + escapeHtml(matchPipe[2].trim()) + '</strong>'
+                    + ' ' + escapeHtml(matchPipe[3].trimStart());
+            }
+
+            var matchLabel = line.match(/^(\s*-\s*)([^:]{2,60}:)\s*(.*)$/);
+            if (matchLabel) {
+                return escapeHtml(matchLabel[1])
+                    + '<strong>' + escapeHtml(matchLabel[2].trim()) + '</strong>'
+                    + (matchLabel[3] ? ' ' + escapeHtml(matchLabel[3]) : '');
+            }
+
+            return escapeHtml(line);
+        }
+
+        function formatBotMessageHtml(text) {
+            var normalized = String(text || '').replace(/\r\n?/g, '\n');
+            var lines = normalized.split('\n');
+            var formattedLines = lines.map(function(line) {
+                return formatLineWithHighlight(line);
+            });
+
+            var firstContentIndex = -1;
+            for (var i = 0; i < lines.length; i++) {
+                if (String(lines[i] || '').trim() !== '') {
+                    firstContentIndex = i;
+                    break;
+                }
+            }
+
+            if (firstContentIndex >= 0) {
+                formattedLines[firstContentIndex] = '<strong>' + formattedLines[firstContentIndex] + '</strong>';
+            }
+
+            return formattedLines.join('<br>');
+        }
+
         function appendMessage(type, text) {
             var msg = document.createElement('div');
             msg.className = 'tz-msg ' + (type === 'user' ? 'tz-msg--user' : 'tz-msg--bot');
-            msg.textContent = text;
+            if (type === 'bot') {
+                msg.innerHTML = formatBotMessageHtml(text);
+            } else {
+                msg.textContent = text;
+            }
             body.appendChild(msg);
             body.scrollTop = body.scrollHeight;
         }
