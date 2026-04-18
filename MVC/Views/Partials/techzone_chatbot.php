@@ -291,6 +291,9 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
         var typing = document.getElementById('tzTyping');
         var roleBadge = document.getElementById('tzRoleBadge');
         var role = wrapper.getAttribute('data-role') || 'customer';
+        var historyLoaded = false;
+        var askUrl = '<?php echo UrlHelper::url('Api/Techbot/ask'); ?>';
+        var historyUrl = '<?php echo UrlHelper::url('Api/Techbot/history'); ?>';
 
         roleBadge.textContent = role === 'admin' ? 'Quản trị viên' : 'Khách hàng';
 
@@ -302,11 +305,55 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
             body.scrollTop = body.scrollHeight;
         }
 
+        function clearMessages() {
+            while (body.firstChild) {
+                body.removeChild(body.firstChild);
+            }
+        }
+
+        function renderHistory(items) {
+            clearMessages();
+
+            if (!Array.isArray(items) || items.length === 0) {
+                appendMessage('bot', 'Dạ, TechZone xin chào Quý khách. Em có thể hỗ trợ tư vấn sản phẩm, đơn hàng và khuyến mãi ạ.');
+                return;
+            }
+
+            items.forEach(function(item) {
+                var sender = (item && item.sender === 'user') ? 'user' : 'bot';
+                var message = item && item.message ? String(item.message) : '';
+                if (message.trim() !== '') {
+                    appendMessage(sender, message);
+                }
+            });
+        }
+
+        function loadHistory() {
+            return fetch(historyUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+                .then(function(res) {
+                    return res.json();
+                })
+                .then(function(json) {
+                    var items = (json && Array.isArray(json.items)) ? json.items : [];
+                    renderHistory(items);
+                    historyLoaded = true;
+                })
+                .catch(function() {
+                    if (body.children.length === 0) {
+                        appendMessage('bot', 'Dạ, TechZone xin chào Quý khách. Em có thể hỗ trợ tư vấn sản phẩm, đơn hàng và khuyến mãi ạ.');
+                    }
+                });
+        }
+
         function openChat() {
             wrapper.classList.add('is-open');
-            if (body.children.length === 0) {
-                appendMessage('bot', 'Dạ, TechZone xin chào Quý khách. Em có thể hỗ trợ tư vấn sản phẩm, đơn hàng và khuyến mãi ạ.');
-            }
+            loadHistory();
             window.setTimeout(function() {
                 input.focus();
             }, 80);
@@ -330,7 +377,7 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
             input.value = '';
             typing.textContent = 'TechZone đang phản hồi...';
 
-            fetch('<?php echo UrlHelper::url('Api/Techbot/ask'); ?>', {
+            fetch(askUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -353,6 +400,7 @@ $techzoneChatRole = (isset($_SESSION['user_role']) && $_SESSION['user_role'] ===
                 })
                 .finally(function() {
                     typing.textContent = '';
+                    historyLoaded = true;
                 });
         });
     })();
