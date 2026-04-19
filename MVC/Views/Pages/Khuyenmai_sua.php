@@ -63,36 +63,28 @@
     <div class="card">
         <h1>Cập nhật Khuyến mãi</h1>
         <p class="lead">Cập nhật thông tin mã khuyến mãi.</p>
-        <form id="updatePromotionForm" method="post" action="<?php echo BASE_URL; ?>Khuyenmai/update">
+        <form id="updatePromotionForm">
             <div>
                 <label>Mã khuyến mãi <span style="color:red">*</span></label>
-                <input type="text" name="txtMakhuyenmai" required
-                    value="<?php echo isset($data['ma_khuyen_mai']) ? htmlspecialchars($data['ma_khuyen_mai']) : '' ?>"
-                    readonly />
+                <input type="text" id="txtMakhuyenmai" name="txtMakhuyenmai" required readonly />
             </div>
             <div>
                 <label>Tên khuyến mãi <span style="color:red">*</span></label>
-                <input type="text" name="txtTenkhuyenmai" required
-                    value="<?php echo isset($data['ten_khuyen_mai']) ? htmlspecialchars($data['ten_khuyen_mai']) : '' ?>" />
+                <input type="text" id="txtTenkhuyenmai" name="txtTenkhuyenmai" required />
             </div>
             <div>
                 <label>Ngày bắt đầu <span style="color:red">*</span></label>
-                <input type="datetime-local" name="txtNgaybatdau" required value="<?php echo isset($data['ngay_bat_dau'])
-                                ? date('Y-m-d\TH:i', strtotime($data['ngay_bat_dau']))
-                                : '' ?>">
+                <input type="datetime-local" id="txtNgaybatdau" name="txtNgaybatdau" required>
             </div>
 
             <div>
                 <label>Ngày kết thúc <span style="color:red">*</span></label>
-                <input type="datetime-local" name="txtNgayketthuc" required value="<?php echo isset($data['ngay_ket_thuc'])
-                                ? date('Y-m-d\TH:i', strtotime($data['ngay_ket_thuc']))
-                                : '' ?>">
+                <input type="datetime-local" id="txtNgayketthuc" name="txtNgayketthuc" required>
             </div>
 
             <div>
                 <label>Tiền khuyến mãi <span style="color:red">*</span></label>
-                <input type="number" name="txtTienkhuyenmai" required min="0"
-                    value="<?php echo isset($data['tien_khuyen_mai']) ? htmlspecialchars($data['tien_khuyen_mai']) : '' ?>" />
+                <input type="number" id="txtTienkhuyenmai" name="txtTienkhuyenmai" required min="0" />
             </div>
             <div class="actions">
                 <a href="<?php echo BASE_URL; ?>Khuyenmai/danhsach" class="btn-back"><i
@@ -109,7 +101,73 @@
     <script>
     const BASE_URL = '<?php echo BASE_URL; ?>';
 
+    function resolvePromotionIdFromUrl() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const routedUrl = searchParams.get('url');
+
+        if (routedUrl) {
+            const routeParts = routedUrl.split('/').filter(Boolean);
+            if (routeParts.length > 0) {
+                return decodeURIComponent(routeParts[routeParts.length - 1]);
+            }
+        }
+
+        const pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        return pathParts.length > 0 ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+    }
+
+    function toDatetimeLocalString(value) {
+        if (!value) {
+            return '';
+        }
+
+        const date = new Date(String(value).replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+
+        const pad = (n) => String(n).padStart(2, '0');
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
+            + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+    }
+
+    function loadPromotionByApi() {
+        const promotionId = resolvePromotionIdFromUrl();
+        if (!promotionId) {
+            alert('Không xác định được mã khuyến mãi từ URL.');
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Khuyenmai/' + encodeURIComponent(promotionId), {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success && data.data) {
+                    const maInput = document.getElementById('txtMakhuyenmai');
+                    const tenInput = document.getElementById('txtTenkhuyenmai');
+                    const tienInput = document.getElementById('txtTienkhuyenmai');
+                    const ngayBatDauInput = document.getElementById('txtNgaybatdau');
+                    const ngayKetThucInput = document.getElementById('txtNgayketthuc');
+
+                    if (maInput) maInput.value = data.data.ma_khuyen_mai || '';
+                    if (tenInput) tenInput.value = data.data.ten_khuyen_mai || '';
+                    if (tienInput) tienInput.value = data.data.tien_khuyen_mai || '';
+                    if (ngayBatDauInput) ngayBatDauInput.value = toDatetimeLocalString(data.data.ngay_bat_dau || '');
+                    if (ngayKetThucInput) ngayKetThucInput.value = toDatetimeLocalString(data.data.ngay_ket_thuc || '');
+                    return;
+                }
+
+                alert('Không thể tải thông tin khuyến mãi: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+            })
+            .catch(error => {
+                alert('Không thể kết nối API khuyến mãi: ' + error.message);
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        loadPromotionByApi();
+
         const form = document.getElementById('updatePromotionForm');
         const submitBtn = document.getElementById('updatePromotionBtn');
 

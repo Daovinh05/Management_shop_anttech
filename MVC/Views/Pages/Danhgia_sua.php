@@ -73,43 +73,35 @@
 
     <main class="card">
         <h1>Sửa thông tin Đánh giá</h1>
-        <form id="updateReviewForm" method="post" action="<?php echo BASE_URL; ?>Danhgia/update">
+        <form id="updateReviewForm">
             <div>
                 <label>Mã đánh giá</label>
-                <input type="text" name="txtMadanhgia" readonly
-                    value="<?php echo isset($data['ma_danh_gia']) ? htmlspecialchars($data['ma_danh_gia']) : '' ?>" />
+                <input type="text" id="txtMadanhgia" name="txtMadanhgia" readonly />
             </div>
             <div>
                 <label>Khách hàng</label>
-                <input type="text" name="txtTenkhachhang" readonly
-                    value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : '' ?>" />
+                <input type="text" id="txtTenkhachhang" name="txtTenkhachhang" readonly />
             </div>
             <div>
                 <label>Tên sản phẩm</label>
-                <input type="text" name="txtTensanpham" readonly
-                    value="<?php echo isset($data['ten_san_pham']) ? htmlspecialchars($data['ten_san_pham']) : '' ?>" />
+                <input type="text" id="txtTensanpham" name="txtTensanpham" readonly />
             </div>
 
             <div>
                 <label>Số sao </label>
-                <input type="hidden" name="txtSosao"
-                    value="<?php echo isset($data['so_sao']) ? htmlspecialchars($data['so_sao']) : '' ?>" />
-                <input type="text" readonly
-                    value="<?php echo isset($data['so_sao']) ? htmlspecialchars($data['so_sao']) . ' sao' : '' ?>" />
+                <input type="hidden" id="txtSosao" name="txtSosao" />
+                <input type="text" id="txtSosaoDisplay" readonly />
             </div>
 
             <div>
                 <label>Nội dung đánh giá</label>
-                <textarea
-                    readonly><?php echo isset($data['noi_dung']) ? htmlspecialchars($data['noi_dung']) : '' ?></textarea>
-                <input type="hidden" name="txtNoidung"
-                    value="<?php echo isset($data['noi_dung']) ? htmlspecialchars($data['noi_dung']) : '' ?>" />
+                <textarea id="txtNoidungDisplay" readonly></textarea>
+                <input type="hidden" id="txtNoidung" name="txtNoidung" />
             </div>
 
             <div>
                 <label>Phản hồi <span style="color:red">*</span></label>
-                <textarea
-                    name="txtPhanhoi"><?php echo isset($data['phan_hoi']) ? htmlspecialchars($data['phan_hoi']) : '' ?></textarea>
+                <textarea id="txtPhanhoi" name="txtPhanhoi"></textarea>
             </div>
 
             <div class="actions">
@@ -123,6 +115,70 @@
 
     <script>
         const BASE_URL = '<?php echo BASE_URL; ?>';
+
+        function resolveReviewIdFromUrl() {
+            const searchParams = new URLSearchParams(window.location.search);
+            const routedUrl = searchParams.get('url');
+
+            if (routedUrl) {
+                const routeParts = routedUrl.split('/').filter(Boolean);
+                if (routeParts.length > 0) {
+                    return decodeURIComponent(routeParts[routeParts.length - 1]);
+                }
+            }
+
+            const pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+            return pathParts.length > 0 ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+        }
+
+        function loadReviewByApi() {
+            const reviewId = resolveReviewIdFromUrl();
+            if (!reviewId) {
+                alert('Không xác định được mã đánh giá từ URL.');
+                return;
+            }
+
+            fetch(BASE_URL + 'Api/Danhgia/' + encodeURIComponent(reviewId), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.data) {
+                        const maInput = document.getElementById('txtMadanhgia');
+                        const tenKhInput = document.getElementById('txtTenkhachhang');
+                        const tenSpInput = document.getElementById('txtTensanpham');
+                        const soSaoInput = document.getElementById('txtSosao');
+                        const soSaoDisplay = document.getElementById('txtSosaoDisplay');
+                        const noiDungInput = document.getElementById('txtNoidung');
+                        const noiDungDisplay = document.getElementById('txtNoidungDisplay');
+                        const phanHoiInput = document.getElementById('txtPhanhoi');
+
+                        if (maInput) maInput.value = data.data.ma_danh_gia || '';
+                        if (tenKhInput) tenKhInput.value = data.data.full_name || '';
+                        if (tenSpInput) tenSpInput.value = data.data.ten_san_pham || '';
+
+                        const soSao = data.data.so_sao || '';
+                        if (soSaoInput) soSaoInput.value = soSao;
+                        if (soSaoDisplay) soSaoDisplay.value = soSao ? (soSao + ' sao') : '';
+
+                        const noiDung = data.data.noi_dung || '';
+                        if (noiDungInput) noiDungInput.value = noiDung;
+                        if (noiDungDisplay) noiDungDisplay.value = noiDung;
+
+                        if (phanHoiInput) phanHoiInput.value = data.data.phan_hoi || '';
+                        return;
+                    }
+
+                    alert('Không thể tải thông tin đánh giá: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API đánh giá: ' + error.message);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReviewByApi();
+        });
 
         document.getElementById('updateReviewForm').addEventListener('submit', function(event) {
             event.preventDefault();
