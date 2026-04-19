@@ -61,46 +61,22 @@ class Khachhang extends controller
 
     function Get_data()
     {
-        // Hiển thị trang chủ cho khách hàng với phân trang
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 12; // 12 sản phẩm mỗi trang
-        
-        // Lấy tổng số lượng sản phẩm
-        $total_products = $this->sp->SanPham_getTotalCount();
-        $total_pages = ceil($total_products / $limit);
-        
-        // Lấy sản phẩm theo trang
-        $dssp = $this->sp->SanPham_getAllWithPagination($page, $limit);
+        // Trang chu khach hang chi render shell, du lieu danh sach/tim kiem lay tu API Storefront.
         $dsdm = $this->dm->DanhMuc_getAll();
 
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_home',
-            'dssp' => $dssp,
-            'dsdm' => $dsdm,
-            'current_page' => $page,
-            'total_pages' => $total_pages,
-            'total_products' => $total_products
+            'dsdm' => $dsdm
         ]);
     }
 
     // Hiển thị sản phẩm theo danh mục
     function sanpham_theo_danhmuc($ma_danh_muc)
     {
-        $sql = "SELECT s.*, dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
-                FROM san_pham s
-                LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
-                LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
-                LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
-                WHERE s.ma_danh_muc = '$ma_danh_muc'
-                ORDER BY LENGTH(s.ma_san_pham), s.ma_san_pham";
-        $dssp = mysqli_query($this->sp->con, $sql);
-        $dsdm = $this->dm->DanhMuc_getAll();
-
-        $this->view('Khachhang_Master', [
-            'page' => 'Khachhang/khachhang_sanpham',
-            'dssp' => $dssp,
-            'dsdm' => $dsdm
-        ]);
+        // Giu tuong thich route cu, nhung du lieu duoc nap boi API Storefront tren trang chu.
+        $redirectUrl = $this->url('Khachhang') . '?category_id=' . urlencode((string)$ma_danh_muc) . '&page=1';
+        header('Location: ' . $redirectUrl);
+        exit;
     }
 
     // Hiển thị chi tiết sản phẩm
