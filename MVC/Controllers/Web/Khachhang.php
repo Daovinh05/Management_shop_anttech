@@ -80,61 +80,18 @@ class Khachhang extends controller
     }
 
     // Hiển thị chi tiết sản phẩm
-    function chitietsanpham($ma_san_pham)
+    function chitietsanpham($ma_san_pham = '')
     {
-        $sp = $this->sp->SanPham_getById($ma_san_pham);
-        $san_pham = mysqli_fetch_assoc($sp);
-
-        // Lấy các biến thể của sản phẩm cùng với thông tin tồn kho
-        $sql_bien_the = "SELECT bt.*, sp.ten_san_pham
-                         FROM bien_the bt
-                         LEFT JOIN san_pham sp ON bt.ma_san_pham = sp.ma_san_pham
-                         WHERE bt.ma_san_pham = '$ma_san_pham'
-                         ORDER BY bt.ma_bien_the";
-        $bien_the = mysqli_query($this->bt->con, $sql_bien_the);
-
-        // Lấy biến thể đầu tiên để làm hình ảnh chính
-        $bien_the_first = null;
-        if (mysqli_num_rows($bien_the) > 0) {
-            mysqli_data_seek($bien_the, 0); // Reset pointer to beginning
-            $bien_the_first = mysqli_fetch_assoc($bien_the);
-            mysqli_data_seek($bien_the, 0); // Reset pointer back to beginning for later use
+        $ma_san_pham = trim((string)$ma_san_pham);
+        if ($ma_san_pham === '') {
+            header('Location: ' . $this->url('Khachhang'));
+            exit;
         }
 
-        // Lấy đánh giá của sản phẩm
-        $danh_gia = $this->dg->DanhGia_getByProduct($ma_san_pham);
-
-        // Tính điểm trung bình
-        $avg_rating = $this->dg->DanhGia_getAvgRatingByProduct($ma_san_pham);
-
-        // Lấy phân bố đánh giá theo số sao
-        $star_distribution = $this->dg->DanhGia_getStarDistribution($ma_san_pham);
-
-        // Lấy sản phẩm tương tự
-        $sql_similar = "SELECT s.*,
-                               (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL LIMIT 1) as img_bien_the,
-                               (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL LIMIT 1) as gia,
-                               dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
-                        FROM san_pham s
-                        LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
-                        LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
-                        LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
-                        WHERE s.ma_danh_muc = '" . mysqli_real_escape_string($this->sp->con, $san_pham['ma_danh_muc']) . "'
-                        AND s.ma_san_pham != '" . mysqli_real_escape_string($this->sp->con, $ma_san_pham) . "'
-                        GROUP BY s.ma_san_pham
-                        ORDER BY s.ma_san_pham DESC
-                        LIMIT 4";
-        $similar_products = mysqli_query($this->sp->con, $sql_similar);
-
+        // Chi render giao dien; du lieu chi tiet lay qua REST endpoint GET /Api/Storefront/{id}.
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_chitietsp',
-            'san_pham' => $san_pham,
-            'bien_the' => $bien_the,
-            'bien_the_first' => $bien_the_first,
-            'danh_gia' => $danh_gia,
-            'avg_rating' => $avg_rating,
-            'star_distribution' => $star_distribution,
-            'similar_products' => $similar_products
+            'ma_san_pham' => $ma_san_pham
         ]);
     }
 
