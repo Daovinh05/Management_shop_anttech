@@ -10,7 +10,7 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiet san pham - TechZone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght @300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
         /* --- 1. CORE VARIABLES & RESET --- */
@@ -2023,8 +2023,61 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
             input.value = value + 1;
         }
 
+        function getSelectedVariantStockQty() {
+            var selectedVariantInput = document.querySelector('input[name="ma_bien_the"]:checked');
+            if (!selectedVariantInput) {
+                return null;
+            }
+
+            var selectedVariantElement = selectedVariantInput.closest('.color-btn');
+            if (!selectedVariantElement) {
+                return null;
+            }
+
+            var stockInfo = selectedVariantElement.querySelector('.stock-info');
+            if (!stockInfo) {
+                return null;
+            }
+
+            var stockText = stockInfo.textContent || '';
+            var stockMatch = stockText.match(/(\d+)/);
+            return stockMatch ? parseInt(stockMatch[1], 10) : null;
+        }
+
+        function closeStockWarningDialog() {
+            var dialog = document.getElementById('stockWarningModal');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        function showStockWarningDialog(requestedQty, availableQty) {
+            closeStockWarningDialog();
+
+            var message = 'Số lượng vượt quá tồn kho';
+
+            var modalHtml = ''
+                + '<div id="stockWarningModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 10000; display: flex; justify-content: center; align-items: center;">'
+                + '  <div style="background: #fff; width: 430px; max-width: 92%; border-radius: 12px; box-shadow: 0 16px 35px rgba(0,0,0,0.25); overflow: hidden;">'
+                + '    <div style="padding: 16px 18px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between;">'
+                + '      <strong style="color:#b91c1c; font-size: 18px;">Canh bao ton kho</strong>'
+                + '      <button type="button" onclick="closeStockWarningDialog()" style="border:none; background:none; font-size:22px; line-height:1; cursor:pointer; color:#666;">&times;</button>'
+                + '    </div>'
+                + '    <div style="padding: 18px; color:#1f2937; line-height:1.6;">'
+                + '      <div>' + message + '</div>'
+                + '    </div>'
+                + '    <div style="padding: 12px 18px 18px; display: flex; justify-content: flex-end;">'
+                + '      <button type="button" onclick="closeStockWarningDialog()" style="background:#dc2626; color:#fff; border:none; border-radius:8px; padding:10px 18px; cursor:pointer; font-weight:600;">Da hieu</button>'
+                + '    </div>'
+                + '  </div>'
+                + '</div>';
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
         // --- 3. LOGIC GIỎ HÀNG (MỚI & QUAN TRỌNG) ---
         var CART_API_BASE = "<?php echo $this->url('Api/Cart'); ?>";
+        var CHECKOUT_PREVIEW_API = "<?php echo $this->url('Api/Checkout/preview'); ?>";
 
         // Hàm mở/đóng Sidebar
         function toggleCart() {
@@ -2060,6 +2113,9 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
 
             var ma_bien_the = selectedVariantInput.value;
             var quantity = parseInt(document.getElementById('quantityInput').value);
+            if (!quantity || quantity < 1) {
+                quantity = 1;
+            }
 
             // Gọi REST API để thêm vào giỏ hàng
             var xhr = new XMLHttpRequest();
@@ -2082,6 +2138,23 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
                         window.location.href = '<?php echo $this->url('Login'); ?>';
                         return;
                     }
+                    var errorResponse = null;
+                    try {
+                        errorResponse = JSON.parse(xhr.responseText || '{}');
+                    } catch (e) {
+                        errorResponse = null;
+                    }
+
+                    if (xhr.status === 422 && errorResponse && errorResponse.available_stock !== undefined) {
+                        console.error('Cart API error', xhr.status, errorResponse);
+                        showStockWarningDialog(quantity, errorResponse.available_stock);
+                        return;
+                    }
+
+                    if (xhr.status >= 400) {
+                        console.error('Cart API error', xhr.status, errorResponse || xhr.responseText);
+                    }
+
                     // Neu loi thi chi mo sidebar (neu dang dong) de tranh GET trung lap
                     var sidebar = document.querySelector('.cart-sidebar');
                     if (!sidebar.classList.contains('active')) {
@@ -2319,17 +2392,41 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
 
             var ma_bien_the = selectedVariantInput.value;
             var quantity = parseInt(document.getElementById('quantityInput').value);
+            if (!quantity || quantity < 1) {
+                quantity = 1;
+            }
+            // Luon goi API preview truoc de van nhan duoc loi API (422) khi vuot ton kho
+            var previewUrl = CHECKOUT_PREVIEW_API
+                + '?items=' + encodeURIComponent(ma_bien_the)
+                + '&qty=' + encodeURIComponent(quantity)
+                + '&buynow=1';
 
-            // var img = document.getElementById('mainImage').src;
-            // var name = document.getElementById('productTitle').innerText;
-            // var variantFull = document.getElementById('variantLabel').innerText;
-            // var variant = variantFull.replace("Phiên bản: ", "");
-            // var quantity = parseInt(document.getElementById('quantityInput').value);
-            // var priceStr = document.getElementById('currentPrice').innerText;
+            fetch(previewUrl, { method: 'GET' })
+                .then(function(res) {
+                    return res.json().catch(function() { return {}; }).then(function(json) {
+                        return { ok: res.ok, status: res.status, body: json };
+                    });
+                })
+                .then(function(result) {
+                    if (result.ok) {
+                        var url = '<?php echo $this->url('Khachhang/thanhtoan'); ?>?items=' + encodeURIComponent(ma_bien_the) + '&qty=' + encodeURIComponent(quantity) + '&buynow=1';
+                        window.location.href = url;
+                        return;
+                    }
 
-            // Chuyển giá từ chuỗi "11.400.000 ₫" sang số để tính toán
-            var url = '<?php echo $this->url('Khachhang/thanhtoan'); ?>?items=' + ma_bien_the + '&qty=' + quantity + '&buynow=1';
-            window.location.href = url;
+                    console.error('Checkout Preview API error', result.status, result.body);
+
+                    if (result.status === 422) {
+                        showStockWarningDialog(quantity, 0);
+                        return;
+                    }
+
+                    alert((result.body && result.body.message) ? result.body.message : 'Khong the mua ngay vao luc nay');
+                })
+                .catch(function(err) {
+                    console.error('Checkout Preview API network error', err);
+                    alert('Khong the kiem tra ton kho luc nay. Vui long thu lai.');
+                });
 
             //var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
 
@@ -2475,6 +2572,10 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
         document.addEventListener('click', function(e) {
             if(e.target.id === 'reviewModal') {
                 closeReviewModal();
+            }
+
+            if (e.target.id === 'stockWarningModal') {
+                closeStockWarningDialog();
             }
         });
         
