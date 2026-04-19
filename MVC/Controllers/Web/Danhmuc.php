@@ -14,13 +14,8 @@ class Danhmuc extends controller
 
     function danhsach()
     {
-        $result = $this->dm->Danhmuc_find('', '');
-
         $this->view('Master', [
-            'page' => 'Danhsachdanhmuc_v',
-            'ma_danh_muc' => '',
-            'ten_danh_muc' => '',
-            'dulieu' => $result
+            'page' => 'Danhsachdanhmuc_v'
         ]);
     }
 
@@ -72,69 +67,21 @@ class Danhmuc extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_danh_muc = $_POST['txtMadanhmuc'] ?? '';
-        $ten_danh_muc = $_POST['txtTendanhmuc'] ?? '';
-
-        // 👉 LẤY DỮ LIỆU THEO MÃ DANH MỤC + TÊN DANH MỤC
-        $result = $this->dm->Danhmuc_find($ma_danh_muc, $ten_danh_muc);
-        // ====== XUẤT EXCEL ======
-        if (isset($_POST['btnXuatexcel'])) {
-
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachDanhmuc');
-
-            // Header tương ứng với ảnh CSDL
-            $sheet->setCellValue('A1', 'Mã Danh Mục');
-            $sheet->setCellValue('B1', 'Tên Danh Mục');
-            $sheet->setCellValue('C1', 'Ngày Tạo');
-
-
-            $rowCount = 2; // Starting from row 2 since row 1 is headers
-            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
-            while ($row = mysqli_fetch_assoc($result)) {
-                // Mapping field according to database table
-                $sheet->setCellValue('A' . $rowCount, $row['ma_danh_muc']);
-                $sheet->setCellValue('B' . $rowCount, $row['ten_danh_muc']);
-                $sheet->setCellValue('C' . $rowCount, $row['ngay_tao']);
-                $rowCount++;
-            }
-
-            foreach (range('A', 'C') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="DanhSachDanhmuc.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-
-        // ====== HIỂN THỊ GIAO DIỆN ======
-        $this->view('Master', [
-            'page' => 'Danhsachdanhmuc_v',
-            'ma_danh_muc' => $ma_danh_muc, // Consistent with view variable name
-            'ten_danh_muc' => $ten_danh_muc, // Consistent with view variable name
-            'dulieu' => $result
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Danhmuc'
         ]);
+        return;
     }
 
 
 
     function sua($ma_danh_muc)
     {
-        $result = $this->dm->Danhmuc_find($ma_danh_muc, '');
-        $row = mysqli_fetch_array($result);
-
         $this->view('Master', [
-            'page' => 'Danhmuc_sua',
-            'ma_danh_muc' => $row['ma_danh_muc'],
-            'ten_danh_muc' => $row['ten_danh_muc'],
+            'page' => 'Danhmuc_sua'
         ]);
     }
 

@@ -18,11 +18,9 @@ class BienThe extends controller
 
     function danhsach()
     {
-        $result = $this->bt->BienThe_getAll();
-
         $this->view('Master', [
             'page' => 'Danhsachbienthe_v',
-            'dulieu' => $result
+            'dulieu' => null
         ]);
     }
 
@@ -161,42 +159,19 @@ class BienThe extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_bien_the = $_POST['txtMaBienThe'] ?? '';
-        $ten_bien_the = $_POST['txtTenBienThe'] ?? '';
-
-        // 👉 LẤY DỮ LIỆU THEO MÃ BIẾN THỂ + TÊN BIẾN THỂ
-        $result = $this->bt->BienThe_find($ma_bien_the, $ten_bien_the);
-
-        // DISPLAY VIEW
-        $this->view('Master', [
-            'page' => 'Danhsachbienthe_v',
-            'mabienthe' => $ma_bien_the,
-            'tenbienthe' => $ten_bien_the,
-            'dulieu' => $result
-        ]);
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint Timkiem đã ngừng sử dụng. Vui lòng dùng GET /Api/Bienthe với query: ma_bien_the, ten_bien_the'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     function sua($ma_bien_the)
     {
-        $result = $this->bt->BienThe_getById($ma_bien_the);
-        $row = mysqli_fetch_array($result);
-
-        // Lấy danh sách sản phẩm cho dropdown
-        $dssp = $this->sp->SanPham_getAll();
-
         $this->view('Master', [
-            'page' => 'bienthe_sua',
-            'mabienthe' => $row['ma_bien_the'],
-            'masanpham' => $row['ma_san_pham'],
-            'tenbienthe' => $row['ten_bien_the'],
-            'imgbienthe' => $row['img_bien_the'],
-            'mausac' => $row['mau_sac'],
-            'ram' => $row['ram'],
-            'dungluong' => $row['dung_luong'],
-            'gia' => $row['gia'],
-            'soluongkho' => $row['so_luong_kho'],
-            'dssp' => $dssp
+            'page' => 'bienthe_sua'
         ]);
     }
 

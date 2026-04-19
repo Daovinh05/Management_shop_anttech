@@ -225,18 +225,16 @@
             </div>
         </div>
 
-        <form id="brandSearchForm" method="post" action="<?php echo BASE_URL; ?>Thuonghieu/Timkiem" class="form-search"
+        <form id="brandSearchForm" method="get" action="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã thương hiệu</label>
-                    <input type="text" id="searchId" name="txtMathuonghieu" placeholder="Nhập mã thương hiệu..."
-                        value="<?php echo isset($data['ma_thuong_hieu']) ? htmlspecialchars($data['ma_thuong_hieu']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtMathuonghieu" placeholder="Nhập mã thương hiệu..." />
                 </div>
                 <div>
                     <label for="searchName">Tên thương hiệu</label>
-                    <input type="text" id="searchName" name="txtTenthuonghieu" placeholder="Nhập tên thương hiệu..."
-                        value="<?php echo isset($data['ten_thuong_hieu']) ? htmlspecialchars($data['ten_thuong_hieu']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTenthuonghieu" placeholder="Nhập tên thương hiệu..." />
                 </div>
             </div>
 
@@ -253,76 +251,24 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
+        <div style="margin:10px 0">
+            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã thương hiệu</th>
+                        <th>Tên thương hiệu</th>
 
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            // Giả định $data['dulieu'] là mysqli_result
-            // Đặt lại con trỏ về đầu để có thể đếm và dùng lại bên dưới
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
-            <div style="margin:10px 0">
-                <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mã thương hiệu</th>
-                            <th>Tên thương hiệu</th>
-
-                            <th>Ngày tạo</th>
-                            <th style="text-align:right">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="brandBody">
-                        <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                                <tr>
-                                    <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                                    </td>
-                                    <td><span
-                                            style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_thuong_hieu']) ?></span>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($row['ten_thuong_hieu']) ?></td>
-
-                                    <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
-                                    </td>
-                                    <td style="text-align:right">
-                                        <a
-                                            href="<?php echo BASE_URL; ?>Thuonghieu/sua/<?php echo urlencode($row['ma_thuong_hieu']) ?>"><button
-                                                class="btn-edit">✏️
-                                                Sửa</button></a>
-                                        <button type="button" class="btn-delete" onclick="deleteBrand('<?php echo htmlspecialchars($row['ma_thuong_hieu']) ?>')">🗑️ Xóa API</button>
-                                    </td>
-                                </tr>
-                        <?php }
-                        } ?>
-                    </tbody>
-                </table>
-            </div>
-            <script>
-                const resultCount = document.getElementById('resultCount');
-                resultCount.textContent = '<?php echo $count; ?> bản ghi';
-            </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-            <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
+                        <th>Ngày tạo</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="brandBody"></tbody>
+            </table>
+        </div>
 
     </div>
 

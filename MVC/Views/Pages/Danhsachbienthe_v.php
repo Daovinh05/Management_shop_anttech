@@ -229,18 +229,16 @@
             </div>
         </div>
 
-        <form id="variantSearchForm" method="post" action="<?php echo BASE_URL ?>BienThe/Timkiem" class="form-search"
+        <form id="variantSearchForm" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã biến thể</label>
-                    <input type="text" id="searchId" name="txtMaBienThe" placeholder="Nhập mã biến thể..."
-                        value="<?php echo isset($data['mabienthe']) ? htmlspecialchars($data['mabienthe']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtMaBienThe" placeholder="Nhập mã biến thể..." />
                 </div>
                 <div>
                     <label for="searchName">Tên biến thể</label>
-                    <input type="text" id="searchName" name="txtTenBienThe" placeholder="Nhập tên biến thể..."
-                        value="<?php echo isset($data['tenbienthe']) ? htmlspecialchars($data['tenbienthe']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTenBienThe" placeholder="Nhập tên biến thể..." />
                 </div>
             </div>
 
@@ -281,19 +279,8 @@
         </div>
     </div>
 
-    <?php
-    $initialVariants = [];
-    if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-        mysqli_data_seek($data['dulieu'], 0);
-        while ($row = mysqli_fetch_assoc($data['dulieu'])) {
-            $initialVariants[] = $row;
-        }
-    }
-    ?>
-
     <script>
     const BASE_URL = '<?php echo BASE_URL; ?>';
-    const INITIAL_VARIANTS = <?php echo json_encode($initialVariants, JSON_UNESCAPED_UNICODE); ?>;
     let variantsListLoading = false;
 
     function escapeHtml(value) {
@@ -453,7 +440,6 @@
         }
         window.__variantListInitialized = true;
 
-        renderVariantRows(Array.isArray(INITIAL_VARIANTS) ? INITIAL_VARIANTS : []);
         loadAllVariants();
 
         const searchForm = document.getElementById('variantSearchForm');

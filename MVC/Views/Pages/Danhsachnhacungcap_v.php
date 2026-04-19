@@ -220,19 +220,17 @@
             </div>
         </div>
 
-        <form id="supplierSearchForm" method="post" action="<?php echo BASE_URL; ?>Nhacungcap/Timkiem" class="form-search"
+        <form id="supplierSearchForm" method="get" action="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã nhà cung cấp</label>
-                    <input type="text" id="searchId" name="txtManhacungcap" placeholder="Nhập mã nhà cung cấp..."
-                        value="<?php echo isset($data['ma_nha_cung_cap']) ? htmlspecialchars($data['ma_nha_cung_cap']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtManhacungcap" placeholder="Nhập mã nhà cung cấp..." />
                 </div>
 
                 <div>
                     <label for="searchName">Tên nhà cung cấp</label>
-                    <input type="text" id="searchName" name="txtTennhacungcap" placeholder="Nhập tên nhà cung cấp..."
-                        value="<?php echo isset($data['ten_nha_cung_cap']) ? htmlspecialchars($data['ten_nha_cung_cap']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTennhacungcap" placeholder="Nhập tên nhà cung cấp..." />
                 </div>
             </div>
 
@@ -248,19 +246,6 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        if (isset($data['dulieu'])) {
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
             <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
         </div>
@@ -276,37 +261,9 @@
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="supplierBody">
-                    <?php
-                        if ($count > 0) {
-                            $serial = 1;
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                    ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span></td>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_nha_cung_cap']) ?></span></td>
-                        <td><?php echo htmlspecialchars($row['ten_nha_cung_cap']) ?></td>
-                        <td><?php echo htmlspecialchars($row['dia_chi']) ?></td>
-                        <td><?php echo htmlspecialchars($row['dien_thoai']) ?></td>
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL; ?>Nhacungcap/sua/<?php echo urlencode($row['ma_nha_cung_cap']) ?>"><button class="btn-edit">✏️ Sửa</button></a>
-                            <button type="button" class="btn-delete" onclick="deleteSupplier('<?php echo htmlspecialchars($row['ma_nha_cung_cap']) ?>')">🗑️ Xóa API</button>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
-                </tbody>
+                <tbody id="supplierBody"></tbody>
             </table>
         </div>
-
-        <script>
-        const resultCount = document.getElementById('resultCount');
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
     </div>
 
     <script>

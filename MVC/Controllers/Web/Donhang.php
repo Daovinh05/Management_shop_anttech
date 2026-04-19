@@ -24,11 +24,9 @@ class Donhang extends controller
 
     function danhsach()
     {
-        $result = $this->dh->DonHang_getAll();
-
         $this->view('Master', [
             'page' => 'Danhsachdonhang_v',
-            'dulieu' => $result
+            'dulieu' => null
         ]);
     }
 
@@ -38,7 +36,6 @@ class Donhang extends controller
         $dsuser = $this->user->Users_getAll();
         $dsdc = $this->dc->DiaChiGiaoHang_getAll();
         $dskm = $this->km->KhuyenMai_getAll();
-        $result = $this->dh->DonHang_getAll();
 
         $this->view('Master', [
             'page' => 'Donhang_v',
@@ -51,7 +48,7 @@ class Donhang extends controller
             'dsuser' => $dsuser,
             'dsdc' => $dsdc,
             'dskm' => $dskm,
-            'dulieu' => $result
+            'dulieu' => null
         ]);
     }
 
@@ -114,80 +111,19 @@ class Donhang extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_don_hang = $_POST['txtMadonhang'] ?? '';
-        $full_name = $_POST['txtTenkhachhang'] ?? '';
-        $result = $this->dh->DonHang_find($ma_don_hang, $full_name);
-        if (isset($_POST['btnXuatexcel'])) {
-
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachDonHang');
-
-            $sheet->setCellValue('A1', 'Mã đơn hàng');
-            $sheet->setCellValue('B1', 'Tên khách hàng');
-            $sheet->setCellValue('E1', 'Tổng tiền hàng');
-            $sheet->setCellValue('D1', 'Tên khuyến mãi');
-            $sheet->setCellValue('F1', 'Thanh toán');
-            $sheet->setCellValue('G1', 'Trạng thái đơn hàng');
-            $sheet->setCellValue('H1', 'Ngày tạo đơn hàng');
-
-            $rowCount = 2; // Starting from row 2 since row 1 is headers
-            mysqli_data_seek($result, 0); // Reset result pointer to beginning
-            while ($row = mysqli_fetch_assoc($result)) {
-                $sheet->setCellValue('A' . $rowCount, $row['ma_don_hang']);
-                $sheet->setCellValue('B' . $rowCount, $row['full_name']);
-                $sheet->setCellValue('C' . $rowCount, $row['tong_tien_hang']);
-                $sheet->setCellValue('D' . $rowCount, $row['ten_khuyen_mai']);
-                $sheet->setCellValue('E' . $rowCount, $row['thanh_toan']);
-                $sheet->setCellValue('F' . $rowCount, $row['trang_thai_don_hang']);
-                $sheet->setCellValue('G' . $rowCount, $row['ngay_tao_don_hang']);
-                $rowCount++;
-            }
-
-            foreach (range('A', 'H') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="DanhSachDonHang.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-        // DISPLAY VIEW
-        $this->view('Master', [
-            'page' => 'Danhsachdonhang_v',
-            'ma_don_hang' => $ma_don_hang,
-            'full_name' => $full_name,
-            'dulieu' => $result
-        ]);
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint Timkiem đã ngừng sử dụng. Vui lòng dùng GET /Api/Donhang với query: ma_don_hang, full_name'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     function sua($ma_don_hang)
     {
-        $result = $this->dh->DonHang_getById($ma_don_hang);
-        $row = mysqli_fetch_array($result);
-
-        // Lấy danh sách người dùng, địa chỉ, khuyến mãi cho dropdown
-        $dsuser = $this->user->Users_getAll();
-        $dsdc = $this->dc->DiaChiGiaoHang_getAll();
-        $dskm = $this->km->KhuyenMai_getAll();
-
         $this->view('Master', [
-            'page' => 'donhang_sua',
-            'madonhang' => $row['ma_don_hang'],
-            'mauser' => $row['ma_user'],
-            'madc' => $row['ma_dia_chi'],
-            'makm' => $row['ma_khuyen_mai'],
-            'tongtien' => $row['tong_tien_hang'],
-            'trangthai' => $row['trang_thai_don_hang'],
-            'dsuser' => $dsuser,
-            'dsdc' => $dsdc,
-            'dskm' => $dskm
+            'page' => 'donhang_sua'
         ]);
     }
 

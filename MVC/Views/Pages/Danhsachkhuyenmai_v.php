@@ -221,18 +221,16 @@
             </div>
         </div>
 
-        <form id="promotionSearchForm" method="post" action="<?php echo BASE_URL; ?>Khuyenmai/Timkiem" class="form-search"
+        <form id="promotionSearchForm" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã khuyến mãi</label>
-                    <input type="text" id="searchId" name="txtMakhuyenmai" placeholder="Nhập mã khuyến mãi..."
-                        value="<?php echo isset($data['ma_khuyen_mai']) ? htmlspecialchars($data['ma_khuyen_mai']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtMakhuyenmai" placeholder="Nhập mã khuyến mãi..." />
                 </div>
                 <div>
                     <label for="searchName">Tên khuyến mãi</label>
-                    <input type="text" id="searchName" name="txtTenkhuyenmai" placeholder="Nhập tên khuyến mãi..."
-                        value="<?php echo isset($data['ten_khuyen_mai']) ? htmlspecialchars($data['ten_khuyen_mai']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTenkhuyenmai" placeholder="Nhập tên khuyến mãi..." />
                 </div>
             </div>
 
@@ -248,21 +246,8 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        if (isset($data['dulieu'])) {
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
-            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+            <strong>Kết quả: <span id="resultCount" class="hint">Đang tải dữ liệu...</span></strong>
         </div>
         <div class="table-container">
             <table>
@@ -278,44 +263,9 @@
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="promotionBody">
-                    <?php
-                        if ($count > 0) {
-                            $serial = 1;
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                    ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span></td>
-                        <td><?php echo htmlspecialchars($row['ma_khuyen_mai']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ten_khuyen_mai']) ?></td>
-                        <td><?php echo number_format($row['tien_khuyen_mai'], 0, ',', '.') ?> ₫</td>
-                        <td><?php echo isset($row['ngay_bat_dau']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_bat_dau'], 'H:i:s d/m/Y')) : '' ?></td>
-                        <td><?php echo isset($row['ngay_ket_thuc']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_ket_thuc'], 'H:i:s d/m/Y')) : '' ?></td>
-                        <td>
-                            <?php $isExpired = strtotime($row['ngay_ket_thuc']) < strtotime(date('Y-m-d')); ?>
-                            <span style="background: <?php echo $isExpired ? '#fed7aa' : '#d1fae5'; ?>; color: <?php echo $isExpired ? '#c2410c' : '#065f46'; ?>; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
-                                <?php echo $isExpired ? 'Hết khuyến mãi' : 'Đang khuyến mãi'; ?>
-                            </span>
-                        </td>
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL; ?>Khuyenmai/sua/<?php echo urlencode($row['ma_khuyen_mai']) ?>"><button class="btn-edit">✏️ Sửa</button></a>
-                            <button type="button" class="btn-delete" onclick="deletePromotion('<?php echo htmlspecialchars($row['ma_khuyen_mai']) ?>')">🗑️ Xóa API</button>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
-                </tbody>
+                <tbody id="promotionBody"></tbody>
             </table>
         </div>
-
-        <script>
-        const resultCount = document.getElementById('resultCount');
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
 
     </div>
 

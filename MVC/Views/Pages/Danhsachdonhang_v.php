@@ -843,18 +843,16 @@
             </div>
         </div>
 
-        <form id="orderSearchForm" method="post" action="<?php echo BASE_URL; ?>Donhang/Timkiem" class="form-search"
+        <form id="orderSearchForm" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã đơn hàng</label>
-                    <input type="text" id="searchId" name="txtMadonhang" placeholder="Nhập mã đơn hàng..."
-                        value="<?php echo isset($data['ma_don_hang']) ? htmlspecialchars($data['ma_don_hang']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtMadonhang" placeholder="Nhập mã đơn hàng..." />
                 </div>
                 <div>
                     <label for="searchName">Tên khách hàng</label>
-                    <input type="text" id="searchName" name="txtTenkhachhang" placeholder="Nhập tên khách hàng..."
-                        value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTenkhachhang" placeholder="Nhập tên khách hàng..." />
                 </div>
             </div>
 
@@ -894,19 +892,8 @@
             </table>
         </div>
 
-        <?php
-        $initialOrders = [];
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-            while ($row = mysqli_fetch_assoc($data['dulieu'])) {
-                $initialOrders[] = $row;
-            }
-        }
-        ?>
-
         <script>
             const BASE_URL = '<?php echo BASE_URL; ?>';
-            const INITIAL_ORDERS = <?php echo json_encode($initialOrders, JSON_UNESCAPED_UNICODE); ?>;
             let ordersListLoading = false;
 
             function escapeHtml(value) {
@@ -1487,7 +1474,6 @@
                 }
                 window.__orderListInitialized = true;
 
-                renderOrderRows(Array.isArray(INITIAL_ORDERS) ? INITIAL_ORDERS : []);
                 loadAllOrders();
             });
         </script>

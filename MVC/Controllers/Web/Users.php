@@ -21,12 +21,8 @@ class Users extends controller
 
     function danhsach()
     {
-        $result = $this->user->Users_getAll();
         $this->view('Master', [
-            'page' => 'Danhsachusers_v',
-            'ma_user' => '',
-            'ten_user' => '',
-            'dulieu' => $result
+            'page' => 'Danhsachusers_v'
         ]);
     }
 
@@ -169,80 +165,21 @@ class Users extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ form
-        $ma_user = $_POST['txtMauser'] ?? '';
-        $ten_user = $_POST['txtTenuser'] ?? '';
-
-        // 👉 LẤY DỮ LIỆU THEO MÃ USER + TÊN USER
-        $result = $this->user->Users_find($ma_user, $ten_user);
-        // ====== XUẤT EXCEL ======
-        if (isset($_POST['btnXuatexcel'])) {
-
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachUsers');
-
-            // Header tương ứng với ảnh CSDL
-            $sheet->setCellValue('A1', 'Mã User');
-            $sheet->setCellValue('B1', 'Tên User');
-            $sheet->setCellValue('C1', 'Password');
-            $sheet->setCellValue('D1', 'Email');
-            $sheet->setCellValue('E1', 'Phân Quyền');
-            $sheet->setCellValue('F1', 'Ngay Tạo');
-
-
-            $rowCount = 2; // Bắt đầu từ hàng 2 vì hàng 1 là tiêu đề
-            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
-            while ($row = mysqli_fetch_assoc($result)) {
-                // Ánh xạ trường theo bảng cơ sở dữ liệu
-                $sheet->setCellValue('A' . $rowCount, $row['ma_user']);
-                $sheet->setCellValue('B' . $rowCount, $row['ten_user']);
-                $sheet->setCellValue('C' . $rowCount, $row['password']);
-                $sheet->setCellValue('D' . $rowCount, $row['email']);
-                $sheet->setCellValue('E' . $rowCount, $row['phan_quyen']);
-                $sheet->setCellValue('F' . $rowCount, $row['ngay_tao']);
-                $rowCount++;
-            }
-
-            foreach (range('A', 'F') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="DanhSachUsers.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-
-        // ====== DISPLAY VIEW ======
-        $this->view('Master', [
-            'page' => 'Danhsachusers_v',
-            'ma_user' => $ma_user, // Consistent with view variable name
-            'ten_user' => $ten_user, // Consistent with view variable name
-            'dulieu' => $result
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Users'
         ]);
+        return;
     }
 
 
 
     function sua($ma_user)
     {
-        $result = $this->user->Users_getById($ma_user);
-        $row = mysqli_fetch_array($result);
         $this->view('Master', [
-            'page' => 'Users_sua',
-            'ma_user' => $row['ma_user'],
-            'ten_user' => $row['ten_user'],
-            'full_name' => $row['full_name'],
-            'password' => $row['password'],
-            'email' => $row['email'],
-            'phan_quyen' => $row['phan_quyen'],
-            'so_dien_thoai' => $row['so_dien_thoai'],
-            'avatar' => $row['avatar']
+            'page' => 'Users_sua'
         ]);
     }
 

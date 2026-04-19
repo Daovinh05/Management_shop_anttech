@@ -217,23 +217,20 @@
 
         </div>
 
-        <form id="reviewSearchForm" method="post" action="<?php echo BASE_URL; ?>Danhgia/Timkiem" class="form-search"
+        <form id="reviewSearchForm" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã đánh giá</label>
-                    <input type="text" id="searchId" name="txtMadanhgia" placeholder="Nhập mã đánh giá..."
-                        value="<?php echo isset($data['ma_danh_gia']) ? htmlspecialchars($data['ma_danh_gia']) : '' ?>" />
+                    <input type="text" id="searchId" name="txtMadanhgia" placeholder="Nhập mã đánh giá..." />
                 </div>
                 <div>
                     <label for="searchName">Tên khách hàng</label>
-                    <input type="text" id="searchName" name="txtTenkhachhang" placeholder="Nhập tên khách hàng..."
-                        value="<?php echo isset($data['ten_khach_hang']) ? htmlspecialchars($data['ten_khach_hang']) : '' ?>" />
+                    <input type="text" id="searchName" name="txtTenkhachhang" placeholder="Nhập tên khách hàng..." />
                 </div>
                 <div>
                     <label for="searchProduct">Tên sản phẩm</label>
-                    <input type="text" id="searchProduct" name="txtTensanpham" placeholder="Nhập tên sản phẩm..."
-                        value="<?php echo isset($data['ten_san_pham']) ? htmlspecialchars($data['ten_san_pham']) : '' ?>" />
+                    <input type="text" id="searchProduct" name="txtTensanpham" placeholder="Nhập tên sản phẩm..." />
                 </div>
             </div>
 
@@ -270,19 +267,8 @@
         </div>
     </div>
 
-    <?php
-    $initialReviews = [];
-    if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-        mysqli_data_seek($data['dulieu'], 0);
-        while ($row = mysqli_fetch_assoc($data['dulieu'])) {
-            $initialReviews[] = $row;
-        }
-    }
-    ?>
-
     <script>
         const BASE_URL = '<?php echo BASE_URL; ?>';
-        const INITIAL_REVIEWS = <?php echo json_encode($initialReviews, JSON_UNESCAPED_UNICODE); ?>;
         let reviewsListLoading = false;
 
         function escapeHtml(value) {
@@ -321,7 +307,7 @@
                     + '<td>' + escapeHtml(row.phan_hoi || '') + '</td>'
                     + '<td style="text-align:right">'
                     + '<a href="' + BASE_URL + 'Danhgia/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
-                        + '<button type="button" class="btn-delete" onclick="deleteReview(' + JSON.stringify(String(ma)) + ')">🗑️ Xóa API</button>'
+                        // + '<button type="button" class="btn-delete" onclick="deleteReview(' + JSON.stringify(String(ma)) + ')">🗑️ Xóa API</button>'
                     + '</td>'
                     + '</tr>';
             }).join('');
@@ -425,7 +411,6 @@
             }
             window.__reviewListInitialized = true;
 
-            renderReviewRows(Array.isArray(INITIAL_REVIEWS) ? INITIAL_REVIEWS : []);
             loadAllReviews();
 
             const searchForm = document.getElementById('reviewSearchForm');

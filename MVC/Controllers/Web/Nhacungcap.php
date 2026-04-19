@@ -16,25 +16,19 @@ class Nhacungcap extends controller
 
     function danhsach()
     {
-        $result = $this->ncc->NhaCungCap_getAll();
-
         $this->view('Master', [
-            'page' => 'Danhsachnhacungcap_v',
-            'dulieu' => $result
+            'page' => 'Danhsachnhacungcap_v'
         ]);
     }
 
     function themmoi()
     {
-        $result = $this->ncc->NhaCungCap_getAll();
-
         $this->view('Master', [
             'page' => 'Nhacungcap_v',
             'ma_nha_cung_cap' => '',
             'ten_nha_cung_cap' => '',
             'dia_chi' => '',
-            'dien_thoai' => '',
-            'dulieu' => $result
+            'dien_thoai' => ''
         ]);
     }
 
@@ -85,70 +79,19 @@ class Nhacungcap extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_nha_cung_cap = $_POST['txtManhacungcap'] ?? '';
-        $ten_nha_cung_cap = $_POST['txtTennhacungcap'] ?? '';
-
-        $result = $this->ncc->NhaCungCap_find($ma_nha_cung_cap, $ten_nha_cung_cap);
-
-        // ====== XUẤT EXCEL ======
-        if (isset($_POST['btnXuatexcel'])) {
-
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachNhacungcap');
-
-            // Header tương ứng với ảnh CSDL
-            $sheet->setCellValue('A1', 'Mã Nhà Cung Cấp');
-            $sheet->setCellValue('B1', 'Tên Nhà Cung Cấp');
-            $sheet->setCellValue('C1', 'Địa Chỉ');
-            $sheet->setCellValue('D1', 'Điện Thoại');
-
-
-            $rowCount = 2; // Starting from row 2 since row 1 is headers
-            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
-            while ($row = mysqli_fetch_assoc($result)) {
-                // Mapping field according to database table
-                $sheet->setCellValue('A' . $rowCount, $row['ma_nha_cung_cap']);
-                $sheet->setCellValue('B' . $rowCount, $row['ten_nha_cung_cap']);
-                $sheet->setCellValue('C' . $rowCount, $row['dia_chi']);
-                $sheet->setCellValue('D' . $rowCount, $row['dien_thoai']);
-                $rowCount++;
-            }
-
-            foreach (range('A', 'D') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="DanhSachNhaCungCap.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-        // DISPLAY VIEW
-        $this->view('Master', [
-            'page' => 'Danhsachnhacungcap_v',
-            'ma_nha_cung_cap' => $ma_nha_cung_cap,
-            'ten_nha_cung_cap' => $ten_nha_cung_cap,
-            'dulieu' => $result
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Nhacungcap'
         ]);
+        return;
     }
 
     function sua($ma_nha_cung_cap)
     {
-        $result = $this->ncc->NhaCungCap_getById($ma_nha_cung_cap);
-        $row = mysqli_fetch_array($result);
-
         $this->view('Master', [
-            'page' => 'Nhacungcap_sua',
-            'ma_nha_cung_cap' => $row['ma_nha_cung_cap'],
-            'ten_nha_cung_cap' => $row['ten_nha_cung_cap'],
-            'dia_chi' => $row['dia_chi'],
-            'dien_thoai' => $row['dien_thoai']
+            'page' => 'Nhacungcap_sua'
         ]);
     }
 

@@ -54,66 +54,48 @@
     <div class="card">
         <h1>Sửa Biến thể</h1>
         <p class="lead">Chỉnh sửa thông tin biến thể sản phẩm.</p>
-        <form id="updateVariantForm" method="post" action="<?php echo BASE_URL; ?>BienThe/update" enctype="multipart/form-data">
+        <form id="updateVariantForm" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
-                <input type="text" id="txtMaBienThe" name="txtMaBienThe" required readonly
-                    value="<?php echo isset($data['mabienthe']) ? htmlspecialchars($data['mabienthe']) : '' ?>" />
+                <input type="text" id="txtMaBienThe" name="txtMaBienThe" required readonly />
             </div>
             <div>
                 <label>Sản phẩm <span style="color:red">*</span></label>
-                <select name="ddlSanPham" required>
+                <select id="ddlSanPham" name="ddlSanPham" required>
                     <option value="">-- Chọn sản phẩm --</option>
-                    <?php
-                    if (isset($data['dssp'])) {
-                        while ($row = mysqli_fetch_array($data['dssp'])) {
-                            $selected = (isset($data['masanpham']) && $data['masanpham'] == $row['ma_san_pham']) ? 'selected' : '';
-                            echo '<option value="' . htmlspecialchars($row['ma_san_pham']) . '" ' . $selected . '>' . htmlspecialchars($row['ten_san_pham']) . '</option>';
-                        }
-                    }
-                    ?>
                 </select>
             </div>
             <div>
                 <label>Tên biến thể</label>
-                <input type="text" name="txtTenBienThe"
-                    value="<?php echo isset($data['tenbienthe']) ? htmlspecialchars($data['tenbienthe']) : '' ?>" />
+                <input type="text" id="txtTenBienThe" name="txtTenBienThe" />
             </div>
             <div>
                 <label>Hình ảnh biến thể</label>
-                <input type="file" name="txtImage" accept="image/*" />
-                <?php if (isset($data['imgbienthe']) && !empty($data['imgbienthe'])): ?>
-                    <div style="margin-top: 10px;">
-                        <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($data['imgbienthe']); ?>"
-                             alt="Hình ảnh biến thể" style="max-width: 100px; max-height: 100px;">
-                        <p>Chọn file mới để thay đổi hình ảnh</p>
-                    </div>
-                <?php endif; ?>
+                <input type="file" id="txtImage" name="txtImage" accept="image/*" />
+                <div id="currentImageWrap" style="display:none;margin-top:10px;">
+                    <img id="currentImagePreview" alt="Hình ảnh biến thể" style="max-width:100px;max-height:100px;">
+                    <p>Chọn file mới để thay đổi hình ảnh</p>
+                </div>
             </div>
             <div>
                 <label>Màu sắc</label>
-                <input type="text" name="txtMauSac"
-                    value="<?php echo isset($data['mausac']) ? htmlspecialchars($data['mausac']) : '' ?>" />
+                <input type="text" id="txtMauSac" name="txtMauSac" />
             </div>
             <div>
                 <label>Ram</label>
-                <input type="text" name="txtRAM"
-                    value="<?php echo isset($data['ram']) ? htmlspecialchars($data['ram']) : '' ?>" />
+                <input type="text" id="txtRAM" name="txtRAM" />
             </div>
             <div>
                 <label>Dung lượng</label>
-                <input type="text" name="txtDungLuong"
-                    value="<?php echo isset($data['dungluong']) ? htmlspecialchars($data['dungluong']) : '' ?>" />
+                <input type="text" id="txtDungLuong" name="txtDungLuong" />
             </div>
             <div>
                 <label>Giá</label>
-                <input type="number" name="txtGia" step="0.01"
-                    value="<?php echo isset($data['gia']) ? htmlspecialchars($data['gia']) : '' ?>" />
+                <input type="number" id="txtGia" name="txtGia" step="0.01" />
             </div>
             <div>
                 <label>Số lượng kho</label>
-                <input type="number" name="txtSoLuongKho"
-                    value="<?php echo isset($data['soluongkho']) ? htmlspecialchars($data['soluongkho']) : '' ?>" />
+                <input type="number" id="txtSoLuongKho" name="txtSoLuongKho" />
             </div>
 
             <div class="actions">
@@ -128,6 +110,108 @@
 
     <script>
     const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    function resolveVariantIdFromUrl() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const routedUrl = searchParams.get('url');
+
+        if (routedUrl) {
+            const routeParts = routedUrl.split('/').filter(Boolean);
+            if (routeParts.length > 0) {
+                return decodeURIComponent(routeParts[routeParts.length - 1]);
+            }
+        }
+
+        const pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        return pathParts.length > 0 ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+    }
+
+    function loadProducts(selectedProductId) {
+        const selectEl = document.getElementById('ddlSanPham');
+        if (!selectEl) {
+            return Promise.resolve();
+        }
+
+        return fetch(BASE_URL + 'Api/Products', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!(data && data.success && Array.isArray(data.data))) {
+                    throw new Error((data && data.message) ? data.message : 'Không thể tải danh sách sản phẩm');
+                }
+
+                selectEl.innerHTML = '<option value="">-- Chọn sản phẩm --</option>';
+                data.data.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.ma_san_pham || '';
+                    option.textContent = product.ten_san_pham || product.ma_san_pham || '';
+                    if (selectedProductId && option.value === selectedProductId) {
+                        option.selected = true;
+                    }
+                    selectEl.appendChild(option);
+                });
+            });
+    }
+
+    function fillVariantForm(variant) {
+        const maInput = document.getElementById('txtMaBienThe');
+        const tenInput = document.getElementById('txtTenBienThe');
+        const mauSacInput = document.getElementById('txtMauSac');
+        const ramInput = document.getElementById('txtRAM');
+        const dungLuongInput = document.getElementById('txtDungLuong');
+        const giaInput = document.getElementById('txtGia');
+        const soLuongInput = document.getElementById('txtSoLuongKho');
+
+        if (maInput) maInput.value = variant.ma_bien_the || '';
+        if (tenInput) tenInput.value = variant.ten_bien_the || '';
+        if (mauSacInput) mauSacInput.value = variant.mau_sac || '';
+        if (ramInput) ramInput.value = variant.ram || '';
+        if (dungLuongInput) dungLuongInput.value = variant.dung_luong || '';
+        if (giaInput) giaInput.value = variant.gia || '';
+        if (soLuongInput) soLuongInput.value = variant.so_luong_kho || '';
+
+        const imageWrap = document.getElementById('currentImageWrap');
+        const imagePreview = document.getElementById('currentImagePreview');
+        if (imageWrap && imagePreview) {
+            const imageName = variant.img_bien_the || '';
+            if (imageName) {
+                imagePreview.src = BASE_URL + 'Public/Pictures/bien_the/' + encodeURIComponent(imageName);
+                imageWrap.style.display = 'block';
+            } else {
+                imageWrap.style.display = 'none';
+            }
+        }
+
+        return loadProducts(variant.ma_san_pham || '');
+    }
+
+    function loadVariantByApi() {
+        const variantId = resolveVariantIdFromUrl();
+        if (!variantId) {
+            alert('Không xác định được mã biến thể từ URL.');
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Bienthe/' + encodeURIComponent(variantId), {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success && data.data) {
+                    return fillVariantForm(data.data);
+                }
+
+                throw new Error((data && data.message) ? data.message : 'Lỗi không xác định');
+            })
+            .catch(error => {
+                alert('Không thể tải dữ liệu biến thể: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadVariantByApi();
+    });
 
     document.getElementById('updateVariantForm').addEventListener('submit', function(event) {
         event.preventDefault();

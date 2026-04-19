@@ -223,7 +223,7 @@
             </div>
         </div>
 
-        <form id="productSearchForm" method="post" action="<?php echo BASE_URL; ?>Sanpham/Timkiem" class="form-search"
+        <form id="productSearchForm" method="get" action="<?php echo BASE_URL; ?>Sanpham/danhsach" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
@@ -252,21 +252,6 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
             <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
         </div>
@@ -289,73 +274,9 @@
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="spBody">
-                    <?php
-
-                        if ($count > 0) {
-                            $serial = $count + 1;
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo --$serial; ?></span>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['ma_san_pham']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ten_san_pham']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ten_bien_the']) ?></td>
-                        <td>
-                            <?php if ($row['img_bien_the']): ?>
-                            <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($row['img_bien_the']); ?>"
-                                alt="<?php echo htmlspecialchars($row['ten_san_pham']) ?>"
-                                style="width:50px;height:50px;object-fit:cover;border-radius:5px;" />
-                            <?php else: ?>
-                            <span>Không có hình</span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo isset($row['gia']) && $row['gia'] ? number_format($row['gia'], 0, ',', '.') : 'N/A' ?>
-                            ₫</td>
-                        <td>
-                            <?php if (isset($row['so_luong_kho']) && $row['so_luong_kho'] > 0): ?>
-                            <span
-                                style="background:#d1fae5;color:#065f46;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                Còn
-                                <?php echo htmlspecialchars(isset($row['so_luong_kho']) ? $row['so_luong_kho'] : 'N/A'); ?>
-                            </span>
-                            <?php else: ?>
-                            <span
-                                style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">
-                                Hết hàng
-                            </span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo isset($row['ten_danh_muc']) ? htmlspecialchars($row['ten_danh_muc']) : 'N/A' ?>
-                        <td><?php echo isset($row['ten_thuong_hieu']) ? htmlspecialchars($row['ten_thuong_hieu']) : 'N/A' ?>
-                        <td><?php echo isset($row['ten_nha_cung_cap']) ? htmlspecialchars($row['ten_nha_cung_cap']) : 'N/A' ?>
-                        </td>
-                        <td style="text-align:right">
-                            <!-- <?php if ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'nhan_vien'): ?> -->
-                            <a href="<?php echo BASE_URL; ?>Sanpham/sua/<?php echo urlencode($row['ma_san_pham']) ?>"><button
-                                    class="btn-edit">✏️
-                                    Sửa</button></a>
-                            <button type="button" class="btn-delete" onclick="deleteProduct('<?php echo htmlspecialchars($row['ma_san_pham']) ?>')">🗑️ Xóa API</button>
-                            <!-- <?php endif; ?> -->
-                        </td>
-                    </tr>
-                    <?php } ?>
-                    <?php } ?>
-                </tbody>
+                <tbody id="spBody"></tbody>
             </table>
         </div>
-
-        <script>
-        const resultCount = document.getElementById('resultCount');
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php
-        }
-        if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0):
-        ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php endif; ?>
 
     </div>
 
@@ -441,6 +362,43 @@
         }).join('');
     }
 
+    function loadProducts() {
+        const maSanPham = (document.getElementById('searchId') || {}).value || '';
+        const tenSanPham = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Products');
+
+        if (maSanPham.trim() !== '') {
+            url.searchParams.set('ma_san_pham', maSanPham.trim());
+        }
+
+        if (tenSanPham.trim() !== '') {
+            url.searchParams.set('ten_san_pham', tenSanPham.trim());
+        }
+
+        const resultCountEl = document.getElementById('resultCount');
+        if (resultCountEl) {
+            resultCountEl.textContent = 'Đang tải dữ liệu...';
+        }
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderProductRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('❌ Tải danh sách thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    renderProductRows([]);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi tải danh sách API:', error);
+                alert('❌ Không thể kết nối API sản phẩm.');
+                renderProductRows([]);
+            });
+    }
+
     function exportProductsExcel() {
         const maSanPham = (document.getElementById('searchId') || {}).value || '';
         const tenSanPham = (document.getElementById('searchName') || {}).value || '';
@@ -485,61 +443,12 @@
         const searchForm = document.getElementById('productSearchForm');
         if (searchForm) {
             searchForm.addEventListener('submit', function(event) {
-                const submitter = event.submitter;
-                const submitName = submitter && submitter.name ? submitter.name : '';
-
-                // Chỉ chặn submit của nút tìm kiếm
-                if (submitName !== 'btnTim') {
-                    return;
-                }
-
                 event.preventDefault();
-
-                const maSanPham = (document.getElementById('searchId') || {}).value || '';
-                const tenSanPham = (document.getElementById('searchName') || {}).value || '';
-                const url = new URL(BASE_URL + 'Api/Products');
-
-                if (maSanPham.trim() !== '') {
-                    url.searchParams.set('ma_san_pham', maSanPham.trim());
-                }
-
-                if (tenSanPham.trim() !== '') {
-                    url.searchParams.set('ten_san_pham', tenSanPham.trim());
-                }
-
-                const resultCountEl = document.getElementById('resultCount');
-                if (resultCountEl) {
-                    resultCountEl.textContent = 'Đang tìm kiếm...';
-                }
-
-                fetch(url.toString(), {
-                        method: 'GET'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data.success) {
-                            renderProductRows(Array.isArray(data.data) ? data.data : []);
-                        } else {
-                            alert('❌ Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
-                            renderProductRows([]);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Lỗi tìm kiếm API:', error);
-                        alert('❌ Không thể kết nối API tìm kiếm.');
-                    });
+                loadProducts();
             });
         }
 
-        console.log("Đang gọi REST API ngầm để test...");
-        // Gọi API lấy danh sách sản phẩm bằng Fetch
-        fetch('<?php echo BASE_URL; ?>Api/Products')
-            .then(response => response.json())
-            .then(data => {
-                console.log("✅ REST API ĐÃ TRẢ VỀ DỮ LIỆU THÀNH CÔNG:", data);
-                console.log("Bạn có thể kiểm tra tab 'Network' (F12 -> Network -> Fetch/XHR) để thấy Request này.");
-            })
-            .catch(error => console.error("Lỗi khi gọi API:", error));
+        loadProducts();
     });
     </script>
 

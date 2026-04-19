@@ -20,12 +20,11 @@ class Danhgia extends controller
 
     function danhsach()
     {
-        $result = $this->dg->DanhGia_getAll();
         $this->view('Master', [
             'page' => 'Danhsachdanhgia_v',
             'ma_danh_gia' => '',
             'ten_danh_gia' => '',
-            'dulieu' => $result
+            'dulieu' => null
         ]);
     }
 
@@ -92,79 +91,19 @@ class Danhgia extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ form
-        $ma_danh_gia = $_POST['txtMadanhgia'] ?? '';
-        $ten_khach_hang = $_POST['txtTenkhachhang'] ?? '';
-        $ten_san_pham = $_POST['txtTensanpham'] ?? '';
-
-        // LẤY DỮ LIỆU THEO MÃ ĐÁNH GIÁ + TÊN KHÁCH HÀNG + TÊN SẢN PHẨM
-        $result = $this->dg->DanhGia_find($ma_danh_gia, $ten_khach_hang, $ten_san_pham);
-
-        // ====== XUẤT EXCEL ======
-        if (isset($_POST['btnXuatexcel'])) {
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachDanhGia');
-
-            // Header tương ứng với ảnh CSDL
-            $sheet->setCellValue('A1', 'Mã Đánh Giá');
-            $sheet->setCellValue('B1', 'Tên Khách Hàng');
-            $sheet->setCellValue('C1', 'Tên Sản Phẩm');
-            $sheet->setCellValue('D1', 'Số Sao');
-            $sheet->setCellValue('E1', 'Nội Dung');
-            $sheet->setCellValue('F1', 'Phản Hồi');
-            $sheet->setCellValue('G1', 'Ngày Tạo');
-
-            $rowCount = 2; // Bắt đầu từ hàng 2 vì hàng 1 là tiêu đề
-            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
-            while ($row = mysqli_fetch_assoc($result)) {
-                // Ánh xạ trường theo bảng cơ sở dữ liệu
-                $sheet->setCellValue('A' . $rowCount, $row['ma_danh_gia']);
-                $sheet->setCellValue('B' . $rowCount, $row['full_name']);
-                $sheet->setCellValue('C' . $rowCount, $row['ten_san_pham']);
-                $sheet->setCellValue('D' . $rowCount, $row['so_sao']);
-                $sheet->setCellValue('E' . $rowCount, $row['noi_dung']);
-                $sheet->setCellValue('F' . $rowCount, $row['phan_hoi']);
-                $sheet->setCellValue('G' . $rowCount, $row['ngay_tao']);
-                $rowCount++;
-            }
-
-            foreach (range('A', 'G') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="Danhsachdanhgia.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-
-        // ====== DISPLAY VIEW ======
-        $this->view('Master', [
-            'page' => 'Danhsachdanhgia_v',
-            'ma_danh_gia' => $ma_danh_gia,
-            'ten_khach_hang' => $ten_khach_hang,
-            'ten_san_pham' => $ten_san_pham,
-            'dulieu' => $result
-        ]);
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint Timkiem đã ngừng sử dụng. Vui lòng dùng GET /Api/Danhgia với query: ma_danh_gia, ten_khach_hang, ten_san_pham'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
     }
 
     function sua($ma_danh_gia)
     {
-        $result = $this->dg->DanhGia_getById($ma_danh_gia);
-        $row = mysqli_fetch_array($result);
         $this->view('Master', [
-            'page' => 'Danhgia_sua',
-            'ma_danh_gia' => $row['ma_danh_gia'],
-            'full_name' => $row['full_name'],
-            'ten_san_pham' => $row['ten_san_pham'],
-            'so_sao' => $row['so_sao'],
-            'noi_dung' => $row['noi_dung'],
-            'phan_hoi' => $row['phan_hoi']
+            'page' => 'Danhgia_sua'
         ]);
     }
 

@@ -860,42 +860,32 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     <div class="filter-group">
                         <h4 class="filter-group-title">Danh mục</h4>
 
-                        <label class="filter-option"><input type="radio" name="category" value="" checked><span
-                                class="checkmark"></span>Tất cả</label>
+                        <label class="filter-option"><input type="radio" name="category" value="" checked><span class="checkmark"></span>Tất cả</label>
 
                         <?php foreach ($data['dsdm'] as $dm): ?>
-                            <label class="filter-option"><input type="radio" name="category"
-                                    value="<?php echo $dm['ma_danh_muc']; ?>"><span
-                                    class="checkmark"></span><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></label>
+                            <label class="filter-option"><input type="radio" name="category" value="<?php echo $dm['ma_danh_muc']; ?>"><span class="checkmark"></span><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></label>
                         <?php endforeach; ?>
                     </div>
+
                     <div class="filter-group">
                         <h4 class="filter-group-title">Giá</h4>
-                        <label class="filter-option"><input type="radio" name="price" value="tat-ca" checked><span
-                                class="checkmark"></span>Tất cả</label>
-                        <label class="filter-option"><input type="radio" name="price" value="duoi-2-trieu"><span
-                                class="checkmark"></span>Dưới 2 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="2-4-trieu"><span
-                                class="checkmark"></span>Từ 2 - 4 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="4-7-trieu"><span
-                                class="checkmark"></span>Từ 4 - 7 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="7-13-trieu"><span
-                                class="checkmark"></span>Từ 7 - 13 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="tren-13-trieu"><span
-                                class="checkmark"></span>Trên 13 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="tat-ca" checked><span class="checkmark"></span>Tất cả</label>
+                        <label class="filter-option"><input type="radio" name="price" value="duoi-2-trieu"><span class="checkmark"></span>Dưới 2 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="2-4-trieu"><span class="checkmark"></span>Từ 2 - 4 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="4-7-trieu"><span class="checkmark"></span>Từ 4 - 7 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="7-13-trieu"><span class="checkmark"></span>Từ 7 - 13 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="tren-13-trieu"><span class="checkmark"></span>Trên 13 triệu</label>
                     </div>
+
                     <div class="filter-group">
                         <h4 class="filter-group-title">Thương hiệu</h4>
-                        <label class="filter-option"><input type="radio" name="brand" value="" checked><span
-                                class="checkmark"></span>Tất cả</label>
+                        <label class="filter-option"><input type="radio" name="brand" value="" checked><span class="checkmark"></span>Tất cả</label>
                         <?php
-                        // Lấy danh sách thương hiệu từ model
                         $thuong_hieu_model = $this->model("ThuongHieu_m");
                         $dsth = $thuong_hieu_model->ThuongHieu_getAll();
-                        foreach ($dsth as $th): ?>
-                            <label class="filter-option"><input type="radio" name="brand"
-                                    value="<?php echo $th['ma_thuong_hieu']; ?>"><span
-                                    class="checkmark"></span><?php echo htmlspecialchars($th['ten_thuong_hieu']); ?></label>
+                        foreach ($dsth as $th):
+                        ?>
+                            <label class="filter-option"><input type="radio" name="brand" value="<?php echo $th['ma_thuong_hieu']; ?>"><span class="checkmark"></span><?php echo htmlspecialchars($th['ten_thuong_hieu']); ?></label>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -906,115 +896,14 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     <h2>Tìm sản phẩm theo nhu cầu</h2>
                     <button class="btn-filter-now"><i class="fa-solid fa-filter"></i> Dùng bộ lọc ngay</button>
                 </div>
-                <div class="results-count">Tìm thấy <?php echo isset($data['total_products']) ? $data['total_products'] : mysqli_num_rows($data['dssp']); ?> kết quả</div>
+
+                <div class="results-count">Đang tải dữ liệu sản phẩm...</div>
 
                 <section class="product-section">
-                    <div class="product-grid">
-                        <?php while ($sp = mysqli_fetch_assoc($data['dssp'])): ?>
-                            <a href="<?php echo UrlHelper::url('Khachhang/chitietsanpham/' . $sp['ma_san_pham']); ?>"
-                                class="product-link">
-                                <div class="product-card">
-                                    <span
-                                        class="sticker-sale">-<?php echo isset($sp['giam_gia']) ? $sp['giam_gia'] : '10'; ?>%</span>
-                                    <?php if (isset($sp['img_bien_the']) && $sp['img_bien_the']): ?>
-                                        <img src="<?php echo UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($sp['img_bien_the']); ?>"
-                                            alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
-                                            style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />
-                                    <?php else: ?>
-                                        <img src="<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>"
-                                            alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
-                                            style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;">
-                                    <?php endif; ?>
-
-
-
-                                    <h3 class="product-name"><?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?></h3>
-                                    <div class="product-price-box">
-                                        <div class="price-row">
-                                            <span
-                                                class="old-price"><?php echo isset($sp['gia_cu']) ? number_format($sp['gia_cu'], 0, ',', '.') . '₫' : (isset($sp['gia']) ? number_format($sp['gia'], 0, ',', '.') . '₫' : 'Liên hệ'); ?></span>
-                                            <?php if (isset($sp['giam_gia']) && $sp['giam_gia'] > 0): ?>
-                                                <span class="discount-percent">-<?php echo $sp['giam_gia']; ?>%</span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="current-price">
-                                            <?php echo isset($sp['gia_moi']) ? number_format($sp['gia_moi'], 0, ',', '.') . '₫' : (isset($sp['gia']) ? number_format($sp['gia'], 0, ',', '.') . '₫' : 'Liên hệ'); ?>
-                                        </div>
-                                        <div class="price-discount-text">Giảm
-                                            <?php echo isset($sp['gia_cu']) && isset($sp['gia_moi']) ? number_format($sp['gia_cu'] - $sp['gia_moi'], 0, ',', '.') . '₫' : (isset($sp['gia']) && isset($sp['giam_gia']) ? number_format($sp['gia'] * $sp['giam_gia'] / 100, 0, ',', '.') . '₫' : 'Liên hệ'); ?>
-                                        </div>
-                                        <?php if (isset($sp['so_luong_kho'])): ?>
-                                            <div class="stock-status">
-                                                <?php 
-                                                if ($sp['so_luong_kho'] > 5) {
-                                                    echo '<span style="color: green;">Còn hàng</span>';
-                                                } elseif ($sp['so_luong_kho'] > 0) {
-                                                    echo '<span style="color: orange;">Sắp hết hàng (' . $sp['so_luong_kho'] . ')</span>';
-                                                } else {
-                                                    echo '<span style="color: red;">Hết hàng</span>';
-                                                }
-                                                ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="buy-btn">Mua ngay</div>
-                                </div>
-                            </a>
-                        <?php endwhile; ?>
-                    </div>
+                    <div class="product-grid"></div>
                 </section>
-                
-                <!-- Pagination Controls -->
-                <?php if (isset($data['total_pages']) && $data['total_pages'] > 1): ?>
-                <div class="pagination-container" style="margin-top: 30px; text-align: center;">
-                    <div class="pagination">
-                        <?php
-                        $current_page = $data['current_page'];
-                        $total_pages = $data['total_pages'];
-                        
-                        // Previous button
-                        if ($current_page > 1) {
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . ($current_page - 1)) . '" class="pagination-btn">&laquo; Trước</a>';
-                        } else {
-                            echo '<span class="pagination-btn disabled">&laquo; Trước</span>';
-                        }
-                        
-                        // Page numbers
-                        $start_page = max(1, $current_page - 2);
-                        $end_page = min($total_pages, $current_page + 2);
-                        
-                        if ($start_page > 1) {
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=1") . '" class="pagination-btn">1</a>';
-                            if ($start_page > 2) {
-                                echo '<span class="pagination-ellipsis">...</span>';
-                            }
-                        }
-                        
-                        for ($i = $start_page; $i <= $end_page; $i++) {
-                            if ($i == $current_page) {
-                                echo '<span class="pagination-btn active">' . $i . '</span>';
-                            } else {
-                                echo '<a href="' . UrlHelper::url("Khachhang?page=" . $i) . '" class="pagination-btn">' . $i . '</a>';
-                            }
-                        }
-                        
-                        if ($end_page < $total_pages) {
-                            if ($end_page < $total_pages - 1) {
-                                echo '<span class="pagination-ellipsis">...</span>';
-                            }
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . $total_pages) . '" class="pagination-btn">' . $total_pages . '</a>';
-                        }
-                        
-                        // Next button
-                        if ($current_page < $total_pages) {
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . ($current_page + 1)) . '" class="pagination-btn">Tiếp &raquo;</a>';
-                        } else {
-                            echo '<span class="pagination-btn disabled">Tiếp &raquo;</span>';
-                        }
-                        ?>
-                    </div>
-                </div>
-                <?php endif; ?>
+
+                <div class="pagination-container" style="margin-top: 30px; text-align: center; display:none;"></div>
             </main>
 
         </div>
@@ -1389,9 +1278,18 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         const urlParams = new URLSearchParams(window.location.search);
         const p = parseInt(urlParams.get('page') || '1', 10);
         const q = (urlParams.get('q') || '').trim();
+        const categoryId = (urlParams.get('category_id') || '').trim();
 
         currentPage = Number.isNaN(p) || p < 1 ? 1 : p;
         currentSearchKeyword = q;
+        currentCategory = categoryId;
+
+        if (categoryId) {
+            const categoryRadio = document.querySelector('input[name="category"][value="' + categoryId.replace(/"/g, '\\"') + '"]');
+            if (categoryRadio) {
+                categoryRadio.checked = true;
+            }
+        }
 
         fetchStorefrontProducts();
     });
