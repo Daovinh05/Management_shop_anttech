@@ -246,21 +246,8 @@
         </form>
     </div>
 
-    <div class="card">
-        <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
+<div class="card">
 
-        if (isset($data['dulieu'])) {
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
             <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
         </div>
@@ -277,37 +264,17 @@
                     </tr>
                 </thead>
                 <tbody id="supplierBody">
-                    <?php
-                        if ($count > 0) {
-                            $serial = 1;
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                    ?>
                     <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span></td>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_nha_cung_cap']) ?></span></td>
-                        <td><?php echo htmlspecialchars($row['ten_nha_cung_cap']) ?></td>
-                        <td><?php echo htmlspecialchars($row['dia_chi']) ?></td>
-                        <td><?php echo htmlspecialchars($row['dien_thoai']) ?></td>
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL; ?>Nhacungcap/sua/<?php echo urlencode($row['ma_nha_cung_cap']) ?>"><button class="btn-edit">✏️ Sửa</button></a>
-                            <button type="button" class="btn-delete" onclick="deleteSupplier('<?php echo htmlspecialchars($row['ma_nha_cung_cap']) ?>')">🗑️ Xóa API</button>
+                        <td colspan="6" style="text-align:center;color:#6b7280">
+                            Đang tải dữ liệu...
                         </td>
                     </tr>
-                    <?php }
-                        } ?>
                 </tbody>
             </table>
         </div>
 
-        <script>
-        const resultCount = document.getElementById('resultCount');
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
     </div>
+
 
     <script>
     const BASE_URL = '<?php echo BASE_URL; ?>';

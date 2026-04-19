@@ -28,7 +28,7 @@ class api_controller {
         return null;
     }
 
-    // Trích xuất JSON input payload (khi request là application/json)
+    // Trích xuất JSON input payload (khi request là application/json) k post,put (dùng để giải mã)
     protected function getJsonInput() {
         $input = json_decode(file_get_contents('php://input'), true);
         return is_array($input) ? $input : [];

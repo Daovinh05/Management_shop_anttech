@@ -6,6 +6,12 @@ class app
     protected $controller = "Home";
     protected $action = "Get_data";
     protected $param = [];
+    function processURL()
+    {
+        if (isset($_GET['url'])) {
+            return explode('/', filter_var(trim($_GET['url']), FILTER_DEFAULT));
+        }
+    }
     function __construct()
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
@@ -195,10 +201,5 @@ class app
     }
 
 
-    function processURL()
-    {
-        if (isset($_GET['url'])) {
-            return explode('/', filter_var(trim($_GET['url']), FILTER_DEFAULT));
-        }
-    }
+    
 }

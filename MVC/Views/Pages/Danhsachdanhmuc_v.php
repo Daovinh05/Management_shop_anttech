@@ -254,23 +254,7 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
 
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            // Giả định $data['dulieu'] là mysqli_result
-            // Đặt lại con trỏ về đầu để có thể đếm và dùng lại bên dưới
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
             <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
         </div>
@@ -281,48 +265,16 @@
                         <th>STT</th>
                         <th>Mã Danh mục</th>
                         <th>Tên Danh mục</th>
-
                         <th>Ngày tạo</th>
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="dmBody">
-                    <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                        </td>
-                        <td><span
-                                style="font-weight:600;color:var(--accent)"><?php echo htmlspecialchars($row['ma_danh_muc']) ?></span>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['ten_danh_muc']) ?></td>
-
-                        <td><?php echo isset($row['ngay_tao']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_tao'], 'H:i:s d/m/Y')) : '' ?>
-                        </td>
-                        <td style="text-align:right">
-                            <a href="<?php echo BASE_URL; ?>Danhmuc/sua/<?php echo urlencode($row['ma_danh_muc']) ?>"><button
-                                    class="btn-edit">✏️
-                                    Sửa</button></a>
-                            <button type="button" class="btn-delete" onclick="deleteCategory('<?php echo htmlspecialchars($row['ma_danh_muc']) ?>')">🗑️ Xóa API</button>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
+                    <!-- Dữ liệu sẽ được render bằng JavaScript -->
                 </tbody>
             </table>
         </div>
-        <script>
-        const resultCount = document.getElementById('resultCount');
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
+        <div id="noResult" class="hint" style="display:none;text-align:center;margin-top:10px">Không có kết quả phù hợp.</div>
 
     </div>
 
