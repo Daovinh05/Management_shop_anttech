@@ -3,12 +3,16 @@ class Storefront extends api_controller {
     private $sp;
     private $dm;
     private $th;
+    private $bt;
+    private $dg;
 
     public function __construct() {
         parent::__construct();
         $this->sp = $this->model('SanPham_m');
         $this->dm = $this->model('DanhMuc_m');
         $this->th = $this->model('ThuongHieu_m');
+        $this->bt = $this->model('BienThe_m');
+        $this->dg = $this->model('DanhGia_m');
     }
 
     public function get_all() {
@@ -130,6 +134,81 @@ class Storefront extends api_controller {
             'success' => true,
             'message' => 'Lay goi y thanh cong',
             'data' => $suggestions
+        ]);
+    }
+
+    // RESTful detail endpoint: GET /Api/Storefront/{ma_san_pham}
+    public function get_detail($id = null) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $id = trim((string)$id);
+        if ($id === '') {
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma san pham']);
+        }
+
+        $sp_result = $this->sp->SanPham_getStorefrontDetail($id);
+        if (!$sp_result || mysqli_num_rows($sp_result) === 0) {
+            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay san pham']);
+        }
+        $san_pham = mysqli_fetch_assoc($sp_result);
+
+        $bien_the = [];
+        $bien_the_result = $this->bt->BienThe_getByProduct($id);
+        if ($bien_the_result) {
+            while ($row = mysqli_fetch_assoc($bien_the_result)) {
+                $bien_the[] = $row;
+            }
+        }
+
+        $danh_gia = [];
+        $danh_gia_result = $this->dg->DanhGia_getByProduct($id);
+        if ($danh_gia_result) {
+            while ($row = mysqli_fetch_assoc($danh_gia_result)) {
+                $danh_gia[] = $row;
+            }
+        }
+
+        $avg_rating = $this->dg->DanhGia_getAvgRatingByProduct($id);
+        $star_distribution = $this->dg->DanhGia_getStarDistribution($id);
+
+        $similar_products = [];
+        $ma_danh_muc = mysqli_real_escape_string($this->sp->con, (string)($san_pham['ma_danh_muc'] ?? ''));
+        $ma_san_pham = mysqli_real_escape_string($this->sp->con, $id);
+        if ($ma_danh_muc !== '') {
+            $sql_similar = "SELECT s.ma_san_pham, s.ten_san_pham,
+                                   (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL LIMIT 1) as img_bien_the,
+                                   (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL LIMIT 1) as gia,
+                                   dm.ten_danh_muc, th.ten_thuong_hieu, ncc.ten_nha_cung_cap
+                            FROM san_pham s
+                            LEFT JOIN danh_muc dm ON s.ma_danh_muc = dm.ma_danh_muc
+                            LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
+                            LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
+                            WHERE s.ma_danh_muc = '$ma_danh_muc'
+                              AND s.ma_san_pham != '$ma_san_pham'
+                            GROUP BY s.ma_san_pham
+                            ORDER BY s.ma_san_pham DESC
+                            LIMIT 4";
+            $similar_result = mysqli_query($this->sp->con, $sql_similar);
+            if ($similar_result) {
+                while ($row = mysqli_fetch_assoc($similar_result)) {
+                    $similar_products[] = $row;
+                }
+            }
+        }
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay chi tiet san pham thanh cong',
+            'data' => [
+                'san_pham' => $san_pham,
+                'bien_the' => $bien_the,
+                'danh_gia' => $danh_gia,
+                'avg_rating' => $avg_rating,
+                'star_distribution' => $star_distribution,
+                'similar_products' => $similar_products
+            ]
         ]);
     }
 }
