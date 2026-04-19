@@ -150,85 +150,14 @@ class Khachhang extends controller
             header('Location: ' . $this->url('Login'));
             exit;
         }
-
-        $ma_user = $_SESSION['user_id'];
-        
-        $is_buy_now = isset($_GET['buynow']) && $_GET['buynow'] == 1;
-        
-        $filtered_cart_items = [];
-        $tong_tien_thanh_toan = 0;
-
-        if ($is_buy_now && isset($_GET['items']) && isset($_GET['qty'])) {
-            // --- TRƯỜNG HỢP MUA NGAY: Tự dựng dữ liệu không qua giỏ hàng ---
-            $ma_bien_the = $_GET['items']; // Lấy 1 sản phẩm
-            $so_luong = (int)$_GET['qty'];
-            
-            // Lấy thông tin biến thể và sản phẩm trực tiếp
-            $bt_query = $this->bt->BienThe_getById($ma_bien_the);
-            $bt_info = mysqli_fetch_assoc($bt_query);
-            
-            if ($bt_info) {
-                $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
-                $sp_info = mysqli_fetch_assoc($sp_query);
-
-                // Tạo mảng item giả lập giống cấu trúc giỏ hàng
-                $item = [];
-                $item['ma_bien_the'] = $ma_bien_the;
-                $item['ten_san_pham'] = $sp_info['ten_san_pham'];
-                $item['ten_bien_the'] = $bt_info['ten_bien_the'];
-                $item['mau_sac'] = $bt_info['mau_sac'];
-                $item['dung_luong'] = $bt_info['dung_luong'];
-                $item['gia'] = $bt_info['gia'];
-                $item['so_luong'] = $so_luong; // Dùng số lượng từ URL
-                
-                $filtered_cart_items[] = $item;
-                $tong_tien_thanh_toan = $item['gia'] * $item['so_luong'];
-            }
-        } 
-        else {
-            // --- TRƯỜNG HỢP THANH TOÁN GIỎ HÀNG BÌNH THƯỜNG (Code cũ) ---
-            $gio_hang = $this->gh->GioHang_getByUser($ma_user);
-            $row = mysqli_fetch_assoc($gio_hang);
-
-            if ($row) {
-                $ma_gio_hang = $row['ma_gio_hang'];
-                $chi_tiet_gio_hang = $this->ctgh->ChiTietGioHang_getByCartId($ma_gio_hang);
-                
-                $selected_items = isset($_GET['items']) ? explode(',', $_GET['items']) : [];
-
-                if ($chi_tiet_gio_hang) {
-                    while ($item = mysqli_fetch_assoc($chi_tiet_gio_hang)) {
-                        // Lấy thêm thông tin chi tiết (như bạn đã sửa ở các bước trước)
-                        $bt_query = $this->bt->BienThe_getById($item['ma_bien_the']);
-                        $bt_info = mysqli_fetch_assoc($bt_query);
-                        $sp_query = $this->sp->SanPham_getById($bt_info['ma_san_pham']);
-                        $sp_info = mysqli_fetch_assoc($sp_query);
-
-                        $item['ten_san_pham'] = $sp_info['ten_san_pham'];
-                        $item['ten_bien_the'] = $bt_info['ten_bien_the'];
-                        $item['mau_sac'] = $bt_info['mau_sac'];
-                        $item['dung_luong'] = $bt_info['dung_luong'];
-                        $item['gia'] = $bt_info['gia'];
-
-                        if (empty($selected_items) || in_array($item['ma_bien_the'], $selected_items)) {
-                            $filtered_cart_items[] = $item;
-                            $tong_tien_thanh_toan += ($item['gia'] * $item['so_luong']);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Lấy thông tin phụ (Địa chỉ, Khuyến mãi...)
-        $dia_chi = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
-        $ds_khuyen_mai = $this->model("KhuyenMai_m")->KhuyenMai_getAvailable();
-
+        // API-first: du lieu checkout duoc load bang REST endpoint /Api/Checkout/init.
+        // Van giu fallback rong de tranh warning tren template cu.
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_thanhtoan',
-            'ds_sp_thanh_toan' => $filtered_cart_items,
-            'dia_chi' => $dia_chi,
-            'ds_khuyen_mai' => $ds_khuyen_mai,
-            'tong_tien_du kien' => $tong_tien_thanh_toan
+            'ds_sp_thanh_toan' => [],
+            'dia_chi' => null,
+            'ds_khuyen_mai' => null,
+            'tong_tien_du kien' => 0
         ]);
     }
 

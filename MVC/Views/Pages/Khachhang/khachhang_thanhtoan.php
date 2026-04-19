@@ -944,14 +944,14 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         <h3 class="section-title">Đơn hàng của bạn</h3>
 
                         <div class="order-review-box">
-                            <table class="order-table">
+                            <table class="order-table" id="orderTable">
                                 <thead>
                                     <tr>
                                         <th>SẢN PHẨM</th>
                                         <th style="text-align: right;">TẠM TÍNH</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="orderTableBody">
                                     <?php
                                     $tong_tien = 0;
                                     $tong_san_pham = 0;
@@ -1064,6 +1064,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
     <script>
         const CHECKOUT_API_URL = '<?php echo UrlHelper::url('Api/Checkout'); ?>';
+        const CHECKOUT_INIT_API_URL = '<?php echo UrlHelper::url('Api/Checkout/init'); ?>';
 
         // --- LOGIC GIỎ HÀNG ---
         // Khởi tạo giỏ hàng từ dữ liệu PHP đã hiển thị trong bảng đơn hàng
@@ -1132,13 +1133,217 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             const discountAmountElement = document.getElementById('discountAmount');
             const finalTotalElement = document.getElementById('finalTotal');
             const finalTotalInput = document.getElementById('finalTotalInput');
-            const subtotalValue = <?php echo $tong_tien; ?>; // Giá trị tạm tính
+            const orderTableBody = document.getElementById('orderTableBody');
+            let subtotalValue = <?php echo $tong_tien; ?>; // fallback từ PHP
             const checkoutForm = document.querySelector('.checkout-wrapper form');
             const submitBtn = checkoutForm ? checkoutForm.querySelector('button[name="btnDatHang"]') : null;
+            let checkoutInitPayload = null;
+
+            function escapeHtml(text) {
+                return String(text || '').replace(/[&<>'"]/g, function(ch) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+                });
+            }
+
+            function formatCurrency(value) {
+                return (Number(value || 0)).toLocaleString('vi-VN') + '₫';
+            }
+
+            function getQueryParamsForInit() {
+                const params = new URLSearchParams(window.location.search || '');
+                const query = new URLSearchParams();
+                const items = params.get('items') || '';
+                const qty = params.get('qty') || '';
+                const buynow = params.get('buynow') || '';
+
+                if (buynow === '1' && items !== '') {
+                    query.set('mode', 'buy_now');
+                    query.set('ma_bien_the', items);
+                    query.set('so_luong', qty !== '' ? qty : '1');
+                } else if (items !== '') {
+                    query.set('items', items);
+                }
+
+                return query.toString();
+            }
+
+            function renderPromotionOptions(promotions, selectedPromotionId) {
+                const currentVoucherSelect = document.getElementById('ddlKhuyenMai');
+                if (!currentVoucherSelect) return;
+
+                let html = '<option value="">-- Chọn voucher --</option>';
+                if ((promotions || []).length === 0) {
+                    html += '<option value="" disabled>Không có voucher nào</option>';
+                    currentVoucherSelect.innerHTML = html;
+                    return;
+                }
+
+                promotions.forEach(function(km) {
+                    const id = km.ma_khuyen_mai || '';
+                    const discount = Number(km.tien_khuyen_mai || 0);
+                    const selected = (selectedPromotionId && id === selectedPromotionId) ? ' selected' : '';
+                    const text = (km.ten_khuyen_mai || 'Voucher') + ' (-' + discount.toLocaleString('vi-VN') + '₫)';
+                    html += '<option value="' + escapeHtml(id) + '" data-discount="' + discount + '"' + selected + '>' + escapeHtml(text) + '</option>';
+                });
+
+                currentVoucherSelect.innerHTML = html;
+            }
+
+            function renderOrderItems(items, summary) {
+                if (!orderTableBody) return;
+
+                const rows = [];
+                let totalQty = 0;
+
+                (items || []).forEach(function(item) {
+                    const qty = Number(item.so_luong || 0);
+                    totalQty += qty;
+                    const lineTotal = Number(item.line_total || 0);
+                    let meta = '';
+                    if (item.ten_bien_the) meta += '<span class="product-meta">BIẾN THỂ: ' + escapeHtml(item.ten_bien_the) + '</span>';
+                    if (item.mau_sac) meta += '<span class="product-meta">MÀU SẮC: ' + escapeHtml(item.mau_sac) + '</span>';
+                    if (item.dung_luong) meta += '<span class="product-meta">DUNG LƯỢNG: ' + escapeHtml(item.dung_luong) + '</span>';
+
+                    rows.push(
+                        '<tr>' +
+                        '<td class="product-name-col">' +
+                        escapeHtml(item.ten_san_pham || '') + ' <strong style="color:#333">×</strong> ' + qty + meta +
+                        '</td>' +
+                        '<td class="price-col">' + formatCurrency(lineTotal) + '</td>' +
+                        '</tr>'
+                    );
+                });
+
+                const subtotal = Number((summary && summary.subtotal) || 0);
+                const discount = Number((summary && summary.discount) || 0);
+                const finalTotal = Number((summary && summary.final_total) || 0);
+
+                rows.push(
+                    '<tr class="subtotal-row">' +
+                    '<td>Tạm tính (' + totalQty + ' sản phẩm)</td>' +
+                    '<td class="price-col">' + formatCurrency(subtotal) + '</td>' +
+                    '</tr>'
+                );
+
+                rows.push(
+                    '<tr class="voucher-row">' +
+                    '<td>Khuyến mãi (Voucher)</td>' +
+                    '<td class="price-col">' +
+                    '<select name="ddlKhuyenMai" id="ddlKhuyenMai" class="form-control"></select>' +
+                    '</td>' +
+                    '</tr>'
+                );
+
+                rows.push(
+                    '<tr class="discount-row">' +
+                    '<td>Giảm giá</td>' +
+                    '<td class="price-col" id="discountAmount">-' + formatCurrency(discount) + '</td>' +
+                    '</tr>'
+                );
+
+                rows.push(
+                    '<tr class="total-row">' +
+                    '<td>Tổng</td>' +
+                    '<td class="price-col">' +
+                    '<span id="finalTotal">' + formatCurrency(finalTotal) + '</span>' +
+                    '<input type="hidden" name="final_total" id="finalTotalInput" value="' + finalTotal + '">' +
+                    '</td>' +
+                    '</tr>'
+                );
+
+                orderTableBody.innerHTML = rows.join('');
+            }
+
+            function applyFormDefaults(formDefaults) {
+                if (!formDefaults) return;
+
+                const setValue = function(selector, value) {
+                    const element = document.querySelector(selector);
+                    if (element && (element.value === '' || value !== '')) {
+                        element.value = value || '';
+                    }
+                };
+
+                // Theo yêu cầu: API chỉ điền full name, các trường còn lại để người dùng tự nhập.
+                setValue('input[name="txtHoTen"]', formDefaults.txtHoTen || '');
+            }
+
+            function bindVoucherChange() {
+                const currentVoucherSelect = document.getElementById('ddlKhuyenMai');
+                if (!currentVoucherSelect) return;
+
+                currentVoucherSelect.addEventListener('change', function() {
+                    const selectedOption = currentVoucherSelect.options[currentVoucherSelect.selectedIndex];
+                    const discount = selectedOption && selectedOption.dataset && selectedOption.dataset.discount
+                        ? Number(selectedOption.dataset.discount)
+                        : 0;
+
+                    let newTotal = subtotalValue - discount;
+                    if (newTotal < 0) newTotal = 0;
+
+                    const currentDiscountNode = document.getElementById('discountAmount');
+                    const currentFinalNode = document.getElementById('finalTotal');
+                    const currentFinalInput = document.getElementById('finalTotalInput');
+
+                    if (currentDiscountNode) currentDiscountNode.textContent = '-' + formatCurrency(discount);
+                    if (currentFinalNode) currentFinalNode.textContent = formatCurrency(newTotal);
+                    if (currentFinalInput) currentFinalInput.value = newTotal;
+                });
+            }
+
+            function loadCheckoutInit() {
+                const query = getQueryParamsForInit();
+                const endpoint = query !== '' ? (CHECKOUT_INIT_API_URL + '?' + query) : CHECKOUT_INIT_API_URL;
+
+                fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        return response.json().catch(function() {
+                            return { success: false, message: 'Phan hoi API khong hop le' };
+                        });
+                    })
+                    .then(function(json) {
+                        if (!json || !json.success || !json.data) {
+                            return;
+                        }
+
+                        checkoutInitPayload = json.data;
+                        const checkoutData = checkoutInitPayload.checkout || {};
+                        const items = checkoutData.items || [];
+                        const promotions = checkoutInitPayload.promotions || [];
+                        const selectedPromotion = checkoutInitPayload.selected_promotion || null;
+                        const selectedPromotionId = selectedPromotion ? (selectedPromotion.ma_khuyen_mai || '') : (checkoutData.ma_khuyen_mai || '');
+
+                        subtotalValue = Number(checkoutData.subtotal || 0);
+
+                        renderOrderItems(items, {
+                            subtotal: checkoutData.subtotal || 0,
+                            discount: checkoutData.discount || 0,
+                            final_total: checkoutData.final_total || 0
+                        });
+
+                        renderPromotionOptions(promotions, selectedPromotionId);
+                        bindVoucherChange();
+
+                        applyFormDefaults(checkoutInitPayload.form_defaults || {});
+                    })
+                    .catch(function() {
+                        // fallback giữ dữ liệu render từ PHP hiện tại
+                    });
+            }
 
             // Hàm tính toán lại tổng sau khi áp dụng khuyến mãi
             function updateTotal() {
-                const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+                const currentVoucherSelect = document.getElementById('ddlKhuyenMai');
+                if (!currentVoucherSelect) {
+                    return;
+                }
+
+                const selectedOption = currentVoucherSelect.options[currentVoucherSelect.selectedIndex];
                 let discount = 0;
 
                 if (selectedOption && selectedOption.dataset.discount) {
@@ -1154,16 +1359,23 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 }
 
                 // Cập nhật hiển thị
-                discountAmountElement.textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
-                finalTotalElement.textContent = newTotal.toLocaleString('vi-VN') + '₫';
-                finalTotalInput.value = newTotal;
+                const currentDiscountNode = document.getElementById('discountAmount');
+                const currentFinalNode = document.getElementById('finalTotal');
+                const currentFinalInput = document.getElementById('finalTotalInput');
+
+                if (currentDiscountNode) currentDiscountNode.textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
+                if (currentFinalNode) currentFinalNode.textContent = newTotal.toLocaleString('vi-VN') + '₫';
+                if (currentFinalInput) currentFinalInput.value = newTotal;
             }
 
             // Gắn sự kiện thay đổi cho dropdown voucher
-            voucherSelect.addEventListener('change', updateTotal);
+            if (voucherSelect) {
+                voucherSelect.addEventListener('change', updateTotal);
+            }
 
             // Gọi hàm cập nhật ban đầu
             updateTotal();
+            loadCheckoutInit();
 
             if (checkoutForm) {
                 checkoutForm.addEventListener('submit', function(e) {
@@ -1176,8 +1388,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     const payload = {
                         mode: isBuyNow ? 'buy_now' : 'cart',
                         payment_method: ((checkoutForm.querySelector('input[name="payment_method"]:checked') || {}).value || 'cod'),
-                        ma_khuyen_mai: (voucherSelect ? voucherSelect.value : ''),
-                        ddlDiaChi: ((checkoutForm.querySelector('select[name="ddlDiaChi"]') || {}).value || ''),
+                        ma_khuyen_mai: (((document.getElementById('ddlKhuyenMai') || {}).value) || ''),
                         txtHoTen: ((checkoutForm.querySelector('input[name="txtHoTen"]') || {}).value || ''),
                         txtHoTenNguoiNhan: ((checkoutForm.querySelector('input[name="txtHoTenNguoiNhan"]') || {}).value || ''),
                         txtDiaChiGiaoHang: ((checkoutForm.querySelector('input[name="txtDiaChiGiaoHang"]') || {}).value || ''),

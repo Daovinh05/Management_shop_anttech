@@ -9,6 +9,7 @@ class Checkout extends api_controller {
     private $dc;
     private $km;
     private $tt;
+    private $users;
 
     public function __construct() {
         parent::__construct();
@@ -21,6 +22,7 @@ class Checkout extends api_controller {
         $this->dc = $this->model('DiaChiGiaoHang_m');
         $this->km = $this->model('KhuyenMai_m');
         $this->tt = $this->model('ThanhToan_m');
+        $this->users = $this->model('Users_m');
     }
 
     private function requireAuthUser() {
@@ -259,18 +261,16 @@ class Checkout extends api_controller {
         ];
     }
 
-    public function get_all() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+    private function getCurrentUserInfo($ma_user) {
+        $userResult = $this->users->Users_getById($ma_user);
+        if (!$userResult || mysqli_num_rows($userResult) === 0) {
+            return null;
         }
 
-        $ma_user = $this->requireAuthUser();
-        $checkout = $this->buildCheckoutPayload($ma_user, $_GET, true);
-        if (isset($checkout['error'])) {
-            $code = isset($checkout['stock_errors']) ? 422 : 400;
-            $this->sendResponse($code, ['success' => false, 'message' => $checkout['error'], 'errors' => $checkout['stock_errors'] ?? []]);
-        }
+        return mysqli_fetch_assoc($userResult);
+    }
 
+    private function getAddressListByUser($ma_user) {
         $addresses = [];
         $addrResult = $this->dc->DiaChiGiaoHang_getByUser($ma_user);
         if ($addrResult) {
@@ -279,6 +279,20 @@ class Checkout extends api_controller {
             }
         }
 
+        return $addresses;
+    }
+
+    private function getPrimaryAddress($addresses) {
+        foreach ($addresses as $address) {
+            if ((int)($address['mac_dinh'] ?? 0) === 1) {
+                return $address;
+            }
+        }
+
+        return !empty($addresses) ? $addresses[0] : null;
+    }
+
+    private function getAvailablePromotions() {
         $promotions = [];
         $kmResult = $this->km->KhuyenMai_getAvailable();
         if ($kmResult) {
@@ -287,15 +301,330 @@ class Checkout extends api_controller {
             }
         }
 
+        return $promotions;
+    }
+
+    private function buildCheckoutInitData($ma_user, $payload, $fromQuery = true) {
+        $checkout = $this->buildCheckoutPayload($ma_user, $payload, $fromQuery);
+        if (isset($checkout['error'])) {
+            return $checkout;
+        }
+
+        $user = $this->getCurrentUserInfo($ma_user);
+        if (!$user) {
+            return ['error' => 'Khong tim thay thong tin nguoi dung', 'not_found_user' => true];
+        }
+
+        $addresses = $this->getAddressListByUser($ma_user);
+        $primaryAddress = $this->getPrimaryAddress($addresses);
+        $promotions = $this->getAvailablePromotions();
+
+        $selectedPromotion = null;
+        if (!empty($checkout['ma_khuyen_mai'])) {
+            foreach ($promotions as $promotion) {
+                if (($promotion['ma_khuyen_mai'] ?? '') === $checkout['ma_khuyen_mai']) {
+                    $selectedPromotion = $promotion;
+                    break;
+                }
+            }
+        }
+
+        return [
+            'checkout' => $checkout,
+            'billing_profile' => [
+                'ma_user' => $user['ma_user'] ?? null,
+                'ten_user' => $user['ten_user'] ?? null,
+                'full_name' => $user['full_name'] ?? null,
+                'email' => $user['email'] ?? null,
+                'so_dien_thoai' => $user['so_dien_thoai'] ?? null
+            ],
+            'addresses' => $addresses,
+            'selected_address' => $primaryAddress,
+            'promotions' => $promotions,
+            'selected_promotion' => $selectedPromotion,
+            'payment_methods' => [
+                ['value' => 'bank', 'label' => 'VNPAY QR - Thanh toan qua ma QR'],
+                ['value' => 'cod', 'label' => 'Tra tien mat khi nhan hang (COD)']
+            ],
+            'form_defaults' => [
+                'ddlDiaChi' => $primaryAddress['ma_dia_chi'] ?? '',
+                'txtHoTen' => $user['full_name'] ?? '',
+                'txtHoTenNguoiNhan' => '',
+                'txtDiaChiGiaoHang' => '',
+                'txtSoDienThoai' => '',
+                'txtEmail' => '',
+                'ddlKhuyenMai' => $checkout['ma_khuyen_mai'] ?? '',
+                'payment_method' => 'cod',
+                'txtGhiChu' => ''
+            ],
+            'meta' => [
+                'server_time' => date('c'),
+                'is_buy_now' => (bool)($checkout['is_buy_now'] ?? false),
+                'item_count' => count($checkout['items'] ?? [])
+            ]
+        ];
+    }
+
+    public function get_all() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $ma_user = $this->requireAuthUser();
+        $initData = $this->buildCheckoutInitData($ma_user, $_GET, true);
+        if (isset($initData['error'])) {
+            if (!empty($initData['not_found_user'])) {
+                $this->sendResponse(404, ['success' => false, 'message' => $initData['error']]);
+            }
+
+            $code = isset($initData['stock_errors']) ? 422 : 400;
+            $this->sendResponse($code, ['success' => false, 'message' => $initData['error'], 'errors' => $initData['stock_errors'] ?? []]);
+        }
+
         $this->sendResponse(200, [
             'success' => true,
             'message' => 'Lay du lieu checkout thanh cong',
+            'data' => $initData
+        ]);
+    }
+
+    public function init() {
+        // Endpoint de front-end form checkout goi 1 lan de lay toan bo du lieu can render.
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $ma_user = $this->requireAuthUser();
+        $initData = $this->buildCheckoutInitData($ma_user, $_GET, true);
+        if (isset($initData['error'])) {
+            if (!empty($initData['not_found_user'])) {
+                $this->sendResponse(404, ['success' => false, 'message' => $initData['error']]);
+            }
+
+            $code = isset($initData['stock_errors']) ? 422 : 400;
+            $this->sendResponse($code, ['success' => false, 'message' => $initData['error'], 'errors' => $initData['stock_errors'] ?? []]);
+        }
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay du lieu khoi tao form checkout thanh cong',
+            'data' => $initData
+        ]);
+    }
+
+    public function billing() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $ma_user = $this->requireAuthUser();
+        $user = $this->getCurrentUserInfo($ma_user);
+        if (!$user) {
+            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay thong tin nguoi dung']);
+        }
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay thong tin billing thanh cong',
             'data' => [
-                'checkout' => $checkout,
-                'addresses' => $addresses,
-                'promotions' => $promotions
+                'ma_user' => $user['ma_user'] ?? null,
+                'ten_user' => $user['ten_user'] ?? null,
+                'full_name' => $user['full_name'] ?? null,
+                'email' => $user['email'] ?? null,
+                'so_dien_thoai' => $user['so_dien_thoai'] ?? null
             ]
         ]);
+    }
+
+    public function promotions() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $this->requireAuthUser();
+        $promotions = $this->getAvailablePromotions();
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay danh sach khuyen mai thanh cong',
+            'total' => count($promotions),
+            'data' => $promotions
+        ]);
+    }
+
+    public function addresses($id = null) {
+        $method = strtoupper($_SERVER['REQUEST_METHOD']);
+        $ma_user = $this->requireAuthUser();
+
+        if ($method === 'GET') {
+            $addresses = $this->getAddressListByUser($ma_user);
+            if ($id === null || trim((string)$id) === '') {
+                $this->sendResponse(200, [
+                    'success' => true,
+                    'message' => 'Lay danh sach dia chi thanh cong',
+                    'total' => count($addresses),
+                    'data' => $addresses
+                ]);
+            }
+
+            $targetId = trim((string)$id);
+            foreach ($addresses as $address) {
+                if (($address['ma_dia_chi'] ?? '') === $targetId) {
+                    $this->sendResponse(200, [
+                        'success' => true,
+                        'message' => 'Lay chi tiet dia chi thanh cong',
+                        'data' => $address
+                    ]);
+                }
+            }
+
+            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay dia chi giao hang']);
+        }
+
+        if ($method === 'POST') {
+            $payload = $this->parseInputData();
+            $ho_ten = trim((string)($payload['ho_ten'] ?? $payload['txtHoTenNguoiNhan'] ?? ''));
+            $so_dien_thoai = trim((string)($payload['so_dien_thoai'] ?? $payload['txtSoDienThoai'] ?? ''));
+            $dia_chi = trim((string)($payload['dia_chi'] ?? $payload['txtDiaChiGiaoHang'] ?? ''));
+            $mac_dinh = (int)($payload['mac_dinh'] ?? 0) === 1 ? 1 : 0;
+
+            if ($ho_ten === '' || $so_dien_thoai === '' || $dia_chi === '') {
+                $this->sendResponse(422, ['success' => false, 'message' => 'Vui long nhap day du ho ten, so dien thoai va dia chi']);
+            }
+
+            if (!preg_match('/^[0-9]{9,11}$/', $so_dien_thoai)) {
+                $this->sendResponse(422, ['success' => false, 'message' => 'So dien thoai khong hop le']);
+            }
+
+            $ma_dia_chi = $this->nextAddressId();
+            if ($mac_dinh === 1) {
+                $existing = $this->getAddressListByUser($ma_user);
+                foreach ($existing as $addr) {
+                    $this->dc->DiaChiGiaoHang_update(
+                        $addr['ma_dia_chi'],
+                        $ma_user,
+                        $addr['ho_ten'],
+                        $addr['so_dien_thoai'],
+                        $addr['dia_chi'],
+                        0
+                    );
+                }
+            }
+
+            $ok = $this->dc->diachigiaohang_ins($ma_dia_chi, $ma_user, $ho_ten, $so_dien_thoai, $dia_chi, $mac_dinh);
+            if (!$ok) {
+                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tao dia chi giao hang']);
+            }
+
+            $detail = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
+            $address = ($detail && mysqli_num_rows($detail) > 0) ? mysqli_fetch_assoc($detail) : [
+                'ma_dia_chi' => $ma_dia_chi,
+                'ma_user' => $ma_user,
+                'ho_ten' => $ho_ten,
+                'so_dien_thoai' => $so_dien_thoai,
+                'dia_chi' => $dia_chi,
+                'mac_dinh' => $mac_dinh
+            ];
+
+            $this->sendResponse(201, [
+                'success' => true,
+                'message' => 'Tao dia chi giao hang thanh cong',
+                'data' => $address
+            ]);
+        }
+
+        if ($method === 'PUT' || $method === 'PATCH') {
+            $payload = $this->parseInputData();
+            $ma_dia_chi = trim((string)($id ?? $payload['ma_dia_chi'] ?? $payload['ddlDiaChi'] ?? ''));
+            if ($ma_dia_chi === '') {
+                $this->sendResponse(422, ['success' => false, 'message' => 'Thieu ma_dia_chi can cap nhat']);
+            }
+
+            $existingResult = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
+            if (!$existingResult || mysqli_num_rows($existingResult) === 0) {
+                $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay dia chi giao hang']);
+            }
+
+            $current = mysqli_fetch_assoc($existingResult);
+            if (($current['ma_user'] ?? '') !== $ma_user) {
+                $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen sua dia chi nay']);
+            }
+
+            $ho_ten = trim((string)($payload['ho_ten'] ?? $payload['txtHoTenNguoiNhan'] ?? $current['ho_ten'] ?? ''));
+            $so_dien_thoai = trim((string)($payload['so_dien_thoai'] ?? $payload['txtSoDienThoai'] ?? $current['so_dien_thoai'] ?? ''));
+            $dia_chi = trim((string)($payload['dia_chi'] ?? $payload['txtDiaChiGiaoHang'] ?? $current['dia_chi'] ?? ''));
+            $mac_dinh = isset($payload['mac_dinh']) ? ((int)$payload['mac_dinh'] === 1 ? 1 : 0) : (int)($current['mac_dinh'] ?? 0);
+
+            if ($ho_ten === '' || $so_dien_thoai === '' || $dia_chi === '') {
+                $this->sendResponse(422, ['success' => false, 'message' => 'Vui long nhap day du ho ten, so dien thoai va dia chi']);
+            }
+
+            if (!preg_match('/^[0-9]{9,11}$/', $so_dien_thoai)) {
+                $this->sendResponse(422, ['success' => false, 'message' => 'So dien thoai khong hop le']);
+            }
+
+            if ($mac_dinh === 1) {
+                $existing = $this->getAddressListByUser($ma_user);
+                foreach ($existing as $addr) {
+                    if (($addr['ma_dia_chi'] ?? '') === $ma_dia_chi) {
+                        continue;
+                    }
+
+                    $this->dc->DiaChiGiaoHang_update(
+                        $addr['ma_dia_chi'],
+                        $ma_user,
+                        $addr['ho_ten'],
+                        $addr['so_dien_thoai'],
+                        $addr['dia_chi'],
+                        0
+                    );
+                }
+            }
+
+            $ok = $this->dc->DiaChiGiaoHang_update($ma_dia_chi, $ma_user, $ho_ten, $so_dien_thoai, $dia_chi, $mac_dinh);
+            if (!$ok) {
+                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the cap nhat dia chi giao hang']);
+            }
+
+            $updatedResult = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
+            $updated = ($updatedResult && mysqli_num_rows($updatedResult) > 0) ? mysqli_fetch_assoc($updatedResult) : null;
+
+            $this->sendResponse(200, [
+                'success' => true,
+                'message' => 'Cap nhat dia chi giao hang thanh cong',
+                'data' => $updated
+            ]);
+        }
+
+        if ($method === 'DELETE') {
+            $ma_dia_chi = trim((string)($id ?? ''));
+            if ($ma_dia_chi === '') {
+                $this->sendResponse(422, ['success' => false, 'message' => 'Thieu ma_dia_chi can xoa']);
+            }
+
+            $existingResult = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
+            if (!$existingResult || mysqli_num_rows($existingResult) === 0) {
+                $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay dia chi giao hang']);
+            }
+
+            $current = mysqli_fetch_assoc($existingResult);
+            if (($current['ma_user'] ?? '') !== $ma_user) {
+                $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen xoa dia chi nay']);
+            }
+
+            $ok = $this->dc->DiaChiGiaoHang_delete($ma_dia_chi);
+            if (!$ok) {
+                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the xoa dia chi giao hang']);
+            }
+
+            $this->sendResponse(200, [
+                'success' => true,
+                'message' => 'Xoa dia chi giao hang thanh cong',
+                'data' => ['ma_dia_chi' => $ma_dia_chi]
+            ]);
+        }
+
+        $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed']);
     }
 
     public function get_detail($id = null) {
