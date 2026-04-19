@@ -342,6 +342,61 @@ class DonHang_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Lấy danh sách thống kê chi tiết có lọc theo ngày/mã đơn/tên khách/trạng thái
+    function DonHang_ThongKeChiTietFiltered($tuNgay = '', $denNgay = '', $maDonHang = '', $tenKhachHang = '', $trangThai = '')
+    {
+        $tuNgay = mysqli_real_escape_string($this->con, (string)$tuNgay);
+        $denNgay = mysqli_real_escape_string($this->con, (string)$denNgay);
+        $maDonHang = mysqli_real_escape_string($this->con, (string)$maDonHang);
+        $tenKhachHang = mysqli_real_escape_string($this->con, (string)$tenKhachHang);
+        $trangThai = mysqli_real_escape_string($this->con, (string)$trangThai);
+
+        $conditions = [];
+        if ($tuNgay !== '') {
+            $conditions[] = "DATE(dh.ngay_tao) >= '$tuNgay'";
+        }
+        if ($denNgay !== '') {
+            $conditions[] = "DATE(dh.ngay_tao) <= '$denNgay'";
+        }
+        if ($maDonHang !== '') {
+            $conditions[] = "dh.ma_don_hang LIKE '%$maDonHang%'";
+        }
+        if ($tenKhachHang !== '') {
+            $conditions[] = "u.full_name LIKE '%$tenKhachHang%'";
+        }
+        if ($trangThai !== '') {
+            $conditions[] = "dh.trang_thai_don_hang = '$trangThai'";
+        }
+
+        $where = '';
+        if (!empty($conditions)) {
+            $where = 'WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $sql = "SELECT
+                    dh.ma_don_hang,
+                    dh.ngay_tao,
+                    dh.tong_tien_hang,
+                    dh.trang_thai_don_hang,
+                    dh.thanh_toan,
+                    tt.phuong_thuc,
+                    tt.trang_thai_thanh_toan,
+                    u.full_name as ten_khach_hang,
+                    u.so_dien_thoai,
+                    dc.dia_chi,
+                    COALESCE(km.tien_khuyen_mai, 0) as tien_khuyen_mai,
+                    COALESCE((dh.tong_tien_hang - COALESCE(km.tien_khuyen_mai, 0)), 0) as thanh_toan
+                FROM don_hang dh
+                INNER JOIN users u ON dh.ma_user = u.ma_user
+                LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
+                $where
+                ORDER BY dh.ngay_tao DESC";
+
+        return mysqli_query($this->con, $sql);
+    }
+
     // FILE: models/DonHang_m.php
 
     // Thêm hàm này vào cuối file Model
