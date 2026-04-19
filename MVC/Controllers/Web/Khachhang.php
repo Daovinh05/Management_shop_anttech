@@ -671,33 +671,7 @@ class Khachhang extends controller
             header('Location: ' . $this->url('Login'));
             exit;
         }
-
-        $ma_user = $_SESSION['user_id'];
-
-        // Lấy các đơn hàng của người dùng cùng với phương thức thanh toán và thông tin khuyến mãi
-        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai, tt.phuong_thuc, tt.so_tien_thanh_toan, km.tien_khuyen_mai
-                FROM don_hang dh
-                LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
-                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
-                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
-                WHERE dh.ma_user = '$ma_user'
-                ORDER BY dh.ngay_tao DESC";
-        $don_hang = mysqli_query($this->dh->con, $sql);
-
-        // Lấy chi tiết sản phẩm cho từng đơn hàng
-        $don_hang_with_details = [];
-        while ($dh = mysqli_fetch_assoc($don_hang)) {
-            $chi_tiet_don_hang = $this->dh->getChiTietDonHang($dh['ma_don_hang']);
-            // Convert mysqli_result to array to allow multiple iterations
-            $chi_tiet_array = [];
-            while ($ct = mysqli_fetch_assoc($chi_tiet_don_hang)) {
-                $chi_tiet_array[] = $ct;
-            }
-            $dh['chi_tiet'] = $chi_tiet_array;
-            $don_hang_with_details[] = $dh;
-        }
-
-        // Count orders by status
+        // API-first: du lieu lich su don hang duoc tai bang REST endpoint /Api/Checkout/history.
         $status_counts = [
             'cho_duyet' => 0,
             'da_duyet' => 0,
@@ -706,16 +680,9 @@ class Khachhang extends controller
             'da_huy' => 0
         ];
 
-        foreach ($don_hang_with_details as $dh) {
-            $status = $dh['trang_thai_don_hang'];
-            if (isset($status_counts[$status])) {
-                $status_counts[$status]++;
-            }
-        }
-
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_lichsu',
-            'don_hang' => $don_hang_with_details,
+            'don_hang' => [],
             'status_counts' => $status_counts
         ]);
     }

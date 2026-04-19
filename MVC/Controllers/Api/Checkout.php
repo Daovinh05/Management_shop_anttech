@@ -304,6 +304,123 @@ class Checkout extends api_controller {
         return $promotions;
     }
 
+    private function normalizeHistoryStatus($status) {
+        $status = trim((string)$status);
+        if ($status === '' || strtolower($status) === 'all' || strtolower($status) === 'tat_ca') {
+            return '';
+        }
+
+        $allowed = ['cho_duyet', 'da_duyet', 'dang_giao', 'hoan_thanh', 'da_huy'];
+        return in_array($status, $allowed, true) ? $status : null;
+    }
+
+    private function getHistoryStatusLabel($status) {
+        switch ((string)$status) {
+            case 'cho_duyet':
+                return 'Cho xac nhan';
+            case 'da_duyet':
+                return 'Da xac nhan';
+            case 'dang_giao':
+                return 'Dang giao';
+            case 'hoan_thanh':
+                return 'Hoan thanh';
+            case 'da_huy':
+                return 'Da huy';
+            default:
+                return (string)$status;
+        }
+    }
+
+    private function getHistoryStatusCounts($ma_user) {
+        $counts = [
+            'all' => 0,
+            'cho_duyet' => 0,
+            'da_duyet' => 0,
+            'dang_giao' => 0,
+            'hoan_thanh' => 0,
+            'da_huy' => 0
+        ];
+
+        $countResult = $this->dh->DonHang_countStatusByUser($ma_user);
+        if ($countResult) {
+            while ($row = mysqli_fetch_assoc($countResult)) {
+                $status = trim((string)($row['trang_thai_don_hang'] ?? ''));
+                $soLuong = (int)($row['so_luong'] ?? 0);
+                if (array_key_exists($status, $counts)) {
+                    $counts[$status] = $soLuong;
+                }
+            }
+        }
+
+        $counts['all'] = $counts['cho_duyet'] + $counts['da_duyet'] + $counts['dang_giao'] + $counts['hoan_thanh'] + $counts['da_huy'];
+        return $counts;
+    }
+
+    private function buildHistoryOrderItem($orderRow) {
+        $ma_don_hang = trim((string)($orderRow['ma_don_hang'] ?? ''));
+        $details = [];
+        $detailResult = $this->ctdh->ChiTietDonHang_getByOrderId($ma_don_hang);
+        if ($detailResult) {
+            while ($ct = mysqli_fetch_assoc($detailResult)) {
+                $img = trim((string)($ct['img_hinh_anh'] ?? ''));
+                $details[] = [
+                    'ma_ctdh' => $ct['ma_ctdh'] ?? null,
+                    'ma_bien_the' => $ct['ma_bien_the'] ?? null,
+                    'ten_san_pham' => $ct['ten_san_pham'] ?? 'San pham da xoa',
+                    'ten_bien_the' => $ct['ten_bien_the'] ?? '',
+                    'mau_sac' => $ct['mau_sac'] ?? '',
+                    'ram' => $ct['ram'] ?? '',
+                    'dung_luong' => $ct['dung_luong'] ?? '',
+                    'so_luong' => (int)($ct['so_luong'] ?? 0),
+                    'gia_luc_mua' => (float)($ct['gia_luc_mua'] ?? 0),
+                    'line_total' => ((float)($ct['gia_luc_mua'] ?? 0) * (int)($ct['so_luong'] ?? 0)),
+                    'hinh_anh' => $img,
+                    'hinh_anh_url' => ($img !== '' ? BASE_URL . 'Public/Pictures/bien_the/' . $img : BASE_URL . 'Public/Images/no-image.png')
+                ];
+            }
+        }
+
+        $discount = (float)($orderRow['tien_khuyen_mai'] ?? 0);
+        $subtotal = (float)($orderRow['tong_tien_hang'] ?? 0);
+        $paymentTotal = isset($orderRow['so_tien_thanh_toan']) && $orderRow['so_tien_thanh_toan'] !== null
+            ? (float)$orderRow['so_tien_thanh_toan']
+            : (float)($orderRow['thanh_toan'] ?? $subtotal);
+
+        return [
+            'ma_don_hang' => $ma_don_hang,
+            'ma_user' => $orderRow['ma_user'] ?? null,
+            'ma_dia_chi' => $orderRow['ma_dia_chi'] ?? null,
+            'ma_khuyen_mai' => $orderRow['ma_khuyen_mai'] ?? null,
+            'trang_thai_don_hang' => $orderRow['trang_thai_don_hang'] ?? '',
+            'trang_thai_label' => $this->getHistoryStatusLabel($orderRow['trang_thai_don_hang'] ?? ''),
+            'ngay_tao' => $orderRow['ngay_tao'] ?? null,
+            'ten_nguoi_nhan' => $orderRow['ten_nguoi_nhan'] ?? '',
+            'so_dien_thoai' => $orderRow['so_dien_thoai'] ?? '',
+            'dia_chi' => $orderRow['dia_chi'] ?? '',
+            'phuong_thuc' => $orderRow['phuong_thuc'] ?? '',
+            'trang_thai_thanh_toan' => $orderRow['trang_thai_thanh_toan'] ?? '',
+            'ten_khuyen_mai' => $orderRow['ten_khuyen_mai'] ?? '',
+            'amounts' => [
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'final_total' => $paymentTotal
+            ],
+            'details' => $details
+        ];
+    }
+
+    private function getHistoryOrders($ma_user, $status = '') {
+        $orders = [];
+        $result = $this->dh->DonHang_getHistoryByUser($ma_user, $status);
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $orders[] = $this->buildHistoryOrderItem($row);
+            }
+        }
+
+        return $orders;
+    }
+
     private function buildCheckoutInitData($ma_user, $payload, $fromQuery = true) {
         $checkout = $this->buildCheckoutPayload($ma_user, $payload, $fromQuery);
         if (isset($checkout['error'])) {
@@ -625,6 +742,77 @@ class Checkout extends api_controller {
         }
 
         $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed']);
+    }
+
+    public function history() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $ma_user = $this->requireAuthUser();
+        $status = $this->normalizeHistoryStatus($_GET['status'] ?? '');
+        if ($status === null) {
+            $this->sendResponse(422, ['success' => false, 'message' => 'Trang thai loc khong hop le']);
+        }
+
+        $orders = $this->getHistoryOrders($ma_user, $status);
+        $counts = $this->getHistoryStatusCounts($ma_user);
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay lich su don hang thanh cong',
+            'data' => [
+                'orders' => $orders,
+                'counts' => $counts,
+                'filters' => [
+                    'status' => ($status === '' ? 'all' : $status)
+                ],
+                'total' => count($orders)
+            ]
+        ]);
+    }
+
+    public function status($id = null) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $status = $this->normalizeHistoryStatus($id);
+        if ($status === null || $status === '') {
+            $this->sendResponse(422, ['success' => false, 'message' => 'Trang thai loc khong hop le']);
+        }
+
+        $ma_user = $this->requireAuthUser();
+        $orders = $this->getHistoryOrders($ma_user, $status);
+        $counts = $this->getHistoryStatusCounts($ma_user);
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay lich su don hang theo trang thai thanh cong',
+            'data' => [
+                'orders' => $orders,
+                'counts' => $counts,
+                'filters' => [
+                    'status' => $status
+                ],
+                'total' => count($orders)
+            ]
+        ]);
+    }
+
+    public function summary() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
+        }
+
+        $ma_user = $this->requireAuthUser();
+        $counts = $this->getHistoryStatusCounts($ma_user);
+
+        $this->sendResponse(200, [
+            'success' => true,
+            'message' => 'Lay tong quan trang thai don hang thanh cong',
+            'data' => $counts
+        ]);
     }
 
     public function get_detail($id = null) {
