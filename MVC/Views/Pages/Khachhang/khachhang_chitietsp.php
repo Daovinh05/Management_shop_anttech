@@ -1,5 +1,6 @@
 <?php
 include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
+$initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] : '';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -7,7 +8,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $data['san_pham']['ten_san_pham']; ?> - TechZone</title>
+    <title>Chi tiet san pham - TechZone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght @300;400;500;700&display=swap" rel="stylesheet">
 
@@ -1575,10 +1576,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     <div class="breadcrumb">
         <div class="container">
             <a href="<?php echo $this->url('Khachhang'); ?>">Trang chủ</a> /
-            <a
-                href="<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/' . $data['san_pham']['ma_danh_muc']); ?>"><?php echo $data['san_pham']['ten_danh_muc']; ?></a>
-            /
-            <span><?php echo $data['san_pham']['ten_san_pham']; ?></span>
+            <a id="breadcrumbCategoryLink" href="<?php echo $this->url('Khachhang'); ?>">Danh mục</a> /
+            <span id="breadcrumbProductName">Chi tiết sản phẩm</span>
         </div>
     </div>
 
@@ -1586,130 +1585,35 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         <div class="container">
 
             <div class="product-header">
-                <h1 class="product-title" id="productTitle"><?php echo $data['san_pham']['ten_san_pham']; ?></h1>
-                <div class="product-rating">
-                    <?php if ($data['avg_rating']): ?>
-                        <?php
-                        $avg_rating = round($data['avg_rating'], 1);
-                        for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $avg_rating) {
-                                echo '<i class="fa-solid fa-star"></i>';
-                            } else {
-                                if ($i - $avg_rating < 1) {
-                                    echo '<i class="fa-solid fa-star-half-stroke"></i>';
-                                } else {
-                                    echo '<i class="fa-regular fa-star"></i>';
-                                }
-                            }
-                        }
-                        ?>
-                        <span class="rating-count">(<?php echo mysqli_num_rows($data['danh_gia']); ?> Đánh giá)</span>
-                    <?php else: ?>
-                        <i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i
-                            class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i
-                            class="fa-regular fa-star"></i>
-                        <span class="rating-count">(0 Đánh giá)</span>
-                    <?php endif; ?>
+                <h1 class="product-title" id="productTitle">Đang tải sản phẩm...</h1>
+                <div class="product-rating" id="productRatingTop">
+                    <i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+                    <span class="rating-count">(0 Đánh giá)</span>
                 </div>
             </div>
 
             <div class="detail-layout">
-
                 <div class="product-left">
                     <div class="gallery-box">
                         <div class="main-image-frame">
-                            <span
-                                class="discount-badge-circle">-<?php echo isset($data['san_pham']['giam_gia']) ? $data['san_pham']['giam_gia'] : '0'; ?>%</span>
-                            <img id="mainImage"
-                                src="<?php echo !empty($data['bien_the_first']['img_bien_the']) ? UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($data['bien_the_first']['img_bien_the']) : UrlHelper::url('Public/Images/no-image.png'); ?>"
-                                alt="<?php echo $data['san_pham']['ten_san_pham']; ?>">
+                            <span class="discount-badge-circle">-0%</span>
+                            <img id="mainImage" src="<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>" alt="Sản phẩm">
                         </div>
-                        <div class="thumbnail-list">
-                            <?php
-                            $first = true;
-                            if (mysqli_num_rows($data['bien_the']) > 0) {
-                                mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
-                                while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
-                                    $class = $first ? 'thumb-item active' : 'thumb-item';
-                                    $imgUrl = !empty($bt['img_bien_the']) ? UrlHelper::url('Public/Pictures/bien_the/') . htmlspecialchars($bt['img_bien_the']) : UrlHelper::url('Public/Images/no-image.png');
-                                    echo '<div class="' . $class . '" data-image="' . $imgUrl . '"><img src="' . $imgUrl . '" alt=""></div>';
-                                    $first = false;
-                                }
-                            } else {
-                                $mainImgUrl = !empty($data['san_pham']['img_hinh_anh']) ? UrlHelper::url('Public/Pictures/sanpham/') . htmlspecialchars($data['san_pham']['img_hinh_anh']) : UrlHelper::url('Public/Images/no-image.png');
-                                echo '<div class="thumb-item active" data-image="' . $mainImgUrl . '"><img src="' . $mainImgUrl . '" alt=""></div>';
-                            }
-                            ?>
-                        </div>
-                        <div class="product-meta">
-                            Mã sản phẩm: <strong><?php echo $data['san_pham']['ma_san_pham']; ?></strong> | Danh mục:
-                            <strong><?php echo $data['san_pham']['ten_danh_muc']; ?></strong>
-                        </div>
+                        <div class="thumbnail-list" id="thumbnailList"></div>
+                        <div class="product-meta" id="productMetaInfo">Mã sản phẩm: <strong>-</strong> | Danh mục: <strong>-</strong></div>
                     </div>
                 </div>
 
                 <div class="product-center">
-                    <h5 class="product-title"><?php echo $data['san_pham']['ten_san_pham']; ?></h5>
-
-                    <?php
-                    // Find the lowest and highest prices among variants
-                    $prices = [];
-                    if (mysqli_num_rows($data['bien_the']) > 0) {
-                        mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
-                        while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
-                            $prices[] = isset($bt['gia']) ? $bt['gia'] : 0;
-                        }
-                    }
-                    $min_price = !empty($prices) ? min($prices) : (isset($data['san_pham']['gia']) ? $data['san_pham']['gia'] : 0);
-                    $max_price = !empty($prices) ? max($prices) : (isset($data['san_pham']['gia']) ? $data['san_pham']['gia'] : 0);
-                    ?>
+                    <h5 class="product-title" id="productCenterTitle">Đang tải sản phẩm...</h5>
 
                     <div class="price-box">
-                        <?php if (isset($data['san_pham']['gia_cu']) && $data['san_pham']['gia_cu'] > (isset($data['san_pham']['gia']) ? $data['san_pham']['gia'] : 0)): ?>
-                            <span
-                                class="old-price"><?php echo number_format(isset($data['san_pham']['gia_cu']) ? $data['san_pham']['gia_cu'] : 0, 0, ',', '.') . ' ₫'; ?></span>
-                        <?php endif; ?>
-                        <span class="new-price"
-                            id="currentPrice"><?php echo number_format($min_price, 0, ',', '.') . ' ₫'; ?>
-                            <?php if ($min_price != $max_price): ?>
-                                - <?php echo number_format($max_price, 0, ',', '.') . ' ₫'; ?>
-                            <?php endif; ?>
-                        </span>
+                        <span class="new-price" id="currentPrice">0 ₫</span>
                     </div>
 
                     <div class="option-group">
                         <span class="option-label" id="variantLabel">Phiên bản</span>
-                        <div class="option-grid">
-                            <?php
-                            $first_variant = true;
-                            if (mysqli_num_rows($data['bien_the']) > 0) {
-                                mysqli_data_seek($data['bien_the'], 0); // Reset pointer to beginning
-                                while ($bt = mysqli_fetch_assoc($data['bien_the'])) {
-                                    $class = $first_variant ? 'color-btn selected' : 'color-btn';
-                                    $variant_image = !empty($bt['img_bien_the']) ? BASE_URL . 'Public/Pictures/bien_the/' . htmlspecialchars($bt['img_bien_the']) : BASE_URL . 'Public/Images/no-image.png';
-                                    echo '<div class="' . $class . '" data-variant-image="' . $variant_image . '" onclick="selectVariant(this, \'' . $bt['ten_bien_the'] . '\', \'' . $variant_image . '\')">';
-                                    echo '<input type="radio" name="ma_bien_the" value="' . $bt['ma_bien_the'] . '" ' . ($first_variant ? 'checked' : '') . ' style="display:none;">';
-
-                                    // Create display text for the variant
-                                    $variant_text = '';
-                                    if (isset($bt['mau_sac']) && $bt['mau_sac']) $variant_text .= $bt['mau_sac'];
-                                    if (isset($bt['dung_luong']) && $bt['dung_luong']) $variant_text .= ($variant_text ? ' - ' : '') . $bt['dung_luong'];
-                                    if (isset($bt['ram']) && $bt['ram']) $variant_text .= ($variant_text ? ' - ' : '') . $bt['ram'];
-
-                                    echo '<div class="variant-specs">' . ($variant_text ? $variant_text : $bt['ten_bien_the']) . '</div>';
-                                    echo '<div class="variant-price">' . number_format(isset($bt['gia']) ? $bt['gia'] : 0, 0, ',', '.') . '₫</div>';
-                                    
-                                    // Show stock information
-                                    $stock_status = $bt['so_luong_kho'] > 0 ? 'Còn hàng' : 'Hết hàng';
-                                    $stock_class = $bt['so_luong_kho'] > 0 ? 'in-stock' : 'out-of-stock';
-                                    echo '<div class="stock-info ' . $stock_class . '">(' . $stock_status . ': ' . $bt['so_luong_kho'] . ' sản phẩm)</div>';
-                                    
-                                    echo '</div>';
-                                    $first_variant = false;
-                                }
-                            }
-                            ?>
-                        </div>
+                        <div class="option-grid" id="optionGrid"></div>
                     </div>
 
                     <div class="quantity-cart-box">
@@ -1719,15 +1623,9 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                             <button onclick="increaseQuantity()">+</button>
                         </div>
 
-                        <?php if (mysqli_num_rows($data['bien_the']) > 0): ?>
-                            <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()">
-                                <i class="fa-solid fa-cart-plus"></i> THÊM VÀO GIỎ
-                            </button>
-                        <?php else: ?>
-                            <button class="add-to-cart-btn" disabled>
-                                <i class="fa-solid fa-cart-plus"></i> TẠM HẾT HÀNG
-                            </button>
-                        <?php endif; ?>
+                        <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()">
+                            <i class="fa-solid fa-cart-plus"></i> THÊM VÀO GIỎ
+                        </button>
                     </div>
 
                     <div class="action-area">
@@ -1753,195 +1651,48 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                         <div class="promo-header">Thông tin sản phẩm</div>
                         <div class="promo-content">
                             <ul class="promo-list">
-                                <li>
-                                    <span class="promo-number">1</span>
-                                    <span><strong>Thương hiệu:</strong>
-                                        <?php echo $data['san_pham']['ten_thuong_hieu']; ?></span>
-                                </li>
-                                <li>
-                                    <span class="promo-number">2</span>
-                                    <span><strong>Nhà cung cấp:</strong>
-                                        <?php echo $data['san_pham']['ten_nha_cung_cap']; ?></span>
-                                </li>
-                                <li>
-                                    <span class="promo-number">3</span>
-                                    <span><strong>Danh mục:</strong>
-                                        <?php echo $data['san_pham']['ten_danh_muc']; ?></span>
-                                </li>
-                                <li>
-                                    <span class="promo-number">4</span>
-                                    <span><strong>Mô tả:</strong>
-                                        <?php echo isset($data['san_pham']['mo_ta']) ? substr($data['san_pham']['mo_ta'], 0, 100) : 'Chưa có mô tả'; ?>...</span>
-                                </li>
-                                <li>
-                                    <span class="promo-number">5</span>
-                                    <span><strong>Bảo hành:</strong> 12 tháng chính hãng</span>
-                                </li>
-                                <li>
-                                    <span class="promo-number">6</span>
-                                    <span><strong>Khuyến mãi:</strong> Trả góp 0% lãi suất</span>
-                                </li>
-                                <li>
-                                    <span class="promo-number">7</span>
-                                    <span><strong>Ưu đãi thêm:</strong> Giảm 50k phí vận chuyển</span>
-                                </li>
+                                <li><span class="promo-number">1</span><span><strong>Thương hiệu:</strong> <span id="infoBrand">-</span></span></li>
+                                <li><span class="promo-number">2</span><span><strong>Nhà cung cấp:</strong> <span id="infoSupplier">-</span></span></li>
+                                <li><span class="promo-number">3</span><span><strong>Danh mục:</strong> <span id="infoCategory">-</span></span></li>
+                                <li><span class="promo-number">4</span><span><strong>Mô tả:</strong> <span id="infoDescription">Chưa có mô tả</span>...</span></li>
+                                <li><span class="promo-number">5</span><span><strong>Bảo hành:</strong> 12 tháng chính hãng</span></li>
+                                <li><span class="promo-number">6</span><span><strong>Khuyến mãi:</strong> Trả góp 0% lãi suất</span></li>
+                                <li><span class="promo-number">7</span><span><strong>Ưu đãi thêm:</strong> Giảm 50k phí vận chuyển</span></li>
                             </ul>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
     <div class="container">
         <div class="review-section">
-            <div class="review-header"><?php echo mysqli_num_rows($data['danh_gia']); ?> đánh giá cho <?php echo $data['san_pham']['ten_san_pham']; ?></div>
+            <div class="review-header" id="reviewHeader">0 đánh giá cho sản phẩm</div>
 
             <div class="rating-overview-box">
                 <div class="rating-left">
-                    <div class="score-big"><?php echo $data['avg_rating'] ? number_format($data['avg_rating'], 2) : '0.00'; ?> <i class="fa-solid fa-star" style="font-size: 24px;"></i></div>
+                    <div class="score-big" id="scoreBig">0.00 <i class="fa-solid fa-star" style="font-size: 24px;"></i></div>
                     <div class="rating-count-text">Đánh giá trung bình</div>
                 </div>
 
-                <div class="rating-middle">
-                    <?php
-                    $total_reviews = mysqli_num_rows($data['danh_gia']);
-                    $star_dist = $data['star_distribution'];
-
-                    // Calculate percentages
-                    $percentages = [];
-                    foreach($star_dist as $stars => $count) {
-                        $percentages[$stars] = $total_reviews > 0 ? round(($count / $total_reviews) * 100, 0) : 0;
-                    }
-                    ?>
-
-                    <div class="rating-bar-row">
-                        <div class="star-label">5 <i class="fa-solid fa-star star-icon-small"></i></div>
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width: <?php echo $percentages[5]; ?>%;"></div>
-                        </div>
-                        <div class="rating-percent-text"><?php echo $percentages[5]; ?>% | <?php echo $star_dist[5]; ?> đánh giá</div>
-                    </div>
-                    <div class="rating-bar-row">
-                        <div class="star-label">4 <i class="fa-solid fa-star star-icon-small"></i></div>
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width: <?php echo $percentages[4]; ?>%;"></div>
-                        </div>
-                        <div class="rating-percent-text"><?php echo $percentages[4]; ?>% | <?php echo $star_dist[4]; ?> đánh giá</div>
-                    </div>
-                    <div class="rating-bar-row">
-                        <div class="star-label">3 <i class="fa-solid fa-star star-icon-small"></i></div>
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width: <?php echo $percentages[3]; ?>%;"></div>
-                        </div>
-                        <div class="rating-percent-text"><?php echo $percentages[3]; ?>% | <?php echo $star_dist[3]; ?> đánh giá</div>
-                    </div>
-                    <div class="rating-bar-row">
-                        <div class="star-label">2 <i class="fa-solid fa-star star-icon-small"></i></div>
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width: <?php echo $percentages[2]; ?>%;"></div>
-                        </div>
-                        <div class="rating-percent-text"><?php echo $percentages[2]; ?>% | <?php echo $star_dist[2]; ?> đánh giá</div>
-                    </div>
-                    <div class="rating-bar-row">
-                        <div class="star-label">1 <i class="fa-solid fa-star star-icon-small"></i></div>
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width: <?php echo $percentages[1]; ?>%;"></div>
-                        </div>
-                        <div class="rating-percent-text"><?php echo $percentages[1]; ?>% | <?php echo $star_dist[1]; ?> đánh giá</div>
-                    </div>
-                </div>
+                <div class="rating-middle" id="ratingMiddle"></div>
 
                 <div class="rating-right">
                     <button class="btn-write-review" onclick="openReviewModal()">ĐÁNH GIÁ NGAY</button>
                 </div>
             </div>
 
-            <div class="review-list">
-                <?php
-                if (mysqli_num_rows($data['danh_gia']) > 0) {
-                    mysqli_data_seek($data['danh_gia'], 0); // Reset pointer to beginning
-                    while ($review = mysqli_fetch_assoc($data['danh_gia'])) {
-                        echo '<div class="review-item">';
-                        echo '<div class="user-avatar"><i class="fa-solid fa-user"></i></div>';
-                        echo '<div class="review-content">';
-                        echo '<div>';
-                        echo '<span class="user-name">' . htmlspecialchars($review['full_name']) . '</span>';
-                        echo '<span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại TechZone</span>';
-                        echo '</div>';
-
-                        // Generate star rating
-                        echo '<div class="user-rating-stars">';
-                        for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $review['so_sao']) {
-                                echo '<i class="fa-solid fa-star"></i>';
-                            } else {
-                                if ($i - $review['so_sao'] < 1) {
-                                    echo '<i class="fa-regular fa-star-half-stroke"></i>';
-                                } else {
-                                    echo '<i class="fa-regular fa-star"></i>';
-                                }
-                            }
-                        }
-                        echo '</div>';
-
-                        echo '<div class="review-text">' . htmlspecialchars($review['noi_dung']) . '</div>';
-
-                        // Display seller's response if available
-                        if (!empty($review['phan_hoi'])) {
-                            echo '<div class="seller-response"><div class="response-header">Phản hồi từ người bán:</div><div class="response-content">' . htmlspecialchars($review['phan_hoi']) . '</div></div>';
-                        }
-
-                        echo '<div class="review-actions">';
-                        echo '<a href="#">Trả lời</a> • ' . date('d/m/Y', strtotime($review['ngay_danh_gia']));
-                        echo '</div>';
-                        echo '</div>';
-                        echo '</div>';
-                    }
-                } else {
-                    echo '<div class="no-reviews">Chưa có đánh giá nào cho sản phẩm này.</div>';
-                }
-                ?>
+            <div class="review-list" id="reviewList">
+                <div class="no-reviews">Đang tải đánh giá...</div>
             </div>
         </div>
     </div>
 
     <div class="similar-section">
         <div class="container">
-            <h3 class="similar-heading">SẢN PHẨM TƯƠNG TỰ <i class="fa-solid fa-circle-check"
-                    style="color:#0fb30f; font-size:16px; margin-left:5px;"></i></h3>
-            <div class="similar-grid">
-
-                <?php
-                if (isset($data['similar_products']) && mysqli_num_rows($data['similar_products']) > 0) {
-                    while ($sp = mysqli_fetch_assoc($data['similar_products'])) {
-                        echo '<div class="sim-card">';
-                        echo '<div class="sim-badge">-' . (isset($sp['giam_gia']) ? $sp['giam_gia'] : '0') . '%</div>';
-                        echo '<a href="' . $this->url('Khachhang/chitietsanpham/' . $sp['ma_san_pham']) . '" class="sim-img">';
-                        $img_src = !empty($sp['img_bien_the']) ? BASE_URL . 'Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : (!empty($sp['img_hinh_anh']) ? BASE_URL . 'Public/Pictures/sanpham/' . htmlspecialchars($sp['img_hinh_anh']) : BASE_URL . 'Public/Images/no-image.png');
-                        echo '<img src="' . $img_src . '" alt="' . $sp['ten_san_pham'] . '">';
-                        echo '</a>';
-                        echo '<div class="sim-title">' . $sp['ten_san_pham'] . '</div>';
-                        echo '<span class="sim-price">' . number_format(isset($sp['gia']) ? $sp['gia'] : (isset($sp['gia_cu']) ? $sp['gia_cu'] : 0), 0, ',', '.') . ' ₫</span>';
-                        echo '</div>';
-                    }
-                } else {
-                    // Display placeholder products if no similar products found
-                    for ($i = 0; $i < 4; $i++) {
-                        echo '<div class="sim-card">';
-                        echo '<div class="sim-badge">-10%</div>';
-                        echo '<a href="#" class="sim-img">';
-                        echo '<img src="https://placehold.co/300x300" alt="Sản phẩm tương tự">';
-                        echo '</a>';
-                        echo '<div class="sim-title">Sản phẩm tương tự ' . ($i + 1) . '</div>';
-                        echo '<span class="sim-price">' . number_format(10000000, 0, ',', '.') . ' ₫</span>';
-                        echo '</div>';
-                    }
-                }
-                ?>
-
-            </div>
+            <h3 class="similar-heading">SẢN PHẨM TƯƠNG TỰ <i class="fa-solid fa-circle-check" style="color:#0fb30f; font-size:16px; margin-left:5px;"></i></h3>
+            <div class="similar-grid" id="similarGrid"></div>
         </div>
     </div>
 
@@ -1952,6 +1703,38 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     <script>
         // --- 1. BIẾN TOÀN CỤC GIỎ HÀNG ---
         var cart = []; // Mảng chứa các object sản phẩm
+        var STOREFRONT_API_BASE = "<?php echo $this->url('Api/Storefront'); ?>";
+        var currentProductId = <?php echo json_encode($initialProductId, JSON_UNESCAPED_UNICODE); ?>;
+
+        function escapeHtml(text) {
+            return String(text || '').replace(/[&<>'"]/g, function(ch) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+            });
+        }
+
+        function formatPriceVnd(value) {
+            return formatCurrency(Math.round(Number(value || 0))) + ' ₫';
+        }
+
+        function buildVariantLabel(v) {
+            var parts = [];
+            if (v.mau_sac) parts.push(v.mau_sac);
+            if (v.dung_luong) parts.push(v.dung_luong);
+            if (v.ram) parts.push(v.ram);
+            return parts.length ? parts.join(' - ') : (v.ten_bien_the || 'Phiên bản');
+        }
+
+        function resolveProductIdFromUrl() {
+            if (currentProductId) return currentProductId;
+            var params = new URLSearchParams(window.location.search);
+            var routedUrl = params.get('url');
+            if (routedUrl) {
+                var parts = routedUrl.split('/').filter(Boolean);
+                if (parts.length > 0) return decodeURIComponent(parts[parts.length - 1]);
+            }
+            var pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+            return pathParts.length ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+        }
 
         // --- 2. XỬ LÝ GIAO DIỆN CƠ BẢN ---
         function selectVariant(element, variantName, imageUrl) {
@@ -1978,7 +1761,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             }
 
             // Update price display based on selected variant
-            var priceText = element.querySelector('small').textContent;
+            var priceNode = element.querySelector('.variant-price, small');
+            var priceText = priceNode ? priceNode.textContent : '0';
             var priceValue = priceText.replace(/[^\d]/g, ''); // Extract numeric value
             document.getElementById('currentPrice').innerHTML = formatCurrency(priceValue) + ' ₫';
             
@@ -1986,15 +1770,246 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             updateButtonsVisibility();
         }
 
-        var thumbs = document.querySelectorAll('.thumb-item');
-        thumbs.forEach(function(thumb) {
-            thumb.addEventListener('click', function() {
-                thumbs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                var newSrc = this.getAttribute('data-image');
-                document.getElementById('mainImage').src = newSrc;
+        function bindThumbEvents() {
+            var thumbs = document.querySelectorAll('.thumb-item');
+            thumbs.forEach(function(thumb) {
+                thumb.addEventListener('click', function() {
+                    thumbs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    var newSrc = this.getAttribute('data-image');
+                    document.getElementById('mainImage').src = newSrc;
+                });
             });
-        });
+        }
+        bindThumbEvents();
+
+        function applyDetailFromApi(payload) {
+            var product = payload.san_pham || {};
+            var variants = Array.isArray(payload.bien_the) ? payload.bien_the : [];
+            var reviews = Array.isArray(payload.danh_gia) ? payload.danh_gia : [];
+            var similar = Array.isArray(payload.similar_products) ? payload.similar_products : [];
+            var starDist = payload.star_distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
+            currentProductId = product.ma_san_pham || currentProductId;
+
+            var productName = product.ten_san_pham || '';
+            var categoryName = product.ten_danh_muc || 'Sản phẩm';
+            var categoryId = product.ma_danh_muc || '';
+
+            document.title = productName ? (productName + ' - TechZone') : document.title;
+            var titleTop = document.getElementById('productTitle');
+            if (titleTop) titleTop.textContent = productName;
+            var titleCenter = document.getElementById('productCenterTitle');
+            if (titleCenter) titleCenter.textContent = productName;
+
+            var breadcrumbProduct = document.getElementById('breadcrumbProductName');
+            if (breadcrumbProduct) breadcrumbProduct.textContent = productName;
+            var breadcrumbCategoryLink = document.getElementById('breadcrumbCategoryLink');
+            if (breadcrumbCategoryLink) {
+                breadcrumbCategoryLink.textContent = categoryName;
+                breadcrumbCategoryLink.href = "<?php echo $this->url('Khachhang/sanpham_theo_danhmuc/'); ?>" + encodeURIComponent(categoryId);
+            }
+
+            var avg = Number(payload.avg_rating || 0);
+            var ratingTop = document.getElementById('productRatingTop');
+            if (ratingTop) {
+                var stars = '';
+                for (var i = 1; i <= 5; i++) {
+                    if (i <= avg) stars += '<i class="fa-solid fa-star"></i>';
+                    else if (i - avg < 1) stars += '<i class="fa-solid fa-star-half-stroke"></i>';
+                    else stars += '<i class="fa-regular fa-star"></i>';
+                }
+                ratingTop.innerHTML = stars + '<span class="rating-count">(' + reviews.length + ' Đánh giá)</span>';
+            }
+
+            var discountBadge = document.querySelector('.discount-badge-circle');
+            if (discountBadge) discountBadge.textContent = '-' + Number(product.giam_gia || 0) + '%';
+
+            var firstVariant = variants.length ? variants[0] : null;
+            var firstImage = firstVariant && firstVariant.img_bien_the
+                ? ("<?php echo UrlHelper::url('Public/Pictures/bien_the/'); ?>" + encodeURIComponent(firstVariant.img_bien_the))
+                : "<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>";
+            var mainImage = document.getElementById('mainImage');
+            if (mainImage) {
+                mainImage.src = firstImage;
+                mainImage.alt = productName;
+            }
+
+            var thumbList = document.querySelector('.thumbnail-list');
+            if (thumbList) {
+                thumbList.innerHTML = '';
+                if (variants.length) {
+                    variants.forEach(function(v, idx) {
+                        var img = v.img_bien_the
+                            ? ("<?php echo UrlHelper::url('Public/Pictures/bien_the/'); ?>" + encodeURIComponent(v.img_bien_the))
+                            : "<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>";
+                        var item = document.createElement('div');
+                        item.className = 'thumb-item' + (idx === 0 ? ' active' : '');
+                        item.setAttribute('data-image', img);
+                        item.innerHTML = '<img src="' + img + '" alt="">';
+                        thumbList.appendChild(item);
+                    });
+                }
+                bindThumbEvents();
+            }
+
+            var metaInfo = document.getElementById('productMetaInfo');
+            if (metaInfo) {
+                metaInfo.innerHTML = 'Mã sản phẩm: <strong>' + escapeHtml(product.ma_san_pham || '') + '</strong> | Danh mục: <strong>' + escapeHtml(categoryName) + '</strong>';
+            }
+
+            var priceNode = document.getElementById('currentPrice');
+            if (priceNode) {
+                var prices = variants.map(function(v){ return Number(v.gia || 0); });
+                var minPrice = prices.length ? Math.min.apply(null, prices) : Number(product.gia || 0);
+                var maxPrice = prices.length ? Math.max.apply(null, prices) : minPrice;
+                priceNode.innerHTML = formatPriceVnd(minPrice) + (minPrice !== maxPrice ? (' - ' + formatPriceVnd(maxPrice)) : '');
+            }
+
+            var optionGrid = document.getElementById('optionGrid');
+            if (optionGrid) {
+                optionGrid.innerHTML = '';
+                variants.forEach(function(v, idx) {
+                    var variantImage = v.img_bien_the
+                        ? ("<?php echo UrlHelper::url('Public/Pictures/bien_the/'); ?>" + encodeURIComponent(v.img_bien_the))
+                        : "<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>";
+                    var btn = document.createElement('div');
+                    btn.className = 'color-btn' + (idx === 0 ? ' selected' : '');
+                    btn.setAttribute('data-variant-image', variantImage);
+
+                    var radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'ma_bien_the';
+                    radio.value = v.ma_bien_the || '';
+                    radio.style.display = 'none';
+                    if (idx === 0) radio.checked = true;
+                    btn.appendChild(radio);
+
+                    var specs = document.createElement('div');
+                    specs.className = 'variant-specs';
+                    specs.textContent = buildVariantLabel(v);
+                    btn.appendChild(specs);
+
+                    var p = document.createElement('div');
+                    p.className = 'variant-price';
+                    p.textContent = formatPriceVnd(v.gia || 0).replace(' ₫', '₫');
+                    btn.appendChild(p);
+
+                    var stock = document.createElement('div');
+                    var qty = Number(v.so_luong_kho || 0);
+                    stock.className = 'stock-info ' + (qty > 0 ? 'in-stock' : 'out-of-stock');
+                    stock.textContent = '(' + (qty > 0 ? 'Còn hàng' : 'Hết hàng') + ': ' + qty + ' sản phẩm)';
+                    btn.appendChild(stock);
+
+                    btn.addEventListener('click', function() {
+                        selectVariant(btn, buildVariantLabel(v), variantImage);
+                    });
+
+                    optionGrid.appendChild(btn);
+                });
+            }
+
+            var infoBrand = document.getElementById('infoBrand');
+            if (infoBrand) infoBrand.textContent = product.ten_thuong_hieu || '';
+            var infoSupplier = document.getElementById('infoSupplier');
+            if (infoSupplier) infoSupplier.textContent = product.ten_nha_cung_cap || '';
+            var infoCategory = document.getElementById('infoCategory');
+            if (infoCategory) infoCategory.textContent = categoryName;
+            var infoDescription = document.getElementById('infoDescription');
+            if (infoDescription) infoDescription.textContent = (product.mo_ta || 'Chưa có mô tả').slice(0, 100);
+
+            var reviewHeader = document.getElementById('reviewHeader');
+            if (reviewHeader) reviewHeader.textContent = reviews.length + ' đánh giá cho ' + productName;
+            var scoreBig = document.getElementById('scoreBig');
+            if (scoreBig) scoreBig.innerHTML = (avg ? avg.toFixed(2) : '0.00') + ' <i class="fa-solid fa-star" style="font-size: 24px;"></i>';
+
+            var ratingMiddle = document.getElementById('ratingMiddle');
+            if (ratingMiddle) {
+                var htmlBars = '';
+                for (var star = 5; star >= 1; star--) {
+                    var count = Number(starDist[star] || 0);
+                    var percent = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
+                    htmlBars += '<div class="rating-bar-row">'
+                        + '<div class="star-label">' + star + ' <i class="fa-solid fa-star star-icon-small"></i></div>'
+                        + '<div class="progress-bg"><div class="progress-fill" style="width:' + percent + '%;"></div></div>'
+                        + '<div class="rating-percent-text">' + percent + '% | ' + count + ' đánh giá</div>'
+                        + '</div>';
+                }
+                ratingMiddle.innerHTML = htmlBars;
+            }
+
+            var reviewList = document.getElementById('reviewList');
+            if (reviewList) {
+                if (!reviews.length) {
+                    reviewList.innerHTML = '<div class="no-reviews">Chưa có đánh giá nào cho sản phẩm này.</div>';
+                } else {
+                    var reviewHtml = '';
+                    reviews.forEach(function(r) {
+                        var stars = '';
+                        var soSao = Number(r.so_sao || 0);
+                        for (var i = 1; i <= 5; i++) {
+                            stars += i <= soSao ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
+                        }
+                        var ngay = r.ngay_danh_gia ? new Date(r.ngay_danh_gia).toLocaleDateString('vi-VN') : '';
+                        reviewHtml += '<div class="review-item">'
+                            + '<div class="user-avatar"><i class="fa-solid fa-user"></i></div>'
+                            + '<div class="review-content">'
+                            + '<div><span class="user-name">' + escapeHtml(r.full_name || 'Khách hàng') + '</span><span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Đã mua tại TechZone</span></div>'
+                            + '<div class="user-rating-stars">' + stars + '</div>'
+                            + '<div class="review-text">' + escapeHtml(r.noi_dung || '') + '</div>';
+                        if (r.phan_hoi) {
+                            reviewHtml += '<div class="seller-response"><div class="response-header">Phản hồi từ người bán:</div><div class="response-content">' + escapeHtml(r.phan_hoi) + '</div></div>';
+                        }
+                        reviewHtml += '<div class="review-actions"><a href="#">Trả lời</a> • ' + ngay + '</div></div></div>';
+                    });
+                    reviewList.innerHTML = reviewHtml;
+                }
+            }
+
+            var similarGrid = document.getElementById('similarGrid');
+            if (similarGrid) {
+                if (!similar.length) {
+                    similarGrid.innerHTML = '';
+                } else {
+                    var simHtml = '';
+                    similar.forEach(function(sp) {
+                        var simImg = sp.img_bien_the
+                            ? ("<?php echo UrlHelper::url('Public/Pictures/bien_the/'); ?>" + encodeURIComponent(sp.img_bien_the))
+                            : "<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>";
+                        var simPrice = Number(sp.gia || sp.gia_cu || 0);
+                        var discount = Number(sp.giam_gia || 0);
+                        simHtml += '<div class="sim-card">'
+                            + '<div class="sim-badge">-' + discount + '%</div>'
+                            + '<a href="<?php echo $this->url('Khachhang/chitietsanpham/'); ?>' + encodeURIComponent(sp.ma_san_pham || '') + '" class="sim-img"><img src="' + simImg + '" alt="' + escapeHtml(sp.ten_san_pham || '') + '"></a>'
+                            + '<div class="sim-title">' + escapeHtml(sp.ten_san_pham || '') + '</div>'
+                            + '<span class="sim-price">' + formatPriceVnd(simPrice) + '</span>'
+                            + '</div>';
+                    });
+                    similarGrid.innerHTML = simHtml;
+                }
+            }
+
+            updateButtonsVisibility();
+        }
+
+        function fetchDetailFromApi() {
+            var id = resolveProductIdFromUrl();
+            if (!id) return;
+
+            fetch(STOREFRONT_API_BASE + '/' + encodeURIComponent(id), { method: 'GET' })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function(json) {
+                    if (json && json.success && json.data) {
+                        applyDetailFromApi(json.data);
+                    }
+                })
+                .catch(function(err) {
+                    console.warn('Khong the nap chi tiet tu API:', err.message);
+                });
+        }
 
         function decreaseQuantity() {
             var input = document.getElementById('quantityInput');
@@ -2415,7 +2430,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         function submitReview() {
             var rating = document.getElementById('selectedRating').value;
             var content = document.getElementById('reviewContent').value.trim();
-            var productId = '<?php echo $data['san_pham']['ma_san_pham']; ?>';
+            var productId = currentProductId || resolveProductIdFromUrl();
 
             if(rating == 0) {
                 alert('Vui lòng chọn số sao đánh giá!');
@@ -2466,6 +2481,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         // Initialize button visibility when page loads
         document.addEventListener('DOMContentLoaded', function() {
             updateButtonsVisibility();
+            fetchDetailFromApi();
         });
     </script>
 
