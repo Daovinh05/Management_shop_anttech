@@ -229,18 +229,16 @@
             </div>
         </div>
 
-        <form id="userSearchForm" method="post" action="<?php echo BASE_URL; ?>Users/Timkiem" class="form-search"
+        <form id="userSearchForm" method="get" action="<?php echo BASE_URL; ?>Users/danhsach" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã user</label>
-                    <input type="text" id="searchId" name="txtMauser" placeholder="Nhập mã user..."
-                        value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtMauser" placeholder="Nhập mã user..." />
                 </div>
                 <div>
                     <label for="searchName">Tên user</label>
-                    <input type="text" id="searchName" name="txtTenuser" placeholder="Nhập tên user..."
-                        value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTenuser" placeholder="Nhập tên user..." />
                 </div>
             </div>
 
@@ -278,18 +276,8 @@
         </div>
     </div>
 
-        <?php
-        $initialUsers = [];
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-            while ($row = mysqli_fetch_assoc($data['dulieu'])) {
-                $initialUsers[] = $row;
-            }
-        }
-        ?>
-        <script>
+    <script>
     const BASE_URL = '<?php echo BASE_URL; ?>';
-        const INITIAL_USERS = <?php echo json_encode($initialUsers, JSON_UNESCAPED_UNICODE); ?>;
     const DEFAULT_AVATAR_DATA_URI = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="%23e5e7eb"/><circle cx="20" cy="15" r="7" fill="%239ca3af"/><path d="M8 34c1.7-6 6.5-10 12-10s10.3 4 12 10" fill="%239ca3af"/></svg>';
     let usersListLoading = false;
     let usersListLastFetchAt = 0;
@@ -462,8 +450,7 @@
         }
         window.__usersListInitialized = true;
 
-            renderUserRows(Array.isArray(INITIAL_USERS) ? INITIAL_USERS : []);
-            loadAllUsers(true);
+        loadAllUsers(true);
 
         const searchForm = document.getElementById('userSearchForm');
         if (!searchForm) {

@@ -16,23 +16,17 @@ class Thuonghieu extends controller
 
     function danhsach()
     {
-        $result = $this->th->ThuongHieu_getAll();
-
         $this->view('Master', [
-            'page' => 'Danhsachthuonghieu_v',
-            'dulieu' => $result
+            'page' => 'Danhsachthuonghieu_v'
         ]);
     }
 
     function themmoi()
     {
-        $result = $this->th->ThuongHieu_getAll();
-
         $this->view('Master', [
             'page' => 'Thuonghieu_v',
             'ma_thuong_hieu' => '',
-            'ten_thuong_hieu' => '',
-            'dulieu' => $result
+            'ten_thuong_hieu' => ''
         ]);
     }
 
@@ -78,65 +72,19 @@ class Thuonghieu extends controller
 
     function Timkiem()
     {
-        $ma_thuong_hieu = $_POST['txtMathuonghieu'] ?? '';
-        $ten_thuong_hieu = $_POST['txtTenthuonghieu'] ?? '';
-
-        $result = $this->th->ThuongHieu_find($ma_thuong_hieu, $ten_thuong_hieu);
-
-        // ====== XUẤT EXCEL ======
-        if (isset($_POST['btnXuatexcel'])) {
-
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachThuonghieu');
-
-            // Header tương ứng với ảnh CSDL
-            $sheet->setCellValue('A1', 'Mã Thuơng Hiệu');
-            $sheet->setCellValue('B1', 'Tên Thương Hiệu');
-            $sheet->setCellValue('C1', 'Ngày Tạo');
-
-
-            $rowCount = 2; // Starting from row 2 since row 1 is headers
-            mysqli_data_seek($result, 0); // Đặt lại con trỏ kết quả về đầu
-            while ($row = mysqli_fetch_assoc($result)) {
-                // Mapping field according to database table
-                $sheet->setCellValue('A' . $rowCount, $row['ma_thuong_hieu']);
-                $sheet->setCellValue('B' . $rowCount, $row['ten_thuong_hieu']);
-                $sheet->setCellValue('C' . $rowCount, $row['ngay_tao']);
-                $rowCount++;
-            }
-
-            foreach (range('A', 'C') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="DanhSachThuongHieu.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-        // DISPLAY VIEW
-        $this->view('Master', [
-            'page' => 'Danhsachthuonghieu_v',
-            'ma_thuong_hieu' => $ma_thuong_hieu,
-            'ten_thuong_hieu' => $ten_thuong_hieu,
-            'dulieu' => $result
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Thuonghieu'
         ]);
+        return;
     }
 
     function sua($ma_thuong_hieu)
     {
-        $result = $this->th->ThuongHieu_getById($ma_thuong_hieu);
-        $row = mysqli_fetch_array($result);
-
         $this->view('Master', [
-            'page' => 'Thuonghieu_sua',
-            'ma_thuong_hieu' => $row['ma_thuong_hieu'],
-            'ten_thuong_hieu' => $row['ten_thuong_hieu']
+            'page' => 'Thuonghieu_sua'
         ]);
     }
 

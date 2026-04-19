@@ -80,12 +80,12 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                             <i class="fa-solid fa-percentage"></i> Quản lý khuyến mãi
                         </a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a href="<?php echo UrlHelper::url('Danhgia/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachkhuyenmai_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-percentage"></i> Quản lý đánh giá
                         </a>
-                    </li>
+                    </li> -->
                     <li>
                         <a href="<?php echo UrlHelper::url('Donhang/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachdonhang_v') !== false) ? 'active' : ''; ?>">

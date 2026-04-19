@@ -22,11 +22,8 @@ class Sanpham extends controller
 
     function danhsach()
     {
-        $result = $this->sp->SanPham_getAll();
-
         $this->view('Master', [
-            'page' => 'Danhsachsanpham_v',
-            'dulieu' => $result
+            'page' => 'Danhsachsanpham_v'
         ]);
     }
 
@@ -36,7 +33,6 @@ class Sanpham extends controller
         $dsdm = $this->dm->DanhMuc_getAll();
         $dsth = $this->th->ThuongHieu_getAll();
         $dsncc = $this->ncc->NhaCungCap_getAll();
-        $result = $this->sp->SanPham_getAll();
 
         $this->view('Master', [
             'page' => 'Sanpham_v',
@@ -47,8 +43,7 @@ class Sanpham extends controller
             'ma_nha_cung_cap' => '',
             'dsdm' => $dsdm,
             'dsth' => $dsth,
-            'dsncc' => $dsncc,
-            'dulieu' => $result
+            'dsncc' => $dsncc
         ]);
     }
 
@@ -112,85 +107,19 @@ class Sanpham extends controller
 
     function Timkiem()
     {
-        // Lấy các tham số tìm kiếm từ biểu mẫu
-        $ma_san_pham = $_POST['txtMasanpham'] ?? '';
-        $ten_san_pham = $_POST['txtTensanpham'] ?? '';
-
-        // LẤY DỮ LIỆU THEO MÃ SẢN PHẨM + TÊN SẢN PHẨM
-        $result = $this->sp->SanPham_find($ma_san_pham, $ten_san_pham);
-
-        if (isset($_POST['btnXuatexcel'])) {
-
-            $objExcel = new PHPExcel();
-            $objExcel->setActiveSheetIndex(0);
-            $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachSanPham');
-
-            $sheet->setCellValue('A1', 'Mã sản phẩm');
-            $sheet->setCellValue('B1', 'Tên sản phẩm');
-            $sheet->setCellValue('C1', 'Hình ảnh biến thể');
-            $sheet->setCellValue('D1', 'Giá');
-            $sheet->setCellValue('E1', 'Số lượng');
-            $sheet->setCellValue('F1', 'Tên danh mục');
-            $sheet->setCellValue('G1', 'Tên thương hiệu');
-            $sheet->setCellValue('H1', 'Tên nhà cung cấp');
-
-            $rowCount = 2; // Starting from row 2 since row 1 is headers
-            mysqli_data_seek($result, 0); // Reset result pointer to beginning
-            while ($row = mysqli_fetch_assoc($result)) {
-                $sheet->setCellValue('A' . $rowCount, $row['ma_san_pham']);
-                $sheet->setCellValue('B' . $rowCount, $row['ten_san_pham']);
-                $sheet->setCellValue('C' . $rowCount, $row['img_bien_the']);
-                $sheet->setCellValue('D' . $rowCount, $row['gia']);
-                $sheet->setCellValue('E' . $rowCount, $row['so_luong_kho']);
-                $sheet->setCellValue('F' . $rowCount, $row['ten_danh_muc']);
-                $sheet->setCellValue('G' . $rowCount, $row['ten_thuong_hieu']);
-                $sheet->setCellValue('H' . $rowCount, $row['ten_nha_cung_cap']);
-
-                $rowCount++;
-            }
-
-            foreach (range('A', 'H') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
-            }
-
-            if (ob_get_length()) ob_end_clean();
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment; filename="DanhSachSanPham.xlsx"');
-            header('Cache-Control: max-age=0');
-
-            $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-            $writer->save('php://output');
-            exit;
-        }
-        // DISPLAY VIEW
-        $this->view('Master', [
-            'page' => 'Danhsachsanpham_v',
-            'ma_san_pham' => $ma_san_pham,
-            'ten_san_pham' => $ten_san_pham,
-            'dulieu' => $result
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Products'
         ]);
+        return;
     }
 
     function sua($ma_san_pham)
     {
-        $result = $this->sp->SanPham_getById($ma_san_pham);
-        $row = mysqli_fetch_array($result);
-
-        // Lấy danh sách danh mục, thương hiệu, nhà cung cấp cho dropdown
-        $dsdm = $this->dm->DanhMuc_getAll();
-        $dsth = $this->th->ThuongHieu_getAll();
-        $dsncc = $this->ncc->NhaCungCap_getAll();
-
         $this->view('Master', [
-            'page' => 'Sanpham_sua',
-            'ma_san_pham' => $row['ma_san_pham'],
-            'ten_san_pham' => $row['ten_san_pham'],
-            'ma_danh_muc' => $row['ma_danh_muc'],
-            'ma_thuong_hieu' => $row['ma_thuong_hieu'],
-            'ma_nha_cung_cap' => $row['ma_nha_cung_cap'],
-            'dsdm' => $dsdm,
-            'dsth' => $dsth,
-            'dsncc' => $dsncc
+            'page' => 'Sanpham_sua'
         ]);
     }
 

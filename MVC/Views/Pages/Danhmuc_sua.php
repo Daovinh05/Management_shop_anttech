@@ -106,16 +106,14 @@
     <div class="card">
         <h1>Sửa Danh mục</h1>
         <p class="lead">Chỉnh sửa thông tin danh mục.</p>
-        <form id="updateCategoryForm" method="post" action="<?php echo BASE_URL; ?>Danhmuc/update" enctype="multipart/form-data">
+        <form id="updateCategoryForm">
             <div>
                 <label>Mã danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtMadanhmuc" required readonly
-                    value="<?php echo isset($data['ma_danh_muc']) ? htmlspecialchars($data['ma_danh_muc']) : '' ?>" />
+                <input type="text" id="txtMadanhmuc" name="txtMadanhmuc" required readonly />
             </div>
             <div>
                 <label>Tên danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtTendanhmuc" required
-                    value="<?php echo isset($data['ten_danh_muc']) ? htmlspecialchars($data['ten_danh_muc']) : '' ?>" />
+                <input type="text" id="txtTendanhmuc" name="txtTendanhmuc" required />
             </div>
 
             <div class="actions">
@@ -131,7 +129,56 @@
     <script>
     const BASE_URL = '<?php echo BASE_URL; ?>';
 
+    function resolveCategoryIdFromUrl() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const routedUrl = searchParams.get('url');
+
+        if (routedUrl) {
+            const routeParts = routedUrl.split('/').filter(Boolean);
+            if (routeParts.length > 0) {
+                return decodeURIComponent(routeParts[routeParts.length - 1]);
+            }
+        }
+
+        const pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        return pathParts.length > 0 ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+    }
+
+    function loadCategoryByApi() {
+        const categoryId = resolveCategoryIdFromUrl();
+        if (!categoryId) {
+            alert('Không xác định được mã danh mục từ URL.');
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Danhmuc/' + encodeURIComponent(categoryId), {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success && data.data) {
+                    const idInput = document.getElementById('txtMadanhmuc');
+                    const nameInput = document.getElementById('txtTendanhmuc');
+
+                    if (idInput) {
+                        idInput.value = data.data.ma_danh_muc || '';
+                    }
+                    if (nameInput) {
+                        nameInput.value = data.data.ten_danh_muc || '';
+                    }
+                    return;
+                }
+
+                alert('Không thể tải thông tin danh mục: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+            })
+            .catch(error => {
+                alert('Không thể kết nối API danh mục: ' + error.message);
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        loadCategoryByApi();
+
         const form = document.getElementById('updateCategoryForm');
         const submitBtn = document.getElementById('updateCategoryBtn');
 

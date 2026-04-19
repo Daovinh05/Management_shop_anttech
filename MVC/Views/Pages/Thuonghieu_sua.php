@@ -106,34 +106,16 @@
     <div class="card">
         <h1>Sửa Thương hiệu</h1>
         <p class="lead">Chỉnh sửa thông tin thương hiệu.</p>
-        <form id="updateBrandForm" method="post" action="<?php echo BASE_URL; ?>Thuonghieu/update" enctype="multipart/form-data">
+        <form id="updateBrandForm">
             <div>
                 <label>Mã thương hiệu <span style="color:red">*</span></label>
-                <input type="text" name="txtMathuonghieu" required readonly
-                    value="<?php echo isset($data['ma_thuong_hieu']) ? htmlspecialchars($data['ma_thuong_hieu']) : '' ?>" />
+                <input type="text" id="txtMathuonghieu" name="txtMathuonghieu" required readonly />
             </div>
             <div>
                 <label>Tên thương hiệu <span style="color:red">*</span></label>
-                <input type="text" name="txtTenthuonghieu" required
-                    value="<?php echo isset($data['ten_thuong_hieu']) ? htmlspecialchars($data['ten_thuong_hieu']) : '' ?>" />
+                <input type="text" id="txtTenthuonghieu" name="txtTenthuonghieu" required />
             </div>
-            <!-- <div>
-                <label>Hình ảnh hiện tại</label>
-                <?php if (isset($data['image']) && !empty($data['image'])): ?>
-                    <div class="current-image">
-                        <img src="<?php echo UrlHelper::url('Public/Pictures/danhmuc/') . htmlspecialchars($data['image']) ?>" alt="Hình ảnh danh mục hiện tại" />
-                        <p><small>Hình ảnh hiện tại (giữ nguyên nếu không chọn hình mới)</small></p>
-                    </div>
-                <?php endif; ?>
-            </div>
-            <div>
-                <label>Chọn hình ảnh mới (nếu có)</label>
-                <div class="file-input-wrapper">
-                    <span>Chọn hình ảnh...</span>
-                    <input type="file" name="txtImage" accept="image/*" />
-                </div>
-                <div class="file-name" id="fileName">Chưa chọn file</div>
-            </div> -->
+            <!-- Khu vực hình ảnh đang tạm ẩn cho module thương hiệu -->
 
             <div class="actions">
                 <a href="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="btn-back"><i
@@ -149,7 +131,57 @@
     <script>
         const BASE_URL = '<?php echo BASE_URL; ?>';
 
+        function resolveBrandIdFromUrl() {
+            const searchParams = new URLSearchParams(window.location.search);
+            const routedUrl = searchParams.get('url');
+
+            if (routedUrl) {
+                const routeParts = routedUrl.split('/').filter(Boolean);
+                if (routeParts.length > 0) {
+                    return decodeURIComponent(routeParts[routeParts.length - 1]);
+                }
+            }
+
+            const pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+            return pathParts.length > 0 ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+        }
+
+        function loadBrandByApi() {
+            const brandId = resolveBrandIdFromUrl();
+            if (!brandId) {
+                alert('Không xác định được mã thương hiệu từ URL.');
+                return;
+            }
+
+            fetch(BASE_URL + 'Api/Thuonghieu/' + encodeURIComponent(brandId), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success && data.data) {
+                        const idInput = document.getElementById('txtMathuonghieu');
+                        const nameInput = document.getElementById('txtTenthuonghieu');
+
+                        if (idInput) {
+                            idInput.value = data.data.ma_thuong_hieu || '';
+                        }
+
+                        if (nameInput) {
+                            nameInput.value = data.data.ten_thuong_hieu || '';
+                        }
+                        return;
+                    }
+
+                    alert('Không thể tải thông tin thương hiệu: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API thương hiệu: ' + error.message);
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            loadBrandByApi();
+
             const form = document.getElementById('updateBrandForm');
             const submitBtn = document.getElementById('updateBrandBtn');
 
