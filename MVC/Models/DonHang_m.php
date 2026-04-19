@@ -451,4 +451,36 @@ class DonHang_m extends connectDB
         $sql = "UPDATE don_hang SET thanh_toan = '$trang_thai_thanh_toan' WHERE ma_don_hang = '$ma_don_hang'";
         return mysqli_query($this->con, $sql);
     }
+
+    // Lấy lịch sử đơn hàng theo user, hỗ trợ lọc trạng thái
+    function DonHang_getHistoryByUser($ma_user, $status = '') {
+        $ma_user = mysqli_real_escape_string($this->con, $ma_user);
+        $status = mysqli_real_escape_string($this->con, $status);
+
+        $sql = "SELECT dh.*, dc.ho_ten as ten_nguoi_nhan, dc.dia_chi, dc.so_dien_thoai,
+                       tt.phuong_thuc, tt.so_tien_thanh_toan, tt.trang_thai_thanh_toan,
+                       km.ten_khuyen_mai, km.tien_khuyen_mai
+                FROM don_hang dh
+                LEFT JOIN dia_chi_giao_hang dc ON dh.ma_dia_chi = dc.ma_dia_chi
+                LEFT JOIN thanh_toan tt ON dh.ma_don_hang = tt.ma_don_hang
+                LEFT JOIN khuyen_mai km ON dh.ma_khuyen_mai = km.ma_khuyen_mai
+                WHERE dh.ma_user = '$ma_user'";
+
+        if ($status !== '') {
+            $sql .= " AND dh.trang_thai_don_hang = '$status'";
+        }
+
+        $sql .= " ORDER BY dh.ngay_tao DESC";
+        return mysqli_query($this->con, $sql);
+    }
+
+    // Đếm số đơn theo trạng thái của 1 user
+    function DonHang_countStatusByUser($ma_user) {
+        $ma_user = mysqli_real_escape_string($this->con, $ma_user);
+        $sql = "SELECT trang_thai_don_hang, COUNT(*) as so_luong
+                FROM don_hang
+                WHERE ma_user = '$ma_user'
+                GROUP BY trang_thai_don_hang";
+        return mysqli_query($this->con, $sql);
+    }
 }
