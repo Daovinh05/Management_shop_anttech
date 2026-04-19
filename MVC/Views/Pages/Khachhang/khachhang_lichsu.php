@@ -489,187 +489,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             <div class="tab-item" data-status-key="hoan_thanh" data-count="<?php echo $data['status_counts']['hoan_thanh']; ?>">Hoàn thành (<span class="tab-count"><?php echo $data['status_counts']['hoan_thanh']; ?></span>)</div>
             <div class="tab-item" data-status-key="da_huy" data-count="<?php echo $data['status_counts']['da_huy']; ?>">Đã hủy (<span class="tab-count"><?php echo $data['status_counts']['da_huy']; ?></span>)</div>
         </div>
-
-        <?php if ($data['don_hang'] && count($data['don_hang']) > 0): ?>
-            <?php foreach ($data['don_hang'] as $dh): ?>
-                <div class="order-card" data-status="<?php echo $dh['trang_thai_don_hang']; ?>">
-                    <div class="order-header">
-                        <div>
-                            <span class="order-id">Đơn hàng #<?php echo $dh['ma_don_hang']; ?></span>
-                            <span class="order-date">Đặt ngày: <?php echo $this->formatDate($dh['ngay_tao']); ?></span>
-                        </div>
-                        <span class="status-badge
-                        <?php
-                        switch ($dh['trang_thai_don_hang']) {
-                            case 'cho_duyet':
-                                echo 'status-pending';
-                                break;
-                            case 'da_duyet':
-                                echo 'status-confirmed';
-                                break;
-                            case 'dang_giao':
-                                echo 'status-shipping';
-                                break;
-                            case 'hoan_thanh':
-                                echo 'status-completed';
-                                break;
-                            case 'da_huy':
-                                echo 'status-cancelled';
-                                break;
-                            default:
-                                echo 'status-cancelled';
-                        }
-                        ?>">
-                            <?php
-                            switch ($dh['trang_thai_don_hang']) {
-                                case 'cho_duyet':
-                                    echo 'Chờ xác nhận';
-                                    break;
-                                case 'da_duyet':
-                                    echo 'Đã xác nhận';
-                                    break;
-                                case 'dang_giao':
-                                    echo 'Đang giao hàng';
-                                    break;
-                                case 'hoan_thanh':
-                                    echo 'Đã hoàn thành';
-                                    break;
-                                case 'da_huy':
-                                    echo 'Đã hủy';
-                                    break;
-                                default:
-                                    echo ucfirst(str_replace('_', ' ', $dh['trang_thai_don_hang']));
-                            }
-                            ?>
-                        </span>
-                    </div>
-
-                    <div class="order-body-flex">
-
-                        <div class="order-product-list">
-                            <?php
-                            $chi_tiet_don_hang = $dh['chi_tiet'];
-                            if ($chi_tiet_don_hang && count($chi_tiet_don_hang) > 0):
-                                foreach ($chi_tiet_don_hang as $ct):
-                            ?>
-                                    <div class="order-product">
-                                        <img src="<?php echo !empty($ct['hinh_anh']) ? UrlHelper::url('Public/Pictures/bien_the/') . $ct['hinh_anh'] : UrlHelper::url('Public/Images/no-image.png'); ?>"
-                                            alt="<?php echo $ct['ten_san_pham']; ?>" class="product-thumb">
-                                        <div class="product-info">
-                                            <span
-                                                class="product-name"><?php echo $ct['ten_san_pham'] ? $ct['ten_san_pham'] : 'Sản phẩm đã xóa'; ?></span>
-                                            <div class="product-meta">Số lượng: <?php echo $ct['so_luong']; ?></div>
-                                            <?php if ($ct['ten_bien_the']): ?>
-                                                <div class="product-meta">Biến thể: <?php echo $ct['ten_bien_the']; ?></div>
-                                            <?php endif; ?>
-                                            <div class="product-price">
-                                                <?php echo number_format($ct['gia_luc_mua'], 0, ',', '.'); ?>₫</div>
-                                        </div>
-                                    </div><?php endforeach;
-                                    else: ?><div class="order-product"><img src="<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>"
-                                        alt="Sản phẩm" class="product-thumb">
-                                    <div class="product-info"><span class="product-name">Không có sản phẩm</span></div>
-                                </div><?php endif;
-                                        ?>
-                        </div>
-                        <div class="order-actions-right">
-                            <?php
-                            $display_total = 0;
-                            if (isset($dh['so_tien_thanh_toan']) && is_numeric($dh['so_tien_thanh_toan'])) {
-                                $display_total = (float)$dh['so_tien_thanh_toan'];
-                            } elseif (isset($dh['thanh_toan']) && is_numeric($dh['thanh_toan'])) {
-                                $display_total = (float)$dh['thanh_toan'];
-                            } elseif (isset($dh['tong_tien_hang']) && is_numeric($dh['tong_tien_hang'])) {
-                                $display_total = (float)$dh['tong_tien_hang'];
-                            }
-                            ?>
-                            <div class="total-money">
-                                <span class="total-label">Số tiền thanh toán</span>
-                                <span class="total-value"><?php echo number_format($display_total, 0, ',', '.'); ?>₫</span>
-                            </div>
-
-                            <button type="button" class="btn-detail"
-                                data-id="<?php echo $dh['ma_don_hang']; ?>"
-                                data-date="<?php echo $this->formatDate($dh['ngay_tao']); ?>" data-status="<?php
-                                                                                                            switch ($dh['trang_thai_don_hang']) {
-                                                                                                                case 'cho_duyet':
-                                                                                                                    echo 'Chờ xác nhận';
-                                                                                                                    break;
-                                                                                                                case 'da_duyet':
-                                                                                                                    echo 'Đã xác nhận';
-                                                                                                                    break;
-                                                                                                                case 'dang_giao':
-                                                                                                                    echo 'Đang giao hàng';
-                                                                                                                    break;
-                                                                                                                case 'hoan_thanh':
-                                                                                                                    echo 'Đã hoàn thành';
-                                                                                                                    break;
-                                                                                                                case 'da_huy':
-                                                                                                                    echo 'Đã hủy';
-                                                                                                                    break;
-                                                                                                                default:
-                                                                                                                    echo ucfirst(str_replace('_', ' ', $dh['trang_thai_don_hang']));
-                                                                                                            }
-
-                                                                                                            ?>"
-                                data-status-class="
-<?php switch ($dh['trang_thai_don_hang']) {
-                    case 'cho_duyet':
-                        echo 'status-pending';
-                        break;
-                    case 'da_duyet':
-                        echo 'status-confirmed';
-                        break;
-                    case 'dang_giao':
-                        echo 'status-shipping';
-                        break;
-                    case 'hoan_thanh':
-                        echo 'status-completed';
-                        break;
-                    case 'da_huy':
-                        echo 'status-cancelled';
-                        break;
-                    default:
-                        echo 'status-cancelled';
-                }
-
-?>" data-total="<?php echo number_format($dh['tong_tien_hang'], 0, ',', '.');
-                ?>₫" data-receiver="<?php echo htmlspecialchars($dh['ten_nguoi_nhan'] ?? 'N/A'); ?>"
-                                data-phone="<?php echo htmlspecialchars($dh['so_dien_thoai'] ?? 'N/A'); ?>"
-                                data-address="<?php echo htmlspecialchars($dh['dia_chi'] ?? 'N/A'); ?>"
-                                data-payment-method="<?php echo htmlspecialchars($dh['phuong_thuc'] ?? 'N/A'); ?>"
-                                data-discount="<?php echo number_format($dh['tien_khuyen_mai'] ?? 0, 0, ',', '.'); ?>₫"
-                                data-subtotal="<?php echo number_format($dh['tong_tien_hang'] - ($dh['tien_khuyen_mai'] ?? 0), 0, ',', '.'); ?>₫"
-                                data-items='<?php
-                                            $items = [];
-
-                                            foreach ($dh['chi_tiet'] as $ct) {
-                                                $items[] = [
-                                                    "name" => $ct['ten_san_pham'] ? $ct['ten_san_pham'] : 'Sản phẩm đã xóa',
-                                                    "price" => number_format($ct['gia_luc_mua'], 0, ',', '.') . '₫',
-                                                    "qty" => $ct['so_luong'],
-                                                    "subtotal" => number_format($ct['gia_luc_mua'] * $ct['so_luong'], 0, ',', '.') . '₫',
-                                                    "image" => !empty($ct['hinh_anh']) ? BASE_URL . 'Public/Pictures/bien_the/' . $ct['hinh_anh'] : 'https://placehold.co/80x80?text=SP'
-                                                ];
-                                            }
-
-                                            echo json_encode($items);
-                                            ?>'>
-                                <i class="fa-regular fa-eye"></i>Xem chi tiết
-                            </button>
-
-                            <?php if ($dh['trang_thai_don_hang'] === 'cho_duyet'): ?>
-                                <button type="button" class="btn-cancel-order" data-order-id="<?php echo $dh['ma_don_hang']; ?>">
-                                    <i class="fa-solid fa-ban"></i>Hủy đơn
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div><?php endforeach;
-                        ?><?php else: ?><div class="text-center py-5">
-                    <h4>Chưa có đơn hàng ở giai đoạn này</h4>
-                </div><?php endif;
-                        ?>
+        <div id="orderCardsContainer"></div>
 
                 <!-- Empty state message for filtered tabs -->
                 <div class="text-center py-5" id="no-orders-message" style="display: none;">
@@ -737,19 +557,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     id="modalSubTotal">15.600.000 VNĐ</span></div>
             <!-- <div class="sum-row"><span class="sum-label">Khuyến mãi:</span><span class="sum-value" id="modalDiscount">0
                     VNĐ</span></div> -->
-            <div class="sum-row">
-                <span class="sum-label">Khuyến mãi:</span>
-                <span class="sum-value" id="modalDiscount">
-                    <?php
-                    if ($khuyen_mai > 0) {
-                        echo '-' . number_format($khuyen_mai, 0, ',', '.') . 'đ';
-                    } else {
-                        echo '0đ';
-                    }
-                    ?>
-                </span>
-
-            </div>
+            <div class="sum-row"><span class="sum-label">Khuyến mãi:</span><span class="sum-value" id="modalDiscount">0 ₫</span></div>
 
             <div class="sum-row"><span class="sum-label" style="font-weight: 700;">Số tiền cần thanh toán:</span><span
                     class="sum-value sum-total" id="modalTotalBottom">15.600.000 VNĐ</span></div>
@@ -758,274 +566,296 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 </div>
 <script>
     const CHECKOUT_API_BASE = '<?php echo UrlHelper::url('Api/Checkout'); ?>';
+    const CHECKOUT_HISTORY_API = CHECKOUT_API_BASE + '/history';
+    const CHECKOUT_STATUS_API = CHECKOUT_API_BASE + '/status';
+    const NO_IMAGE_URL = '<?php echo UrlHelper::url('Public/Images/no-image.png'); ?>';
 
-    // Tab functionality with order filtering
+    const state = {
+        activeStatus: 'all',
+        orders: [],
+        counts: {
+            all: 0,
+            cho_duyet: 0,
+            da_duyet: 0,
+            dang_giao: 0,
+            hoan_thanh: 0,
+            da_huy: 0
+        }
+    };
+
+    function escapeHtml(text) {
+        return String(text || '').replace(/[&<>'"]/g, function(ch) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+        });
+    }
+
+    function formatCurrency(value) {
+        return Number(value || 0).toLocaleString('vi-VN') + '₫';
+    }
+
+    function formatDateTime(dateString) {
+        if (!dateString) {
+            return '';
+        }
+
+        const d = new Date(dateString.replace(' ', 'T'));
+        if (isNaN(d.getTime())) {
+            return dateString;
+        }
+
+        return d.toLocaleString('vi-VN');
+    }
+
+    function getStatusLabel(status) {
+        switch (status) {
+            case 'cho_duyet':
+                return 'Chờ xác nhận';
+            case 'da_duyet':
+                return 'Đã xác nhận';
+            case 'dang_giao':
+                return 'Đang giao hàng';
+            case 'hoan_thanh':
+                return 'Đã hoàn thành';
+            case 'da_huy':
+                return 'Đã hủy';
+            default:
+                return status || 'Không xác định';
+        }
+    }
+
+    function getStatusClass(status) {
+        switch (status) {
+            case 'cho_duyet':
+                return 'status-pending';
+            case 'da_duyet':
+                return 'status-confirmed';
+            case 'dang_giao':
+                return 'status-shipping';
+            case 'hoan_thanh':
+                return 'status-completed';
+            case 'da_huy':
+            default:
+                return 'status-cancelled';
+        }
+    }
+
+    function updateTabCounts(counts) {
+        document.querySelectorAll('.tab-item').forEach(function(tab) {
+            const key = tab.getAttribute('data-status-key') || 'all';
+            const value = Number((counts || {})[key] || 0);
+            tab.setAttribute('data-count', String(value));
+            const countEl = tab.querySelector('.tab-count');
+            if (countEl) {
+                countEl.textContent = String(value);
+            }
+        });
+    }
+
+    function renderOrderCards() {
+        const container = document.getElementById('orderCardsContainer');
+        const noOrdersMessage = document.getElementById('no-orders-message');
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(state.orders) || state.orders.length === 0) {
+            container.innerHTML = '';
+            if (noOrdersMessage) {
+                noOrdersMessage.style.display = 'block';
+            }
+            return;
+        }
+
+        const html = state.orders.map(function(order) {
+            const status = order.trang_thai_don_hang || '';
+            const details = Array.isArray(order.details) ? order.details : [];
+            const detailsHtml = details.length > 0
+                ? details.map(function(item) {
+                    const productName = item.ten_san_pham || 'Sản phẩm đã xóa';
+                    const linePrice = formatCurrency(item.gia_luc_mua || 0);
+                    const qty = Number(item.so_luong || 0);
+                    const variant = item.ten_bien_the ? '<div class="product-meta">Biến thể: ' + escapeHtml(item.ten_bien_the) + '</div>' : '';
+                    const image = item.hinh_anh_url || NO_IMAGE_URL;
+                    return '<div class="order-product">'
+                        + '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(productName) + '" class="product-thumb">'
+                        + '<div class="product-info">'
+                        + '<span class="product-name">' + escapeHtml(productName) + '</span>'
+                        + '<div class="product-meta">Số lượng: ' + qty + '</div>'
+                        + variant
+                        + '<div class="product-price">' + linePrice + '</div>'
+                        + '</div>'
+                        + '</div>';
+                }).join('')
+                : '<div class="order-product"><img src="' + NO_IMAGE_URL + '" alt="Sản phẩm" class="product-thumb"><div class="product-info"><span class="product-name">Không có sản phẩm</span></div></div>';
+
+            const amount = order.amounts || {};
+            const total = formatCurrency(amount.final_total || 0);
+            const cancelButton = status === 'cho_duyet'
+                ? '<button type="button" class="btn-cancel-order" data-order-id="' + escapeHtml(order.ma_don_hang || '') + '"><i class="fa-solid fa-ban"></i>Hủy đơn</button>'
+                : '';
+
+            return '<div class="order-card" data-status="' + escapeHtml(status) + '">'
+                + '<div class="order-header">'
+                + '<div><span class="order-id">Đơn hàng #' + escapeHtml(order.ma_don_hang || '') + '</span><span class="order-date">Đặt ngày: ' + escapeHtml(formatDateTime(order.ngay_tao)) + '</span></div>'
+                + '<span class="status-badge ' + getStatusClass(status) + '">' + escapeHtml(getStatusLabel(status)) + '</span>'
+                + '</div>'
+                + '<div class="order-body-flex">'
+                + '<div class="order-product-list">' + detailsHtml + '</div>'
+                + '<div class="order-actions-right">'
+                + '<div class="total-money"><span class="total-label">Số tiền thanh toán</span><span class="total-value">' + total + '</span></div>'
+                + '<button type="button" class="btn-detail" data-id="' + escapeHtml(order.ma_don_hang || '') + '"><i class="fa-regular fa-eye"></i>Xem chi tiết</button>'
+                + cancelButton
+                + '</div>'
+                + '</div>'
+                + '</div>';
+        }).join('');
+
+        container.innerHTML = html;
+        if (noOrdersMessage) {
+            noOrdersMessage.style.display = 'none';
+        }
+    }
+
+    function findOrderById(orderId) {
+        return (state.orders || []).find(function(order) {
+            return (order.ma_don_hang || '') === orderId;
+        }) || null;
+    }
+
+    function loadOrdersByStatus(statusKey) {
+        const endpoint = statusKey === 'all'
+            ? CHECKOUT_HISTORY_API
+            : (CHECKOUT_STATUS_API + '/' + encodeURIComponent(statusKey));
+
+        return fetch(endpoint, { method: 'GET' })
+            .then(function(response) {
+                return response.json().catch(function() {
+                    return { success: false, message: 'Phan hoi API khong hop le' };
+                });
+            })
+            .then(function(json) {
+                if (!json || !json.success || !json.data) {
+                    throw new Error((json && json.message) ? json.message : 'Khong the lay lich su don hang');
+                }
+
+                state.orders = Array.isArray(json.data.orders) ? json.data.orders : [];
+                state.counts = json.data.counts || state.counts;
+                updateTabCounts(state.counts);
+                renderOrderCards();
+            });
+    }
+
+    const modal = document.getElementById('detailModal');
+
+    function openOrderDetail(order) {
+        if (!order || !modal) {
+            return;
+        }
+
+        const amount = order.amounts || {};
+        const subtotal = Number(amount.subtotal || 0);
+        const discount = Number(amount.discount || 0);
+        const finalTotal = Number(amount.final_total || 0);
+
+        document.getElementById('modalOrderId').innerText = '#' + (order.ma_don_hang || '');
+        document.getElementById('modalCode').innerText = order.ma_don_hang || '';
+        document.getElementById('modalDate').innerText = formatDateTime(order.ngay_tao);
+
+        const statusEl = document.getElementById('modalStatus');
+        statusEl.innerText = getStatusLabel(order.trang_thai_don_hang || '');
+        statusEl.className = 'status-badge ' + getStatusClass(order.trang_thai_don_hang || '');
+
+        document.getElementById('modalTotalTop').innerText = formatCurrency(finalTotal);
+        document.getElementById('modalSubTotal').innerText = formatCurrency(subtotal);
+        document.getElementById('modalDiscount').innerText = '-' + formatCurrency(discount);
+        document.getElementById('modalTotalBottom').innerText = formatCurrency(finalTotal);
+
+        document.getElementById('modalReceiver').innerText = order.ten_nguoi_nhan || 'N/A';
+        document.getElementById('modalPhone').innerText = order.so_dien_thoai || 'N/A';
+        document.getElementById('modalAddress').innerText = order.dia_chi || 'N/A';
+        document.getElementById('modalPaymentMethod').innerText = order.phuong_thuc || 'N/A';
+
+        const tbody = document.getElementById('modalProductList');
+        tbody.innerHTML = '';
+        (order.details || []).forEach(function(item) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + escapeHtml(item.ten_san_pham || 'Sản phẩm đã xóa') + '</td>'
+                + '<td>' + formatCurrency(item.gia_luc_mua || 0) + '</td>'
+                + '<td style="text-align: center;">' + Number(item.so_luong || 0) + '</td>'
+                + '<td style="text-align: right; font-weight: bold; color: var(--blue-btn);">' + formatCurrency(item.line_total || 0) + '</td>';
+            tbody.appendChild(tr);
+        });
+
+        modal.style.display = 'flex';
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
-            const tabItems = document.querySelectorAll('.tab-item');
-            const orderCards = document.querySelectorAll('.order-card');
-            const noOrdersMessage = document.getElementById('no-orders-message');
+        const tabItems = document.querySelectorAll('.tab-item');
 
-            // Map tab indices to status values based on the order in the HTML
-            // 0: "Tất cả", 1: "Chø xác nhận", 2: "Đã xác nhận", 3: "Đang giao", 4: "Hoàn thành", 5: "Đã hủy"
-            const tabStatusMap = {
-                0: 'all', // Tất cả
-                1: 'cho_duyet', // Chờ xác nhận
-                2: 'da_duyet', // Đã xác nhận (same as cho_duyet in DB)
-                3: 'dang_giao', // Đang giao
-                4: 'hoan_thanh', // Hoàn thành
-                5: 'da_huy' // Đã hủy
+        tabItems.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                tabItems.forEach(function(item) { item.classList.remove('active'); });
+                this.classList.add('active');
+
+                const key = this.getAttribute('data-status-key') || 'all';
+                state.activeStatus = key;
+                loadOrdersByStatus(key).catch(function(err) {
+                    alert(err.message || 'Không thể tải lịch sử đơn hàng.');
+                });
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            const detailBtn = event.target.closest('.btn-detail');
+            if (detailBtn) {
+                const orderId = detailBtn.getAttribute('data-id') || '';
+                const order = findOrderById(orderId);
+                if (order) {
+                    openOrderDetail(order);
+                }
+                return;
             }
 
-            ;
-
-            tabItems.forEach((tab, index) => {
-                    tab.addEventListener('click', function() {
-                            // Remove active class from all tabs
-                            tabItems.forEach(item => item.classList.remove('active'));
-                            this.classList.add('active');
-
-                            // Get the status to filter by
-                            const filterStatus = tabStatusMap[index];
-
-                            // Counter to track visible cards
-                            let visibleCardCount = 0;
-
-                            // Show/hide order cards based on status
-                            orderCards.forEach(card => {
-                                    const cardStatus = card.getAttribute('data-status');
-
-                                    if (filterStatus === 'all' || cardStatus === filterStatus) {
-                                        card.style.display = 'block';
-                                        visibleCardCount++;
-                                    } else {
-                                        card.style.display = 'none';
-                                    }
-                                }
-
-                            );
-
-                            // Show/hide the "no orders" message based on visible cards
-                            if (visibleCardCount === 0) {
-                                noOrdersMessage.style.display = 'block';
-                            } else {
-                                noOrdersMessage.style.display = 'none';
-                            }
-                        }
-
-                    );
-                }
-
-            );
-
-            function getStatusLabel(status) {
-                switch (status) {
-                    case 'cho_duyet':
-                        return 'Chờ xác nhận';
-                    case 'da_duyet':
-                        return 'Đã xác nhận';
-                    case 'dang_giao':
-                        return 'Đang giao hàng';
-                    case 'hoan_thanh':
-                        return 'Đã hoàn thành';
-                    case 'da_huy':
-                        return 'Đã hủy';
-                    default:
-                        return status;
-                }
-            }
-
-            function getStatusClass(status) {
-                switch (status) {
-                    case 'cho_duyet':
-                        return 'status-pending';
-                    case 'da_duyet':
-                        return 'status-confirmed';
-                    case 'hoan_thanh':
-                        return 'status-completed';
-                    case 'dang_giao':
-                        return 'status-shipping';
-                    case 'da_huy':
-                    default:
-                        return 'status-cancelled';
-                }
-            }
-
-            function refreshCurrentTab() {
-                const activeTab = document.querySelector('.tab-item.active');
-                if (activeTab) {
-                    activeTab.click();
-                }
-            }
-
-            function changeTabCount(statusKey, delta) {
-                const tab = document.querySelector('.tab-item[data-status-key="' + statusKey + '"]');
-                if (!tab) {
+            const cancelBtn = event.target.closest('.btn-cancel-order');
+            if (cancelBtn) {
+                const orderId = cancelBtn.getAttribute('data-order-id') || '';
+                if (!orderId) {
                     return;
                 }
 
-                const currentCount = parseInt(tab.getAttribute('data-count') || '0', 10) || 0;
-                const nextCount = Math.max(0, currentCount + delta);
-                tab.setAttribute('data-count', String(nextCount));
-
-                const countEl = tab.querySelector('.tab-count');
-                if (countEl) {
-                    countEl.textContent = String(nextCount);
+                if (!confirm('Bạn có chắc muốn hủy đơn hàng #' + orderId + ' không?')) {
+                    return;
                 }
-            }
 
-            document.querySelectorAll('.btn-cancel-order').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orderId = this.getAttribute('data-order-id');
-                    if (!orderId) {
-                        return;
-                    }
+                cancelBtn.disabled = true;
+                cancelBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Đang hủy...';
 
-                    if (!confirm('Bạn có chắc muốn hủy đơn hàng #' + orderId + ' không?')) {
-                        return;
-                    }
-
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Đang hủy...';
-
-                    fetch(CHECKOUT_API_BASE + '/' + encodeURIComponent(orderId), {
-                        method: 'DELETE'
-                    })
-                        .then(response => response.json().catch(() => ({
-                            success: false,
-                            message: 'Phan hoi API khong hop le'
-                        })))
-                        .then(json => {
-                            if (!json || !json.success) {
-                                throw new Error((json && json.message) ? json.message : 'Khong the huy don');
-                            }
-
-                            const card = this.closest('.order-card');
-                            if (card) {
-                                card.setAttribute('data-status', 'da_huy');
-
-                                const headerBadge = card.querySelector('.order-header .status-badge');
-                                if (headerBadge) {
-                                    headerBadge.className = 'status-badge ' + getStatusClass('da_huy');
-                                    headerBadge.textContent = getStatusLabel('da_huy');
-                                }
-
-                                const detailBtn = card.querySelector('.btn-detail');
-                                if (detailBtn) {
-                                    detailBtn.setAttribute('data-status', getStatusLabel('da_huy'));
-                                    detailBtn.setAttribute('data-status-class', getStatusClass('da_huy'));
-                                }
-                            }
-
-                            this.remove();
-                            changeTabCount('cho_duyet', -1);
-                            changeTabCount('da_huy', 1);
-                            alert('Hủy đơn hàng thành công.');
-                            refreshCurrentTab();
-                        })
-                        .catch(err => {
-                            this.disabled = false;
-                            this.innerHTML = '<i class="fa-solid fa-ban"></i>Hủy đơn';
-                            alert(err.message || 'Không thể hủy đơn hàng.');
+                fetch(CHECKOUT_API_BASE + '/' + encodeURIComponent(orderId), { method: 'DELETE' })
+                    .then(function(response) {
+                        return response.json().catch(function() {
+                            return { success: false, message: 'Phan hoi API khong hop le' };
                         });
-                });
-            });
-        }
-
-    );
-
-    // Modal functionality
-    const modal = document.getElementById('detailModal');
-    const btns = document.querySelectorAll('.btn-detail');
-
-    // Hàm mở Modal và điền dữ liệu
-    btns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                    e.preventDefault(); // Ngăn load lại trang
-
-                    // 1. Lấy dữ liệu từ attribute data- của nút bấm
-                    const id = this.getAttribute('data-id');
-                    const date = this.getAttribute('data-date');
-                    const status = this.getAttribute('data-status');
-                    const statusClass = this.getAttribute('data-status-class');
-                    const total = this.getAttribute('data-total');
-                    const receiver = this.getAttribute('data-receiver');
-                    const phone = this.getAttribute('data-phone');
-                    const address = this.getAttribute('data-address');
-                    const paymentMethod = this.getAttribute('data-payment-method');
-                    const discount = this.getAttribute('data-discount');
-                    const subtotal = this.getAttribute('data-subtotal');
-                    const items = JSON.parse(this.getAttribute('data-items'));
-
-                    // Calculate subtotal from items if available
-                    let calculatedSubtotal = 0;
-                    if (items && items.length > 0) {
-                        calculatedSubtotal = items.reduce((sum, item) => {
-                            // Extract numeric value from formatted price string (remove dots and currency)
-                            const priceStr = item.subtotal.replace(/[^\d]/g, ''); // Keep only digits
-                            return sum + parseInt(priceStr);
-                        }, 0);
-
-                        // Format the calculated subtotal
-                        calculatedSubtotal = calculatedSubtotal.toLocaleString('vi-VN') + ' ₫';
-                    } else {
-                        calculatedSubtotal = subtotal;
-                    }
-
-                    // Calculate final amount (subtotal - discount)
-                    // Extract numeric values from formatted strings
-                    const subtotalValue = parseInt(calculatedSubtotal.replace(/[^\d]/g, '')) || 0;
-                    // Extract discount value (without currency symbols)
-                    const discountValueStr = discount.replace(/[^\d]/g, ''); // Keep only digits
-                    const discountValue = parseInt(discountValueStr) || 0;
-                    const finalAmount = subtotalValue - discountValue; // Subtract discount
-                    const formattedFinalAmount = finalAmount.toLocaleString('vi-VN') + ' ₫';
-
-                    // Format discount to show with negative sign
-                    const formattedDiscount = '-' + discountValue.toLocaleString('vi-VN') + ' ₫';
-
-                    // 2. Điền dữ liệu vào Modal
-                    document.getElementById('modalOrderId').innerText = '#' + id;
-                    document.getElementById('modalCode').innerText = id;
-                    document.getElementById('modalDate').innerText = date;
-
-                    const statusEl = document.getElementById('modalStatus');
-                    statusEl.innerText = status;
-                    statusEl.className = 'status-badge ' + statusClass;
-
-                    document.getElementById('modalTotalTop').innerText = formattedFinalAmount;
-                    document.getElementById('modalSubTotal').innerText = calculatedSubtotal;
-                    document.getElementById('modalTotalBottom').innerText = formattedFinalAmount;
-                    document.getElementById('modalDiscount').innerText = formattedDiscount;
-
-                    // Fill shipping information
-                    document.getElementById('modalReceiver').innerText = receiver;
-                    document.getElementById('modalPhone').innerText = phone;
-                    document.getElementById('modalAddress').innerText = address;
-                    document.getElementById('modalPaymentMethod').innerText = paymentMethod;
-
-                    // 3. Render danh sách sản phẩm
-                    const tbody = document.getElementById('modalProductList');
-                    tbody.innerHTML = ''; // Xóa cũ
-
-                    items.forEach(item => {
-                            const tr = document.createElement('tr');
-
-                            tr.innerHTML =
-                                `<td>${item.name}</td><td>${item.price}</td><td style="text-align: center;">${item.qty}</td><td style="text-align: right; font-weight: bold; color: var(--blue-btn);">${item.subtotal}</td>`;
-                            tbody.appendChild(tr);
+                    })
+                    .then(function(json) {
+                        if (!json || !json.success) {
+                            throw new Error((json && json.message) ? json.message : 'Khong the huy don');
                         }
 
-                    );
+                        alert('Hủy đơn hàng thành công.');
+                        return loadOrdersByStatus(state.activeStatus);
+                    })
+                    .catch(function(err) {
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerHTML = '<i class="fa-solid fa-ban"></i>Hủy đơn';
+                        alert(err.message || 'Không thể hủy đơn hàng.');
+                    });
+            }
+        });
 
-                    // 4. Hiển thị Modal
-                    modal.style.display = 'flex';
-                }
-
-            );
-        }
-
-    );
+        loadOrdersByStatus('all').catch(function(err) {
+            alert(err.message || 'Không thể tải lịch sử đơn hàng.');
+        });
+    });
 
     // Hàm đóng Modal
     function closeModal() {
