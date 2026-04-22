@@ -932,7 +932,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         <li><strong>Cơ sở 1:</strong> 221 Vũ Tông Phan - Thanh Xuân - Hà Nội</li>
                         <li><strong>Cơ sở 2:</strong> 17 Nguyễn Phong Sắc - Cầu Giấy - Hà Nội</li>
                         <li><strong>Cơ sở 3:</strong> 145 Minh Khai - Hai Bà Trưng - Hà Nội</li>
-                        <li><strong>Cơ sở 4:</strong> 142 Quang Trung - Hà Đông - Hà Nội</li>
+                        <!-- <li><strong>Cơ sở 4:</strong> 142 Quang Trung - Hà Đông - Hà Nội</li> -->
                         <li><strong>Gọi mua hàng:</strong> 0825.303.888 (8h00 - 22h00)</li>
                         <li><strong>Gọi bảo hành:</strong> 0922.702.888 (8h00 - 21h00)</li>
                     </ul>
