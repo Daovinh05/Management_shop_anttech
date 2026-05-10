@@ -187,3 +187,30 @@ POST   /Api/Khuyenmai/import         # Import khuyen mai tu Excel
 - Cac route co dang /Api/{Controller}/{id} duoc map tu get_detail, update, delete trong controller.
 - Cac route khac nhu search, import, summary, clear, bulk_update, filters, suggestions, history, preview la route action.
 - Xac thuc hien tai su dung session cho cac endpoint can dang nhap.
+
+## Thongke - Thong ke (Bao cao & thong ke)
+
+```txt
+GET    /Api/Thongke                  # Lay danh sach thong ke don hang (hỗ trợ filters, ?format=xlsx)
+GET    /Api/Thongke/dashboard        # Du lieu dashboard thong ke (tong quan, phuong thuc, top san pham, danh sach don hang)
+GET    /Api/Thongke/summary          # Thong ke tong quan (chi nhanh)
+GET    /Api/Thongke/payment_methods  # Thong ke theo phuong thuc thanh toan
+GET    /Api/Thongke/top_products     # Top san pham (tham so limit: ?limit=10)
+GET    /Api/Thongke/export           # Xuat file xlsx thong ke don hang (filter tu_ngay/den_ngay/...)
+```
+
+## Settings - Cau hinh
+
+```txt
+GET    /Api/Settings/order_timeout   # Lay cau hinh thoi gian tu huy don (admin)
+POST   /Api/Settings/order_timeout   # Cap nhat cau hinh (admin)
+PUT    /Api/Settings/order_timeout   # Cap nhat cau hinh (admin)
+PATCH  /Api/Settings/order_timeout   # Cap nhat cau hinh (admin)
+```
+
+## Techbot - Chat / Tra loi thong minh
+
+```txt
+POST   /Api/Techbot/ask              # Goi cau hoi cho techbot (POST message) => tra loi
+GET    /Api/Techbot/history          # Lay lich su cuoc hoi (user/guest)
+```
