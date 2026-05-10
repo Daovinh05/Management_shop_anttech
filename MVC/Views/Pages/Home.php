@@ -7,7 +7,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechZone - Điện thoại & Laptop Chính Hãng</title>
+    <title>AntTech - Điện thoại & Laptop Chính Hãng</title>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
@@ -718,7 +718,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 <body>
 
     <header>
-        <div class="logo">TECH<span>ZONE</span></div>
+        <div class="logo">ANT<span>TECH</span></div>
         <ul class="nav-menu">
             <li class="nav-item">NEW</li>
             <li class="nav-item">BÁN CHẠY</li>
@@ -916,7 +916,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 Đã có tài khoản?
                 <a href="#" id="linkToLogin">Đăng nhập ngay</a>
             </div>
-            <div class="back-nav"><a href="#" class="linkBack"> ← Tiếp tục mua săm</a></div>
+            <div class="back-nav"><a href="#" class="linkBack"> ← Tiếp tục mua sắm</a></div>
         </div>
     </div>
     <footer class="main-footer">
@@ -925,7 +925,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
                 <div class="footer-col">
                     <div class="footer-logo">
-                        <i class="fa-brands fa-instalod"></i> TECHZONE
+                        <i class="fa-brands fa-instalod"></i> AntTech
                     </div>
                     <ul class="address-list">
                         <li><strong>Địa chỉ:</strong></li>
@@ -957,7 +957,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                                     alt="TechZone">
                             </div>
                             <div class="fp-info">
-                                <a href="#" class="fp-name">TechZone - Chính Chủ</a>
+                                <a href="#" class="fp-name">AntTech - Chính Chủ</a>
                                 <span class="fp-followers">96.598 người theo dõi</span>
                             </div>
                         </div>
@@ -1171,6 +1171,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
 
             // Get form data
             const formData = new FormData(this);
+            const form = this;
 
             // Send AJAX request
             fetch('<?php echo UrlHelper::url('Api/Auth/register'); ?>', {
@@ -1181,62 +1182,62 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     }
                 })
                 .then(async response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    // Check if the response is JSON or HTML
                     const contentType = response.headers.get('content-type');
+                    let data;
+
                     if (contentType && contentType.includes('application/json')) {
-                        return response.json();
+                        data = await response.json();
                     } else {
-                        // If not JSON, try to parse the response as text to see what's happening
                         const text = await response.text();
                         console.log('Server response (non-JSON):', text);
-
-                        // Try to extract JSON from the response if it contains JSON somewhere
-                        try {
-                            // Look for JSON in the response text
-                            const jsonStart = text.indexOf('{');
-                            const jsonEnd = text.lastIndexOf('}') + 1;
-                            if (jsonStart !== -1 && jsonEnd !== 0) {
-                                const jsonString = text.substring(jsonStart, jsonEnd);
-                                return JSON.parse(jsonString);
-                            } else {
-                                throw new Error('Server did not return valid JSON');
-                            }
-                        } catch (e) {
-                            console.error('Could not parse server response as JSON:', e);
+                        const jsonStart = text.indexOf('{');
+                        const jsonEnd = text.lastIndexOf('}') + 1;
+                        if (jsonStart !== -1 && jsonEnd !== 0) {
+                            const jsonString = text.substring(jsonStart, jsonEnd);
+                            data = JSON.parse(jsonString);
+                        } else {
                             throw new Error('Server returned invalid response format');
                         }
                     }
+
+                    if (!response.ok) {
+                        const message = data.error || data.message || `HTTP error! status: ${response.status}`;
+                        throw new Error(message);
+                    }
+
+                    return data;
                 })
                 .then(data => {
+                    form.querySelector('.error')?.remove();
+                    form.querySelector('.success')?.remove();
+
                     if (data.success) {
-                        // Close the register modal
-                        hideModal(document.getElementById('registerModal'));
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'success';
+                        successDiv.style.cssText = 'color: green; margin-top: 10px; text-align: center;';
+                        successDiv.textContent = data.message || 'Đăng ký thành công!';
+                        form.appendChild(successDiv);
 
-                        // Show success message
-                        if (data.message) {
-                            alert(data.message);
-                        }
-
-                        // Open the login modal
-                        showModal(document.getElementById('loginModal'));
+                        setTimeout(() => {
+                            hideModal(document.getElementById('registerModal'));
+                            showModal(document.getElementById('loginModal'));
+                        }, 800);
                     } else {
-                        // Display error message
-                        document.querySelector('#registerModal .error')?.remove();
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'error';
                         errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
                         errorDiv.textContent = data.error || data.message || 'Đăng ký thất bại!';
-                        document.querySelector('#registerForm').appendChild(errorDiv);
+                        form.appendChild(errorDiv);
                     }
                 })
                 .catch(error => {
                     console.error('Registration Error:', error);
-                    // Show error message to user
-                    alert('Có lỗi xảy ra khi đăng ký. Vui lòng thử lại. Chi tiết: ' + error.message);
+                    form.querySelector('.error')?.remove();
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
+                    errorDiv.textContent = error.message || 'Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.';
+                    form.appendChild(errorDiv);
                 });
         });
     </script>
