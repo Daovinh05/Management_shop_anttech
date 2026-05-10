@@ -1,6 +1,8 @@
 <?php
-class api_controller {
-    public function __construct() {
+class api_controller
+{
+    public function __construct()
+    {
         // Tắt bộ nhớ đệm output để tránh lỗi JSON
         while (ob_get_level()) {
             ob_end_clean();
@@ -20,7 +22,8 @@ class api_controller {
     }
 
     // Gọi model (Giống web controller)
-    protected function model($model){
+    protected function model($model)
+    {
         if (file_exists(__DIR__ . '/../Models/' . $model . '.php')) {
             require_once __DIR__ . '/../Models/' . $model . '.php';
             return new $model;
@@ -29,16 +32,18 @@ class api_controller {
     }
 
     // Trích xuất JSON input payload (khi request là application/json)
-    protected function getJsonInput() {
+    protected function getJsonInput()
+    {
         $input = json_decode(file_get_contents('php://input'), true);
         return is_array($input) ? $input : [];
     }
 
+
     // Gửi response chuẩn hóa
-    protected function sendResponse($status_code, $data) {
+    protected function sendResponse($status_code, $data)
+    {
         http_response_code($status_code);
         echo json_encode($data);
         exit;
     }
 }
-?>

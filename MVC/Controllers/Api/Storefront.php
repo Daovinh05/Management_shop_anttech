@@ -1,12 +1,14 @@
 <?php
-class Storefront extends api_controller {
+class Storefront extends api_controller
+{
     private $sp;
     private $dm;
     private $th;
     private $bt;
     private $dg;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->sp = $this->model('SanPham_m');
         $this->dm = $this->model('DanhMuc_m');
@@ -15,7 +17,9 @@ class Storefront extends api_controller {
         $this->dg = $this->model('DanhGia_m');
     }
 
-    public function get_all() {
+
+    public function get_all()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
         }
@@ -64,7 +68,8 @@ class Storefront extends api_controller {
         ]);
     }
 
-    public function filters() {
+    public function filters()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
         }
@@ -104,7 +109,8 @@ class Storefront extends api_controller {
         ]);
     }
 
-    public function suggestions() {
+    public function suggestions()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
         }
@@ -138,7 +144,8 @@ class Storefront extends api_controller {
     }
 
     // RESTful detail endpoint: GET /Api/Storefront/{ma_san_pham}
-    public function get_detail($id = null) {
+    public function get_detail($id = null)
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
         }

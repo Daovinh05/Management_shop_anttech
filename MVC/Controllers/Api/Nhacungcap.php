@@ -1,8 +1,10 @@
 <?php
-class Nhacungcap extends api_controller {
+class Nhacungcap extends api_controller
+{
     private $nhacungcap_model;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->nhacungcap_model = $this->model('NhaCungCap_m');
     }
@@ -12,7 +14,8 @@ class Nhacungcap extends api_controller {
      * Hỗ trợ filter: ma_nha_cung_cap, ten_nha_cung_cap
      * Hỗ trợ export: ?format=xlsx
      */
-    public function get_all() {
+    public function get_all()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use GET']);
         }
@@ -46,47 +49,11 @@ class Nhacungcap extends api_controller {
             'data' => $suppliers
         ]);
     }
-
-    private function exportXlsx($suppliers) {
-        $objExcel = new PHPExcel();
-        $objExcel->setActiveSheetIndex(0);
-        $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachNhaCungCap');
-
-        $sheet->setCellValue('A1', 'Mã nhà cung cấp');
-        $sheet->setCellValue('B1', 'Tên nhà cung cấp');
-        $sheet->setCellValue('C1', 'Địa chỉ');
-        $sheet->setCellValue('D1', 'Điện thoại');
-
-        $rowCount = 2;
-        foreach ($suppliers as $row) {
-            $sheet->setCellValue('A' . $rowCount, $row['ma_nha_cung_cap'] ?? '');
-            $sheet->setCellValue('B' . $rowCount, $row['ten_nha_cung_cap'] ?? '');
-            $sheet->setCellValue('C' . $rowCount, $row['dia_chi'] ?? '');
-            $sheet->setCellValue('D' . $rowCount, $row['dien_thoai'] ?? '');
-            $rowCount++;
-        }
-
-        foreach (range('A', 'D') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="DanhSachNhaCungCap.xlsx"');
-        header('Cache-Control: max-age=0');
-
-        $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
-        $writer->save('php://output');
-        exit;
-    }
-
     /**
      * Endpoint: GET /Api/Nhacungcap/NCC01
      */
-    public function get_detail($id = null) {
+    public function get_detail($id = null)
+    {
         if (!$id) {
             $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã nhà cung cấp']);
         }
@@ -104,22 +71,24 @@ class Nhacungcap extends api_controller {
      * Endpoint: GET /Api/Nhacungcap/search?ma_nha_cung_cap=NCC01&ten_nha_cung_cap=fpt
      * Tương thích route cũ.
      */
-    public function search($ma_nha_cung_cap = null, $ten_nha_cung_cap = null) {
-        if ($ma_nha_cung_cap !== null && trim($ma_nha_cung_cap) !== '') {
-            $_GET['ma_nha_cung_cap'] = trim($ma_nha_cung_cap);
-        }
+    // public function search($ma_nha_cung_cap = null, $ten_nha_cung_cap = null)
+    // {
+    //     if ($ma_nha_cung_cap !== null && trim($ma_nha_cung_cap) !== '') {
+    //         $_GET['ma_nha_cung_cap'] = trim($ma_nha_cung_cap);
+    //     }
 
-        if ($ten_nha_cung_cap !== null && trim($ten_nha_cung_cap) !== '') {
-            $_GET['ten_nha_cung_cap'] = trim($ten_nha_cung_cap);
-        }
+    //     if ($ten_nha_cung_cap !== null && trim($ten_nha_cung_cap) !== '') {
+    //         $_GET['ten_nha_cung_cap'] = trim($ten_nha_cung_cap);
+    //     }
 
-        $this->get_all();
-    }
+    //     $this->get_all();
+    // }
 
     /**
      * Endpoint: POST /Api/Nhacungcap
      */
-    public function create() {
+    public function create()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use POST']);
         }
@@ -159,7 +128,8 @@ class Nhacungcap extends api_controller {
     /**
      * Endpoint: PUT/PATCH /Api/Nhacungcap/NCC01
      */
-    public function update($id = null) {
+    public function update($id = null)
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'PATCH') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use PUT or PATCH']);
         }
@@ -202,7 +172,8 @@ class Nhacungcap extends api_controller {
     /**
      * Endpoint: DELETE /Api/Nhacungcap/NCC01
      */
-    public function delete($id = null) {
+    public function delete($id = null)
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use DELETE']);
         }
@@ -234,11 +205,51 @@ class Nhacungcap extends api_controller {
         $this->sendResponse(200, ['success' => true, 'message' => 'Xóa nhà cung cấp thành công']);
     }
 
+
+    private function exportXlsx($suppliers)
+    {
+        $objExcel = new PHPExcel();
+        $objExcel->setActiveSheetIndex(0);
+        $sheet = $objExcel->getActiveSheet()->setTitle('DanhSachNhaCungCap');
+
+        $sheet->setCellValue('A1', 'Mã nhà cung cấp');
+        $sheet->setCellValue('B1', 'Tên nhà cung cấp');
+        $sheet->setCellValue('C1', 'Địa chỉ');
+        $sheet->setCellValue('D1', 'Điện thoại');
+
+        $rowCount = 2;
+        foreach ($suppliers as $row) {
+            $sheet->setCellValue('A' . $rowCount, $row['ma_nha_cung_cap'] ?? '');
+            $sheet->setCellValue('B' . $rowCount, $row['ten_nha_cung_cap'] ?? '');
+            $sheet->setCellValue('C' . $rowCount, $row['dia_chi'] ?? '');
+            $sheet->setCellValue('D' . $rowCount, $row['dien_thoai'] ?? '');
+            $rowCount++;
+        }
+
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="DanhSachNhaCungCap.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+        $writer->save('php://output');
+        exit;
+    }
+
+
     /**
      * Endpoint: POST /Api/Nhacungcap/import
      * Cột Excel: A ma_nha_cung_cap, B ten_nha_cung_cap, C dia_chi, D dien_thoai
      */
-    public function import() {
+    public function import()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use POST']);
         }
@@ -339,4 +350,3 @@ class Nhacungcap extends api_controller {
         $this->sendResponse(200, $response);
     }
 }
-?>

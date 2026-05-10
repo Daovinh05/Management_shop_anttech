@@ -8,7 +8,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($data['title']) ? $data['title'] : 'Trang chủ - TechZone'; ?></title>
-    
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="TechZone - Điện thoại & Laptop Chính Hãng">
     <meta property="og:description" content="Mua sắm điện thoại, laptop chính hãng giá tốt nhất">
@@ -16,7 +16,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     <meta property="og:url" content="<?php echo UrlHelper::baseUrl(); ?>">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="TechZone">
-    
+
     <base href="<?php echo UrlHelper::baseUrl(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -916,7 +916,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     <header class="main-header">
         <div class="container">
             <a href="<?php echo UrlHelper::url('Khachhang'); ?>" class="logo"><i class="fa-brands fa-instalod"></i>
-                TECHZONE</a>
+                ANTTECH</a>
 
             <div class="middle-section">
                 <div class="search-box">
@@ -1000,7 +1000,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                             <a href="<?php echo UrlHelper::url('Khachhang/lichsumuahang'); ?>"><i
                                     class="fa-solid fa-box-open"></i> Đơn hàng của tôi</a>
                             <div class="divider"></div>
-                                <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="js-api-logout" data-redirect="<?php echo UrlHelper::url('Home'); ?>" style="color: #d70018;"><i
+                            <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="js-api-logout" data-redirect="<?php echo UrlHelper::url('Home'); ?>" style="color: #d70018;"><i
                                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
                         <?php else: ?>
                             <a href="<?php echo UrlHelper::url('Login'); ?>"><i class="fa-solid fa-user"></i> Đăng nhập</a>
@@ -1081,6 +1081,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
     if (isset($data['page'])) {
         $pagePath = __DIR__ . '/Pages/' . $data['page'] . '.php';
         if (file_exists($pagePath)) {
+            extract($data);
             include_once $pagePath;
         } else {
             echo "<div class='alert alert-danger'>Trang không tồn tại!</div>";
@@ -1089,7 +1090,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         echo "<div class='alert alert-danger'>Không có nội dung để hiển thị!</div>";
     }
     ?>
-        <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
+    <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
 
     <footer class="main-footer">
         <div class="container">
@@ -1104,7 +1105,6 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                         <li><strong>Cơ sở 1:</strong> 221 Vũ Tông Phan - Thanh Xuân - Hà Nội</li>
                         <li><strong>Cơ sở 2:</strong> 17 Nguyễn Phong Sắc - Cầu Giấy - Hà Nội</li>
                         <li><strong>Cơ sở 3:</strong> 145 Minh Khai - Hai Bà Trưng - Hà Nội</li>
-                        <li><strong>Cơ sở 4:</strong> 142 Quang Trung - Hà Đông - Hà Nội</li>
                         <li><strong>Gọi mua hàng:</strong> 0825.303.888 (8h00 - 22h00)</li>
                         <li><strong>Gọi bảo hành:</strong> 0922.702.888 (8h00 - 21h00)</li>
                     </ul>
@@ -1184,18 +1184,18 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             var redirectUrl = logoutLink.getAttribute('data-redirect') || '<?php echo UrlHelper::url('Home'); ?>';
 
             fetch('<?php echo UrlHelper::url('Api/Auth/logout'); ?>', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'same-origin'
-            })
-            .then(function() {
-                window.location.href = redirectUrl;
-            })
-            .catch(function() {
-                window.location.href = logoutLink.getAttribute('href') || redirectUrl;
-            });
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function() {
+                    window.location.href = redirectUrl;
+                })
+                .catch(function() {
+                    window.location.href = logoutLink.getAttribute('href') || redirectUrl;
+                });
         });
 
         // --- 2. XỬ LÝ GIAO DIỆN CƠ BẢN ---
@@ -1255,7 +1255,10 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                     renderMiniCart(items, summary);
                     updateCartBadge(summary.total_quantity || 0);
                 } else if (xhr.status === 401) {
-                    renderMiniCart([], { total_quantity: 0, subtotal: 0 });
+                    renderMiniCart([], {
+                        total_quantity: 0,
+                        subtotal: 0
+                    });
                     updateCartBadge(0);
                 }
             };
@@ -1388,10 +1391,10 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                 var img = item.img_bien_the ? (baseUrl + 'Public/Pictures/bien_the/' + encodeURIComponent(item.img_bien_the)) : (baseUrl + 'Public/Images/no-image.png');
                 var href = '<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>' + productId;
 
-                html += '<a class="search-suggest-item" href="' + href + '">'
-                    + '<img class="search-suggest-thumb" src="' + img + '" alt="">'
-                    + '<span class="search-suggest-name">' + khEscapeHtml(productName) + '</span>'
-                    + '</a>';
+                html += '<a class="search-suggest-item" href="' + href + '">' +
+                    '<img class="search-suggest-thumb" src="' + img + '" alt="">' +
+                    '<span class="search-suggest-name">' + khEscapeHtml(productName) + '</span>' +
+                    '</a>';
             }
 
             box.innerHTML = html;
@@ -1422,10 +1425,10 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                 params.set('q', keyword);
                 params.set('page', '1');
 
-                html += '<a class="search-suggest-history-item" href="' + khSearchHomeUrl + '?' + params.toString() + '">'
-                    + '<i class="fa-solid fa-clock-rotate-left"></i>'
-                    + '<span>' + khEscapeHtml(keyword) + '</span>'
-                    + '</a>';
+                html += '<a class="search-suggest-history-item" href="' + khSearchHomeUrl + '?' + params.toString() + '">' +
+                    '<i class="fa-solid fa-clock-rotate-left"></i>' +
+                    '<span>' + khEscapeHtml(keyword) + '</span>' +
+                    '</a>';
             }
 
             box.innerHTML = html;
@@ -1433,7 +1436,9 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         }
 
         function khLoadSearchHistory() {
-            return fetch(khSearchHistoryApi, { method: 'GET' })
+            return fetch(khSearchHistoryApi, {
+                    method: 'GET'
+                })
                 .then(function(response) {
                     if (!response.ok) {
                         throw new Error('Failed to fetch history');
@@ -1519,7 +1524,9 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                     var currentReq = requestCounter;
                     var url = khSearchSuggestApi + '?q=' + encodeURIComponent(keyword) + '&limit=8';
 
-                    fetch(url, { method: 'GET' })
+                    fetch(url, {
+                            method: 'GET'
+                        })
                         .then(function(response) {
                             if (!response.ok) {
                                 throw new Error('Failed to fetch suggestions');

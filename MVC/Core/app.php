@@ -53,7 +53,7 @@ class app
 
         include_once __DIR__ . $controller_dir . $this->controller . '.php';
         $this->controller = new $this->controller;
-        
+
         //Xử lý action
         if (isset($arr[1])) {
             if (method_exists($this->controller, $arr[1])) {

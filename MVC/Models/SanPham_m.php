@@ -55,8 +55,8 @@ class SanPham_m extends connectDB
         $where_clause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
 
         $sql = "SELECT s.*,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia_moi,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia_moi,
                        (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as so_luong_kho,
                        (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
                        dm.ten_danh_muc, th.ten_thuong_hieu
@@ -165,7 +165,7 @@ class SanPham_m extends connectDB
     function SanPham_getAll()
     {
         $sql = "SELECT s.*,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as gia,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia,
                        (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as so_luong_kho,
                        (SELECT ten_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as ten_bien_the,
                        (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
@@ -196,7 +196,7 @@ class SanPham_m extends connectDB
         // Nếu cả ba điều kiện đều rỗng hoặc category_id là "tat-ca" (tức là chọn "Tất cả"), áp dụng logic giống SanPham_getAll()
         if ((empty($category_id) || $category_id === 'tat-ca') && empty($price_range) && (empty($brand_id) || $brand_id === 'tat-ca')) {
             $sql = "SELECT s.*,
-                           (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham LIMIT 1) as gia_moi,
+                           (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia_moi,
                            (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
                            dm.ten_danh_muc, th.ten_thuong_hieu
                     FROM san_pham s
@@ -287,8 +287,8 @@ class SanPham_m extends connectDB
         $escaped = mysqli_real_escape_string($this->con, $search_query);
 
         $sql = "SELECT s.*,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia_moi,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia_moi,
                        (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as so_luong_kho,
                        (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
                        dm.ten_danh_muc, th.ten_thuong_hieu
@@ -355,8 +355,8 @@ class SanPham_m extends connectDB
         }
 
         $sql = "SELECT s.*,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia,
-                       (SELECT gia FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as gia_moi,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia,
+                       (SELECT MIN(gia) FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND gia IS NOT NULL) as gia_moi,
                        (SELECT so_luong_kho FROM bien_the WHERE ma_san_pham = s.ma_san_pham ORDER BY ma_bien_the LIMIT 1) as so_luong_kho,
                        (SELECT img_bien_the FROM bien_the WHERE ma_san_pham = s.ma_san_pham AND img_bien_the != '' AND img_bien_the IS NOT NULL ORDER BY ma_bien_the LIMIT 1) as img_bien_the,
                        dm.ten_danh_muc, th.ten_thuong_hieu
@@ -368,7 +368,7 @@ class SanPham_m extends connectDB
 
         return mysqli_query($this->con, $sql);
     }
-    
+
     // Hàm lấy tổng số lượng sản phẩm
     function SanPham_getTotalCount()
     {
@@ -377,7 +377,7 @@ class SanPham_m extends connectDB
         $row = mysqli_fetch_assoc($result);
         return $row['total'];
     }
-    
+
     // Hàm lấy sản phẩm có phân trang
     function SanPham_getAllWithPagination($page, $limit)
     {

@@ -800,7 +800,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         height: 32px;
         overflow: hidden;
     }
-    
+
     /* Pagination Styles */
     .pagination {
         display: inline-flex;
@@ -811,7 +811,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         background: white;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    
+
     .pagination-btn {
         display: inline-block;
         padding: 8px 12px;
@@ -825,25 +825,25 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         min-width: 40px;
         text-align: center;
     }
-    
+
     .pagination-btn:hover {
         background: #f5f5f7;
         border-color: var(--primary-green);
         color: var(--primary-green);
     }
-    
+
     .pagination-btn.active {
         background: var(--primary-green);
         color: white;
         border-color: var(--primary-green);
     }
-    
+
     .pagination-btn.disabled {
         color: #999;
         border-color: #ddd;
         cursor: not-allowed;
     }
-    
+
     .pagination-ellipsis {
         padding: 8px 4px;
         color: #999;
@@ -923,7 +923,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     let currentSearchKeyword = '';
     const pageSize = 12;
 
-    // Handle price filter selection
+    // bộ lọc giá
     const priceFilters = document.querySelectorAll('input[name="price"]');
     priceFilters.forEach(filter => {
         filter.addEventListener('change', function() {
@@ -936,7 +936,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         });
     });
 
-    // Handle category filter selection
+    // bộ lọc danh mục
     const categoryFilters = document.querySelectorAll('input[name="category"]');
     categoryFilters.forEach(filter => {
         filter.addEventListener('change', function() {
@@ -954,7 +954,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         });
     });
 
-    // Handle brand filter selection
+    // bộ lọc thương hiệu
     const brandFilters = document.querySelectorAll('input[name="brand"]');
     brandFilters.forEach(filter => {
         filter.addEventListener('change', function() {
@@ -991,7 +991,9 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         const productGrid = document.querySelector('.product-grid');
         productGrid.innerHTML = '<div class="loading">Đang tải sản phẩm...</div>';
 
-        fetch(buildApiUrl(), { method: 'GET' })
+        fetch(buildApiUrl(), {
+                method: 'GET'
+            })
             .then(response => {
                 console.log('Response status:', response.status);
                 if (!response.ok) {
@@ -1007,7 +1009,11 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 }
 
                 const items = data.data?.items || [];
-                const pagination = data.data?.pagination || { total: 0, total_pages: 0, page: 1 };
+                const pagination = data.data?.pagination || {
+                    total: 0,
+                    total_pages: 0,
+                    page: 1
+                };
 
                 updateProductGrid(items);
                 updatePagination(pagination);
@@ -1134,9 +1140,9 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
             rankedProducts.forEach(product => {
                 const href = `<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>${product.ma_san_pham || ''}`;
-                const img = product.img_bien_the
-                    ? `${baseUrl}Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}`
-                    : `${baseUrl}Public/Images/no-image.png`;
+                const img = product.img_bien_the ?
+                    `${baseUrl}Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}` :
+                    `${baseUrl}Public/Images/no-image.png`;
 
                 suggestionsHtml += `
                     <a href="${href}" class="suggestion-product">
@@ -1163,7 +1169,9 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
     function fetchNoResultSuggestions() {
         const recommendationUrl = `${STOREFRONT_API_BASE}?page=1&limit=20`;
 
-        fetch(recommendationUrl, { method: 'GET' })
+        fetch(recommendationUrl, {
+                method: 'GET'
+            })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch suggestions');
@@ -1171,9 +1179,8 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 return response.json();
             })
             .then(data => {
-                const items = data && data.success && data.data && Array.isArray(data.data.items)
-                    ? data.data.items
-                    : [];
+                const items = data && data.success && data.data && Array.isArray(data.data.items) ?
+                    data.data.items : [];
                 renderNoResultSuggestions(items);
             })
             .catch(() => {
