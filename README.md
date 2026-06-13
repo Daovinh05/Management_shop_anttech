@@ -29,6 +29,38 @@ Dự án được xây dựng dựa trên mô hình **MVC (Model-View-Controller
 
 ## ⚙️ Hướng dẫn cài đặt & Chạy dự án
 
+### Chạy nhanh bằng Docker
+
+Yêu cầu: Docker Desktop hoặc Docker Engine có Docker Compose.
+
+```bash
+docker compose up -d --build
+```
+
+Sau khi các container khởi động:
+
+- Website: `http://localhost:8080/Banhang/`
+- REST API: `http://localhost:8080/Banhang/Api/`
+- phpMyAdmin: `http://localhost:8081`
+
+Database `banhang` và dữ liệu mẫu trong `banhang.sql` sẽ được import tự động ở lần chạy đầu tiên. Cấu hình mặc định có thể được thay đổi bằng cách sao chép các biến cần dùng từ `.env.docker.example` vào `.env`.
+
+Mã nguồn được đóng gói vào image. Sau khi sửa code, chạy lại `docker compose up -d --build` để cập nhật container.
+
+Các lệnh thường dùng:
+
+```bash
+# Xem log
+docker compose logs -f
+
+# Dừng dự án
+docker compose down
+
+# Xóa cả database volume và khởi tạo lại dữ liệu mẫu
+docker compose down -v
+docker compose up -d --build
+```
+
 ### Bước 1: Chuẩn bị mã nguồn
 Tải hoặc clone thư mục dự án vào thư mục gốc của server (ví dụ: `htdocs` trong XAMPP).
 Đường dẫn dự kiến: `/Applications/XAMPP/xamppfiles/htdocs/Banhang/`
