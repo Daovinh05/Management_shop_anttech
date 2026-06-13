@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost
--- Thời gian đã tạo: Th4 22, 2026 lúc 06:01 AM
+-- Thời gian đã tạo: Th6 13, 2026 lúc 07:26 PM
 -- Phiên bản máy phục vụ: 10.4.27-MariaDB
 -- Phiên bản PHP: 7.4.33
 
@@ -83,7 +83,6 @@ INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `img_bien_
 ('BT054', 'SP022', '8GB/64GB/Xanh', 'iphone_air_3_2.webp', 'Xanh Sky', '8GB', '128GB', '13500000.00', 38),
 ('BT055', 'SP022', '12GB/256GB/Đen', 'iphone_air_2.webp', 'Đen', '12GB', '256GB', '19990000.00', 94),
 ('BT056', 'SP03', '6GB/256GB/Đen', 'dien_thoai_samsung_galaxy_s25_ultra_3__6.webp', 'Đen', '6GB', '256GB', '27900000.00', 25),
-('BT057', 'SP07', 'VanVinhHP', 'Screenshot_2026_02_04_131237.png', 'Đa sắc', '', '', '26062005.00', 1),
 ('BT058', 'SP023', 'Tai nghe Bluetooth Apple Airpods', '4_197_1.webp', 'Trắng', '', '', '4350000.00', 1),
 ('BT059', 'SP06', '8GB/ 256GB/ VNA', 'iphone_17_pro_max_2.webp', 'Bạc ', '8GB', '256GB', '29990000.00', 4),
 ('BT06', 'SP022', '4/256GB/Trắng', 'iphone_17_256gb_4_1770184930.webp', 'Trắng nt', '4GB', '256GB', '24990000.00', 14),
@@ -94,48 +93,55 @@ INSERT INTO `bien_the` (`ma_bien_the`, `ma_san_pham`, `ten_bien_the`, `img_bien_
 ('BT064', 'SP024', '8GB/512GB/Titan', 'iphone_17_pro_max_2_1.webp', 'Titan', '8GB', '512GB', '35900000.00', 6),
 ('BT065', 'SP024', '12GB/512GB/Titan', 'iphone_17_pro_max_2_1.webp', 'Titan', '12GB', '512GB', '37900000.00', 20),
 ('BT07', 'SP16', '64GB RAM 512GB ROM', 'zenbook.jpg', 'Trắng', '64', '512', '30000000.00', 5),
-('BT100', 'SP018', '8GB/256GB/Đen', 'redmi_note_black.webp', 'Đen', '8GB', '256GB', '5200000.00', 12),
-('BT101', 'SP018', '8GB/512GB/Xanh', 'redmi_note_blue.webp', 'Xanh', '8GB', '512GB', '6200000.00', 10),
-('BT102', 'SP019', '12GB/256GB/Đen', 'oppo_black.webp', 'Đen', '12GB', '256GB', '12900000.00', 6),
-('BT103', 'SP019', '12GB/512GB/Xanh', 'oppo_blue.webp', 'Xanh', '12GB', '512GB', '13900000.00', 5),
-('BT104', 'SP021', '16GB/512GB/Đen', 's25_black.webp', 'Đen', '16GB', '512GB', '29900000.00', 7),
+('BT100', 'SP100', '8GB/256GB/Đen', 'redmi_note_black.webp', 'Đen', '8GB', '256GB', '5200000.00', 12),
+('BT101', 'SP101', '8GB/512GB/Xanh', 'redmi_note_blue.webp', 'Xanh', '8GB', '512GB', '6200000.00', 10),
+('BT102', 'SP102', '12GB/256GB/Đen', 'oppo_black.webp', 'Đen', '12GB', '256GB', '12900000.00', 6),
+('BT103', 'SP103', '12GB/512GB/Xanh', 'oppo_blue.webp', 'Xanh', '12GB', '512GB', '13900000.00', 5),
+('BT104', 'SP104', '16GB/512GB/Đen', 's25_black.webp', 'Đen', '16GB', '512GB', '29900000.00', 7),
 ('BT105', 'SP021', '16GB/1TB/Xám', 's25_gray.webp', 'Xám', '16GB', '1TB', '32900000.00', 4),
 ('BT106', 'SP022', '8GB/256GB/Hồng', 'iphone_pink.webp', 'Hồng', '8GB', '256GB', '18900000.00', 11),
 ('BT107', 'SP022', '12GB/512GB/Xanh', 'iphone_blue.webp', 'Xanh', '12GB', '512GB', '23900000.00', 6),
 ('BT108', 'SP024', '12GB/1TB/Đen', 'iphone_pro_black.webp', 'Đen', '12GB', '1TB', '39900000.00', 3),
-('BT109', 'SP024', '12GB/512GB/Vàng', 'iphone_pro_gold.webp', 'Vàng', '12GB', '512GB', '36900000.00', 5),
+('BT109', 'SP109', '12GB/512GB/Vàng', 'iphone_pro_gold.webp', 'Vàng', '12GB', '512GB', '36900000.00', 5),
 ('BT110', 'SP017', '16GB/1TB/Đen', 'tuf_black.webp', 'Đen', '16GB', '1TB', '27900000.00', 4),
-('BT111', 'SP017', '32GB/1TB/Xám', 'tuf_gray.webp', 'Xám', '32GB', '1TB', '32900000.00', 2),
-('BT112', 'SP08', '16GB/1TB/Đen', 'lenovo_black.webp', 'Đen', '16GB', '1TB', '25900000.00', 5),
-('BT113', 'SP08', '32GB/1TB/Xám', 'lenovo_gray.webp', 'Xám', '32GB', '1TB', '30900000.00', 3),
-('BT114', 'SP09', '16GB/1TB/Đen', 'acer_black.webp', 'Đen', '16GB', '1TB', '22900000.00', 6),
-('BT115', 'SP09', '32GB/1TB/Xám', 'acer_gray.webp', 'Xám', '32GB', '1TB', '26900000.00', 2),
-('BT116', 'SP020', '16GB/512GB/Bạc', 'mac_silver.webp', 'Bạc', '16GB', '512GB', '21900000.00', 7),
-('BT117', 'SP020', '24GB/1TB/Xám', 'mac_gray.webp', 'Xám', '24GB', '1TB', '28900000.00', 3),
-('BT118', 'SP01', '32GB/1TB/Đen', 'asus_tuf_black.webp', 'Đen', '32GB', '1TB', '30900000.00', 5),
-('BT119', 'SP01', '16GB/512GB/Xám', 'asus_tuf_gray.webp', 'Xám', '16GB', '512GB', '26900000.00', 6),
-('BT120', 'SP02', 'Đen', 'sony_black.webp', 'Đen', '', '', '6990000.00', 9),
-('BT121', 'SP02', 'Xanh', 'sony_blue.webp', 'Xanh', '', '', '6990000.00', 8),
-('BT122', 'SP023', 'AirPods Gen 2', 'airpods_gen2.webp', 'Trắng', '', '', '2990000.00', 10),
-('BT123', 'SP023', 'AirPods Gen 3', 'airpods_gen3.webp', 'Trắng', '', '', '3990000.00', 7),
-('BT124', 'SP014', 'FreeClip 2 Đen', 'freeclip_black.webp', 'Đen', '', '', '3790000.00', 6),
-('BT125', 'SP014', 'FreeClip 2 Trắng', 'freeclip_white.webp', 'Trắng', '', '', '3790000.00', 5),
-('BT126', 'SP015', '140W Đen', 'anker_black.webp', 'Đen', '', '', '1290000.00', 20),
-('BT127', 'SP015', '140W Trắng', 'anker_white.webp', 'Trắng', '', '', '1290000.00', 18),
-('BT128', 'SP03', '30000mAh/Đen', 'anker_power_black.webp', 'Đen', '', '30000mAh', '1500000.00', 15),
-('BT129', 'SP03', '30000mAh/Trắng', 'anker_power_white.webp', 'Trắng', '', '30000mAh', '1500000.00', 14),
-('BT130', 'SP011', '50mm/Đen', 'amazfit_black.webp', 'Đen', '', '', '9500000.00', 6),
-('BT131', 'SP011', '50mm/Xanh', 'amazfit_blue.webp', 'Xanh', '', '', '9500000.00', 5),
-('BT132', 'SP012', 'Nhựa/Đen', 'band_black.webp', 'Đen', '', '', '690000.00', 20),
-('BT133', 'SP012', 'Nhựa/Hồng', 'band_pink.webp', 'Hồng', '', '', '690000.00', 18),
-('BT134', 'SP016', '12GB/512GB/Đen', 'fold_black.webp', 'Đen', '12GB', '512GB', '45900000.00', 3),
-('BT135', 'SP016', '12GB/1TB/Xám', 'fold_gray.webp', 'Xám', '12GB', '1TB', '49900000.00', 2),
-('BT136', 'SP028', 'Đen', 'sony_xm3_black.webp', 'Đen', '', '', '4990000.00', 6),
-('BT137', 'SP028', 'Bạc', 'sony_xm3_silver.webp', 'Bạc', '', '', '4990000.00', 5),
-('BT138', 'SP029', '16GB/512GB/Xám', 'macneo_gray.webp', 'Xám', '16GB', '512GB', '19900000.00', 7),
-('BT139', 'SP029', '32GB/1TB/Đen', 'macneo_black.webp', 'Đen', '32GB', '1TB', '25900000.00', 4),
-('BT140', 'SP027', 'Bản thường', 'default.webp', 'Đen', '', '', '1000000.00', 10),
-('BT141', 'SP027', 'Bản cao cấp', 'default_pro.webp', 'Đen', '', '', '2000000.00', 5),
+('BT111', 'SP111', '32GB/1TB/Xám', 'tuf_gray.webp', 'Xám', '32GB', '1TB', '32900000.00', 2),
+('BT112', 'SP112', '16GB/1TB/Đen', 'lenovo_black.webp', 'Đen', '16GB', '1TB', '25900000.00', 5),
+('BT113', 'SP113', '32GB/1TB/Xám', 'lenovo_gray.webp', 'Xám', '32GB', '1TB', '30900000.00', 3),
+('BT114', 'SP114', '16GB/1TB/Đen', 'acer_black.webp', 'Đen', '16GB', '1TB', '22900000.00', 6),
+('BT115', 'SP115', '32GB/1TB/Xám', 'acer_gray.webp', 'Xám', '32GB', '1TB', '26900000.00', 2),
+('BT116', 'SP116', '16GB/512GB/Bạc', 'mac_silver.webp', 'Bạc', '16GB', '512GB', '21900000.00', 7),
+('BT117', 'SP117', '24GB/1TB/Xám', 'mac_gray.webp', 'Xám', '24GB', '1TB', '28900000.00', 3),
+('BT118', 'SP118', '32GB/1TB/Đen', 'asus_tuf_black.webp', 'Đen', '32GB', '1TB', '30900000.00', 5),
+('BT119', 'SP119', '16GB/512GB/Xám', 'asus_tuf_gray.webp', 'Xám', '16GB', '512GB', '2900000.00', 6),
+('BT120', 'SP120', 'Đen', 'sony_black.webp', 'Đen', '', '', '6990000.00', 9),
+('BT121', 'SP121', 'Xanh', 'sony_blue.webp', 'Xanh', '', '', '6990000.00', 8),
+('BT122', 'SP122', 'AirPods Gen 2', 'airpods_gen2.webp', 'Trắng', '', '', '2990000.00', 10),
+('BT123', 'SP123', 'AirPods Gen 3', 'airpods_gen3.webp', 'Trắng', '', '', '3990000.00', 7),
+('BT124', 'SP124', 'FreeClip 2 Đen', 'freeclip_black.webp', 'Đen', '', '', '3790000.00', 6),
+('BT125', 'SP125', 'FreeClip 2 Trắng', 'freeclip_white.webp', 'Trắng', '', '', '3790000.00', 5),
+('BT126', 'SP126', '140W Đen', 'anker_black.webp', 'Đen', '', '', '1290000.00', 20),
+('BT127', 'SP127', '140W Trắng', 'anker_white.webp', 'Trắng', '', '', '1290000.00', 18),
+('BT128', 'SP128', '30000mAh/Đen', 'anker_power_black.webp', 'Đen', '', '30000mAh', '1500000.00', 15),
+('BT129', 'SP129', '30000mAh/Trắng', 'anker_power_white.webp', 'Trắng', '', '30000mAh', '1500000.00', 14),
+('BT130', 'SP130', '50mm/Đen', 'amazfit_black.webp', 'Đen', '', '', '9500000.00', 6),
+('BT131', 'SP131', '50mm/Xanh', 'amazfit_blue.webp', 'Xanh', '', '', '9500000.00', 5),
+('BT132', 'SP132', 'Nhựa/Đen', 'band_black.webp', 'Đen', '', '', '690000.00', 20),
+('BT133', 'SP133', 'Nhựa/Hồng', 'band_pink.webp', 'Hồng', '', '', '690000.00', 18),
+('BT134', 'SP134', '12GB/512GB/Đen', 'fold_black.webp', 'Đen', '12GB', '512GB', '4900000.00', 3),
+('BT135', 'SP135', '12GB/1TB/Xám', 'fold_gray.webp', 'Xám', '12GB', '1TB', '49900000.00', 2),
+('BT136', 'SP136', 'Đen', 'sony_xm3_black.webp', 'Đen', '', '', '4990000.00', 6),
+('BT137', 'SP137', 'Bạc', 'sony_xm3_silver.webp', 'Bạc', '', '', '4990000.00', 5),
+('BT138', 'SP138', '16GB/512GB/Xám', 'macneo_gray.webp', 'Xám', '16GB', '512GB', '19900000.00', 7),
+('BT139', 'SP139', '32GB/1TB/Đen', 'macneo_black.webp', 'Đen', '32GB', '1TB', '25900000.00', 4),
+('BT140', 'SP140', 'Bản thường', 'default.webp', 'Đen', '', '', '1000000.00', 10),
+('BT141', 'SP141', 'Bản cao cấp', 'default_pro.webp', 'Đen', '', '', '2000000.00', 5),
+('BT142', 'SP142', '8GB/128GB/Đen', 'iphone16_black.jpg', 'Đen', '8GB', '128GB', '199999.98', 10),
+('BT143', 'SP149', '12GB/256GB/Đen', 'iphone16pro_black.jpg', 'Đen', '12GB', '256GB', '30000000.00', 8),
+('BT144', 'SP147', '8GB/256GB/Xanh', 'samsung_a75_blue.jpg', 'Xanh', '8GB', '256GB', '9000000.00', 12),
+('BT145', 'SP146', '12GB/256GB/Đen', 'xiaomi14_black.jpg', 'Đen', '12GB', '256GB', '2200000.00', 6),
+('BT146', 'SP145', '12GB/256GB/Xám', 'oppo_findx8_gray.jpg', 'Xám', '12GB', '256GB', '1999999.99', 7),
+('BT147', 'SP144', '12GB/256GB/Xanh', 'vivo_x200_blue.jpg', 'Xanh', '12GB', '256GB', '900000.00', 9),
+('BT148', 'SP144', '8GB/256GB/Đen', 'realme_gt6_black.jpg', 'Đen', '8GB', '256GB', '1000000.00', 15),
 ('BT36', 'SP012', 'Hợp kim nhôm/ Đen', 'text_ng_n_32__7_31_3_1.webp', 'Đen', '', '', '690000.00', 11),
 ('BT37', 'SP012', 'Hợp kim nhôm/Hồng', 'text_ng_n_28__8_31_4.webp', 'Hồng', '', '', '649000.00', 9),
 ('BT38', 'SP012', 'Polyme/Hồng', 'text_ng_n_28__8_31_4_1.webp', 'Hồng', '', '', '649000.00', 8),
@@ -172,7 +178,8 @@ CREATE TABLE `chat_conversations` (
 
 INSERT INTO `chat_conversations` (`id`, `conversation_code`, `ma_user`, `guest_token`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'CV6a0d95ea4f1f816a932c', 'U02', 'GST4618034f7e8cfea9b2b5f713', 'active', '2026-04-18 13:42:19', '2026-04-18 14:39:44'),
-(2, 'CV926c4da45995cc0cba3a', 'U01', 'GSTcea140fe6b9c52987c88cf89', 'active', '2026-04-19 16:20:46', '2026-04-19 16:20:46');
+(2, 'CV926c4da45995cc0cba3a', 'U01', 'GSTcea140fe6b9c52987c88cf89', 'active', '2026-04-19 16:20:46', '2026-04-19 16:20:46'),
+(3, 'CVaae80b73c5ab71faa41e', 'U08', 'GST3392cae3cd2320ce2ab124a9', 'active', '2026-06-01 12:05:38', '2026-06-01 12:06:42');
 
 -- --------------------------------------------------------
 
@@ -210,7 +217,15 @@ INSERT INTO `chat_messages` (`id`, `conversation_id`, `ma_user`, `sender`, `mess
 (13, 1, 'U02', 'user', 'những đơn hàng đang chờ duyệt', 'customer_my_orders', '2026-04-18 14:39:44'),
 (14, 1, 'U02', 'bot', 'Dạ, TechZone đã lấy danh sách đơn hàng của tài khoản hiện tại:\n- Mã tài khoản: U02\n- Trạng thái đang xem: Chờ duyệt\n- Số đơn khớp: 15\n- Đang hiển thị: 15 đơn gần nhất\n- DH26 | Chờ duyệt | 26.990.000đ | 2026-04-02 21:44:15\n- DH22 | Chờ duyệt | 18.000.000đ | 2026-04-02 21:16:05\n- DH21 | Chờ duyệt | 74.980.000đ | 2026-04-02 20:53:07\n- DH20 | Chờ duyệt | 0đ | 2026-04-02 20:47:25\n- DH19 | Chờ duyệt | 0đ | 2026-04-02 20:46:11\n- DH18 | Chờ duyệt | 29.990.000đ | 2026-04-02 20:43:50\n- DH17 | Chờ duyệt | 0đ | 2026-04-02 20:43:27\n- DH16 | Chờ duyệt | 30.000.000đ | 2026-04-02 17:43:26\n- DH15 | Chờ duyệt | 26.990.000đ | 2026-04-02 15:50:21\n- DH14 | Chờ duyệt | 20.900.000đ | 2026-04-02 11:13:27\n- DH13 | Chờ duyệt | 4.930.000đ | 2026-04-02 11:12:30\n- DH12 | Chờ duyệt | 11.670.000đ | 2026-04-02 11:12:14\n- DH11 | Chờ duyệt | 29.990.000đ | 2026-04-02 11:12:00\n- DH10 | Chờ duyệt | 29.990.000đ | 2026-04-02 11:11:38\n- DH09 | Chờ duyệt | 0đ | 2026-04-02 10:31:18\nQuý khách muốn em mở chi tiết đơn nào (ví dụ: DH27) để xem sản phẩm và thanh toán không ạ?', 'customer_my_orders', '2026-04-18 14:39:44'),
 (15, 2, 'U01', 'user', 'xin chào', 'greeting', '2026-04-19 16:20:46'),
-(16, 2, 'U01', 'bot', 'Chào TechZone,\n\n- Chúng tôi xin chào bạn một cách thân thiện và chào đón bạn đến với TechZone.\n- Chúng tôi có 6 sản phẩm điện thoại và phụ kiện đang được bán trên hệ thống, bao gồm Iphone Air, Xiaomi Redmi Note 15, IPhone 17 promax, Sạc Anker 20000mAh, Sạc Anker Zolo 3C1A 140W và Aripod.\n- Chúng tôi có 3 sản phẩm điện thoại của thương hiệu Appleee, 2 sản phẩm điện thoại của thương hiệu Xiaomi và 1 sản phẩm điện thoại của thương hiệu Samsung.\n- Chúng tôi có 2 sản phẩm sạc của thương hiệu Anker và 1 sản phẩm vòng đeo tay thông minh của thương hiệu Huawei.\n- Chúng tôi có tổng cộng 6 sản phẩm đang được bán trên hệ thống với giá từ 4.930.000 đồng đến 29.990.000 đồng.\n\nLời mời bước tiếp theo: Bạn có muốn xem chi tiết thông tin về từng sản phẩm không?', 'greeting', '2026-04-19 16:20:46');
+(16, 2, 'U01', 'bot', 'Chào TechZone,\n\n- Chúng tôi xin chào bạn một cách thân thiện và chào đón bạn đến với TechZone.\n- Chúng tôi có 6 sản phẩm điện thoại và phụ kiện đang được bán trên hệ thống, bao gồm Iphone Air, Xiaomi Redmi Note 15, IPhone 17 promax, Sạc Anker 20000mAh, Sạc Anker Zolo 3C1A 140W và Aripod.\n- Chúng tôi có 3 sản phẩm điện thoại của thương hiệu Appleee, 2 sản phẩm điện thoại của thương hiệu Xiaomi và 1 sản phẩm điện thoại của thương hiệu Samsung.\n- Chúng tôi có 2 sản phẩm sạc của thương hiệu Anker và 1 sản phẩm vòng đeo tay thông minh của thương hiệu Huawei.\n- Chúng tôi có tổng cộng 6 sản phẩm đang được bán trên hệ thống với giá từ 4.930.000 đồng đến 29.990.000 đồng.\n\nLời mời bước tiếp theo: Bạn có muốn xem chi tiết thông tin về từng sản phẩm không?', 'greeting', '2026-04-19 16:20:46'),
+(17, 3, 'U08', 'user', 'có bao nhiêu sản phẩm', 'product_lookup', '2026-06-01 12:05:38'),
+(18, 3, 'U08', 'bot', 'Chào TechZone Assistant,\n\n- Hiện tại có 0 sản phẩm trong hệ thống.\n- Bạn có thể thêm sản phẩm mới hoặc kiểm tra lại dữ liệu để đảm bảo thông tin chính xác.\n- Để biết thêm thông tin về sản phẩm hoặc đặt hàng, vui lòng liên hệ với chúng tôi.\n\nLời mời bước tiếp theo: Bạn có muốn thêm sản phẩm mới hay không?', 'product_lookup', '2026-06-01 12:05:38'),
+(19, 3, 'U08', 'user', 'số sản phẩm đang bán', 'admin_inventory_alert', '2026-06-01 12:05:54'),
+(20, 3, 'U08', 'bot', 'Chào TechZone,\n\n- Hiện tại, tổng số sản phẩm đang bán là 0.\n- Không có sản phẩm nào được bán ra trong thời gian gần đây.\n\nLời mời bước tiếp theo: Bạn có thể muốn xem lại danh sách sản phẩm đang tồn kho hoặc xem thông tin chi tiết về từng sản phẩm để có thể đưa ra quyết định kinh doanh phù hợp.', 'admin_inventory_alert', '2026-06-01 12:05:54'),
+(21, 3, 'U08', 'user', 'nnn', 'admin_overview', '2026-06-01 12:06:32'),
+(22, 3, 'U08', 'bot', 'Chào TechZone,\n\n- Tổng số sản phẩm hiện có trong hệ thống là 77 sản phẩm.\n- Số lượng đơn hàng đang chờ xử lý là 0 đơn hàng.\n- Tổng số người dùng đã đăng ký trong hệ thống là 12 người dùng.\n\nXin vui lòng liên hệ với chúng tôi để biết thêm thông tin chi tiết về hệ thống.', 'admin_overview', '2026-06-01 12:06:32'),
+(23, 3, 'U08', 'user', 'tổng số sảnpahram', 'admin_inventory_alert', '2026-06-01 12:06:42'),
+(24, 3, 'U08', 'bot', 'Chào TechZone Assistant.\n\n- Hiện tại, tổng số sản phẩm trong kho của TechZone là 0 sản phẩm.\n- Để có thông tin chính xác hơn về số lượng sản phẩm trong kho, bạn có thể kiểm tra lại dữ liệu hoặc liên hệ với bộ phận quản lý kho của TechZone.\n\nLời mời bước tiếp theo: Bạn có muốn biết thêm thông tin về cách quản lý sản phẩm trong kho của TechZone không?', 'admin_inventory_alert', '2026-06-01 12:06:42');
 
 -- --------------------------------------------------------
 
@@ -275,7 +290,8 @@ INSERT INTO `chi_tiet_don_hang` (`ma_ctdh`, `ma_don_hang`, `ma_bien_the`, `so_lu
 ('CT42', 'DH39', 'BT051', 3, '35990000.00', NULL),
 ('CT43', 'DH40', 'BT04', 1, '29990000.00', NULL),
 ('CT44', 'DH41', 'BT04', 1, '29990000.00', NULL),
-('CT45', 'DH42', 'BT04', 1, '29990000.00', NULL);
+('CT45', 'DH42', 'BT04', 1, '29990000.00', NULL),
+('CT46', 'DH43', 'BT144', 1, '9000000.00', NULL);
 
 -- --------------------------------------------------------
 
@@ -397,7 +413,8 @@ INSERT INTO `dia_chi_giao_hang` (`ma_dia_chi`, `ma_user`, `ho_ten`, `so_dien_tho
 ('DC25', 'U07', 'xuân', '0123454312', 'Hà Nội', 0),
 ('DC26', 'U07', 'xuân', '0123454312', 'Hà Nội', 0),
 ('DC27', 'U07', 'ĐÀO VĂN VINH', '1232421415', 'hải phòng', 0),
-('DC28', 'U07', 'xuân', '0123454312', 'Hà Nội', 0);
+('DC28', 'U07', 'xuân', '0123454312', 'Hà Nội', 0),
+('DC29', 'U07', 'Đào Phúc Dân', '0987654321', 'Thôn 8', 0);
 
 -- --------------------------------------------------------
 
@@ -427,7 +444,7 @@ INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`,
 ('DH01', 'U07', 'DC02', NULL, '59980000.00', '59980000.00', 'dang_giao', '2026-02-05 07:52:05', NULL, NULL, NULL),
 ('DH02', 'U07', 'DC02', 'KM06', '29990000.00', '29490000.00', 'da_huy', '2026-02-05 17:15:55', NULL, NULL, NULL),
 ('DH03', 'U07', 'DC02', 'KM06', '29990000.00', '29490000.00', 'da_huy', '2026-02-05 17:16:01', NULL, NULL, NULL),
-('DH04', 'U07', 'DC02', NULL, '1250000.00', '1250000.00', 'da_huy', '2026-02-05 17:16:27', NULL, NULL, NULL),
+('DH04', 'U07', 'DC02', NULL, '1250000.00', '1250000.00', 'dang_giao', '2026-02-05 17:16:27', NULL, NULL, NULL),
 ('DH05', 'U07', 'DC02', NULL, '4350000.00', '4350000.00', 'da_huy', '2026-02-05 19:37:13', NULL, NULL, NULL),
 ('DH06', 'U07', 'DC02', 'KM06', '649000.00', '149000.00', 'da_huy', '2026-02-06 00:27:37', NULL, NULL, NULL),
 ('DH08', 'U07', 'DC02', 'KM06', '39500000.00', '39000000.00', 'dang_giao', '2026-02-07 05:11:40', NULL, NULL, NULL),
@@ -464,7 +481,8 @@ INSERT INTO `don_hang` (`ma_don_hang`, `ma_user`, `ma_dia_chi`, `ma_khuyen_mai`,
 ('DH39', 'U02', 'DC23', 'KM07', '107970000.00', '107969877.00', 'da_huy', '2026-04-18 18:06:13', NULL, NULL, NULL),
 ('DH40', 'U07', 'DC26', NULL, '29990000.00', '29990000.00', 'da_huy', '2026-04-19 00:58:44', NULL, NULL, NULL),
 ('DH41', 'U07', 'DC27', NULL, '29990000.00', '29990000.00', 'da_huy', '2026-04-19 01:25:52', NULL, NULL, NULL),
-('DH42', 'U07', 'DC28', NULL, '29990000.00', '29990000.00', 'da_huy', '2026-04-19 21:26:25', NULL, NULL, NULL);
+('DH42', 'U07', 'DC28', NULL, '29990000.00', '29990000.00', 'da_huy', '2026-04-19 21:26:25', NULL, NULL, NULL),
+('DH43', 'U07', 'DC29', 'KM07', '9000000.00', '8999877.00', 'da_huy', '2026-04-22 14:24:34', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -588,7 +606,6 @@ INSERT INTO `san_pham` (`ma_san_pham`, `ten_san_pham`, `ma_danh_muc`, `ma_thuong
 ('SP04', 'Macbook m2', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:15:43'),
 ('SP05', 'Apple Watch SE 2023 GPS 40mm', 'DM9', 'TH01', 'NCC01', '2026-02-01 01:17:41'),
 ('SP06', 'iPhone 17 Pro Max 256GB VN/A', 'DM01', 'TH01', 'NCC03', '2026-02-01 01:21:33'),
-('SP07', 'Ao ma', 'DM07', 'TH01', 'NCC02', '2026-02-01 19:19:15'),
 ('SP08', 'Laptop Lenovo LOQ', 'DM02', 'TH06', 'NCC03', '2026-02-02 14:48:38'),
 ('SP09', 'Laptop Acer Gaming Aspire 7', 'DM02', 'TH05', 'NCC04', '2026-02-02 14:54:30'),
 ('SP100', 'iPhone 16', 'DM01', 'TH01', 'NCC01', '2026-04-22 10:52:18'),
@@ -725,7 +742,8 @@ INSERT INTO `thanh_toan` (`ma_giao_dich`, `ma_don_hang`, `phuong_thuc`, `so_tien
 ('GD39', 'DH39', 'cod', '107969877.00', 'chua_thanh_toan', '2026-04-18 18:06:13'),
 ('GD40', 'DH40', 'cod', '29990000.00', 'chua_thanh_toan', '2026-04-19 00:58:44'),
 ('GD41', 'DH41', 'vnpay', '29990000.00', 'chua_thanh_toan', '2026-04-19 01:25:52'),
-('GD42', 'DH42', 'cod', '29990000.00', 'chua_thanh_toan', '2026-04-19 21:26:25');
+('GD42', 'DH42', 'cod', '29990000.00', 'chua_thanh_toan', '2026-04-19 21:26:25'),
+('GD43', 'DH43', 'vnpay', '8999877.00', 'chua_thanh_toan', '2026-04-22 14:24:34');
 
 -- --------------------------------------------------------
 
@@ -789,8 +807,8 @@ INSERT INTO `users` (`ma_user`, `ten_user`, `password`, `full_name`, `avatar`, `
 ('U07', 'minh', '1234', 'Trần Văn Minh', 'lu__n_h___i_1775038753.jpg', '12345minh@gmail.com', 'khach_hang', '0123242141', '2026-01-30 21:31:40'),
 ('U08', 'admin', '123', 'Lê Văn Hùng', 'z7287730553840_9d9e33116de5a88d90a36f0f66c705e1_1770294998.jpg', 'hung@gmail.com', 'admin', '0903333333', '2026-01-30 21:31:40'),
 ('U09', 'dan', '1234', 'Đào Phúc Dân', 'Home_Tet_1775037849.jpg', 'dunghiep6b@gmail.com', 'admin', '0862757951', '2026-02-03 08:20:14'),
-('U10', 'admin', '123', 'Đào Phúc Dânn', 'avatar_1775035870.jpg', 'dunghiep6a@gmail.com', 'admin', '0902222223', '2026-04-01 16:31:10'),
-('U11', 'dann', '123456', 'Đào Phúc Dân', 'Screenshot_2025_02_21_233857_1775223454.png', 'minh@gmail.com', 'admin', '0902222224', '2026-04-01 19:05:54'),
+('U10', 'adamin1', '123', 'Đào Phúc Dânn', '4_1776843405.png', 'dunghiep6a@gmail.com', 'admin', '0902222223', '2026-04-01 16:31:10'),
+('U11', 'dann', '123456', 'Đào Phúc Dân', '3_1776843394.png', 'minh@gmail.com', 'admin', '0902222224', '2026-04-01 19:05:54'),
 ('U12', 'thanhthanh', '123', 'thanhh', 'Screenshot_2025_10_07_151438_1775223445.png', 'thanhthanh@gmail.com', 'khach_hang', '0886774231', '2026-04-02 22:23:35'),
 ('U13', 'minhthu', '123', 'minh thư123', 'qanh_1775223428.png', 'minhthu@gmail.com', 'admin', '0123456783', '2026-04-03 13:49:10');
 
@@ -931,13 +949,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `chat_conversations`
 --
 ALTER TABLE `chat_conversations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `chat_messages`
 --
 ALTER TABLE `chat_messages`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
