@@ -575,20 +575,19 @@ class Khachhang extends controller
     // Xử lý kết quả thanh toán từ VNPAY
     function xulythanhtoan()
     {
-        // Include VNPAY helper
-        require_once __DIR__ . '/../Core/VnPayHelper.php';
+        require_once __DIR__ . '/../../Core/VnPayHelper.php';
 
-        $vnp_SecureHash = $_GET['vnp_SecureHash'];
-        $vnp_ResponeCode = $_GET['vnp_ResponseCode'];
-        $vnp_TxnRef = $_GET['vnp_TxnRef'];
+        $responseCode = trim((string)($_GET['vnp_ResponseCode'] ?? ''));
+        $transactionStatus = trim((string)($_GET['vnp_TransactionStatus'] ?? ''));
+        $orderId = trim((string)($_GET['vnp_TxnRef'] ?? ''));
+        $hasRequiredData = $responseCode !== '' && $orderId !== '' && isset($_GET['vnp_SecureHash']);
 
-        // Verify payment return
-        if (VnPayHelper::verifyPaymentReturn($_GET)) {
-            if ($vnp_ResponeCode == '00') {
+        if ($hasRequiredData && VnPayHelper::verifyPaymentReturn($_GET)) {
+            if ($responseCode === '00' && ($transactionStatus === '' || $transactionStatus === '00')) {
                 // Thanh toán thành công
                 // Cập nhật trạng thái đơn hàng thành 'da_thanh_toan'
                 $don_hang_model = $this->model("DonHang_m");
-                $don_hang = $don_hang_model->DonHang_getById($vnp_TxnRef);
+                $don_hang = $don_hang_model->DonHang_getById($orderId);
                 $dh_info = mysqli_fetch_assoc($don_hang);
 
                 if ($dh_info) {
@@ -600,7 +599,7 @@ class Khachhang extends controller
                     $thanh_toan_model = $this->model("ThanhToan_m");
 
                     // Cập nhật giao dịch thanh toán hiện có thay vì tạo mới
-                    $existing_payment = $thanh_toan_model->ThanhToan_getByOrder($vnp_TxnRef);
+                    $existing_payment = $thanh_toan_model->ThanhToan_getByOrder($orderId);
                     if ($existing_payment && mysqli_num_rows($existing_payment) > 0) {
                         // Lấy mã giao dịch hiện có
                         $payment_row = mysqli_fetch_assoc($existing_payment);
@@ -608,7 +607,7 @@ class Khachhang extends controller
 
                         // Cập nhật trạng thái thanh toán
                         $amount = is_numeric($dh_info['thanh_toan']) ? (float)$dh_info['thanh_toan'] : (float)$dh_info['tong_tien_hang'];
-                        $thanh_toan_model->ThanhToan_update($ma_giao_dich, $vnp_TxnRef, 'VNPAY', $amount, 'da_thanh_toan');
+                        $thanh_toan_model->ThanhToan_update($ma_giao_dich, $orderId, 'VNPAY', $amount, 'da_thanh_toan');
                     } else {
                         // Nếu không có giao dịch hiện có, tạo mới (trường hợp hiếm)
                         // Generate sequential transaction ID
@@ -625,29 +624,50 @@ class Khachhang extends controller
                         $ma_thanh_toan = 'GD' . str_pad($new_number, 2, '0', STR_PAD_LEFT); // Format as GD01, GD02, etc.
 
                         $so_tien = is_numeric($dh_info['thanh_toan']) ? (float)$dh_info['thanh_toan'] : (float)$dh_info['tong_tien_hang'];
-                        $thanh_toan_model->thanhtoan_ins($ma_thanh_toan, $vnp_TxnRef, 'VNPAY', $so_tien, 'da_thanh_toan', date('Y-m-d H:i:s'));
+                        $thanh_toan_model->thanhtoan_ins($ma_thanh_toan, $orderId, 'VNPAY', $so_tien, 'da_thanh_toan', date('Y-m-d H:i:s'));
                     }
                 }
 
-                $this->view('Khachhang_Master', [
-                    'page' => 'Khachhang/khachhang_camon',
-                    'ma_don_hang' => $vnp_TxnRef,
-                    'success_message' => 'Thanh toán bằng VNPAY thành công!'
-                ]);
-            } else {
-                // Thanh toán thất bại
-                $this->view('Khachhang_Master', [
-                    'page' => 'Khachhang/khachhang_thanhtoan_thatbai',
-                    'error_message' => 'Thanh toán thất bại. Vui lòng thử lại.'
-                ]);
+                header('Location: ' . $this->url('Khachhang/camon/' . rawurlencode($orderId)));
+                exit;
             }
+
+            $don_hang_model = $this->model("DonHang_m");
+            $don_hang = $don_hang_model->DonHang_getById($orderId);
+            $order = $don_hang ? mysqli_fetch_assoc($don_hang) : null;
+
+            if ($order && ($order['trang_thai_don_hang'] ?? '') === 'cho_duyet') {
+                $don_hang_model->DonHang_cancelWithRestock($orderId);
+            }
+
+            $thanh_toan_model = $this->model("ThanhToan_m");
+            $paymentResult = $thanh_toan_model->ThanhToan_getByOrder($orderId);
+            if ($paymentResult && mysqli_num_rows($paymentResult) > 0) {
+                $payment = mysqli_fetch_assoc($paymentResult);
+                $thanh_toan_model->ThanhToan_update(
+                    $payment['ma_giao_dich'],
+                    $orderId,
+                    $payment['phuong_thuc'],
+                    $payment['so_tien_thanh_toan'],
+                    'chua_thanh_toan'
+                );
+            }
+
+            $_SESSION['payment_notice'] = [
+                'type' => 'warning',
+                'message' => $responseCode === '24'
+                    ? 'Bạn đã hủy thanh toán VNPAY cho đơn ' . $orderId . '. Đơn hàng đã được hủy và hoàn kho.'
+                    : 'Thanh toán VNPAY không thành công cho đơn ' . $orderId . '.'
+            ];
         } else {
-            // Lỗi xác thực
-            $this->view('Khachhang_Master', [
-                'page' => 'Khachhang/khachhang_thanhtoan_thatbai',
-                'error_message' => 'Lỗi xác thực thanh toán. Vui lòng thử lại.'
-            ]);
+            $_SESSION['payment_notice'] = [
+                'type' => 'error',
+                'message' => 'Không thể xác thực kết quả thanh toán VNPAY.'
+            ];
         }
+
+        header('Location: ' . $this->url('Khachhang/lichsumuahang'));
+        exit;
     }
 
     // Trang cảm ơn sau khi đặt hàng thành công (COD/REST redirect)
@@ -680,10 +700,14 @@ class Khachhang extends controller
             'da_huy' => 0
         ];
 
+        $payment_notice = $_SESSION['payment_notice'] ?? null;
+        unset($_SESSION['payment_notice']);
+
         $this->view('Khachhang_Master', [
             'page' => 'Khachhang/khachhang_lichsu',
             'don_hang' => [],
-            'status_counts' => $status_counts
+            'status_counts' => $status_counts,
+            'payment_notice' => $payment_notice
         ]);
     }
 

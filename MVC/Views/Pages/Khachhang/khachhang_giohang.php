@@ -829,39 +829,32 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.success) {
-                            // 1. Cập nhật thành tiền của dòng sản phẩm đó
-                            var newSubtotal = newQty * don_gia;
-                            var subtotalCell = document.getElementById('subtotal_' + ma_bien_the);
-                            if (subtotalCell) {
-                                subtotalCell.innerText = formatCurrency(newSubtotal);
-                            }
-
-                            // 2. Cập nhật dữ liệu trong Checkbox (để hàm updateTotal tính toán đúng)
-                            var checkbox = document.querySelector(`.item-checkbox[value="${ma_bien_the}"]`);
-                            if (checkbox) {
-                                checkbox.setAttribute('data-quantity', newQty);
-                            }
-
-                            // 3. Đồng bộ lại toàn bộ dữ liệu từ API
-                            loadCartDataFromApi();
-
-                            var headerBadge = document.getElementById('cartBadge');
-                            var totalQty = response && response.data && response.data.summary ? response.data.summary.total_quantity : undefined;
-                            if (headerBadge && totalQty !== undefined) {
-                                headerBadge.innerText = totalQty;
-                            }
-                            
-                        } else {
-                            alert("Lỗi: " + response.message);
-                            // Reset lại số lượng cũ nếu lỗi
-                            input.value = currentQty; 
-                        }
-                    }
+                if (xhr.readyState !== 4) {
+                    return;
                 }
+
+                var response = {};
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {}
+
+                if (xhr.status === 200 && response.success) {
+                    var cartData = response.data || {};
+                    var items = cartData.items || [];
+                    var summary = cartData.summary || {};
+
+                    // Dùng cùng response cập nhật bảng, mini-item-price và badge.
+                    renderCartTable(items);
+                    updateCartBadge(summary.total_quantity || 0);
+
+                    if (typeof renderMiniCart === 'function') {
+                        renderMiniCart(items, summary);
+                    }
+                    return;
+                }
+
+                input.value = currentQty;
+                alert("Lỗi: " + (response.message || "Không thể cập nhật số lượng"));
             };
             
             xhr.send("so_luong=" + encodeURIComponent(newQty));

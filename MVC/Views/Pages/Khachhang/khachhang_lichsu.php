@@ -479,6 +479,11 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 </style>
 <div class="container">
     <div class="order-history-wrapper">
+        <?php if (!empty($data['payment_notice']['message'])): ?>
+            <div style="margin-bottom:16px;padding:14px 16px;border-radius:6px;background:#fff3cd;color:#664d03;border:1px solid #ffecb5;">
+                <?php echo htmlspecialchars($data['payment_notice']['message']); ?>
+            </div>
+        <?php endif; ?>
         <h1 class="page-title">Đơn hàng của bạn</h1>
 
         <div class="order-tabs">

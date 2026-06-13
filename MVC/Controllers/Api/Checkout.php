@@ -202,7 +202,9 @@ class Checkout extends api_controller {
             }
         }
 
-        if (count($stockErrors) > 0) {
+        // Trang khoi tao checkout van hien cac san pham hop le neu chi mot phan vuot ton kho.
+        // Khi dat hang that su, giu validate nghiem ngat de tranh dat sai so luong.
+        if (count($stockErrors) > 0 && (!$fromQuery || count($items) === 0)) {
             return ['error' => 'Mot so san pham vuot ton kho', 'stock_errors' => $stockErrors];
         }
 
@@ -235,7 +237,8 @@ class Checkout extends api_controller {
             'subtotal' => $subtotal,
             'discount' => $discount,
             'final_total' => $finalTotal,
-            'ma_khuyen_mai' => ($ma_khuyen_mai !== '' ? $ma_khuyen_mai : null)
+            'ma_khuyen_mai' => ($ma_khuyen_mai !== '' ? $ma_khuyen_mai : null),
+            'stock_errors' => $stockErrors
         ];
     }
 
@@ -1071,7 +1074,7 @@ class Checkout extends api_controller {
                     $ma_don_hang,
                     $paymentRow['phuong_thuc'],
                     $paymentRow['so_tien_thanh_toan'],
-                    'that_bai'
+                    'chua_thanh_toan'
                 );
             }
         }
@@ -1124,7 +1127,7 @@ class Checkout extends api_controller {
                 $ma_don_hang,
                 $paymentRow['phuong_thuc'],
                 $paymentRow['so_tien_thanh_toan'],
-                'that_bai'
+                'chua_thanh_toan'
             );
         }
 
