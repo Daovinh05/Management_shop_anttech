@@ -943,6 +943,13 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     <div class="order-review-section">
                         <h3 class="section-title">Đơn hàng của bạn</h3>
 
+                        <div id="checkoutStockWarning" class="alert-custom alert-error" style="display:none; margin-bottom:15px;">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <ul class="alert-list mb-0" id="checkoutStockWarningList"></ul>
+                        </div>
+
                         <div class="order-review-box">
                             <table class="order-table" id="orderTable">
                                 <thead>
@@ -1254,6 +1261,28 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 orderTableBody.innerHTML = rows.join('');
             }
 
+            function showCheckoutStockWarnings(errors, message) {
+                const warningBox = document.getElementById('checkoutStockWarning');
+                const warningList = document.getElementById('checkoutStockWarningList');
+                if (!warningBox || !warningList) return;
+
+                const messages = (errors || []).slice();
+                if (messages.length === 0 && message) {
+                    messages.push(message);
+                }
+
+                if (messages.length === 0) {
+                    warningBox.style.display = 'none';
+                    warningList.innerHTML = '';
+                    return;
+                }
+
+                warningList.innerHTML = messages.map(function(item) {
+                    return '<li>' + escapeHtml(item) + '</li>';
+                }).join('');
+                warningBox.style.display = 'flex';
+            }
+
             function applyFormDefaults(formDefaults) {
                 if (!formDefaults) return;
 
@@ -1308,6 +1337,15 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     })
                     .then(function(json) {
                         if (!json || !json.success || !json.data) {
+                            renderOrderItems([], {
+                                subtotal: 0,
+                                discount: 0,
+                                final_total: 0
+                            });
+                            showCheckoutStockWarnings(
+                                json && Array.isArray(json.errors) ? json.errors : [],
+                                json && json.message ? json.message : 'Không thể tải dữ liệu thanh toán'
+                            );
                             return;
                         }
 
@@ -1317,6 +1355,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         const promotions = checkoutInitPayload.promotions || [];
                         const selectedPromotion = checkoutInitPayload.selected_promotion || null;
                         const selectedPromotionId = selectedPromotion ? (selectedPromotion.ma_khuyen_mai || '') : (checkoutData.ma_khuyen_mai || '');
+                        const stockErrors = checkoutData.stock_errors || [];
 
                         subtotalValue = Number(checkoutData.subtotal || 0);
 
@@ -1330,6 +1369,18 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                         bindVoucherChange();
 
                         applyFormDefaults(checkoutInitPayload.form_defaults || {});
+                        showCheckoutStockWarnings(stockErrors);
+
+                        const selectedItemsInput = checkoutForm
+                            ? checkoutForm.querySelector('input[name="selected_items_str"]')
+                            : null;
+                        if (selectedItemsInput && !checkoutData.is_buy_now) {
+                            selectedItemsInput.value = items.map(function(item) {
+                                return item.ma_bien_the || '';
+                            }).filter(function(id) {
+                                return id !== '';
+                            }).join(',');
+                        }
                     })
                     .catch(function() {
                         // fallback giữ dữ liệu render từ PHP hiện tại
