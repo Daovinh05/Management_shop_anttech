@@ -9,166 +9,192 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        body {
-            min-height: 100vh;
-            background: url('https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    body {
+        min-height: 100vh;
+        background: url('https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .container {
-            width: 900px;
-            background: white;
-            background: rgba(255, 255, 255, 0.6);
-            /* More transparent white for better readability */
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: flex;
-            overflow: hidden;
-        }
+    .container {
+        width: 900px;
+        background: white;
+        background: rgba(255, 255, 255, 0.6);
+        /* More transparent white for better readability */
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        display: flex;
+        overflow: hidden;
+    }
 
-        /* LEFT - REGISTER */
-        .left {
-            width: 50%;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.3);
-            /* More transparent white */
-        }
+    /* LEFT - REGISTER */
+    .left {
+        width: 50%;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.3);
+        /* More transparent white */
+    }
 
-        .logo {
-            font-size: 40px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+    .logo {
+        font-size: 40px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
 
-        .left h2 {
-            text-align: center;
-            margin-bottom: 5px;
-        }
+    .left h2 {
+        text-align: center;
+        margin-bottom: 5px;
+    }
 
-        .left p {
-            text-align: center;
-            color: #666;
-            margin-bottom: 25px;
-        }
+    .left p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 25px;
+    }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
+    .form-group {
+        margin-bottom: 18px;
+    }
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            font-size: 15px;
-        }
+    input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        font-size: 15px;
+    }
 
-        input:focus {
-            outline: none;
-            border-color: #6f4e37;
-        }
+    input:focus {
+        outline: none;
+        border-color: #6f4e37;
+    }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #6f4e37;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+    .password-field {
+        position: relative;
+    }
 
-        .btn:hover {
-            background: #5a3e2b;
-        }
+    .password-field input {
+        padding-right: 44px;
+    }
 
-        .error {
-            background: #fdecea;
-            color: #b71c1c;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+    .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        padding: 4px;
+        border: 0;
+        background: transparent;
+        color: #666;
+        font-size: 16px;
+        cursor: pointer;
+    }
 
-        .success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+    .toggle-password:focus-visible {
+        outline: 2px solid #6f4e37;
+        border-radius: 4px;
+    }
 
-        /* RIGHT - INFO */
-        .right {
-            width: 50%;
-            background: rgba(111, 78, 55, 0.7);
-            /* More transparent coffee brown */
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: #6f4e37;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-        .right i {
-            font-size: 60px;
-            margin-bottom: 15px;
-        }
+    .btn:hover {
+        background: #5a3e2b;
+    }
 
-        .right h2 {
-            margin-bottom: 10px;
-        }
+    .error {
+        background: #fdecea;
+        color: #b71c1c;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
 
-        .right p {
-            margin-bottom: 20px;
-        }
+    .success {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
 
-        .right ul {
-            list-style: none;
-            text-align: center;
-            margin-top: 40px;
-            padding-left: 0;
-        }
+    /* RIGHT - INFO */
+    .right {
+        width: 50%;
+        background: rgba(111, 78, 55, 0.7);
+        /* More transparent coffee brown */
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
 
-        .right ul li {
-            margin-bottom: 20px;
-            font-size: 15px;
-            text-align: center;
-        }
+    .right i {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
 
-        .right ul li::before {
-            /* content: "✔ "; */
-            content: " - ";
+    .right h2 {
+        margin-bottom: 10px;
+    }
 
-            color: #c8e6c9;
-            font-weight: bold;
-        }
+    .right p {
+        margin-bottom: 20px;
+    }
 
-        .right ul li::after {
-            /* content: "✔ "; */
-            content: " - ";
+    .right ul {
+        list-style: none;
+        text-align: center;
+        margin-top: 40px;
+        padding-left: 0;
+    }
 
-            color: #c8e6c9;
-            font-weight: bold;
-        }
+    .right ul li {
+        margin-bottom: 20px;
+        font-size: 15px;
+        text-align: center;
+    }
+
+    .right ul li::before {
+        /* content: "✔ "; */
+        content: " - ";
+
+        color: #c8e6c9;
+        font-weight: bold;
+    }
+
+    .right ul li::after {
+        /* content: "✔ "; */
+        content: " - ";
+
+        color: #c8e6c9;
+        font-weight: bold;
+    }
     </style>
 </head>
 
@@ -216,30 +242,40 @@
 
                 <div class="form-group">
                     <label>Mật khẩu</label>
-                    <!-- <input type="password" name="password" placeholder="Nhập mật khẩu" required> -->
-                    <input type="password" name="password" placeholder="Nhập mật khẩu" required
-                        value="<?php echo isset($_SESSION['form_data']['password']) ? htmlspecialchars($_SESSION['form_data']['password']) : ''; ?>">
+                    <div class="password-field">
+                        <input id="password" type="password" name="password" placeholder="Nhập mật khẩu" required
+                            value="<?php echo isset($_SESSION['form_data']['password']) ? htmlspecialchars($_SESSION['form_data']['password']) : ''; ?>">
+                        <button class="toggle-password" type="button" data-target="password"
+                            aria-label="Hiện mật khẩu" aria-pressed="false">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Nhập lại mật khẩu</label>
-                    <!-- <input type="password" name="confirm_password" placeholder="Nhập lại mật khẩu" required> -->
-
-                    <input type="password" name="confirm_password" placeholder="Nhập lại mật khẩu" required
-                        value="<?php echo isset($_SESSION['form_data']['confirm_password']) ? htmlspecialchars($_SESSION['form_data']['confirm_password']) : ''; ?>">
+                    <div class="password-field">
+                        <input id="confirm_password" type="password" name="confirm_password"
+                            placeholder="Nhập lại mật khẩu" required
+                            value="<?php echo isset($_SESSION['form_data']['confirm_password']) ? htmlspecialchars($_SESSION['form_data']['confirm_password']) : ''; ?>">
+                        <button class="toggle-password" type="button" data-target="confirm_password"
+                            aria-label="Hiện mật khẩu xác nhận" aria-pressed="false">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <?php if (isset($_SESSION['error'])): ?>
-                    <div class="error">
-                        <?= $_SESSION['error'] ?>
-                    </div>
+                <div class="error">
+                    <?= $_SESSION['error'] ?>
+                </div>
                 <?php unset($_SESSION['error']);
                 endif; ?>
 
                 <?php if (isset($_SESSION['success'])): ?>
-                    <div class="success">
-                        <?= $_SESSION['success'] ?>
-                    </div>
+                <div class="success">
+                    <?= $_SESSION['success'] ?>
+                </div>
                 <?php unset($_SESSION['success']);
                 endif; ?>
 
@@ -272,51 +308,70 @@
 </body>
 
 <script>
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = this;
-        const formData = new FormData(form);
+document.querySelectorAll('.toggle-password').forEach(function(button) {
+    button.addEventListener('click', function() {
+        const input = document.getElementById(this.dataset.target);
+        const icon = this.querySelector('i');
+        const shouldShow = input.type === 'password';
 
-        fetch('<?php echo BASE_URL; ?>Api/Auth/register', {
+        input.type = shouldShow ? 'text' : 'password';
+        icon.classList.toggle('fa-eye', !shouldShow);
+        icon.classList.toggle('fa-eye-slash', shouldShow);
+        this.setAttribute('aria-pressed', String(shouldShow));
+        this.setAttribute(
+            'aria-label',
+            shouldShow ? 'Ẩn mật khẩu' : (input.name === 'confirm_password'
+                ? 'Hiện mật khẩu xác nhận'
+                : 'Hiện mật khẩu')
+        );
+    });
+});
+
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+
+    fetch('<?php echo BASE_URL; ?>Api/Auth/register', {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(response => response.json().catch(() => ({
-                success: false,
-                error: 'Phan hoi API khong hop le'
-            })))
-            .then(data => {
-                form.querySelector('.error')?.remove();
-                form.querySelector('.success')?.remove();
+        .then(response => response.json().catch(() => ({
+            success: false,
+            error: 'Phản hồi API không hợp lệ'
+        })))
+        .then(data => {
+            form.querySelector('.error')?.remove();
+            form.querySelector('.success')?.remove();
 
-                if (data.success) {
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'success';
-                    successDiv.textContent = data.message || 'Dang ky thanh cong';
-                    form.appendChild(successDiv);
+            if (data.success) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success';
+                successDiv.textContent = data.message || 'Đăng ký tài khoản thành công';
+                form.appendChild(successDiv);
 
-                    setTimeout(function() {
-                        window.location.href = '<?php echo BASE_URL; ?>Login';
-                    }, 900);
-                    return;
-                }
+                setTimeout(function() {
+                    window.location.href = '<?php echo BASE_URL; ?>Login';
+                }, 900);
+                return;
+            }
 
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = data.error || data.message || 'Dang ky that bai';
-                form.appendChild(errorDiv);
-            })
-            .catch(() => {
-                form.querySelector('.error')?.remove();
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = 'Co loi xay ra khi dang ky';
-                form.appendChild(errorDiv);
-            });
-    });
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = data.error || data.message || 'Đăng ký tài khoản thất bại';
+            form.appendChild(errorDiv);
+        })
+        .catch(() => {
+            form.querySelector('.error')?.remove();
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = 'Có lỗi xảy ra khi đăng ký tài khoản. Vui lòng thử lại sau.';
+            form.appendChild(errorDiv);
+        });
+});
 </script>
 
 </html>

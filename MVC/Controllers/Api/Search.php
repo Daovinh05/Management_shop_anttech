@@ -109,7 +109,7 @@ class Search extends api_controller {
         if ($q !== '') {
             $result = $this->sp->SanPham_searchStorefront($q, $page, $limit);
             if ($result === false) {
-                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tim kiem san pham']);
+                $this->sendResponse(500, ['success' => false, 'message' => 'Không thể tìm kiếm sản phẩm']);
             }
 
             while ($row = mysqli_fetch_assoc($result)) {
@@ -124,7 +124,7 @@ class Search extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Tim kiem thanh cong',
+            'message' => 'Tìm kiếm thành công',
             'data' => [
                 'query' => $q,
                 'items' => $items,
@@ -145,19 +145,19 @@ class Search extends api_controller {
         }
 
         if (!$id) {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma san pham']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã sản phẩm']);
         }
 
         $result = $this->sp->SanPham_getStorefrontDetail($id);
         if (!$result || mysqli_num_rows($result) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay san pham']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy sản phẩm']);
         }
 
         $product = mysqli_fetch_assoc($result);
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay chi tiet tim kiem thanh cong',
+            'message' => 'Lấy chi tiết tìm kiếm thành công',
             'data' => $product
         ]);
     }
@@ -179,7 +179,7 @@ class Search extends api_controller {
 
         $this->sendResponse(201, [
             'success' => true,
-            'message' => 'Luu tu khoa tim kiem thanh cong',
+            'message' => 'Lưu từ khóa tìm kiếm thành công',
             'data' => [
                 'keyword' => $keyword,
                 'history' => $history
@@ -193,7 +193,7 @@ class Search extends api_controller {
         }
 
         if (!$id) {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu id lich su tim kiem']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã lịch sử tìm kiếm']);
         }
 
         $data = $this->parseInputData();
@@ -216,7 +216,7 @@ class Search extends api_controller {
         }
 
         if (!$found) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay lich su tim kiem']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy lịch sử tìm kiếm']);
         }
 
         usort($history, function ($a, $b) {
@@ -227,7 +227,7 @@ class Search extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Cap nhat lich su tim kiem thanh cong',
+            'message' => 'Cập nhật lịch sử tìm kiếm thành công',
             'data' => [
                 'history' => $this->getSearchHistory()
             ]
@@ -240,7 +240,7 @@ class Search extends api_controller {
         }
 
         if (!$id) {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu id lich su tim kiem']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã lịch sử tìm kiếm']);
         }
 
         $history = $this->getSearchHistory();
@@ -251,14 +251,14 @@ class Search extends api_controller {
         }));
 
         if ($before === count($history)) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay lich su tim kiem']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy lịch sử tìm kiếm']);
         }
 
         $this->saveSearchHistory($history);
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Xoa lich su tim kiem thanh cong',
+            'message' => 'Xóa lịch sử tìm kiếm thành công',
             'data' => [
                 'history' => $history
             ]
@@ -277,14 +277,14 @@ class Search extends api_controller {
         if ($q === '') {
             $this->sendResponse(200, [
                 'success' => true,
-                'message' => 'Khong co tu khoa goi y',
+                'message' => 'Không có từ khóa gợi ý',
                 'data' => []
             ]);
         }
 
         $result = $this->sp->SanPham_getSearchSuggestions($q, $limit);
         if ($result === false) {
-            $this->sendResponse(500, ['success' => false, 'message' => 'Khong the lay goi y tim kiem']);
+            $this->sendResponse(500, ['success' => false, 'message' => 'Không thể lấy gợi ý tìm kiếm']);
         }
 
         $items = [];
@@ -294,7 +294,7 @@ class Search extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay goi y tim kiem thanh cong',
+            'message' => 'Lấy gợi ý tìm kiếm thành công',
             'data' => $items
         ]);
     }
@@ -306,7 +306,7 @@ class Search extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay lich su tim kiem thanh cong',
+            'message' => 'Lấy lịch sử tìm kiếm thành công',
             'data' => $this->getSearchHistory()
         ]);
     }

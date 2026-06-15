@@ -1200,7 +1200,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     resolve(e.target.result);
                 };
                 reader.onerror = function() {
-                    reject(new Error('Khong the doc file anh'));
+                    reject(new Error('Không thể đọc tệp ảnh'));
                 };
                 reader.readAsDataURL(file);
             });
@@ -1213,7 +1213,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             const avatarInputElement = document.getElementById('avatar-input');
 
             if (!fullnameElement || !phoneElement || !emailElement || !avatarInputElement) {
-                alert('Khong tim thay du lieu de cap nhat');
+                alert('Không tìm thấy dữ liệu để cập nhật');
                 return;
             }
 
@@ -1222,7 +1222,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             const email = emailElement.value.trim();
 
             if (!fullName || !phone || !email) {
-                alert('Vui long nhap day du ho ten, so dien thoai va email');
+                alert('Vui lòng nhập đầy đủ họ tên, số điện thoại và email');
                 return;
             }
 
@@ -1237,7 +1237,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 try {
                     payload.avatar_base64 = await readFileAsDataUrl(avatarFile);
                 } catch (error) {
-                    alert('Khong the doc avatar. Vui long thu lai.');
+                    alert('Không thể đọc ảnh đại diện. Vui lòng thử lại.');
                     return;
                 }
             }
@@ -1253,13 +1253,13 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
                 const result = await response.json();
                 if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Cap nhat tai khoan that bai');
+                    throw new Error(result.message || 'Cập nhật tài khoản thất bại');
                 }
 
-                alert(result.message || 'Cap nhat thong tin thanh cong');
+                alert(result.message || 'Cập nhật thông tin thành công');
                 location.reload();
             } catch (error) {
-                alert(error.message || 'Co loi xay ra khi cap nhat thong tin');
+                alert(error.message || 'Có lỗi xảy ra khi cập nhật thông tin');
             }
         }
 
@@ -1269,12 +1269,12 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
             if (!currentPassword || !newPassword || !confirmNewPassword) {
-                alert('Vui long dien day du thong tin mat khau');
+                alert('Vui lòng điền đầy đủ thông tin mật khẩu');
                 return;
             }
 
             if (newPassword !== confirmNewPassword) {
-                alert('Mat khau moi va xac nhan mat khau khong khop');
+                alert('Mật khẩu mới và xác nhận mật khẩu không khớp');
                 return;
             }
 
@@ -1293,16 +1293,16 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
                 const result = await response.json();
                 if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Doi mat khau that bai');
+                    throw new Error(result.message || 'Đổi mật khẩu thất bại');
                 }
 
-                alert(result.message || 'Doi mat khau thanh cong');
+                alert(result.message || 'Đổi mật khẩu thành công');
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmNewPassword').value = '';
                 closePasswordModal();
             } catch (error) {
-                alert(error.message || 'Co loi xay ra khi doi mat khau');
+                alert(error.message || 'Có lỗi xảy ra khi đổi mật khẩu');
             }
         }
 
@@ -1424,13 +1424,13 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 
                     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                     if (!validTypes.includes(file.type)) {
-                        alert('Vui long chon file anh (JPEG, PNG, GIF, WEBP)');
+                        alert('Vui lòng chọn tệp ảnh (JPEG, PNG, GIF, WEBP)');
                         avatarInput.value = '';
                         return;
                     }
 
                     if (file.size > 5 * 1024 * 1024) {
-                        alert('File anh qua lon. Vui long chon file nho hon 5MB');
+                        alert('Tệp ảnh quá lớn. Vui lòng chọn tệp nhỏ hơn 5 MB');
                         avatarInput.value = '';
                         return;
                     }

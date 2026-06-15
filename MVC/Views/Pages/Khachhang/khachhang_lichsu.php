@@ -735,12 +735,12 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
         return fetch(endpoint, { method: 'GET' })
             .then(function(response) {
                 return response.json().catch(function() {
-                    return { success: false, message: 'Phan hoi API khong hop le' };
+                    return { success: false, message: 'Phản hồi API không hợp lệ' };
                 });
             })
             .then(function(json) {
                 if (!json || !json.success || !json.data) {
-                    throw new Error((json && json.message) ? json.message : 'Khong the lay lich su don hang');
+                    throw new Error((json && json.message) ? json.message : 'Không thể lấy lịch sử đơn hàng');
                 }
 
                 state.orders = Array.isArray(json.data.orders) ? json.data.orders : [];
@@ -838,12 +838,12 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 fetch(CHECKOUT_API_BASE + '/' + encodeURIComponent(orderId), { method: 'DELETE' })
                     .then(function(response) {
                         return response.json().catch(function() {
-                            return { success: false, message: 'Phan hoi API khong hop le' };
+                            return { success: false, message: 'Phản hồi API không hợp lệ' };
                         });
                     })
                     .then(function(json) {
                         if (!json || !json.success) {
-                            throw new Error((json && json.message) ? json.message : 'Khong the huy don');
+                            throw new Error((json && json.message) ? json.message : 'Không thể hủy đơn');
                         }
 
                         alert('Hủy đơn hàng thành công.');

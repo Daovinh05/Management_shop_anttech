@@ -102,7 +102,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung POST /Api/Cart'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng POST /Api/Cart'
         ]);
         return;
     }
@@ -126,7 +126,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung PATCH /Api/Cart/update/{ma_bien_the}'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng PATCH /Api/Cart/update/{ma_bien_the}'
         ]);
         return;
     }
@@ -138,7 +138,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung DELETE /Api/Cart/{ma_bien_the}'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng DELETE /Api/Cart/{ma_bien_the}'
         ]);
         return;
     }
@@ -770,7 +770,7 @@ class Khachhang extends controller
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung su dung. Vui long dung PATCH /Api/Profile'
+            'message' => 'Endpoint đã ngừng sử dụng. Vui lòng dùng PATCH /Api/Profile'
         ]);
         exit;
     }
@@ -782,7 +782,7 @@ class Khachhang extends controller
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung su dung. Vui long dung PATCH /Api/Profile/password'
+            'message' => 'Endpoint đã ngừng sử dụng. Vui lòng dùng PATCH /Api/Profile/password'
         ]);
         exit;
     }
@@ -854,7 +854,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Storefront'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng GET /Api/Storefront'
         ]);
         return;
     }
@@ -866,7 +866,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Storefront'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng GET /Api/Storefront'
         ]);
         return;
     }
@@ -878,7 +878,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Storefront'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng GET /Api/Storefront'
         ]);
         return;
     }
@@ -890,7 +890,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Cart'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng GET /Api/Cart'
         ]);
         return;
     }
@@ -954,7 +954,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung PATCH /Api/Cart/update/{ma_bien_the}'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng PATCH /Api/Cart/update/{ma_bien_the}'
         ]);
         return;
     }
@@ -966,7 +966,7 @@ class Khachhang extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung DELETE /Api/Cart/{ma_bien_the}'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng DELETE /Api/Cart/{ma_bien_the}'
         ]);
         return;
     }

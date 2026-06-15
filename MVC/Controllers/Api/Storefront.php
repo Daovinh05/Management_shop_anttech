@@ -32,7 +32,7 @@ class Storefront extends api_controller {
 
         $result = $this->sp->SanPham_getStorefront($category_id, $price_range, $brand_id, $search, $page, $limit);
         if (!$result) {
-            $this->sendResponse(500, ['success' => false, 'message' => 'Khong the lay danh sach san pham']);
+            $this->sendResponse(500, ['success' => false, 'message' => 'Không thể lấy danh sách sản phẩm']);
         }
 
         $items = [];
@@ -45,7 +45,7 @@ class Storefront extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay du lieu trang chu thanh cong',
+            'message' => 'Lấy dữ liệu trang chủ thành công',
             'data' => [
                 'items' => $items,
                 'pagination' => [
@@ -88,7 +88,7 @@ class Storefront extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay bo loc thanh cong',
+            'message' => 'Lấy bộ lọc thành công',
             'data' => [
                 'categories' => $categories,
                 'brands' => $brands,
@@ -116,7 +116,7 @@ class Storefront extends api_controller {
 
         $result = $this->sp->SanPham_searchByName($q);
         if (!$result) {
-            $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tim goi y san pham']);
+            $this->sendResponse(500, ['success' => false, 'message' => 'Không thể tìm gợi ý sản phẩm']);
         }
 
         $suggestions = [];
@@ -132,7 +132,7 @@ class Storefront extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay goi y thanh cong',
+            'message' => 'Lấy gợi ý thành công',
             'data' => $suggestions
         ]);
     }
@@ -145,12 +145,12 @@ class Storefront extends api_controller {
 
         $id = trim((string)$id);
         if ($id === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma san pham']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã sản phẩm']);
         }
 
         $sp_result = $this->sp->SanPham_getStorefrontDetail($id);
         if (!$sp_result || mysqli_num_rows($sp_result) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay san pham']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy sản phẩm']);
         }
         $san_pham = mysqli_fetch_assoc($sp_result);
 
@@ -200,7 +200,7 @@ class Storefront extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay chi tiet san pham thanh cong',
+            'message' => 'Lấy chi tiết sản phẩm thành công',
             'data' => [
                 'san_pham' => $san_pham,
                 'bien_the' => $bien_the,

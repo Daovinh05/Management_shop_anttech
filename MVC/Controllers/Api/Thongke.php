@@ -9,12 +9,12 @@ class Thongke extends api_controller {
 
     private function requireManager() {
         if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-            $this->sendResponse(401, ['success' => false, 'message' => 'Unauthorized. Vui long dang nhap']);
+            $this->sendResponse(401, ['success' => false, 'message' => 'Chưa xác thực. Vui lòng đăng nhập']);
         }
 
         $role = strtolower((string)($_SESSION['user_role'] ?? ''));
         if (!in_array($role, ['admin', 'nhan_vien'], true)) {
-            $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen truy cap thong ke']);
+            $this->sendResponse(403, ['success' => false, 'message' => 'Bạn không có quyền truy cập thống kê']);
         }
     }
 
@@ -31,15 +31,15 @@ class Thongke extends api_controller {
 
         $allowedStatus = ['cho_duyet', 'da_duyet', 'dang_giao', 'hoan_thanh', 'da_huy'];
         if ($trang_thai !== '' && !in_array($trang_thai, $allowedStatus, true)) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Trang thai loc khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Trạng thái lọc không hợp lệ']);
         }
 
         if ($tu_ngay !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tu_ngay)) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Dinh dang tu_ngay khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Định dạng từ ngày không hợp lệ']);
         }
 
         if ($den_ngay !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $den_ngay)) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Dinh dang den_ngay khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Định dạng đến ngày không hợp lệ']);
         }
 
         if ($tu_ngay !== '' && $den_ngay !== '' && strtotime($tu_ngay) > strtotime($den_ngay)) {
@@ -143,7 +143,7 @@ class Thongke extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay danh sach thong ke don hang thanh cong',
+            'message' => 'Lấy danh sách thống kê đơn hàng thành công',
             'total' => count($orders),
             'filters' => $filters,
             'data' => $orders
@@ -160,7 +160,7 @@ class Thongke extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay du lieu dashboard thong ke thanh cong',
+            'message' => 'Lấy dữ liệu bảng thống kê thành công',
             'data' => [
                 'tongquan' => $this->buildSummaryPayload(),
                 'thongkephuongthuc' => $this->buildPaymentPayload(),
@@ -180,7 +180,7 @@ class Thongke extends api_controller {
         $this->requireManager();
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay thong ke tong quan thanh cong',
+            'message' => 'Lấy thống kê tổng quan thành công',
             'data' => $this->buildSummaryPayload()
         ]);
     }
@@ -193,7 +193,7 @@ class Thongke extends api_controller {
         $this->requireManager();
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay thong ke phuong thuc thanh toan thanh cong',
+            'message' => 'Lấy thống kê phương thức thanh toán thành công',
             'data' => $this->buildPaymentPayload()
         ]);
     }
@@ -208,7 +208,7 @@ class Thongke extends api_controller {
         $data = $this->getTopProducts($limit);
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay top san pham thanh cong',
+            'message' => 'Lấy danh sách sản phẩm nổi bật thành công',
             'total' => count($data),
             'data' => $data
         ]);

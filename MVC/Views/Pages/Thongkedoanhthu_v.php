@@ -808,12 +808,12 @@
         return fetch(endpoint, { method: 'GET' })
             .then(function(response) {
                 return response.json().catch(function() {
-                    return { success: false, message: 'Phan hoi API khong hop le' };
+                    return { success: false, message: 'Phản hồi API không hợp lệ' };
                 });
             })
             .then(function(json) {
                 if (!json || !json.success || !json.data) {
-                    throw new Error((json && json.message) ? json.message : 'Khong the tai du lieu thong ke');
+                    throw new Error((json && json.message) ? json.message : 'Không thể tải dữ liệu thống kê');
                 }
 
                 renderSummary(json.data.tongquan || {});
