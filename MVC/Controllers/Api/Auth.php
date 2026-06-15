@@ -178,6 +178,14 @@ class Auth extends api_controller {
             ]);
         }
 
+        if (!preg_match('/^0\d{9}$/', $phone)) {
+            $this->sendResponse(422, [
+                'success' => false,
+                'message' => 'Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0',
+                'error' => 'Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0'
+            ]);
+        }
+
         $existingEmail = $this->users->checktrungEmail($email, '');
         if ($existingEmail && mysqli_num_rows($existingEmail) > 0) {
             $this->sendResponse(409, [
