@@ -133,16 +133,23 @@ class Auth extends api_controller {
 
         $username = trim((string)($data['username'] ?? $data['ten_user'] ?? ''));
         $email = trim((string)($data['email'] ?? ''));
-        $fullName = trim((string)($data['full_name'] ?? $data['fullname'] ?? $username));
+        $fullName = trim((string)($data['full_name'] ?? $data['fullname'] ?? ''));
         $phone = trim((string)($data['phone'] ?? $data['so_dien_thoai'] ?? ''));
         $password = trim((string)($data['password'] ?? ''));
         $confirmPassword = trim((string)($data['confirm_password'] ?? ''));
 
-        if ($username === '' || $password === '') {
+        if (
+            $fullName === ''
+            || $email === ''
+            || $phone === ''
+            || $username === ''
+            || $password === ''
+            || $confirmPassword === ''
+        ) {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Vui lòng cung cấp tên đăng nhập và mật khẩu',
-                'error' => 'Vui lòng cung cấp tên đăng nhập và mật khẩu'
+                'message' => 'Vui lòng nhập đầy đủ họ tên, email, số điện thoại, tên tài khoản, mật khẩu và mật khẩu xác nhận',
+                'error' => 'Vui lòng nhập đầy đủ họ tên, email, số điện thoại, tên tài khoản, mật khẩu và mật khẩu xác nhận'
             ]);
         }
 
@@ -163,28 +170,24 @@ class Auth extends api_controller {
             ]);
         }
 
-        if ($email === '') {
-            $email = $username . '@gmail.com';
-        } else {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-                $this->sendResponse(422, [
-                    'success' => false,
-                    'message' => 'Email không đúng định dạng',
-                    'error' => 'Email không đúng định dạng'
-                ]);
-            }
-
-            $existingEmail = $this->users->checktrungEmail($email, '');
-            if ($existingEmail && mysqli_num_rows($existingEmail) > 0) {
-                $this->sendResponse(409, [
-                    'success' => false,
-                    'message' => 'Email đã được sử dụng',
-                    'error' => 'Email đã được sử dụng'
-                ]);
-            }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            $this->sendResponse(422, [
+                'success' => false,
+                'message' => 'Email không đúng định dạng',
+                'error' => 'Email không đúng định dạng'
+            ]);
         }
 
-        if ($phone !== '' && $this->users->checkTrungSoDienThoai($phone)) {
+        $existingEmail = $this->users->checktrungEmail($email, '');
+        if ($existingEmail && mysqli_num_rows($existingEmail) > 0) {
+            $this->sendResponse(409, [
+                'success' => false,
+                'message' => 'Email đã được sử dụng',
+                'error' => 'Email đã được sử dụng'
+            ]);
+        }
+
+        if ($this->users->checkTrungSoDienThoai($phone)) {
             $this->sendResponse(409, [
                 'success' => false,
                 'message' => 'Số điện thoại đã được sử dụng',
