@@ -44,7 +44,7 @@ class Thongke extends controller
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung su dung. Vui long dung GET /Api/Thongke/dashboard voi query tu_ngay, den_ngay'
+            'message' => 'Endpoint đã ngừng sử dụng. Vui lòng dùng GET /Api/Thongke/dashboard với tham số tu_ngay, den_ngay'
         ]);
         exit;
     }
@@ -56,7 +56,7 @@ class Thongke extends controller
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung su dung. Vui long dung GET /Api/Thongke/dashboard voi query ma_don_hang, ten_khach_hang'
+            'message' => 'Endpoint đã ngừng sử dụng. Vui lòng dùng GET /Api/Thongke/dashboard với tham số ma_don_hang, ten_khach_hang'
         ]);
         exit;
     }

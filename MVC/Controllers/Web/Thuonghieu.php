@@ -76,7 +76,7 @@ class Thuonghieu extends controller
         http_response_code(410);
         echo json_encode([
             'success' => false,
-            'message' => 'Endpoint da ngung ho tro. Vui long su dung GET /Api/Thuonghieu'
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng GET /Api/Thuonghieu'
         ]);
         return;
     }

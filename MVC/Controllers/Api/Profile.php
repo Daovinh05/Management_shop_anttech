@@ -13,7 +13,7 @@ class Profile extends api_controller {
         if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             $this->sendResponse(401, [
                 'success' => false,
-                'message' => 'Unauthorized. Vui long dang nhap de tiep tuc'
+                'message' => 'Chưa xác thực. Vui lòng đăng nhập để tiếp tục'
             ]);
         }
 
@@ -76,7 +76,7 @@ class Profile extends api_controller {
         if ($extension === null) {
             return [
                 'success' => false,
-                'message' => 'Dinh dang anh khong hop le. Chi ho tro JPG, PNG, GIF, WEBP'
+                'message' => 'Định dạng ảnh không hợp lệ. Chỉ hỗ trợ JPG, PNG, GIF, WEBP'
             ];
         }
 
@@ -84,7 +84,7 @@ class Profile extends api_controller {
         if ($binary === false) {
             return [
                 'success' => false,
-                'message' => 'Du lieu avatar khong hop le'
+                'message' => 'Dữ liệu ảnh đại diện không hợp lệ'
             ];
         }
 
@@ -103,7 +103,7 @@ class Profile extends api_controller {
         if (!is_dir($uploadDir)) {
             return [
                 'success' => false,
-                'message' => 'Khong the tao thu muc luu avatar'
+                'message' => 'Không thể tạo thư mục lưu ảnh đại diện'
             ];
         }
 
@@ -114,7 +114,7 @@ class Profile extends api_controller {
         if (file_put_contents($filePath, $binary) === false) {
             return [
                 'success' => false,
-                'message' => 'Khong the luu anh dai dien'
+                'message' => 'Không thể lưu ảnh đại diện'
             ];
         }
 
@@ -166,7 +166,7 @@ class Profile extends api_controller {
         if (!$user) {
             $this->sendResponse(404, [
                 'success' => false,
-                'message' => 'Khong tim thay thong tin tai khoan'
+                'message' => 'Không tìm thấy thông tin tài khoản'
             ]);
         }
 
@@ -174,7 +174,7 @@ class Profile extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay thong tin tai khoan thanh cong',
+            'message' => 'Lấy thông tin tài khoản thành công',
             'data' => $this->sanitizeUserPayload($user, $address)
         ]);
     }
@@ -192,7 +192,7 @@ class Profile extends api_controller {
         if (!$user) {
             $this->sendResponse(404, [
                 'success' => false,
-                'message' => 'Khong tim thay thong tin tai khoan'
+                'message' => 'Không tìm thấy thông tin tài khoản'
             ]);
         }
 
@@ -205,21 +205,21 @@ class Profile extends api_controller {
         if ($full_name === '' || $so_dien_thoai === '' || $email === '') {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Vui long nhap day du ho ten, so dien thoai va email'
+                'message' => 'Vui lòng nhập đầy đủ họ tên, số điện thoại và email'
             ]);
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Email khong hop le'
+                'message' => 'Email không hợp lệ'
             ]);
         }
 
         if (!preg_match('/^[0-9]{9,11}$/', $so_dien_thoai)) {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'So dien thoai khong hop le'
+                'message' => 'Số điện thoại không hợp lệ'
             ]);
         }
 
@@ -235,7 +235,7 @@ class Profile extends api_controller {
         if ($dupPhone && mysqli_num_rows($dupPhone) > 0) {
             $this->sendResponse(409, [
                 'success' => false,
-                'message' => 'So dien thoai da ton tai'
+                'message' => 'Số điện thoại đã tồn tại'
             ]);
         }
 
@@ -255,7 +255,7 @@ class Profile extends api_controller {
         if (!$updated) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the cap nhat thong tin tai khoan'
+                'message' => 'Không thể cập nhật thông tin tài khoản'
             ]);
         }
 
@@ -264,7 +264,7 @@ class Profile extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Cap nhat thong tin tai khoan thanh cong',
+            'message' => 'Cập nhật thông tin tài khoản thành công',
             'data' => $this->sanitizeUserPayload($latestUser, $address)
         ]);
     }
@@ -282,7 +282,7 @@ class Profile extends api_controller {
         if (!$user) {
             $this->sendResponse(404, [
                 'success' => false,
-                'message' => 'Khong tim thay thong tin tai khoan'
+                'message' => 'Không tìm thấy thông tin tài khoản'
             ]);
         }
 
@@ -294,21 +294,21 @@ class Profile extends api_controller {
         if ($currentPassword === '' || $newPassword === '' || $confirmPassword === '') {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Vui long nhap day du thong tin mat khau'
+                'message' => 'Vui lòng nhập đầy đủ thông tin mật khẩu'
             ]);
         }
 
         if ($newPassword !== $confirmPassword) {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Mat khau moi va xac nhan mat khau khong khop'
+                'message' => 'Mật khẩu mới và xác nhận mật khẩu không khớp'
             ]);
         }
 
         if ((string)($user['password'] ?? '') !== $currentPassword) {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Mat khau hien tai khong dung'
+                'message' => 'Mật khẩu hiện tại không đúng'
             ]);
         }
 
@@ -316,13 +316,13 @@ class Profile extends api_controller {
         if (!$updated) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the doi mat khau'
+                'message' => 'Không thể đổi mật khẩu'
             ]);
         }
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Doi mat khau thanh cong'
+            'message' => 'Đổi mật khẩu thành công'
         ]);
     }
 }

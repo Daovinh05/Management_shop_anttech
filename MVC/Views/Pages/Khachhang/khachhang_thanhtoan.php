@@ -1332,7 +1332,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 })
                     .then(function(response) {
                         return response.json().catch(function() {
-                            return { success: false, message: 'Phan hoi API khong hop le' };
+                            return { success: false, message: 'Phản hồi API không hợp lệ' };
                         });
                     })
                     .then(function(json) {
@@ -1478,13 +1478,13 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             return response.json().catch(function() {
                                 return {
                                     success: false,
-                                    message: 'Phan hoi API khong hop le'
+                                    message: 'Phản hồi API không hợp lệ'
                                 };
                             });
                         })
                         .then(function(json) {
                             if (!json || !json.success) {
-                                var msg = (json && json.message) ? json.message : 'Khong the dat hang. Vui long thu lai.';
+                                var msg = (json && json.message) ? json.message : 'Không thể đặt hàng. Vui lòng thử lại.';
                                 if (json && Array.isArray(json.errors) && json.errors.length > 0) {
                                     msg += '\n- ' + json.errors.join('\n- ');
                                 }
@@ -1503,11 +1503,11 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                                 return;
                             }
 
-                            alert('Dat hang thanh cong!');
+                            alert('Đặt hàng thành công!');
                             window.location.href = '<?php echo UrlHelper::url('Khachhang/lichsumuahang'); ?>';
                         })
                         .catch(function() {
-                            alert('Khong the ket noi den Checkout API. Vui long thu lai sau.');
+                            alert('Không thể kết nối đến API thanh toán. Vui lòng thử lại sau.');
                         })
                         .finally(function() {
                             if (submitBtn) {

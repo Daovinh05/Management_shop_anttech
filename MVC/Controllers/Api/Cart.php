@@ -24,7 +24,7 @@ class Cart extends api_controller {
         if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             $this->sendResponse(401, [
                 'success' => false,
-                'message' => 'Unauthorized. Vui long dang nhap de su dung gio hang'
+                'message' => 'Chưa xác thực. Vui lòng đăng nhập để sử dụng giỏ hàng'
             ]);
         }
 
@@ -57,7 +57,7 @@ class Cart extends api_controller {
         if (!$inserted) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the tao gio hang moi',
+                'message' => 'Không thể tạo giỏ hàng mới',
                 'error' => mysqli_error($this->gh->con)
             ]);
         }
@@ -175,7 +175,7 @@ class Cart extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay gio hang thanh cong',
+            'message' => 'Lấy giỏ hàng thành công',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'ma_user' => $ma_user,
@@ -191,7 +191,7 @@ class Cart extends api_controller {
         }
 
         if (!$id) {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma bien the']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã biến thể']);
         }
 
         $ma_user = $this->requireAuthUser();
@@ -209,7 +209,7 @@ class Cart extends api_controller {
 
         $this->sendResponse(404, [
             'success' => false,
-            'message' => 'Khong tim thay bien the trong gio hang'
+            'message' => 'Không tìm thấy biến thể trong giỏ hàng'
         ]);
     }
 
@@ -225,7 +225,7 @@ class Cart extends api_controller {
         $so_luong = isset($data['so_luong']) ? (int)$data['so_luong'] : 1;
 
         if ($ma_bien_the === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Vui long cung cap ma_bien_the']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Vui lòng cung cấp mã biến thể']);
         }
 
         if ($so_luong <= 0) {
@@ -234,7 +234,7 @@ class Cart extends api_controller {
 
         $variantResult = $this->bt->BienThe_getById($ma_bien_the);
         if (!$variantResult || mysqli_num_rows($variantResult) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay bien the']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy biến thể']);
         }
 
         $variant = mysqli_fetch_assoc($variantResult);
@@ -273,7 +273,7 @@ class Cart extends api_controller {
         if (!$ok) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the cap nhat gio hang',
+                'message' => 'Không thể cập nhật giỏ hàng',
                 'error' => mysqli_error($this->ctgh->con)
             ]);
         }
@@ -281,7 +281,7 @@ class Cart extends api_controller {
         $cartData = $this->collectCartItems($ma_gio_hang);
         $this->sendResponse(201, [
             'success' => true,
-            'message' => 'Them vao gio hang thanh cong',
+            'message' => 'Thêm vào giỏ hàng thành công',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'items' => $cartData['items'],
@@ -302,7 +302,7 @@ class Cart extends api_controller {
         $so_luong = isset($data['so_luong']) ? (int)$data['so_luong'] : 0;
 
         if ($ma_bien_the === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma_bien_the']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã biến thể']);
         }
 
         if ($so_luong <= 0) {
@@ -311,7 +311,7 @@ class Cart extends api_controller {
 
         $variantResult = $this->bt->BienThe_getById($ma_bien_the);
         if (!$variantResult || mysqli_num_rows($variantResult) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay bien the']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy biến thể']);
         }
 
         $variant = mysqli_fetch_assoc($variantResult);
@@ -330,7 +330,7 @@ class Cart extends api_controller {
         if (!$exists) {
             $this->sendResponse(404, [
                 'success' => false,
-                'message' => 'Bien the nay chua co trong gio hang'
+                'message' => 'Biến thể này chưa có trong giỏ hàng'
             ]);
         }
 
@@ -338,7 +338,7 @@ class Cart extends api_controller {
         if (!$ok) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the cap nhat so luong',
+                'message' => 'Không thể cập nhật số lượng',
                 'error' => mysqli_error($this->ctgh->con)
             ]);
         }
@@ -346,7 +346,7 @@ class Cart extends api_controller {
         $cartData = $this->collectCartItems($ma_gio_hang);
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Cap nhat gio hang thanh cong',
+            'message' => 'Cập nhật giỏ hàng thành công',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'items' => $cartData['items'],
@@ -364,7 +364,7 @@ class Cart extends api_controller {
         $ma_bien_the = trim((string)$id);
 
         if ($ma_bien_the === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma_bien_the']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã biến thể']);
         }
 
         $ma_gio_hang = $this->getOrCreateActiveCartId($ma_user);
@@ -374,7 +374,7 @@ class Cart extends api_controller {
         if (!$exists) {
             $this->sendResponse(404, [
                 'success' => false,
-                'message' => 'Khong tim thay bien the trong gio hang'
+                'message' => 'Không tìm thấy biến thể trong giỏ hàng'
             ]);
         }
 
@@ -382,7 +382,7 @@ class Cart extends api_controller {
         if (!$ok) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the xoa san pham khoi gio',
+                'message' => 'Không thể xóa sản phẩm khỏi giỏ hàng',
                 'error' => mysqli_error($this->ctgh->con)
             ]);
         }
@@ -390,7 +390,7 @@ class Cart extends api_controller {
         $cartData = $this->collectCartItems($ma_gio_hang);
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Xoa san pham khoi gio hang thanh cong',
+            'message' => 'Xóa sản phẩm khỏi giỏ hàng thành công',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'items' => $cartData['items'],
@@ -410,7 +410,7 @@ class Cart extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay tong quan gio hang thanh cong',
+            'message' => 'Lấy tổng quan giỏ hàng thành công',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'summary' => $cartData['summary']
@@ -431,14 +431,14 @@ class Cart extends api_controller {
         if (!$ok) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Khong the xoa toan bo gio hang',
+                'message' => 'Không thể xóa toàn bộ giỏ hàng',
                 'error' => mysqli_error($this->ctgh->con)
             ]);
         }
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Da xoa toan bo san pham trong gio hang',
+            'message' => 'Đã xóa toàn bộ sản phẩm trong giỏ hàng',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'items' => [],
@@ -464,7 +464,7 @@ class Cart extends api_controller {
 
         $items = $data['items'] ?? null;
         if (!is_array($items) || count($items) === 0) {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Vui long cung cap danh sach items']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Vui lòng cung cấp danh sách sản phẩm']);
         }
 
         $updated = [];
@@ -475,18 +475,18 @@ class Cart extends api_controller {
             $so_luong = isset($item['so_luong']) ? (int)$item['so_luong'] : 0;
 
             if ($ma_bien_the === '') {
-                $errors[] = ['ma_bien_the' => '', 'message' => 'Thieu ma_bien_the'];
+                $errors[] = ['ma_bien_the' => '', 'message' => 'Thiếu mã biến thể'];
                 continue;
             }
 
             if ($so_luong < 0) {
-                $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'So luong khong hop le'];
+                $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Số lượng không hợp lệ'];
                 continue;
             }
 
             $variantResult = $this->bt->BienThe_getById($ma_bien_the);
             if (!$variantResult || mysqli_num_rows($variantResult) === 0) {
-                $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Khong tim thay bien the'];
+                $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Không tìm thấy biến thể'];
                 continue;
             }
 
@@ -509,7 +509,7 @@ class Cart extends api_controller {
                     if ($ok) {
                         $updated[] = ['ma_bien_the' => $ma_bien_the, 'action' => 'deleted'];
                     } else {
-                        $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Khong the xoa item'];
+                        $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Không thể xóa sản phẩm'];
                     }
                 }
                 continue;
@@ -520,14 +520,14 @@ class Cart extends api_controller {
                 if ($ok) {
                     $updated[] = ['ma_bien_the' => $ma_bien_the, 'action' => 'updated', 'so_luong' => $so_luong];
                 } else {
-                    $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Khong the cap nhat item'];
+                    $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Không thể cập nhật sản phẩm'];
                 }
             } else {
                 $ok = $this->ctgh->chitietgiohang_ins($ma_gio_hang, $ma_bien_the, $so_luong);
                 if ($ok) {
                     $updated[] = ['ma_bien_the' => $ma_bien_the, 'action' => 'created', 'so_luong' => $so_luong];
                 } else {
-                    $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Khong the them item'];
+                    $errors[] = ['ma_bien_the' => $ma_bien_the, 'message' => 'Không thể thêm sản phẩm'];
                 }
             }
         }
@@ -537,7 +537,7 @@ class Cart extends api_controller {
 
         $this->sendResponse($statusCode, [
             'success' => count($errors) === 0,
-            'message' => count($errors) === 0 ? 'Cap nhat nhieu san pham thanh cong' : 'Cap nhat mot phan thanh cong',
+            'message' => count($errors) === 0 ? 'Cập nhật nhiều sản phẩm thành công' : 'Cập nhật một phần thành công',
             'data' => [
                 'ma_gio_hang' => $ma_gio_hang,
                 'updated' => $updated,

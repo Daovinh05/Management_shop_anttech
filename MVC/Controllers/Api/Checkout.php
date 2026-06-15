@@ -29,7 +29,7 @@ class Checkout extends api_controller {
         if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             $this->sendResponse(401, [
                 'success' => false,
-                'message' => 'Unauthorized. Vui long dang nhap de thanh toan'
+                'message' => 'Chưa xác thực. Vui lòng đăng nhập để thanh toán'
             ]);
         }
 
@@ -130,17 +130,17 @@ class Checkout extends api_controller {
             $so_luong = max(1, $so_luong);
 
             if ($ma_bien_the === '') {
-                return ['error' => 'Thieu ma_bien_the cho luong mua ngay'];
+                return ['error' => 'Thiếu mã biến thể cho luồng mua ngay'];
             }
 
             $variantResult = $this->bt->BienThe_getById($ma_bien_the);
             if (!$variantResult || mysqli_num_rows($variantResult) === 0) {
-                return ['error' => 'Khong tim thay bien the mua ngay'];
+                return ['error' => 'Không tìm thấy biến thể mua ngay'];
             }
 
             $variant = mysqli_fetch_assoc($variantResult);
             if ($so_luong > (int)$variant['so_luong_kho']) {
-                $stockErrors[] = ($variant['ten_bien_the'] ?? $ma_bien_the) . ' (chi con ' . (int)$variant['so_luong_kho'] . ' san pham)';
+                $stockErrors[] = ($variant['ten_bien_the'] ?? $ma_bien_the) . ' (chỉ còn ' . (int)$variant['so_luong_kho'] . ' sản phẩm)';
             } else {
                 $item = $this->formatCheckoutItem($ma_bien_the, $so_luong, (float)$variant['gia'], $variant);
                 if ($item) {
@@ -151,7 +151,7 @@ class Checkout extends api_controller {
         } else {
             $cart = $this->getCartByUser($ma_user);
             if (!$cart) {
-                return ['error' => 'Khong tim thay gio hang cua nguoi dung'];
+                return ['error' => 'Không tìm thấy giỏ hàng của người dùng'];
             }
 
             $ma_gio_hang = $cart['ma_gio_hang'];
@@ -186,7 +186,7 @@ class Checkout extends api_controller {
                     }
 
                     if ($quantity > (int)$variant['so_luong_kho']) {
-                        $stockErrors[] = ($variant['ten_bien_the'] ?? $ma_bien_the) . ' (chi con ' . (int)$variant['so_luong_kho'] . ' san pham)';
+                        $stockErrors[] = ($variant['ten_bien_the'] ?? $ma_bien_the) . ' (chỉ còn ' . (int)$variant['so_luong_kho'] . ' sản phẩm)';
                         continue;
                     }
 
@@ -205,11 +205,11 @@ class Checkout extends api_controller {
         // Trang khoi tao checkout van hien cac san pham hop le neu chi mot phan vuot ton kho.
         // Khi dat hang that su, giu validate nghiem ngat de tranh dat sai so luong.
         if (count($stockErrors) > 0 && (!$fromQuery || count($items) === 0)) {
-            return ['error' => 'Mot so san pham vuot ton kho', 'stock_errors' => $stockErrors];
+            return ['error' => 'Một số sản phẩm vượt tồn kho', 'stock_errors' => $stockErrors];
         }
 
         if (count($items) === 0) {
-            return ['error' => $isBuyNow ? 'Khong co san pham mua ngay hop le' : 'Khong co san pham hop le de thanh toan'];
+            return ['error' => $isBuyNow ? 'Không có sản phẩm mua ngay hợp lệ' : 'Không có sản phẩm hợp lệ để thanh toán'];
         }
 
         $ma_khuyen_mai = trim((string)($payload['ma_khuyen_mai'] ?? $payload['ddlKhuyenMai'] ?? ''));
@@ -221,7 +221,7 @@ class Checkout extends api_controller {
                 $kmInfo = mysqli_fetch_assoc($kmResult);
                 $discount = (float)($kmInfo['tien_khuyen_mai'] ?? 0);
             } else if (!$fromQuery) {
-                return ['error' => 'Ma khuyen mai khong hop le'];
+                return ['error' => 'Mã khuyến mãi không hợp lệ'];
             }
         }
 
@@ -253,7 +253,7 @@ class Checkout extends api_controller {
         $dia_chi = trim((string)($payload['txtDiaChiGiaoHang'] ?? $payload['dia_chi'] ?? ''));
 
         if ($ho_ten === '' || $so_dien_thoai === '' || $dia_chi === '') {
-            return ['error' => 'Vui long chon dia chi hoac nhap thong tin nguoi nhan day du'];
+            return ['error' => 'Vui lòng chọn địa chỉ hoặc nhập đầy đủ thông tin người nhận'];
         }
 
         return [
@@ -320,9 +320,9 @@ class Checkout extends api_controller {
     private function getHistoryStatusLabel($status) {
         switch ((string)$status) {
             case 'cho_duyet':
-                return 'Cho xac nhan';
+                return 'Chờ xác nhận';
             case 'da_duyet':
-                return 'Da xac nhan';
+                return 'Đã xác nhận';
             case 'dang_giao':
                 return 'Dang giao';
             case 'hoan_thanh':
@@ -369,7 +369,7 @@ class Checkout extends api_controller {
                 $details[] = [
                     'ma_ctdh' => $ct['ma_ctdh'] ?? null,
                     'ma_bien_the' => $ct['ma_bien_the'] ?? null,
-                    'ten_san_pham' => $ct['ten_san_pham'] ?? 'San pham da xoa',
+                    'ten_san_pham' => $ct['ten_san_pham'] ?? 'Sản phẩm đã xóa',
                     'ten_bien_the' => $ct['ten_bien_the'] ?? '',
                     'mau_sac' => $ct['mau_sac'] ?? '',
                     'ram' => $ct['ram'] ?? '',
@@ -432,7 +432,7 @@ class Checkout extends api_controller {
 
         $user = $this->getCurrentUserInfo($ma_user);
         if (!$user) {
-            return ['error' => 'Khong tim thay thong tin nguoi dung', 'not_found_user' => true];
+            return ['error' => 'Không tìm thấy thông tin người dùng', 'not_found_user' => true];
         }
 
         $addresses = $this->getAddressListByUser($ma_user);
@@ -503,7 +503,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay du lieu checkout thanh cong',
+            'message' => 'Lấy dữ liệu thanh toán thành công',
             'data' => $initData
         ]);
     }
@@ -527,7 +527,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay du lieu khoi tao form checkout thanh cong',
+            'message' => 'Lấy dữ liệu khởi tạo biểu mẫu thanh toán thành công',
             'data' => $initData
         ]);
     }
@@ -540,12 +540,12 @@ class Checkout extends api_controller {
         $ma_user = $this->requireAuthUser();
         $user = $this->getCurrentUserInfo($ma_user);
         if (!$user) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay thong tin nguoi dung']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy thông tin người dùng']);
         }
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay thong tin billing thanh cong',
+            'message' => 'Lấy thông tin thanh toán thành công',
             'data' => [
                 'ma_user' => $user['ma_user'] ?? null,
                 'ten_user' => $user['ten_user'] ?? null,
@@ -566,7 +566,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay danh sach khuyen mai thanh cong',
+            'message' => 'Lấy danh sách khuyến mãi thành công',
             'total' => count($promotions),
             'data' => $promotions
         ]);
@@ -581,7 +581,7 @@ class Checkout extends api_controller {
             if ($id === null || trim((string)$id) === '') {
                 $this->sendResponse(200, [
                     'success' => true,
-                    'message' => 'Lay danh sach dia chi thanh cong',
+                    'message' => 'Lấy danh sách địa chỉ thành công',
                     'total' => count($addresses),
                     'data' => $addresses
                 ]);
@@ -592,13 +592,13 @@ class Checkout extends api_controller {
                 if (($address['ma_dia_chi'] ?? '') === $targetId) {
                     $this->sendResponse(200, [
                         'success' => true,
-                        'message' => 'Lay chi tiet dia chi thanh cong',
+                        'message' => 'Lấy chi tiết địa chỉ thành công',
                         'data' => $address
                     ]);
                 }
             }
 
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay dia chi giao hang']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy địa chỉ giao hàng']);
         }
 
         if ($method === 'POST') {
@@ -609,11 +609,11 @@ class Checkout extends api_controller {
             $mac_dinh = (int)($payload['mac_dinh'] ?? 0) === 1 ? 1 : 0;
 
             if ($ho_ten === '' || $so_dien_thoai === '' || $dia_chi === '') {
-                $this->sendResponse(422, ['success' => false, 'message' => 'Vui long nhap day du ho ten, so dien thoai va dia chi']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ']);
             }
 
             if (!preg_match('/^[0-9]{9,11}$/', $so_dien_thoai)) {
-                $this->sendResponse(422, ['success' => false, 'message' => 'So dien thoai khong hop le']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Số điện thoại không hợp lệ']);
             }
 
             $ma_dia_chi = $this->nextAddressId();
@@ -633,7 +633,7 @@ class Checkout extends api_controller {
 
             $ok = $this->dc->diachigiaohang_ins($ma_dia_chi, $ma_user, $ho_ten, $so_dien_thoai, $dia_chi, $mac_dinh);
             if (!$ok) {
-                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tao dia chi giao hang']);
+                $this->sendResponse(500, ['success' => false, 'message' => 'Không thể tạo địa chỉ giao hàng']);
             }
 
             $detail = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
@@ -648,7 +648,7 @@ class Checkout extends api_controller {
 
             $this->sendResponse(201, [
                 'success' => true,
-                'message' => 'Tao dia chi giao hang thanh cong',
+                'message' => 'Tạo địa chỉ giao hàng thành công',
                 'data' => $address
             ]);
         }
@@ -657,17 +657,17 @@ class Checkout extends api_controller {
             $payload = $this->parseInputData();
             $ma_dia_chi = trim((string)($id ?? $payload['ma_dia_chi'] ?? $payload['ddlDiaChi'] ?? ''));
             if ($ma_dia_chi === '') {
-                $this->sendResponse(422, ['success' => false, 'message' => 'Thieu ma_dia_chi can cap nhat']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Thiếu mã địa chỉ cần cập nhật']);
             }
 
             $existingResult = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
             if (!$existingResult || mysqli_num_rows($existingResult) === 0) {
-                $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay dia chi giao hang']);
+                $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy địa chỉ giao hàng']);
             }
 
             $current = mysqli_fetch_assoc($existingResult);
             if (($current['ma_user'] ?? '') !== $ma_user) {
-                $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen sua dia chi nay']);
+                $this->sendResponse(403, ['success' => false, 'message' => 'Bạn không có quyền sửa địa chỉ này']);
             }
 
             $ho_ten = trim((string)($payload['ho_ten'] ?? $payload['txtHoTenNguoiNhan'] ?? $current['ho_ten'] ?? ''));
@@ -676,11 +676,11 @@ class Checkout extends api_controller {
             $mac_dinh = isset($payload['mac_dinh']) ? ((int)$payload['mac_dinh'] === 1 ? 1 : 0) : (int)($current['mac_dinh'] ?? 0);
 
             if ($ho_ten === '' || $so_dien_thoai === '' || $dia_chi === '') {
-                $this->sendResponse(422, ['success' => false, 'message' => 'Vui long nhap day du ho ten, so dien thoai va dia chi']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ']);
             }
 
             if (!preg_match('/^[0-9]{9,11}$/', $so_dien_thoai)) {
-                $this->sendResponse(422, ['success' => false, 'message' => 'So dien thoai khong hop le']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Số điện thoại không hợp lệ']);
             }
 
             if ($mac_dinh === 1) {
@@ -703,7 +703,7 @@ class Checkout extends api_controller {
 
             $ok = $this->dc->DiaChiGiaoHang_update($ma_dia_chi, $ma_user, $ho_ten, $so_dien_thoai, $dia_chi, $mac_dinh);
             if (!$ok) {
-                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the cap nhat dia chi giao hang']);
+                $this->sendResponse(500, ['success' => false, 'message' => 'Không thể cập nhật địa chỉ giao hàng']);
             }
 
             $updatedResult = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
@@ -711,7 +711,7 @@ class Checkout extends api_controller {
 
             $this->sendResponse(200, [
                 'success' => true,
-                'message' => 'Cap nhat dia chi giao hang thanh cong',
+                'message' => 'Cập nhật địa chỉ giao hàng thành công',
                 'data' => $updated
             ]);
         }
@@ -719,27 +719,27 @@ class Checkout extends api_controller {
         if ($method === 'DELETE') {
             $ma_dia_chi = trim((string)($id ?? ''));
             if ($ma_dia_chi === '') {
-                $this->sendResponse(422, ['success' => false, 'message' => 'Thieu ma_dia_chi can xoa']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Thiếu mã địa chỉ cần xóa']);
             }
 
             $existingResult = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
             if (!$existingResult || mysqli_num_rows($existingResult) === 0) {
-                $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay dia chi giao hang']);
+                $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy địa chỉ giao hàng']);
             }
 
             $current = mysqli_fetch_assoc($existingResult);
             if (($current['ma_user'] ?? '') !== $ma_user) {
-                $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen xoa dia chi nay']);
+                $this->sendResponse(403, ['success' => false, 'message' => 'Bạn không có quyền xóa địa chỉ này']);
             }
 
             $ok = $this->dc->DiaChiGiaoHang_delete($ma_dia_chi);
             if (!$ok) {
-                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the xoa dia chi giao hang']);
+                $this->sendResponse(500, ['success' => false, 'message' => 'Không thể xóa địa chỉ giao hàng']);
             }
 
             $this->sendResponse(200, [
                 'success' => true,
-                'message' => 'Xoa dia chi giao hang thanh cong',
+                'message' => 'Xóa địa chỉ giao hàng thành công',
                 'data' => ['ma_dia_chi' => $ma_dia_chi]
             ]);
         }
@@ -755,7 +755,7 @@ class Checkout extends api_controller {
         $ma_user = $this->requireAuthUser();
         $status = $this->normalizeHistoryStatus($_GET['status'] ?? '');
         if ($status === null) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Trang thai loc khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Trạng thái lọc không hợp lệ']);
         }
 
         $orders = $this->getHistoryOrders($ma_user, $status);
@@ -763,7 +763,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay lich su don hang thanh cong',
+            'message' => 'Lấy lịch sử đơn hàng thành công',
             'data' => [
                 'orders' => $orders,
                 'counts' => $counts,
@@ -782,7 +782,7 @@ class Checkout extends api_controller {
 
         $status = $this->normalizeHistoryStatus($id);
         if ($status === null || $status === '') {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Trang thai loc khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Trạng thái lọc không hợp lệ']);
         }
 
         $ma_user = $this->requireAuthUser();
@@ -791,7 +791,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay lich su don hang theo trang thai thanh cong',
+            'message' => 'Lấy lịch sử đơn hàng theo trạng thái thành công',
             'data' => [
                 'orders' => $orders,
                 'counts' => $counts,
@@ -813,7 +813,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay tong quan trang thai don hang thanh cong',
+            'message' => 'Lấy tổng quan trạng thái đơn hàng thành công',
             'data' => $counts
         ]);
     }
@@ -826,17 +826,17 @@ class Checkout extends api_controller {
         $ma_user = $this->requireAuthUser();
         $ma_don_hang = trim((string)$id);
         if ($ma_don_hang === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma don hang']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã đơn hàng']);
         }
 
         $orderResult = $this->dh->DonHang_getById($ma_don_hang);
         if (!$orderResult || mysqli_num_rows($orderResult) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay don hang']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy đơn hàng']);
         }
 
         $order = mysqli_fetch_assoc($orderResult);
         if (($order['ma_user'] ?? '') !== $ma_user) {
-            $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen truy cap don hang nay']);
+            $this->sendResponse(403, ['success' => false, 'message' => 'Bạn không có quyền truy cập đơn hàng này']);
         }
 
         $details = [];
@@ -855,7 +855,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay chi tiet checkout thanh cong',
+            'message' => 'Lấy chi tiết thanh toán thành công',
             'data' => [
                 'order' => $order,
                 'details' => $details,
@@ -874,12 +874,12 @@ class Checkout extends api_controller {
 
         $payment_method = trim((string)($payload['payment_method'] ?? 'cod'));
         if (!in_array($payment_method, ['cod', 'bank'], true)) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Phuong thuc thanh toan khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Phương thức thanh toán không hợp lệ']);
         }
 
         $email = trim((string)($payload['txtEmail'] ?? $payload['email'] ?? ''));
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Email khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Email không hợp lệ']);
         }
 
         $checkout = $this->buildCheckoutPayload($ma_user, $payload, false);
@@ -906,17 +906,17 @@ class Checkout extends api_controller {
             );
 
             if (!$okAddress) {
-                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tao dia chi giao hang']);
+                $this->sendResponse(500, ['success' => false, 'message' => 'Không thể tạo địa chỉ giao hàng']);
             }
         } else {
             $ma_dia_chi = $addressInput['ma_dia_chi'];
             $addrCheck = $this->dc->DiaChiGiaoHang_getById($ma_dia_chi);
             if (!$addrCheck || mysqli_num_rows($addrCheck) === 0) {
-                $this->sendResponse(422, ['success' => false, 'message' => 'Dia chi giao hang khong ton tai']);
+                $this->sendResponse(422, ['success' => false, 'message' => 'Địa chỉ giao hàng không tồn tại']);
             }
             $addrRow = mysqli_fetch_assoc($addrCheck);
             if (($addrRow['ma_user'] ?? '') !== $ma_user) {
-                $this->sendResponse(403, ['success' => false, 'message' => 'Dia chi giao hang khong thuoc tai khoan hien tai']);
+                $this->sendResponse(403, ['success' => false, 'message' => 'Địa chỉ giao hàng không thuộc tài khoản hiện tại']);
             }
         }
 
@@ -932,7 +932,7 @@ class Checkout extends api_controller {
         );
 
         if (!$okOrder) {
-            $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tao don hang']);
+            $this->sendResponse(500, ['success' => false, 'message' => 'Không thể tạo đơn hàng']);
         }
 
         foreach ($checkout['items'] as $item) {
@@ -946,7 +946,7 @@ class Checkout extends api_controller {
             );
 
             if (!$okDetail) {
-                $this->sendResponse(500, ['success' => false, 'message' => 'Khong the tao chi tiet don hang']);
+                $this->sendResponse(500, ['success' => false, 'message' => 'Không thể tạo chi tiết đơn hàng']);
             }
 
             $variantResult = $this->bt->BienThe_getById($item['ma_bien_the']);
@@ -999,13 +999,13 @@ class Checkout extends api_controller {
         $paymentUrl = null;
         if ($payment_method === 'bank') {
             require_once __DIR__ . '/../../Core/VnPayHelper.php';
-            $orderInfo = 'Thanh toan don hang #' . $ma_don_hang;
+            $orderInfo = 'Thanh toán đơn hàng #' . $ma_don_hang;
             $paymentUrl = VnPayHelper::createPaymentUrl($orderInfo, $checkout['final_total'], $ma_don_hang, 'vn');
         }
 
         $this->sendResponse(201, [
             'success' => true,
-            'message' => 'Tao don hang thanh cong',
+            'message' => 'Tạo đơn hàng thành công',
             'data' => [
                 'ma_don_hang' => $ma_don_hang,
                 'ma_giao_dich' => $ma_giao_dich,
@@ -1028,32 +1028,32 @@ class Checkout extends api_controller {
         $ma_user = $this->requireAuthUser();
         $ma_don_hang = trim((string)$id);
         if ($ma_don_hang === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma don hang']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã đơn hàng']);
         }
 
         $orderResult = $this->dh->DonHang_getById($ma_don_hang);
         if (!$orderResult || mysqli_num_rows($orderResult) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay don hang']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy đơn hàng']);
         }
 
         $order = mysqli_fetch_assoc($orderResult);
         if (($order['ma_user'] ?? '') !== $ma_user) {
-            $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen cap nhat don nay']);
+            $this->sendResponse(403, ['success' => false, 'message' => 'Bạn không có quyền cập nhật đơn hàng này']);
         }
 
         $payload = $this->parseInputData();
         $status = trim((string)($payload['trang_thai_don_hang'] ?? $payload['status'] ?? ''));
         if ($status === '') {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Thieu trang thai can cap nhat']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Thiếu trạng thái cần cập nhật']);
         }
 
         $allowed = ['cho_duyet', 'da_huy'];
         if (!in_array($status, $allowed, true)) {
-            $this->sendResponse(422, ['success' => false, 'message' => 'Trang thai cap nhat khong hop le']);
+            $this->sendResponse(422, ['success' => false, 'message' => 'Trạng thái cập nhật không hợp lệ']);
         }
 
         if (($order['trang_thai_don_hang'] ?? '') !== 'cho_duyet' && $status === 'da_huy') {
-            $this->sendResponse(409, ['success' => false, 'message' => 'Chi co the huy don o trang thai cho_duyet']);
+            $this->sendResponse(409, ['success' => false, 'message' => 'Chỉ có thể hủy đơn ở trạng thái chờ duyệt']);
         }
 
         if ($status === 'da_huy' && ($order['trang_thai_don_hang'] ?? '') !== 'da_huy') {
@@ -1062,7 +1062,7 @@ class Checkout extends api_controller {
             $ok = $this->dh->DonHang_updateStatus($ma_don_hang, $status);
         }
         if (!$ok) {
-            $this->sendResponse(500, ['success' => false, 'message' => 'Khong the cap nhat don hang']);
+            $this->sendResponse(500, ['success' => false, 'message' => 'Không thể cập nhật đơn hàng']);
         }
 
         if ($status === 'da_huy') {
@@ -1081,7 +1081,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Cap nhat don checkout thanh cong',
+            'message' => 'Cập nhật đơn thanh toán thành công',
             'data' => [
                 'ma_don_hang' => $ma_don_hang,
                 'trang_thai_don_hang' => $status
@@ -1097,17 +1097,17 @@ class Checkout extends api_controller {
         $ma_user = $this->requireAuthUser();
         $ma_don_hang = trim((string)$id);
         if ($ma_don_hang === '') {
-            $this->sendResponse(400, ['success' => false, 'message' => 'Thieu ma don hang']);
+            $this->sendResponse(400, ['success' => false, 'message' => 'Thiếu mã đơn hàng']);
         }
 
         $orderResult = $this->dh->DonHang_getById($ma_don_hang);
         if (!$orderResult || mysqli_num_rows($orderResult) === 0) {
-            $this->sendResponse(404, ['success' => false, 'message' => 'Khong tim thay don hang']);
+            $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy đơn hàng']);
         }
 
         $order = mysqli_fetch_assoc($orderResult);
         if (($order['ma_user'] ?? '') !== $ma_user) {
-            $this->sendResponse(403, ['success' => false, 'message' => 'Ban khong co quyen huy don nay']);
+            $this->sendResponse(403, ['success' => false, 'message' => 'Bạn không có quyền hủy đơn này']);
         }
 
         if (($order['trang_thai_don_hang'] ?? '') !== 'cho_duyet') {
@@ -1116,7 +1116,7 @@ class Checkout extends api_controller {
 
         $ok = $this->dh->DonHang_cancelWithRestock($ma_don_hang);
         if (!$ok) {
-            $this->sendResponse(500, ['success' => false, 'message' => 'Khong the huy don']);
+            $this->sendResponse(500, ['success' => false, 'message' => 'Không thể hủy đơn']);
         }
 
         $paymentResult = $this->tt->ThanhToan_getByOrder($ma_don_hang);
@@ -1133,7 +1133,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Huy don checkout thanh cong',
+            'message' => 'Hủy đơn thanh toán thành công',
             'data' => [
                 'ma_don_hang' => $ma_don_hang,
                 'trang_thai_don_hang' => 'da_huy'
@@ -1156,7 +1156,7 @@ class Checkout extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Preview checkout thanh cong',
+            'message' => 'Xem trước thanh toán thành công',
             'data' => $checkout
         ]);
     }

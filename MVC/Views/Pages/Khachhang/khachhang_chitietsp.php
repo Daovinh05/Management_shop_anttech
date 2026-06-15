@@ -2134,7 +2134,7 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
                     }
                 } else if (xhr.readyState === 4) {
                     if (xhr.status === 401) {
-                        alert("Ban can dang nhap de them vao gio hang");
+                        alert("Bạn cần đăng nhập để thêm vào giỏ hàng");
                         window.location.href = '<?php echo $this->url('Login'); ?>';
                         return;
                     }
@@ -2421,11 +2421,11 @@ $initialProductId = isset($data['ma_san_pham']) ? (string)$data['ma_san_pham'] :
                         return;
                     }
 
-                    alert((result.body && result.body.message) ? result.body.message : 'Khong the mua ngay vao luc nay');
+                    alert((result.body && result.body.message) ? result.body.message : 'Không thể mua ngay vào lúc này');
                 })
                 .catch(function(err) {
                     console.error('Checkout Preview API network error', err);
-                    alert('Khong the kiem tra ton kho luc nay. Vui long thu lai.');
+                    alert('Không thể kiểm tra tồn kho lúc này. Vui lòng thử lại.');
                 });
 
             //var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));

@@ -1112,6 +1112,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         }
         setupPasswordToggle('loginPasswordInput', 'loginTogglePass');
         setupPasswordToggle('regPasswordInput', 'regTogglePass');
+        setupPasswordToggle('regConfirmPasswordInput', 'regToggleConfirmPass');
 
         // Submit Forms with AJAX to maintain modal experience
         document.getElementById('loginForm').addEventListener('submit', function(e) {

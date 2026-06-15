@@ -9,157 +9,157 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        body {
-            min-height: 100vh;
-            background: url('https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    body {
+        min-height: 100vh;
+        background: url('https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .container {
-            width: 900px;
-            background: white;
-            background: rgba(255, 255, 255, 0.6);
-            /* More transparent white for better readability */
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-            display: flex;
-            overflow: hidden;
-        }
+    .container {
+        width: 900px;
+        background: white;
+        background: rgba(255, 255, 255, 0.6);
+        /* More transparent white for better readability */
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        display: flex;
+        overflow: hidden;
+    }
 
-        /* LEFT - LOGIN */
-        .left {
-            width: 50%;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.3);
-            /* More transparent white */
-        }
+    /* LEFT - LOGIN */
+    .left {
+        width: 50%;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.3);
+        /* More transparent white */
+    }
 
-        .logo {
-            font-size: 40px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+    .logo {
+        font-size: 40px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
 
-        .left h2 {
-            text-align: center;
-            margin-bottom: 5px;
-        }
+    .left h2 {
+        text-align: center;
+        margin-bottom: 5px;
+    }
 
-        .left p {
-            text-align: center;
-            color: #666;
-            margin-bottom: 25px;
-        }
+    .left p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 25px;
+    }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
+    .form-group {
+        margin-bottom: 18px;
+    }
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            font-size: 15px;
-        }
+    input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        font-size: 15px;
+    }
 
-        input:focus {
-            outline: none;
-            border-color: #6f4e37;
-        }
+    input:focus {
+        outline: none;
+        border-color: #6f4e37;
+    }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #6f4e37;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: #6f4e37;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-        .btn:hover {
-            background: #5a3e2b;
-        }
+    .btn:hover {
+        background: #5a3e2b;
+    }
 
-        .error {
-            background: #fdecea;
-            color: #b71c1c;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+    .error {
+        background: #fdecea;
+        color: #b71c1c;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
 
-        /* RIGHT - INFO */
-        .right {
-            width: 50%;
-            background: rgba(111, 78, 55, 0.7);
-            /* More transparent coffee brown */
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
+    /* RIGHT - INFO */
+    .right {
+        width: 50%;
+        background: rgba(111, 78, 55, 0.7);
+        /* More transparent coffee brown */
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
 
-        .right i {
-            font-size: 60px;
-            margin-bottom: 15px;
-        }
+    .right i {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
 
-        .right h2 {
-            margin-bottom: 10px;
-        }
+    .right h2 {
+        margin-bottom: 10px;
+    }
 
-        .right p {
-            margin-bottom: 20px;
-        }
+    .right p {
+        margin-bottom: 20px;
+    }
 
-        .right ul {
-            list-style: none;
-            text-align: center;
-            margin-top: 40px;
-            padding-left: 0;
-        }
+    .right ul {
+        list-style: none;
+        text-align: center;
+        margin-top: 40px;
+        padding-left: 0;
+    }
 
-        .right ul li {
-            margin-bottom: 20px;
-            font-size: 15px;
-            text-align: center;
-        }
+    .right ul li {
+        margin-bottom: 20px;
+        font-size: 15px;
+        text-align: center;
+    }
 
-        .right ul li::before {
-            /* content: "✔ "; */
-            content: " - ";
+    .right ul li::before {
+        /* content: "✔ "; */
+        content: " - ";
 
-            color: #c8e6c9;
-            font-weight: bold;
-        }
+        color: #c8e6c9;
+        font-weight: bold;
+    }
 
-        .right ul li::after {
-            /* content: "✔ "; */
-            content: " - ";
+    .right ul li::after {
+        /* content: "✔ "; */
+        content: " - ";
 
-            color: #c8e6c9;
-            font-weight: bold;
-        }
+        color: #c8e6c9;
+        font-weight: bold;
+    }
     </style>
 </head>
 
@@ -187,9 +187,9 @@
                 </div>
 
                 <?php if (isset($_SESSION['error'])): ?>
-                    <div class="error">
-                        <?= $_SESSION['error'] ?>
-                    </div>
+                <div class="error">
+                    <?= $_SESSION['error'] ?>
+                </div>
                 <?php unset($_SESSION['error']);
                 endif; ?>
 
@@ -224,43 +224,43 @@
 </body>
 
 <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = this;
-        const formData = new FormData(form);
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
 
-        fetch('<?php echo BASE_URL; ?>Api/Auth/login', {
+    fetch('<?php echo BASE_URL; ?>Api/Auth/login', {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(response => response.json().catch(() => ({
-                success: false,
-                error: 'Phan hoi API khong hop le'
-            })))
-            .then(data => {
-                form.querySelector('.error')?.remove();
+        .then(response => response.json().catch(() => ({
+            success: false,
+            error: 'Phản hồi API không hợp lệ'
+        })))
+        .then(data => {
+            form.querySelector('.error')?.remove();
 
-                if (data.success) {
-                    window.location.href = data.redirect || '<?php echo BASE_URL; ?>Khachhang';
-                    return;
-                }
+            if (data.success) {
+                window.location.href = data.redirect || '<?php echo BASE_URL; ?>Khachhang';
+                return;
+            }
 
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = data.error || data.message || 'Dang nhap that bai';
-                form.appendChild(errorDiv);
-            })
-            .catch(() => {
-                form.querySelector('.error')?.remove();
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = 'Co loi xay ra khi dang nhap';
-                form.appendChild(errorDiv);
-            });
-    });
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = data.error || data.message || 'Đăng nhập thất bại';
+            form.appendChild(errorDiv);
+        })
+        .catch(() => {
+            form.querySelector('.error')?.remove();
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = 'Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau.';
+            form.appendChild(errorDiv);
+        });
+});
 </script>
 
 </html>

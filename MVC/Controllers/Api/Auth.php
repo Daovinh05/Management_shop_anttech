@@ -64,13 +64,13 @@ class Auth extends api_controller {
         if (!$user) {
             $this->sendResponse(401, [
                 'success' => false,
-                'message' => 'Unauthorized. Vui long dang nhap'
+                'message' => 'Chưa xác thực. Vui lòng đăng nhập'
             ]);
         }
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Lay thong tin tai khoan thanh cong',
+            'message' => 'Lấy thông tin tài khoản thành công',
             'data' => $this->sanitizeUser($user)
         ]);
     }
@@ -91,8 +91,8 @@ class Auth extends api_controller {
         if ($username === '' || $password === '') {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Vui long cung cap username/email va password',
-                'error' => 'Vui long cung cap username/email va password'
+                'message' => 'Vui lòng cung cấp tên đăng nhập/email và mật khẩu',
+                'error' => 'Vui lòng cung cấp tên đăng nhập/email và mật khẩu'
             ]);
         }
 
@@ -100,8 +100,8 @@ class Auth extends api_controller {
         if (!$result || mysqli_num_rows($result) === 0) {
             $this->sendResponse(401, [
                 'success' => false,
-                'message' => 'Ten dang nhap hoac mat khau khong dung',
-                'error' => 'Ten dang nhap hoac mat khau khong dung'
+                'message' => 'Tên đăng nhập hoặc mật khẩu không đúng',
+                'error' => 'Tên đăng nhập hoặc mật khẩu không đúng'
             ]);
         }
 
@@ -114,7 +114,7 @@ class Auth extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Dang nhap thanh cong',
+            'message' => 'Đăng nhập thành công',
             'redirect' => $this->resolveRedirectByRole($user['phan_quyen'] ?? ''),
             'data' => $this->sanitizeUser($user)
         ]);
@@ -141,16 +141,16 @@ class Auth extends api_controller {
         if ($username === '' || $password === '') {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Vui long cung cap username va password',
-                'error' => 'Vui long cung cap username va password'
+                'message' => 'Vui lòng cung cấp tên đăng nhập và mật khẩu',
+                'error' => 'Vui lòng cung cấp tên đăng nhập và mật khẩu'
             ]);
         }
 
         if ($confirmPassword !== '' && $confirmPassword !== $password) {
             $this->sendResponse(422, [
                 'success' => false,
-                'message' => 'Mat khau xac nhan khong khop',
-                'error' => 'Mat khau xac nhan khong khop'
+                'message' => 'Mật khẩu xác nhận không khớp',
+                'error' => 'Mật khẩu xác nhận không khớp'
             ]);
         }
 
@@ -158,8 +158,8 @@ class Auth extends api_controller {
         if ($existingUser) {
             $this->sendResponse(409, [
                 'success' => false,
-                'message' => 'Ten dang nhap da ton tai',
-                'error' => 'Ten dang nhap da ton tai'
+                'message' => 'Tên đăng nhập đã tồn tại',
+                'error' => 'Tên đăng nhập đã tồn tại'
             ]);
         }
 
@@ -170,8 +170,8 @@ class Auth extends api_controller {
             if ($existingEmail && mysqli_num_rows($existingEmail) > 0) {
                 $this->sendResponse(409, [
                     'success' => false,
-                    'message' => 'Email da duoc su dung',
-                    'error' => 'Email da duoc su dung'
+                    'message' => 'Email đã được sử dụng',
+                    'error' => 'Email đã được sử dụng'
                 ]);
             }
         }
@@ -179,8 +179,8 @@ class Auth extends api_controller {
         if ($phone !== '' && $this->users->checkTrungSoDienThoai($phone)) {
             $this->sendResponse(409, [
                 'success' => false,
-                'message' => 'So dien thoai da duoc su dung',
-                'error' => 'So dien thoai da duoc su dung'
+                'message' => 'Số điện thoại đã được sử dụng',
+                'error' => 'Số điện thoại đã được sử dụng'
             ]);
         }
 
@@ -188,8 +188,8 @@ class Auth extends api_controller {
         if (!$created) {
             $this->sendResponse(500, [
                 'success' => false,
-                'message' => 'Dang ky that bai',
-                'error' => 'Dang ky that bai'
+                'message' => 'Đăng ký thất bại',
+                'error' => 'Đăng ký thất bại'
             ]);
         }
 
@@ -205,7 +205,7 @@ class Auth extends api_controller {
 
         $this->sendResponse(201, [
             'success' => true,
-            'message' => 'Dang ky thanh cong',
+            'message' => 'Đăng ký thành công',
             'redirect' => BASE_URL . 'Home',
             'data' => $createdUser ? $this->sanitizeUser($createdUser) : null
         ]);
@@ -229,7 +229,7 @@ class Auth extends api_controller {
 
         $this->sendResponse(200, [
             'success' => true,
-            'message' => 'Dang xuat thanh cong'
+            'message' => 'Đăng xuất thành công'
         ]);
     }
 }

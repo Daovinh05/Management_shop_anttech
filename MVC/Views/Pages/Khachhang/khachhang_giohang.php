@@ -703,7 +703,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                 } else if (xhr.status === 401) {
                     window.location.href = '<?php echo $this->url('Login'); ?>';
                 } else {
-                    alert('Khong the tai du lieu gio hang. Vui long thu lai.');
+                    alert('Không thể tải dữ liệu giỏ hàng. Vui lòng thử lại.');
                 }
             };
             xhr.send();
@@ -888,7 +888,7 @@ include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
                     }
 
                 } else {
-                    alert('Khong the xoa san pham khoi gio hang. Vui long thu lai.');
+                    alert('Không thể xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.');
                 }
             };
 
