@@ -146,14 +146,6 @@ class Auth extends api_controller {
             ]);
         }
 
-        if ($confirmPassword !== '' && $confirmPassword !== $password) {
-            $this->sendResponse(422, [
-                'success' => false,
-                'message' => 'Mật khẩu xác nhận không khớp',
-                'error' => 'Mật khẩu xác nhận không khớp'
-            ]);
-        }
-
         $existingUser = $this->users->getUserByUsername($username);
         if ($existingUser) {
             $this->sendResponse(409, [

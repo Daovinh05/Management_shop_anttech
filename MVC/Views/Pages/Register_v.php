@@ -327,9 +327,31 @@ document.querySelectorAll('.toggle-password').forEach(function(button) {
     });
 });
 
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirm_password');
+
+function showPasswordMismatchWarning() {
+    const form = document.getElementById('registerForm');
+    const passwordsMatch = passwordInput.value === confirmPasswordInput.value;
+    let warning = form.querySelector('.password-mismatch-warning');
+
+    if (!passwordsMatch && !warning) {
+        warning = document.createElement('div');
+        warning.className = 'error password-mismatch-warning';
+        warning.textContent = 'Mật khẩu xác nhận không khớp';
+        form.appendChild(warning);
+    } else if (passwordsMatch && warning) {
+        warning.remove();
+    }
+}
+
+passwordInput.addEventListener('input', showPasswordMismatchWarning);
+confirmPasswordInput.addEventListener('input', showPasswordMismatchWarning);
+
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const form = this;
+    showPasswordMismatchWarning();
     const formData = new FormData(form);
 
     fetch('<?php echo BASE_URL; ?>Api/Auth/register', {
@@ -344,18 +366,23 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
             error: 'Phản hồi API không hợp lệ'
         })))
         .then(data => {
-            form.querySelector('.error')?.remove();
+            form.querySelector('.error:not(.password-mismatch-warning)')?.remove();
             form.querySelector('.success')?.remove();
 
             if (data.success) {
+                const hasPasswordMismatch = Boolean(
+                    form.querySelector('.password-mismatch-warning')
+                );
                 const successDiv = document.createElement('div');
                 successDiv.className = 'success';
                 successDiv.textContent = data.message || 'Đăng ký tài khoản thành công';
                 form.appendChild(successDiv);
 
-                setTimeout(function() {
-                    window.location.href = '<?php echo BASE_URL; ?>Login';
-                }, 900);
+                if (!hasPasswordMismatch) {
+                    setTimeout(function() {
+                        window.location.href = '<?php echo BASE_URL; ?>Login';
+                    }, 900);
+                }
                 return;
             }
 
@@ -365,7 +392,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
             form.appendChild(errorDiv);
         })
         .catch(() => {
-            form.querySelector('.error')?.remove();
+            form.querySelector('.error:not(.password-mismatch-warning)')?.remove();
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error';
             errorDiv.textContent = 'Có lỗi xảy ra khi đăng ký tài khoản. Vui lòng thử lại sau.';

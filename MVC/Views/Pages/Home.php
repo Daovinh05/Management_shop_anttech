@@ -1114,6 +1114,28 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         setupPasswordToggle('regPasswordInput', 'regTogglePass');
         setupPasswordToggle('regConfirmPasswordInput', 'regToggleConfirmPass');
 
+        const regPasswordInput = document.getElementById('regPasswordInput');
+        const regConfirmPasswordInput = document.getElementById('regConfirmPasswordInput');
+
+        function showPasswordMismatchWarning() {
+            const form = document.getElementById('registerForm');
+            const passwordsMatch = regPasswordInput.value === regConfirmPasswordInput.value;
+            let warning = form.querySelector('.password-mismatch-warning');
+
+            if (!passwordsMatch && !warning) {
+                warning = document.createElement('div');
+                warning.className = 'error password-mismatch-warning';
+                warning.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
+                warning.textContent = 'Mật khẩu xác nhận không khớp';
+                form.appendChild(warning);
+            } else if (passwordsMatch && warning) {
+                warning.remove();
+            }
+        }
+
+        regPasswordInput.addEventListener('input', showPasswordMismatchWarning);
+        regConfirmPasswordInput.addEventListener('input', showPasswordMismatchWarning);
+
         // Submit Forms with AJAX to maintain modal experience
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent normal form submission
@@ -1170,6 +1192,8 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent normal form submission
 
+            showPasswordMismatchWarning();
+
             // Get form data
             const formData = new FormData(this);
             const form = this;
@@ -1209,20 +1233,25 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     return data;
                 })
                 .then(data => {
-                    form.querySelector('.error')?.remove();
+                    form.querySelector('.error:not(.password-mismatch-warning)')?.remove();
                     form.querySelector('.success')?.remove();
 
                     if (data.success) {
+                        const hasPasswordMismatch = Boolean(
+                            form.querySelector('.password-mismatch-warning')
+                        );
                         const successDiv = document.createElement('div');
                         successDiv.className = 'success';
                         successDiv.style.cssText = 'color: green; margin-top: 10px; text-align: center;';
                         successDiv.textContent = data.message || 'Đăng ký thành công!';
                         form.appendChild(successDiv);
 
-                        setTimeout(() => {
-                            hideModal(document.getElementById('registerModal'));
-                            showModal(document.getElementById('loginModal'));
-                        }, 800);
+                        if (!hasPasswordMismatch) {
+                            setTimeout(() => {
+                                hideModal(document.getElementById('registerModal'));
+                                showModal(document.getElementById('loginModal'));
+                            }, 800);
+                        }
                     } else {
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'error';
@@ -1233,7 +1262,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 })
                 .catch(error => {
                     console.error('Registration Error:', error);
-                    form.querySelector('.error')?.remove();
+                    form.querySelector('.error:not(.password-mismatch-warning)')?.remove();
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'error';
                     errorDiv.style.cssText = 'color: red; margin-top: 10px; text-align: center;';
