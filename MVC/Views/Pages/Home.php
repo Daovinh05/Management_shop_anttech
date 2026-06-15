@@ -865,7 +865,8 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
         <div class="login-container">
             <span class="close-btn" id="btnCloseRegister">&times;</span>
             <div class="login-title">ĐĂNG KÝ</div>
-            <form id="registerForm" method="post" action="<?php echo UrlHelper::url('Api/Auth/register'); ?>">
+            <form id="registerForm" method="post" action="<?php echo UrlHelper::url('Api/Auth/register'); ?>"
+                novalidate>
                 <div class="input-group">
                     <label>Họ và tên</label>
                     <input type="text" name="fullname" placeholder="Nhập họ và tên" required
@@ -873,7 +874,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 </div>
                 <div class="input-group">
                     <label>Email</label>
-                    <input type="email" name="email" placeholder="Nhập email" required
+                    <input type="email" name="email" placeholder="Ví dụ: tennguoidung@gmail.com" required
                         value="<?php echo isset($_SESSION['form_data']['email']) ? htmlspecialchars($_SESSION['form_data']['email']) : ''; ?>">
                 </div>
                 <div class="input-group">

@@ -208,7 +208,7 @@
             <h2>Đăng ký tài khoản</h2>
             <p>Quản lý quán cà phê</p>
 
-            <form id="registerForm" method="post" action="<?php echo BASE_URL; ?>Api/Auth/register">
+            <form id="registerForm" method="post" action="<?php echo BASE_URL; ?>Api/Auth/register" novalidate>
                 <div class="form-group">
                     <label>Tên tài khoản</label>
                     <!-- <input type="text" name="username" placeholder="Nhập tên đăng nhập" required> -->
@@ -221,7 +221,7 @@
                     <label>Email</label>
                     <!-- <input type="email" name="email" placeholder="Nhập email" required> -->
 
-                    <input type="email" name="email" placeholder="Nhập email" required
+                    <input type="email" name="email" placeholder="Ví dụ: tennguoidung@gmail.com" required
                         value="<?php echo isset($_SESSION['form_data']['email']) ? htmlspecialchars($_SESSION['form_data']['email']) : ''; ?>">
                 </div>
 

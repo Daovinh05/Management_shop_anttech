@@ -166,6 +166,14 @@ class Auth extends api_controller {
         if ($email === '') {
             $email = $username . '@gmail.com';
         } else {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+                $this->sendResponse(422, [
+                    'success' => false,
+                    'message' => 'Email không đúng định dạng',
+                    'error' => 'Email không đúng định dạng'
+                ]);
+            }
+
             $existingEmail = $this->users->checktrungEmail($email, '');
             if ($existingEmail && mysqli_num_rows($existingEmail) > 0) {
                 $this->sendResponse(409, [
