@@ -121,23 +121,23 @@
             </div>
             <div>
                 <label>Tên món <span style="color:red">*</span></label>
-                <input type="text" id="txtTensanpham" name="txtTensanpham" required />
+                <input type="text" id="txtTensanpham" name="txtTensanpham" data-required="true" />
             </div>
             <div>
                 <label>Danh mục <span style="color:red">*</span></label>
-                <select id="ddlDanhmuc" name="ddlDanhmuc" required>
+                <select id="ddlDanhmuc" name="ddlDanhmuc" data-required="true">
                     <option value="">-- Chọn danh mục --</option>
                 </select>
             </div>
             <div>
                 <label>Thương hiệu <span style="color:red">*</span></label>
-                <select id="ddlThuonghieu" name="ddlThuonghieu" required>
+                <select id="ddlThuonghieu" name="ddlThuonghieu" data-required="true">
                     <option value="">-- Chọn thương hiệu --</option>
                 </select>
             </div>
             <div>
                 <label>Nhà cung cấp <span style="color:red">*</span></label>
-                <select id="ddlNhacungcap" name="ddlNhacungcap" required>
+                <select id="ddlNhacungcap" name="ddlNhacungcap" data-required="true">
                     <option value="">-- Chọn nhà cung cấp --</option>
                 </select>
             </div>

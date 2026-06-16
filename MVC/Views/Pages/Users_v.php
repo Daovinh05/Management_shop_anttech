@@ -65,12 +65,12 @@
         <form id="createUserForm" method="post" action="<?php echo BASE_URL; ?>Users/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã user <span style="color:red">*</span></label>
-                <input type="text" name="txtMauser" required
+                <input type="text" name="txtMauser" data-required="true"
                     value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : ''; ?>" />
             </div>
             <div>
                 <label>Họ và tên <span style="color:red">*</span></label>
-                <input type="text" name="txtHoten" required
+                <input type="text" name="txtHoten" data-required="true"
                     value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : ''; ?>" />
             </div>
             <div>
@@ -80,17 +80,17 @@
             </div>
             <div>
                 <label>Tên tài khoản <span style="color:red">*</span></label>
-                <input type="text" name="txtTenuser" required
+                <input type="text" name="txtTenuser" data-required="true"
                     value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : ''; ?>" />
             </div>
             <div>
                 <label>Mật khẩu</label>
-                <input type="password" name="txtPassword" required
+                <input type="password" name="txtPassword" data-required="true"
                     value="<?php echo isset($data['password']) ? htmlspecialchars($data['password']) : ''; ?>" />
             </div>
             <div>
                 <label>Email</label>
-                <input type="email" name="txtEmail" required
+                <input type="email" name="txtEmail" data-required="true"
                     value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : ''; ?>" />
             </div>
             <div>

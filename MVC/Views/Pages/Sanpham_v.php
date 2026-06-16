@@ -105,18 +105,18 @@
         <form id="formAddProduct">
             <div>
                 <label>Mã sản phẩm <span style="color:red">*</span></label>
-                <input type="text" name="txtMaSanPham" required
+                <input type="text" name="txtMaSanPham" data-required="true"
                     value="<?php echo isset($data['ma_san_pham']) ? htmlspecialchars($data['ma_san_pham']) : ''; ?>" />
             </div>
             <div>
                 <label>Tên sản phẩm <span style="color:red">*</span></label>
-                <input type="text" name="txtTenSanPham" required
+                <input type="text" name="txtTenSanPham" data-required="true"
                     value="<?php echo isset($data['ten_san_pham']) ? htmlspecialchars($data['ten_san_pham']) : ''; ?>" />
             </div>
 
             <div>
                 <label>Danh mục <span style="color:red">*</span></label>
-                <select name="ddlDanhmuc" required>
+                <select name="ddlDanhmuc" data-required="true">
                     <option value="">-- Chọn danh mục --</option>
                     <?php
                     if (isset($data['dsdm'])) {
@@ -130,7 +130,7 @@
             </div>
             <div>
                 <label>Thương hiệu <span style="color:red">*</span></label>
-                <select name="ddlThuonghieu" required>
+                <select name="ddlThuonghieu" data-required="true">
                     <option value="">-- Chọn thương hiệu --</option>
                     <?php
                     if (isset($data['dsth'])) {
@@ -144,7 +144,7 @@
             </div>
             <div>
                 <label>Nhà cung cấp <span style="color:red">*</span></label>
-                <select name="ddlNhacungcap" required>
+                <select name="ddlNhacungcap" data-required="true">
                     <option value="">-- Chọn nhà cung cấp --</option>
                     <?php
                     if (isset($data['dsncc'])) {

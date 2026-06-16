@@ -117,7 +117,7 @@
                 <div class="file-upload-wrapper" id="file-wrapper">
                     <h4 style="margin-bottom: 5px; font-size: 16px;">Nhấn vào đây để chọn file</h4>
                     <p style="color:#6b7280">.xls, .xlsx</p>
-                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" required onchange="updateFileName(this)" />
+                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" data-required="true" onchange="updateFileName(this)" />
                 </div>
 
                 <div id="fileNameDisplay" style="margin-top:-10px;margin-bottom:20px;text-align:center;font-weight:600;color:var(--primary);display:none;">

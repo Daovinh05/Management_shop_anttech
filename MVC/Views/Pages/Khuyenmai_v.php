@@ -66,31 +66,31 @@
         <form id="createPromotionForm" method="post" action="<?php echo BASE_URL; ?>Khuyenmai/ins">
             <div>
                 <label>Mã khuyến mãi <span style="color:red">*</span></label>
-                <input type="text" name="txtMakhuyenmai" required
+                <input type="text" name="txtMakhuyenmai" data-required="true"
                     value="<?php echo isset($data['ma_khuyen_mai']) ? htmlspecialchars($data['ma_khuyen_mai']) : '' ?>" />
             </div>
             <div>
                 <label>Tên khuyến mãi <span style="color:red">*</span></label>
-                <input type="text" name="txtTenkhuyenmai" required
+                <input type="text" name="txtTenkhuyenmai" data-required="true"
                     value="<?php echo isset($data['ten_khuyen_mai']) ? htmlspecialchars($data['ten_khuyen_mai']) : '' ?>" />
             </div>
             <div>
                 <label>Ngày bắt đầu <span style="color:red">*</span></label>
-                <input type="datetime-local" name="txtNgaybatdau" required value="<?php echo isset($data['ngay_bat_dau'])
+                <input type="datetime-local" name="txtNgaybatdau" data-required="true" value="<?php echo isset($data['ngay_bat_dau'])
                                                                                         ? date('Y-m-d\TH:i', strtotime($data['ngay_bat_dau']))
                                                                                         : '' ?>">
             </div>
 
             <div>
                 <label>Ngày kết thúc <span style="color:red">*</span></label>
-                <input type="datetime-local" name="txtNgayketthuc" required value="<?php echo isset($data['ngay_ket_thuc'])
+                <input type="datetime-local" name="txtNgayketthuc" data-required="true" value="<?php echo isset($data['ngay_ket_thuc'])
                                                                                         ? date('Y-m-d\TH:i', strtotime($data['ngay_ket_thuc']))
                                                                                         : '' ?>">
             </div>
 
             <div>
                 <label>Tiền khuyến mãi <span style="color:red">*</span></label>
-                <input type="number" name="txtTienkhuyenmai" required min="0"
+                <input type="number" name="txtTienkhuyenmai" data-required="true" min="0"
                     value="<?php echo isset($data['tien_khuyen_mai']) ? htmlspecialchars($data['tien_khuyen_mai']) : '' ?>" />
             </div>
             <div class="actions">

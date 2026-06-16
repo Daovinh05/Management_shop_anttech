@@ -1154,6 +1154,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         </div>
     </footer>
 
+    <script src="<?php echo UrlHelper::url('Public/Js/form-required-validator.js?v=1'); ?>"></script>
     <script>
         // Lấy các phần tử (dùng tên biến riêng để tránh trùng với script từng page)
         const khMasterAccountBtn = document.getElementById('accountBtn');

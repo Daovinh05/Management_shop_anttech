@@ -109,15 +109,15 @@
         <form id="updateSupplierForm">
             <div>
                 <label>Mã nhà cung cấp <span style="color:red">*</span></label>
-                <input type="text" id="txtManhacungcap" name="txtManhacungcap" required readonly />
+                <input type="text" id="txtManhacungcap" name="txtManhacungcap" data-required="true" readonly />
             </div>
             <div>
                 <label>Tên nhà cung cấp <span style="color:red">*</span></label>
-                <input type="text" id="txtTennhacungcap" name="txtTennhacungcap" required />
+                <input type="text" id="txtTennhacungcap" name="txtTennhacungcap" data-required="true" />
             </div>
             <div>
                 <label for="phone">Điện thoại(10 số)</label>
-                <input type="tel" id="phone" name="txtSodienthoai" placeholder="VD: 0912345678" required
+                <input type="tel" id="phone" name="txtSodienthoai" placeholder="VD: 0912345678" data-required="true"
                     maxlength="10"
                     pattern="[0-9]{10}" title="Vui lòng nhập đúng 10 chữ số điện thoại" />
             </div>

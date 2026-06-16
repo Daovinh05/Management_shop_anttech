@@ -97,12 +97,12 @@
         <form id="createBrandForm" method="post" action="<?php echo BASE_URL; ?>Thuonghieu/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã thương hiệu <span style="color:red">*</span></label>
-                <input type="text" name="txtMathuonghieu" required
+                <input type="text" name="txtMathuonghieu" data-required="true"
                     value="<?php echo isset($data['ma_thuong_hieu']) ? htmlspecialchars($data['ma_thuong_hieu']) : '' ?>" />
             </div>
             <div>
                 <label>Tên thương hiệu <span style="color:red">*</span></label>
-                <input type="text" name="txtTenthuonghieu" required
+                <input type="text" name="txtTenthuonghieu" data-required="true"
                     value="<?php echo isset($data['ten_thuong_hieu']) ? htmlspecialchars($data['ten_thuong_hieu']) : '' ?>" />
             </div>
             <!-- <div>

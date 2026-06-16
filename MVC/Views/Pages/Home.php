@@ -830,13 +830,13 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             <form id="loginForm" method="post" action="<?php echo UrlHelper::url('Api/Auth/login'); ?>">
                 <div class="input-group">
                     <label>Tài khoản</label>
-                    <input type="text" name="username" placeholder="Nhập tài khoản" required>
+                    <input type="text" name="username" placeholder="Nhập tài khoản" data-required="true">
                 </div>
                 <div class="input-group">
                     <label>MẬT KHẨU</label>
                     <div class="password-wrapper">
                         <input type="password" name="password" id="loginPasswordInput" placeholder="Nhập mật khẩu"
-                            required>
+                            data-required="true">
                         <span class="eye-icon" id="loginTogglePass">👁</span>
                     </div>
                 </div>
@@ -868,24 +868,24 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
             <form id="registerForm" method="post" action="<?php echo UrlHelper::url('Api/Auth/register'); ?>">
                 <div class="input-group">
                     <label>Họ và tên</label>
-                    <input type="text" name="fullname" placeholder="Nhập họ và tên" required
+                    <input type="text" name="fullname" placeholder="Nhập họ và tên" data-required="true"
                         value="<?php echo isset($_SESSION['form_data']['full_name']) ? htmlspecialchars($_SESSION['form_data']['full_name']) : ''; ?>">
                 </div>
                 <div class="input-group">
                     <label>Email</label>
-                    <input type="email" name="email" placeholder="Ví dụ: tennguoidung@gmail.com" required
+                    <input type="email" name="email" placeholder="Ví dụ: tennguoidung@gmail.com" data-required="true"
                         value="<?php echo isset($_SESSION['form_data']['email']) ? htmlspecialchars($_SESSION['form_data']['email']) : ''; ?>">
                 </div>
                 <div class="input-group">
                     <label>Số điện thoại</label>
-                    <input type="tel" name="phone" placeholder="Ví dụ: 0389783612" required pattern="0[0-9]{9}"
+                    <input type="tel" name="phone" placeholder="Ví dụ: 0389783612" data-required="true" pattern="0[0-9]{9}"
                         maxlength="10" inputmode="numeric"
                         title="Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0"
                         value="<?php echo isset($_SESSION['form_data']['phone']) ? htmlspecialchars($_SESSION['form_data']['phone']) : ''; ?>">
                 </div>
                 <div class="input-group">
                     <label>Tài khoản</label>
-                    <input type="text" name="username" placeholder="Nhập tài khoản" required
+                    <input type="text" name="username" placeholder="Nhập tài khoản" data-required="true"
                         value="<?php echo isset($_SESSION['form_data']['username']) ? htmlspecialchars($_SESSION['form_data']['username']) : ''; ?>">
                 </div>
 
@@ -893,7 +893,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     <label>MẬT KHẨU</label>
                     <div class="password-wrapper">
                         <input type="password" name="password" id="regPasswordInput" placeholder="Nhập mật khẩu"
-                            required>
+                            data-required="true">
                         <span class="eye-icon" id="regTogglePass">👁</span>
                     </div>
                 </div>
@@ -901,7 +901,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     <label>NHẬP LẠI MẬT KHẨU</label>
                     <div class="password-wrapper">
                         <input type="password" name="confirm_password" id="regConfirmPasswordInput"
-                            placeholder="Nhập lại mật khẩu" required>
+                            placeholder="Nhập lại mật khẩu" data-required="true">
                         <span class="eye-icon" id="regToggleConfirmPass">👁</span>
                     </div>
                 </div>

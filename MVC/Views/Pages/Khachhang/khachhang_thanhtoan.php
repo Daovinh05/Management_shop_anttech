@@ -901,7 +901,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             <input type="text" id="fullname" class="form-control" name="txtHoTen"
                                 placeholder="Nhập họ và tên của bạn"
                                 value="<?php echo isset($old_data['full_name']) ? htmlspecialchars($old_data['full_name']) : ($user_info ? htmlspecialchars($user_info['full_name']) : ''); ?>"
-                                required>
+                                data-required="true">
                         </div>
                         
                         <div class="form-group">
@@ -909,7 +909,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             <input type="text" id="ho_ten" class="form-control" name="txtHoTenNguoiNhan"
                                 placeholder="Nhập họ và tên người nhận"
                                 value="<?php echo isset($old_data['ho_ten']) ? htmlspecialchars($old_data['ho_ten']) : (isset($dia_chi['ho_ten']) ? htmlspecialchars($dia_chi['ho_ten']) : ''); ?>"
-                                required >
+                                data-required="true" >
                         </div>
 
                         <div class="form-group">
@@ -917,7 +917,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             <input type="text" id="address" class="form-control" name="txtDiaChiGiaoHang"
                                 placeholder="Nhập địa chỉ giao hàng (Số nhà, tên đường, phường/xã, quận/huyện)"
                                 value="<?php echo isset($old_data['dia_chi']) ? htmlspecialchars($old_data['dia_chi']) : (isset($dia_chi['dia_chi']) ? htmlspecialchars($dia_chi['dia_chi']) : ''); ?>"
-                                required>
+                                data-required="true">
                             <small class="form-text text-muted" style="color: #888; font-size: 12px; margin-top: 5px; display: block;">
                                 <i class="fas fa-info-circle"></i> Nhập địa chỉ cụ thể để giao hàng chính xác
                             </small>
@@ -928,7 +928,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             <input type="tel" id="phone" class="form-control" name="txtSoDienThoai"
                                 placeholder="Nhập số điện thoại"
                                 value="<?php echo isset($old_data['so_dien_thoai']) ? htmlspecialchars($old_data['so_dien_thoai']) : ''; ?>"
-                                required>
+                                data-required="true">
                         </div>
 
                        

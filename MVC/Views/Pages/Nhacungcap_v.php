@@ -97,18 +97,18 @@
         <form id="createSupplierForm" method="post" action="<?php echo BASE_URL; ?>Nhacungcap/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã nhà cung cấp <span style="color:red">*</span></label>
-                <input type="text" name="txtManhacungcap" required
+                <input type="text" name="txtManhacungcap" data-required="true"
                     value="<?php echo isset($data['ma_nha_cung_cap']) ? htmlspecialchars($data['ma_nha_cung_cap']) : '' ?>" />
             </div>
             <div>
                 <label>Tên nhà cung cấp <span style="color:red">*</span></label>
-                <input type="text" name="txtTennhacungcap" required
+                <input type="text" name="txtTennhacungcap" data-required="true"
                     value="<?php echo isset($data['ten_nha_cung_cap']) ? htmlspecialchars($data['ten_nha_cung_cap']) : '' ?>" />
             </div>
 
             <div>
                 <label for="phone">Điện thoại(10 số)</label>
-                <input type="tel" id="phone" name="txtDienThoai" placeholder="VD: 0912345678" required
+                <input type="tel" id="phone" name="txtDienThoai" placeholder="VD: 0912345678" data-required="true"
                     value="<?php echo isset($data['dienthoai']) ? $data['dienthoai'] : '' ?>" maxlength="10"
                     pattern="[0-9]{10}" title="Vui lòng nhập đúng 10 chữ số điện thoại" />
             </div>
@@ -116,7 +116,7 @@
             <div class="full">
                 <label for="address">Địa chỉ</label>
                 <textarea id="address" name="txtDiaChi" placeholder="Nhập địa chỉ nhà cung cấp"
-                    required><?php echo isset($data['diachi']) ? $data['diachi'] : '' ?></textarea>
+                    data-required="true"><?php echo isset($data['diachi']) ? $data['diachi'] : '' ?></textarea>
             </div>
 
 

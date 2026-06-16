@@ -65,12 +65,12 @@
         <form id="createVariantForm" method="post" action="<?php echo BASE_URL; ?>BienThe/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
-                <input type="text" name="txtMaBienThe" required
+                <input type="text" name="txtMaBienThe" data-required="true"
                     value="<?php echo isset($data['mabienthe']) ? htmlspecialchars($data['mabienthe']) : '' ?>" />
             </div>
             <div>
                 <label>Sản phẩm <span style="color:red">*</span></label>
-                <select name="ddlSanPham" required>
+                <select name="ddlSanPham" data-required="true">
                     <option value="">-- Chọn sản phẩm --</option>
                     <?php
                     if (isset($data['dssp'])) {

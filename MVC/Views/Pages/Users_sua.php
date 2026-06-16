@@ -73,11 +73,11 @@
             </div>
             <div>
                 <label>Họ và tên <span style="color:red">*</span></label>
-                <input type="text" id="txtHoten" name="txtHoten" required />
+                <input type="text" id="txtHoten" name="txtHoten" data-required="true" />
             </div>
             <div>
                 <label>Tên tài khoản</label>
-                <input type="text" id="txtTenuser" name="txtTenuser" required />
+                <input type="text" id="txtTenuser" name="txtTenuser" data-required="true" />
             </div>
 
             <div>

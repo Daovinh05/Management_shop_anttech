@@ -66,25 +66,25 @@
         <form id="updatePromotionForm">
             <div>
                 <label>Mã khuyến mãi <span style="color:red">*</span></label>
-                <input type="text" id="txtMakhuyenmai" name="txtMakhuyenmai" required readonly />
+                <input type="text" id="txtMakhuyenmai" name="txtMakhuyenmai" data-required="true" readonly />
             </div>
             <div>
                 <label>Tên khuyến mãi <span style="color:red">*</span></label>
-                <input type="text" id="txtTenkhuyenmai" name="txtTenkhuyenmai" required />
+                <input type="text" id="txtTenkhuyenmai" name="txtTenkhuyenmai" data-required="true" />
             </div>
             <div>
                 <label>Ngày bắt đầu <span style="color:red">*</span></label>
-                <input type="datetime-local" id="txtNgaybatdau" name="txtNgaybatdau" required>
+                <input type="datetime-local" id="txtNgaybatdau" name="txtNgaybatdau" data-required="true">
             </div>
 
             <div>
                 <label>Ngày kết thúc <span style="color:red">*</span></label>
-                <input type="datetime-local" id="txtNgayketthuc" name="txtNgayketthuc" required>
+                <input type="datetime-local" id="txtNgayketthuc" name="txtNgayketthuc" data-required="true">
             </div>
 
             <div>
                 <label>Tiền khuyến mãi <span style="color:red">*</span></label>
-                <input type="number" id="txtTienkhuyenmai" name="txtTienkhuyenmai" required min="0" />
+                <input type="number" id="txtTienkhuyenmai" name="txtTienkhuyenmai" data-required="true" min="0" />
             </div>
             <div class="actions">
                 <a href="<?php echo BASE_URL; ?>Khuyenmai/danhsach" class="btn-back"><i

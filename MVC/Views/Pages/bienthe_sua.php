@@ -57,11 +57,11 @@
         <form id="updateVariantForm" enctype="multipart/form-data">
             <div>
                 <label>Mã biến thể <span style="color:red">*</span></label>
-                <input type="text" id="txtMaBienThe" name="txtMaBienThe" required readonly />
+                <input type="text" id="txtMaBienThe" name="txtMaBienThe" data-required="true" readonly />
             </div>
             <div>
                 <label>Sản phẩm <span style="color:red">*</span></label>
-                <select id="ddlSanPham" name="ddlSanPham" required>
+                <select id="ddlSanPham" name="ddlSanPham" data-required="true">
                     <option value="">-- Chọn sản phẩm --</option>
                 </select>
             </div>

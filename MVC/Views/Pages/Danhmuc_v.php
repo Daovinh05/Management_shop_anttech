@@ -97,12 +97,12 @@
         <form id="createCategoryForm" method="post" action="<?php echo BASE_URL; ?>Danhmuc/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtMadanhmuc" required
+                <input type="text" name="txtMadanhmuc" data-required="true"
                     value="<?php echo isset($data['ma_danh_muc']) ? htmlspecialchars($data['ma_danh_muc']) : '' ?>" />
             </div>
             <div>
                 <label>Tên danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtTendanhmuc" required
+                <input type="text" name="txtTendanhmuc" data-required="true"
                     value="<?php echo isset($data['ten_danh_muc']) ? htmlspecialchars($data['ten_danh_muc']) : '' ?>" />
             </div>
 

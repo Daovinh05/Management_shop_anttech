@@ -208,6 +208,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
 
     <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
 
+    <script src="<?php echo UrlHelper::url('Public/Js/form-required-validator.js?v=1'); ?>"></script>
     <script>
         // JavaScript for additional functionality if needed
         document.addEventListener('DOMContentLoaded', function() {

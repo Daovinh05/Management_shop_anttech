@@ -109,11 +109,11 @@
         <form id="updateBrandForm">
             <div>
                 <label>Mã thương hiệu <span style="color:red">*</span></label>
-                <input type="text" id="txtMathuonghieu" name="txtMathuonghieu" required readonly />
+                <input type="text" id="txtMathuonghieu" name="txtMathuonghieu" data-required="true" readonly />
             </div>
             <div>
                 <label>Tên thương hiệu <span style="color:red">*</span></label>
-                <input type="text" id="txtTenthuonghieu" name="txtTenthuonghieu" required />
+                <input type="text" id="txtTenthuonghieu" name="txtTenthuonghieu" data-required="true" />
             </div>
             <!-- Khu vực hình ảnh đang tạm ẩn cho module thương hiệu -->
 

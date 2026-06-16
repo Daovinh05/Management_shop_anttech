@@ -109,11 +109,11 @@
         <form id="updateCategoryForm">
             <div>
                 <label>Mã danh mục <span style="color:red">*</span></label>
-                <input type="text" id="txtMadanhmuc" name="txtMadanhmuc" required readonly />
+                <input type="text" id="txtMadanhmuc" name="txtMadanhmuc" data-required="true" readonly />
             </div>
             <div>
                 <label>Tên danh mục <span style="color:red">*</span></label>
-                <input type="text" id="txtTendanhmuc" name="txtTendanhmuc" required />
+                <input type="text" id="txtTendanhmuc" name="txtTendanhmuc" data-required="true" />
             </div>
 
             <div class="actions">

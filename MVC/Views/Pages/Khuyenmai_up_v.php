@@ -225,7 +225,7 @@
                     <h4 style="margin-bottom: 5px; font-size: 16px;">Nhấn vào đây để chọn file</h4>
                     <p class="hint">Hoặc kéo thả file vào khu vực này (.xls, .xlsx)</p>
 
-                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" required
+                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" data-required="true"
                         onchange="updateFileName(this)" />
                 </div>
 
