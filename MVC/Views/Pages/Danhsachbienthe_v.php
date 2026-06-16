@@ -341,7 +341,7 @@
                 + '<td>' + stockBadge + '</td>'
                 + '<td style="text-align:right">'
                 + '<a href="' + BASE_URL + 'BienThe/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
-                + '<button type="button" class="btn-delete" onclick="deleteVariant(\'' + escapeHtml(ma) + '\')">🗑️ Xóa API</button>'
+                + '<button type="button" class="btn-delete" onclick="deleteVariant(\'' + escapeHtml(ma) + '\')">🗑️ Xóa </button>'
                 + '</td>'
                 + '</tr>';
         }).join('');
@@ -374,7 +374,7 @@
     }
 
     function deleteVariant(id) {
-        if (!confirm('Bạn có chắc chắn muốn xóa biến thể ' + id + ' bằng REST API không?')) {
+        if (!confirm('Bạn có chắc chắn muốn xóa biến thể ' + id + ' không?')) {
             return;
         }
 
@@ -384,7 +384,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data && data.success) {
-                    alert('Đã xóa biến thể thành công qua REST API');
+                    alert('Đã xóa biến thể thành công');
                     loadAllVariants();
                 } else {
                     alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));

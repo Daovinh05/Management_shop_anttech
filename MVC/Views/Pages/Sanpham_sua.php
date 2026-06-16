@@ -275,10 +275,10 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert("✅ Cập nhật thành công bằng CÒN REST API!");
+                alert(" Cập nhật thành công bằng CÒN REST API!");
                 window.location.href = BASE_URL + 'Sanpham/danhsach';
             } else {
-                alert("❌ Lỗi: " + data.message);
+                alert(" Lỗi: " + data.message);
             }
         })
         .catch(error => {

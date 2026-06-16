@@ -4,14 +4,12 @@ class Products extends api_controller {
 
     public function __construct() {
         parent::__construct();
-        // Khởi tạo Model Sản Phẩm thực tế
+        
         $this->sanpham_model = $this->model('SanPham_m');
     }
 
     /**
         * Endpoint: GET /Api/Products
-     * Lấy danh sách hoặc tìm kiếm sản phẩm qua query params
-     * Ví dụ: /Api/Products?ma_san_pham=SP020&ten_san_pham=iphone
      */
     public function get_all() {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -109,7 +107,6 @@ class Products extends api_controller {
 
     /**
         * Endpoint: GET /Api/Products/SP01
-     * Lấy chi tiết 1 sản phẩm theo ID thực tế từ Database
      */
     public function get_detail($id = null) {
         if (!$id) {
@@ -136,17 +133,17 @@ class Products extends api_controller {
      * Endpoint: GET /Api/Products/search?ma_san_pham=SP01&ten_san_pham=iphone
      * Tương thích ngược. Khuyến nghị dùng GET /Api/Products?ma_san_pham=...&ten_san_pham=...
      */
-    public function search($ma_san_pham = null, $ten_san_pham = null) {
-        if ($ma_san_pham !== null && trim($ma_san_pham) !== '') {
-            $_GET['ma_san_pham'] = trim($ma_san_pham);
-        }
+    // public function search($ma_san_pham = null, $ten_san_pham = null) {
+    //     if ($ma_san_pham !== null && trim($ma_san_pham) !== '') {
+    //         $_GET['ma_san_pham'] = trim($ma_san_pham);
+    //     }
 
-        if ($ten_san_pham !== null && trim($ten_san_pham) !== '') {
-            $_GET['ten_san_pham'] = trim($ten_san_pham);
-        }
+    //     if ($ten_san_pham !== null && trim($ten_san_pham) !== '') {
+    //         $_GET['ten_san_pham'] = trim($ten_san_pham);
+    //     }
 
-        $this->get_all();
-    }
+    //     $this->get_all();
+    // }
 
     /**
         * Endpoint: POST /Api/Products
@@ -430,7 +427,7 @@ class Products extends api_controller {
             $this->sendResponse(405, ['success' => false, 'message' => 'Method Not Allowed. Must use PUT or PATCH']);
         }
 
-        // Lấy dữ liệu gửi lên dưới dạng JSON
+        
         $data = $this->getJsonInput();
 
         // Ưu tiên lấy mã sản phẩm từ URL theo chuẩn RESTful
@@ -447,7 +444,6 @@ class Products extends api_controller {
             $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy sản phẩm có mã: ' . $data['ma_san_pham']]);
         }
 
-        // Thực thi update
         $update_result = $this->sanpham_model->SanPham_update(
             $data['ma_san_pham'],
             $data['ten_san_pham'] ?? '',

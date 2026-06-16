@@ -204,10 +204,10 @@
         .then(data => {
             console.log("Response trả về:", data);
             if(data.success) {
-                alert("✅ Thêm sản phẩm cực mượt thông qua REST API thành công!\nTự động chuyển về danh sách...");
+                alert(" Thêm sản phẩm cực mượt thông qua REST API thành công!\nTự động chuyển về danh sách...");
                 window.location.href = "<?php echo BASE_URL; ?>Sanpham/danhsach";
             } else {
-                alert("❌ Lỗi: " + data.message);
+                alert(" Lỗi: " + data.message);
             }
         })
         .catch(error => {

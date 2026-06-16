@@ -175,17 +175,17 @@ class Bienthe extends api_controller {
         $this->sendResponse(404, ['success' => false, 'message' => 'Không tìm thấy biến thể có mã: ' . $id]);
     }
 
-    public function search($ma_bien_the = null, $ten_bien_the = null) {
-        if ($ma_bien_the !== null && trim($ma_bien_the) !== '') {
-            $_GET['ma_bien_the'] = trim($ma_bien_the);
-        }
+    // public function search($ma_bien_the = null, $ten_bien_the = null) {
+    //     if ($ma_bien_the !== null && trim($ma_bien_the) !== '') {
+    //         $_GET['ma_bien_the'] = trim($ma_bien_the);
+    //     }
 
-        if ($ten_bien_the !== null && trim($ten_bien_the) !== '') {
-            $_GET['ten_bien_the'] = trim($ten_bien_the);
-        }
+    //     if ($ten_bien_the !== null && trim($ten_bien_the) !== '') {
+    //         $_GET['ten_bien_the'] = trim($ten_bien_the);
+    //     }
 
-        $this->get_all();
-    }
+    //     $this->get_all();
+    // }
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

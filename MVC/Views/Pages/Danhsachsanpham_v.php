@@ -296,7 +296,7 @@
         .then(data => {
             if(data.success) {
                 alert("✅ Đã xóa " + id + " thành công qua REST API!");
-                location.reload(); // Tải lại trang để bảng tự cập nhật
+                location.reload(); 
             } else {
                 alert("❌ Lỗi xóa: " + data.message);
             }
