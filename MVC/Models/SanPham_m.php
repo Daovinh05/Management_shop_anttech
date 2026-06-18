@@ -115,7 +115,7 @@ class SanPham_m extends connectDB
                 LEFT JOIN thuong_hieu th ON s.ma_thuong_hieu = th.ma_thuong_hieu
                 LEFT JOIN nha_cung_cap ncc ON s.ma_nha_cung_cap = ncc.ma_nha_cung_cap
                 LEFT JOIN bien_the bt ON s.ma_san_pham = bt.ma_san_pham
-                WHERE s.ma_san_pham LIKE '%$ma_san_pham%' AND s.ten_san_pham LIKE '%$ten_san_pham%'
+                WHERE s.ma_san_pham LIKE '%$ma_san_pham%' AND s.ten_san_pham LIKE '%$ten_san_pham%' AND 1=0
                 ORDER BY CAST(SUBSTRING(s.ma_san_pham, 3) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
