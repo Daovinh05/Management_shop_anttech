@@ -295,10 +295,10 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert("✅ Đã xóa " + id + " thành công qua REST API!");
+                alert("Đã xóa " + id + " thành công qua REST API!");
                 location.reload(); 
             } else {
-                alert("❌ Lỗi xóa: " + data.message);
+                alert("Lỗi xóa: " + data.message);
             }
         })
         .catch(error => {
@@ -388,13 +388,13 @@
                 if (data && data.success) {
                     renderProductRows(Array.isArray(data.data) ? data.data : []);
                 } else {
-                    alert('❌ Tải danh sách thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    alert('Tải danh sách thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
                     renderProductRows([]);
                 }
             })
             .catch(error => {
                 console.error('Lỗi tải danh sách API:', error);
-                alert('❌ Không thể kết nối API sản phẩm.');
+                alert('Không thể kết nối API sản phẩm.');
                 renderProductRows([]);
             });
     }
@@ -435,7 +435,7 @@
             })
             .catch(error => {
                 console.error('Lỗi xuất Excel API:', error);
-                alert('❌ Không thể xuất Excel qua API: ' + error.message);
+                alert('Không thể xuất Excel qua API: ' + error.message);
             });
     }
 
