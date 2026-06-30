@@ -1,0 +1,18 @@
+name: Deploy Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy
+        run: |
+          cd /home/vinh/project/Banhang
+          git pull origin main
+          docker compose down
+          docker compose up -d --build
