@@ -720,7 +720,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
     <header>
         <div class="logo">ANT<span>TECH</span></div>
         <ul class="nav-menu">
-            <li class="nav-item">NEW</li>
+            <li class="nav-item">Mới nhất</li>
             <li class="nav-item">BÁN CHẠY</li>
             <li class="nav-item sale-tag">KHUYẾN MÃI <span class="badge-discount">HOT</span></li>
         </ul>
@@ -878,8 +878,8 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                 </div>
                 <div class="input-group">
                     <label>Số điện thoại</label>
-                    <input type="tel" name="phone" placeholder="Ví dụ: 0389783612" data-required="true" pattern="0[0-9]{9}"
-                        maxlength="10" inputmode="numeric"
+                    <input type="tel" name="phone" placeholder="Ví dụ: 0389783612" data-required="true"
+                        pattern="0[0-9]{9}" maxlength="10" inputmode="numeric"
                         title="Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0"
                         value="<?php echo isset($_SESSION['form_data']['phone']) ? htmlspecialchars($_SESSION['form_data']['phone']) : ''; ?>">
                 </div>
