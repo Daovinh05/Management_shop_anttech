@@ -720,8 +720,8 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
     <header>
         <div class="logo">ANT<span>TECH</span></div>
         <ul class="nav-menu">
-            <li class="nav-item">Hot New</li>
-            <li class="nav-item">BÁN CHẠY</li>
+            <li class="nav-item">Hot New Mobile</li>
+            <li class="nav-item">BÁN CHẠY NHAT</li>
             <li class="nav-item sale-tag">KHUYẾN MÃI SẬP SÀN <span class="badge-discount">siêu hot</span></li>
         </ul>
         <div class="header-actions">
@@ -975,7 +975,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     <div class="contact-info">
                         <p>Nhận phản hồi, thắc mắc:</p>
                         <p>anttech.com.vn @gmail.com</p>
-                        <p style="margin-top: 15px; display: inline-block;">Tư vấn miễn phí 24/07 : </p>
+                        <p style="margin-top: 15px; display: inline-block;">Tư vấn Free 24/07 : </p>
                         <span class="hotline-large" style="display: inline-block;">0825.303.888</span>
 
                     </div>
