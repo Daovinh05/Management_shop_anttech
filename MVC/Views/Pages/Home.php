@@ -975,7 +975,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     <div class="contact-info">
                         <p>Nhận phản hồi, thắc mắc:</p>
                         <p>anttech.com.vn @gmail.com</p>
-                        <p style="margin-top: 15px; display: inline-block;">Tư vấn 24/07 : </p>
+                        <p style="margin-top: 15px; display: inline-block;">Tư vấn Free 24/07 : </p>
                         <span class="hotline-large" style="display: inline-block;">0825.303.888</span>
 
                     </div>
