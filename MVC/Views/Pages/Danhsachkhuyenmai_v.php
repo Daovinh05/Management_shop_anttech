@@ -4,10 +4,8 @@
 <body>
 
     <style>
-    /* Custom styles for the actions */
     .btn-create {
         background: #10b981;
-        /* Màu xanh lá cây */
         padding: 8px 15px;
         border-radius: 10px;
         color: #fff;
@@ -34,7 +32,6 @@
         display: inline-block;
     }
 
-    /* Các style cơ bản khác giữ nguyên */
     :root {
         --bg: #f5f7fb;
         --card: #ffffff;
@@ -214,38 +211,33 @@
     <div class="card">
         <div class="actions-top">
             <div>
-                <h1><i class="fa-solid fa-gift"></i> Quản lý Khuyến Mãi</h1>
+                <h1><i class="fa-solid fa-gift"></i> Quản lý Khuyến mãi</h1>
                 <p class="lead">Theo dõi và quản lý các chương trình khuyến mãi.</p>
             </div>
             <div class="actions">
-                <a href="http://localhost/Banhang/Khuyenmai/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
+                <a href="<?php echo BASE_URL; ?>Khuyenmai/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
                     Thêm mới khuyến mãi </a>
-                <a href="http://localhost/Banhang/Khuyenmai/import_form" class="btn-ghost"><i
-                        class="fa-solid fa-file-excel"></i> Nhập
-                    Excel</a>
+                <a href="<?php echo BASE_URL; ?>Khuyenmai/import_form" class="btn-ghost"><i class="fa-solid fa-file-excel"></i> Nhập Excel</a>
             </div>
         </div>
 
-        <form method="post" action="http://localhost/Banhang/Khuyenmai/Timkiem" class="form-search"
+        <form id="promotionSearchForm" class="form-search"
             style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
             <div class="search-fields">
                 <div>
                     <label for="searchId">Mã khuyến mãi</label>
-                    <input type="text" id="searchId" name="txtMakhuyenmai" placeholder="Nhập mã khuyến mãi..."
-                        value="<?php echo isset($data['ma_khuyen_mai']) ? htmlspecialchars($data['ma_khuyen_mai']) : ''; ?>" />
+                    <input type="text" id="searchId" name="txtMakhuyenmai" placeholder="Nhập mã khuyến mãi..." />
                 </div>
                 <div>
                     <label for="searchName">Tên khuyến mãi</label>
-                    <input type="text" id="searchName" name="txtTenkhuyenmai" placeholder="Nhập tên khuyến mãi..."
-                        value="<?php echo isset($data['ten_khuyen_mai']) ? htmlspecialchars($data['ten_khuyen_mai']) : ''; ?>" />
+                    <input type="text" id="searchName" name="txtTenkhuyenmai" placeholder="Nhập tên khuyến mãi..." />
                 </div>
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
-                    kiếm</button>
-                <a href="http://localhost/Banhang/Khuyenmai/danhsach" class="btn-ghost">Làm mới</a>
-                <button type="submit" name="btnXuatexcel" class="btn-excel">
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
+                <a href="<?php echo BASE_URL; ?>Khuyenmai/danhsach" class="btn-ghost">Làm mới</a>
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportPromotionsExcel()">
                     <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
                 </button>
             </div>
@@ -254,25 +246,8 @@
 
     <div class="card">
         <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-        <?php
-        // Đặt lại con trỏ dữ liệu
-        if (isset($data['dulieu']) && is_a($data['dulieu'], 'mysqli_result')) {
-            mysqli_data_seek($data['dulieu'], 0);
-        }
-
-        // Đảm bảo dữ liệu tồn tại
-        if (isset($data['dulieu'])) {
-            // Giả định $data['dulieu'] là mysqli_result
-            // Đặt lại con trỏ về đầu để có thể đếm và dùng lại bên dưới
-            if (is_object($data['dulieu'])) {
-                $count = mysqli_num_rows($data['dulieu']);
-                mysqli_data_seek($data['dulieu'], 0);
-            } else {
-                $count = 0;
-            }
-        ?>
         <div style="margin:10px 0">
-            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+            <strong>Kết quả: <span id="resultCount" class="hint">Đang tải dữ liệu...</span></strong>
         </div>
         <div class="table-container">
             <table>
@@ -288,83 +263,221 @@
                         <th style="text-align:right">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody id="kmBody">
-                    <?php
-                        // Render dữ liệu tĩnh ban đầu
-                        if ($count > 0) {
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                        ?>
-                    <tr>
-                        <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['ma_khuyen_mai']) ?></td>
-                        <td><?php echo htmlspecialchars($row['ten_khuyen_mai']) ?></td>
-                        <td><?php echo number_format($row['tien_khuyen_mai'], 0, ',', '.') ?> ₫</td>
-                        <td><?php echo isset($row['ngay_bat_dau']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_bat_dau'], 'H:i:s d/m/Y')) : '' ?></td>
-                        <td><?php echo isset($row['ngay_ket_thuc']) ? htmlspecialchars(TimezoneHelper::formatForDisplay($row['ngay_ket_thuc'], 'H:i:s d/m/Y')) : '' ?></td>
-                        <td>
-                            <span style="
-                                                background: <?php
-                                                    $current_date = date('Y-m-d');
-                                                    $end_date = $row['ngay_ket_thuc'];
-                                                    $is_expired = strtotime($end_date) < strtotime($current_date);
-
-                                                    echo $is_expired ? '#fed7aa' : '#d1fae5';
-                                                ?>;
-                                                color: <?php
-                                                    $current_date = date('Y-m-d');
-                                                    $end_date = $row['ngay_ket_thuc'];
-                                                    $is_expired = strtotime($end_date) < strtotime($current_date);
-
-                                                    echo $is_expired ? '#c2410c' : '#065f46';
-                                                ?>;
-                                                padding: 4px 8px;
-                                                border-radius: 6px;
-                                                font-size: 12px;
-                                                font-weight: 600;
-                                            ">
-                                <?php
-                                    $current_date = date('Y-m-d');
-                                    $end_date = $row['ngay_ket_thuc'];
-                                    $is_expired = strtotime($end_date) < strtotime($current_date);
-
-                                    echo $is_expired ? 'Hết khuyến mãi' : 'Đang khuyến mãi';
-                                ?>
-                            </span>
-                        </td>
-
-                        <td style="text-align:right">
-                            <a
-                                href="http://localhost/Banhang/Khuyenmai/sua/<?php echo urlencode($row['ma_khuyen_mai']) ?>"><button
-                                    class="btn-edit">✏️
-                                    Sửa</button></a>
-                            <a href="http://localhost/Banhang/Khuyenmai/xoa/<?php echo urlencode($row['ma_khuyen_mai']) ?>"
-                                onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                    class="btn-delete">🗑️
-                                    Xóa</button></a>
-                        </td>
-                    </tr>
-                    <?php }
-                        } ?>
-                </tbody>
+                <tbody id="promotionBody"></tbody>
             </table>
         </div>
-        <script>
-        // Manual search only (no AJAX)
-        const idInput = document.getElementById('searchId');
-        const nameInput = document.getElementById('searchName');
-        const resultCount = document.getElementById('resultCount');
-
-        // khởi tạo đếm
-        resultCount.textContent = '<?php echo $count; ?> bản ghi';
-        </script>
-        <?php } ?>
-        <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-        <div class="hint">Không có kết quả phù hợp.</div>
-        <?php } ?>
 
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function formatDateTime(dateTimeString) {
+        if (!dateTimeString) {
+            return '';
+        }
+
+        const date = new Date(String(dateTimeString).replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(dateTimeString);
+        }
+
+        const pad = (n) => String(n).padStart(2, '0');
+        return pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds())
+            + ' ' + pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear();
+    }
+
+    function formatCurrency(value) {
+        const num = Number(value || 0);
+        return num.toLocaleString('vi-VN') + ' ₫';
+    }
+
+    function getStatusBadge(ngayKetThuc) {
+        const now = new Date();
+        const end = new Date(String(ngayKetThuc || '').replace(' ', 'T'));
+        const isExpired = Number.isNaN(end.getTime()) ? true : (end < now);
+
+        if (isExpired) {
+            return '<span style="background:#fed7aa;color:#c2410c;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;">Hết khuyến mãi</span>';
+        }
+        return '<span style="background:#d1fae5;color:#065f46;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;">Đang khuyến mãi</span>';
+    }
+
+    function renderPromotionRows(items) {
+        const tbody = document.getElementById('promotionBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const ma = row.ma_khuyen_mai || '';
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
+                + '<td>' + escapeHtml(ma) + '</td>'
+                + '<td>' + escapeHtml(row.ten_khuyen_mai || '') + '</td>'
+                + '<td>' + formatCurrency(row.tien_khuyen_mai || 0) + '</td>'
+                + '<td>' + formatDateTime(row.ngay_bat_dau || '') + '</td>'
+                + '<td>' + formatDateTime(row.ngay_ket_thuc || '') + '</td>'
+                + '<td>' + getStatusBadge(row.ngay_ket_thuc || '') + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'Khuyenmai/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deletePromotion(\'' + escapeHtml(ma) + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    function loadAllPromotions() {
+        const resultCountEl = document.getElementById('resultCount');
+        if (resultCountEl) {
+            resultCountEl.textContent = 'Đang tải khuyến mãi...';
+        }
+
+        fetch(BASE_URL + 'Api/Khuyenmai', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderPromotionRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('Không thể tải danh sách khuyến mãi từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API khuyến mãi: ' + error.message);
+            });
+    }
+
+    function deletePromotion(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa khuyến mãi ' + id + ' bằng REST API không?')) {
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Khuyenmai/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    alert('Đã xóa khuyến mãi thành công qua REST API');
+                    loadAllPromotions();
+                } else {
+                    alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API xóa: ' + error.message);
+            });
+    }
+
+    function exportPromotionsExcel() {
+        const ma = (document.getElementById('searchId') || {}).value || '';
+        const ten = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Khuyenmai');
+
+        if (ma.trim() !== '') {
+            url.searchParams.set('ma_khuyen_mai', ma.trim());
+        }
+
+        if (ten.trim() !== '') {
+            url.searchParams.set('ten_khuyen_mai', ten.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachKhuyenMai.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                alert('Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAllPromotions();
+
+        const searchForm = document.getElementById('promotionSearchForm');
+        if (!searchForm) {
+            return;
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const submitName = submitter && submitter.name ? submitter.name : '';
+
+            if (submitName !== 'btnTim') {
+                return;
+            }
+
+            event.preventDefault();
+
+            const ma = (document.getElementById('searchId') || {}).value || '';
+            const ten = (document.getElementById('searchName') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Khuyenmai');
+
+            if (ma.trim() !== '') {
+                url.searchParams.set('ma_khuyen_mai', ma.trim());
+            }
+
+            if (ten.trim() !== '') {
+                url.searchParams.set('ten_khuyen_mai', ten.trim());
+            }
+
+            const resultCountEl = document.getElementById('resultCount');
+            if (resultCountEl) {
+                resultCountEl.textContent = 'Đang tìm kiếm...';
+            }
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderPromotionRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        renderPromotionRows([]);
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>

@@ -114,57 +114,31 @@
     <div class="card">
         <h1>Cập nhật sản phẩm</h1>
         <p class="lead">Chỉnh sửa thông tin sản phẩm.</p>
-        <form method="post" action="http://localhost/Banhang/Sanpham/update" enctype="multipart/form-data">
+        <form id="formEditProduct">
             <div>
                 <label>Mã sản phẩm <span style="color:red">*</span></label>
-                <input type="text" name="txtMasanpham" value="<?php echo htmlspecialchars($data['ma_san_pham']); ?>"
-                    readonly />
+                <input type="text" id="txtMasanpham" name="txtMasanpham" readonly />
             </div>
             <div>
                 <label>Tên món <span style="color:red">*</span></label>
-                <input type="text" name="txtTensanpham"
-                    value="<?php echo htmlspecialchars($data['ten_san_pham']); ?>" />
+                <input type="text" id="txtTensanpham" name="txtTensanpham" data-required="true" />
             </div>
             <div>
                 <label>Danh mục <span style="color:red">*</span></label>
-                <select name="ddlDanhmuc" required>
+                <select id="ddlDanhmuc" name="ddlDanhmuc" data-required="true">
                     <option value="">-- Chọn danh mục --</option>
-                    <?php
-                    if (isset($data['dsdm'])) {
-                        while ($row = mysqli_fetch_array($data['dsdm'])) {
-                            $selected = (isset($data['ma_danh_muc']) && $data['ma_danh_muc'] == $row['ma_danh_muc']) ? 'selected' : '';
-                            echo '<option value="' . $row['ma_danh_muc'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_danh_muc']) . '</option>';
-                        }
-                    }
-                    ?>
                 </select>
             </div>
             <div>
                 <label>Thương hiệu <span style="color:red">*</span></label>
-                <select name="ddlThuonghieu" required>
+                <select id="ddlThuonghieu" name="ddlThuonghieu" data-required="true">
                     <option value="">-- Chọn thương hiệu --</option>
-                    <?php
-                    if (isset($data['dsth'])) {
-                        while ($row = mysqli_fetch_array($data['dsth'])) {
-                            $selected = (isset($data['ma_thuong_hieu']) && $data['ma_thuong_hieu'] == $row['ma_thuong_hieu']) ? 'selected' : '';
-                            echo '<option value="' . $row['ma_thuong_hieu'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_thuong_hieu']) . '</option>';
-                        }
-                    }
-                    ?>
                 </select>
             </div>
             <div>
                 <label>Nhà cung cấp <span style="color:red">*</span></label>
-                <select name="ddlNhacungcap" required>
+                <select id="ddlNhacungcap" name="ddlNhacungcap" data-required="true">
                     <option value="">-- Chọn nhà cung cấp --</option>
-                    <?php
-                    if (isset($data['dsncc'])) {
-                        while ($row = mysqli_fetch_array($data['dsncc'])) {
-                            $selected = (isset($data['ma_nha_cung_cap']) && $data['ma_nha_cung_cap'] == $row['ma_nha_cung_cap']) ? 'selected' : '';
-                            echo '<option value="' . $row['ma_nha_cung_cap'] . '" ' . $selected . '>' . htmlspecialchars($row['ten_nha_cung_cap']) . '</option>';
-                        }
-                    }
-                    ?>
                 </select>
             </div>
             <div>
@@ -174,26 +148,146 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnCapnhat" class="btn-primary">Cập nhật thông tin</button>
+                    <button type="submit" class="btn-primary">Cập nhật bằng API</button>
                 </div>
             </div>
         </form>
     </div>
 
     <script>
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            const fileNameDisplay = document.getElementById('fileName');
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
-            } else {
-                fileNameDisplay.textContent = 'Chưa chọn file mới';
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    function resolveProductIdFromUrl() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const routedUrl = searchParams.get('url');
+
+        if (routedUrl) {
+            const routeParts = routedUrl.split('/').filter(Boolean);
+            if (routeParts.length > 0) {
+                return decodeURIComponent(routeParts[routeParts.length - 1]);
             }
+        }
+
+        const pathParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        return pathParts.length > 0 ? decodeURIComponent(pathParts[pathParts.length - 1]) : '';
+    }
+
+    function fillSelect(selectElement, items, valueField, textField, selectedValue) {
+        if (!selectElement) {
+            return;
+        }
+
+        selectElement.innerHTML = '<option value="">-- Chọn --</option>';
+
+        items.forEach(item => {
+            const value = item[valueField] || '';
+            const text = item[textField] || '';
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            if (selectedValue && value === selectedValue) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
         });
+    }
+
+    async function loadEditProductData() {
+        const productId = resolveProductIdFromUrl();
+        if (!productId) {
+            alert('Không xác định được mã sản phẩm từ URL.');
+            return;
+        }
+
+        const productUrl = BASE_URL + 'Api/Products/' + encodeURIComponent(productId);
+        const categoryUrl = BASE_URL + 'Api/Danhmuc';
+        const brandUrl = BASE_URL + 'Api/Thuonghieu';
+        const supplierUrl = BASE_URL + 'Api/Nhacungcap';
+
+        try {
+            const responses = await Promise.all([
+                fetch(productUrl, { method: 'GET' }),
+                fetch(categoryUrl, { method: 'GET' }),
+                fetch(brandUrl, { method: 'GET' }),
+                fetch(supplierUrl, { method: 'GET' })
+            ]);
+
+            const [productJson, categoryJson, brandJson, supplierJson] = await Promise.all(
+                responses.map(r => r.json().catch(() => ({ success: false })))
+            );
+
+            if (!productJson.success || !productJson.data) {
+                alert('Không thể tải thông tin sản phẩm.');
+                return;
+            }
+
+            const product = productJson.data;
+            const categories = (categoryJson && categoryJson.success && Array.isArray(categoryJson.data)) ? categoryJson.data : [];
+            const brands = (brandJson && brandJson.success && Array.isArray(brandJson.data)) ? brandJson.data : [];
+            const suppliers = (supplierJson && supplierJson.success && Array.isArray(supplierJson.data)) ? supplierJson.data : [];
+
+            const inputId = document.getElementById('txtMasanpham');
+            const inputName = document.getElementById('txtTensanpham');
+            const selectCategory = document.getElementById('ddlDanhmuc');
+            const selectBrand = document.getElementById('ddlThuonghieu');
+            const selectSupplier = document.getElementById('ddlNhacungcap');
+
+            if (inputId) inputId.value = product.ma_san_pham || '';
+            if (inputName) inputName.value = product.ten_san_pham || '';
+
+            fillSelect(selectCategory, categories, 'ma_danh_muc', 'ten_danh_muc', product.ma_danh_muc || '');
+            fillSelect(selectBrand, brands, 'ma_thuong_hieu', 'ten_thuong_hieu', product.ma_thuong_hieu || '');
+            fillSelect(selectSupplier, suppliers, 'ma_nha_cung_cap', 'ten_nha_cung_cap', product.ma_nha_cung_cap || '');
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu sửa sản phẩm:', error);
+            alert('Không thể tải dữ liệu từ API. Vui lòng thử lại.');
+        }
+    }
+
+    document.getElementById('formEditProduct').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const payload = {
+            "ma_san_pham": formData.get('txtMasanpham'),
+            "ten_san_pham": formData.get('txtTensanpham'),
+            "ma_danh_muc": formData.get('ddlDanhmuc'),
+            "ma_thuong_hieu": formData.get('ddlThuonghieu'),
+            "ma_nha_cung_cap": formData.get('ddlNhacungcap')
+        };
+        const productId = encodeURIComponent(payload.ma_san_pham || '');
+        const endpoint = BASE_URL + 'Api/Products/' + productId;
+
+        console.log("Đang bắn PUT lên API:", endpoint, payload);
+
+        fetch(endpoint, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert("✅ Cập nhật thành công bằng CÒN REST API!");
+                window.location.href = BASE_URL + 'Sanpham/danhsach';
+            } else {
+                alert("❌ Lỗi: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Lỗi sập mạng khi gọi API PUT!");
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', loadEditProductData);
     </script>
 </body>
 

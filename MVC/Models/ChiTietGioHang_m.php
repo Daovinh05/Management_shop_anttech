@@ -54,6 +54,16 @@ class ChiTietGioHang_m extends connectDB
         return mysqli_query($this->con, $sql);
     }
 
+    // Hàm lấy 1 item trong giỏ theo mã giỏ và mã biến thể
+    function ChiTietGioHang_getItem($ma_gio_hang, $ma_bien_the)
+    {
+        $ma_gio_hang = mysqli_real_escape_string($this->con, $ma_gio_hang);
+        $ma_bien_the = mysqli_real_escape_string($this->con, $ma_bien_the);
+
+        $sql = "SELECT * FROM chi_tiet_gio_hang WHERE ma_gio_hang = '$ma_gio_hang' AND ma_bien_the = '$ma_bien_the' LIMIT 1";
+        return mysqli_query($this->con, $sql);
+    }
+
     // Hàm xóa tất cả chi tiết giỏ hàng theo mã giỏ hàng
     function ChiTietGioHang_deleteByCartId($ma_gio_hang)
     {

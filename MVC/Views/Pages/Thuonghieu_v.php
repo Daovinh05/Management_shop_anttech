@@ -94,15 +94,15 @@
     <div class="card">
         <h1>Thêm mới Thương hiệu</h1>
         <p class="lead">Nhập thông tin thương hiệu mới.</p>
-        <form method="post" action="http://localhost/Banhang/Thuonghieu/ins" enctype="multipart/form-data">
+        <form id="createBrandForm" method="post" action="<?php echo BASE_URL; ?>Thuonghieu/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã thương hiệu <span style="color:red">*</span></label>
-                <input type="text" name="txtMathuonghieu" required
+                <input type="text" name="txtMathuonghieu" data-required="true"
                     value="<?php echo isset($data['ma_thuong_hieu']) ? htmlspecialchars($data['ma_thuong_hieu']) : '' ?>" />
             </div>
             <div>
                 <label>Tên thương hiệu <span style="color:red">*</span></label>
-                <input type="text" name="txtTenthuonghieu" required
+                <input type="text" name="txtTenthuonghieu" data-required="true"
                     value="<?php echo isset($data['ten_thuong_hieu']) ? htmlspecialchars($data['ten_thuong_hieu']) : '' ?>" />
             </div>
             <!-- <div>
@@ -115,25 +115,69 @@
             </div> -->
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Thuonghieu/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Thuonghieu/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnLuu" class="btn-primary">Lưu thông tin</button>
+                    <button type="submit" id="createBrandBtn" name="btnLuu" class="btn-primary">Lưu thông tin</button>
                 </div>
             </div>
         </form>
     </div>
 
     <script>
-        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-            const fileNameDisplay = document.getElementById('fileName');
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
-            } else {
-                fileNameDisplay.textContent = 'Chưa chọn file';
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('createBrandForm');
+            const submitBtn = document.getElementById('createBrandBtn');
+
+            if (!form || !submitBtn) {
+                return;
             }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const maThuongHieu = (form.querySelector('input[name="txtMathuonghieu"]') || {}).value || '';
+                const tenThuongHieu = (form.querySelector('input[name="txtTenthuonghieu"]') || {}).value || '';
+
+                if (!maThuongHieu.trim() || !tenThuongHieu.trim()) {
+                    alert('Vui lòng nhập đầy đủ mã và tên thương hiệu.');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Đang lưu...';
+
+                fetch(BASE_URL + 'Api/Thuonghieu', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ma_thuong_hieu: maThuongHieu.trim(),
+                            ten_thuong_hieu: tenThuongHieu.trim()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            alert('Thêm thương hiệu thành công qua REST API');
+                            window.location.href = BASE_URL + 'Thuonghieu/danhsach';
+                        } else {
+                            alert('Lưu thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Không thể kết nối API tạo thương hiệu: ' + error.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Lưu thông tin';
+                    });
+            });
         });
     </script>
 </body>

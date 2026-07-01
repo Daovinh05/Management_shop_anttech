@@ -102,21 +102,21 @@
     <div class="card">
         <h1>Thêm sản phẩm mới</h1>
         <p class="lead">Nhập thông tin sản phẩm mới.</p>
-        <form method="post" action="http://localhost/Banhang/Sanpham/ins" enctype="multipart/form-data">
+        <form id="formAddProduct">
             <div>
                 <label>Mã sản phẩm <span style="color:red">*</span></label>
-                <input type="text" name="txtMaSanPham" required
+                <input type="text" name="txtMaSanPham" data-required="true"
                     value="<?php echo isset($data['ma_san_pham']) ? htmlspecialchars($data['ma_san_pham']) : ''; ?>" />
             </div>
             <div>
                 <label>Tên sản phẩm <span style="color:red">*</span></label>
-                <input type="text" name="txtTenSanPham" required
+                <input type="text" name="txtTenSanPham" data-required="true"
                     value="<?php echo isset($data['ten_san_pham']) ? htmlspecialchars($data['ten_san_pham']) : ''; ?>" />
             </div>
 
             <div>
                 <label>Danh mục <span style="color:red">*</span></label>
-                <select name="ddlDanhmuc" required>
+                <select name="ddlDanhmuc" data-required="true">
                     <option value="">-- Chọn danh mục --</option>
                     <?php
                     if (isset($data['dsdm'])) {
@@ -130,7 +130,7 @@
             </div>
             <div>
                 <label>Thương hiệu <span style="color:red">*</span></label>
-                <select name="ddlThuonghieu" required>
+                <select name="ddlThuonghieu" data-required="true">
                     <option value="">-- Chọn thương hiệu --</option>
                     <?php
                     if (isset($data['dsth'])) {
@@ -144,7 +144,7 @@
             </div>
             <div>
                 <label>Nhà cung cấp <span style="color:red">*</span></label>
-                <select name="ddlNhacungcap" required>
+                <select name="ddlNhacungcap" data-required="true">
                     <option value="">-- Chọn nhà cung cấp --</option>
                     <?php
                     if (isset($data['dsncc'])) {
@@ -163,26 +163,72 @@
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnLuu" class="btn-primary">Lưu thông tin</button>
+                    <button type="submit" class="btn-primary">Lưu bằng API</button>
                 </div>
             </div>
         </form>
     </div>
 
     <script>
-    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-        const fileNameDisplay = document.getElementById('fileName');
-        if (e.target.files.length > 0) {
-            fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
-        } else {
-            fileNameDisplay.textContent = 'Chưa chọn file';
-        }
+    // Xử lý sự kiện click nút Lưu bằng thư viện Fetch gọi lên REST API
+    document.getElementById('formAddProduct').addEventListener('submit', function(e) {
+        e.preventDefault(); // Chặn hành vi load lại trang mặc định của Form PHP
+
+        const formData = new FormData(this);
+        
+        // Đóng gói mảng JSON gửi lên API
+        const payload = {
+            "ma_san_pham": formData.get('txtMaSanPham'),
+            "ten_san_pham": formData.get('txtTenSanPham'),
+            "ma_danh_muc": formData.get('ddlDanhmuc'),
+            "ma_thuong_hieu": formData.get('ddlThuonghieu'),
+            "ma_nha_cung_cap": formData.get('ddlNhacungcap')
+        };
+
+        console.log("Đang bắn POST lên: <?php echo BASE_URL; ?>Api/Products");
+        console.log("Payload JSON:", payload);
+
+        fetch('<?php echo BASE_URL; ?>Api/Products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Response trả về:", data);
+            if(data.success) {
+                alert("✅ Thêm sản phẩm cực mượt thông qua REST API thành công!\nTự động chuyển về danh sách...");
+                window.location.href = "<?php echo BASE_URL; ?>Sanpham/danhsach";
+            } else {
+                alert("❌ Lỗi: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi khi kết nối REST API:", error);
+            alert("Lỗi sập mạng hoặc không gọi được API!");
+        });
     });
+
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const fileNameDisplay = document.getElementById('fileName');
+            if(fileNameDisplay) {
+                if (e.target.files.length > 0) {
+                    fileNameDisplay.textContent = 'Đã chọn: ' + e.target.files[0].name;
+                } else {
+                    fileNameDisplay.textContent = 'Chưa chọn file';
+                }
+            }
+        });
+    }
     </script>
 </body>
 

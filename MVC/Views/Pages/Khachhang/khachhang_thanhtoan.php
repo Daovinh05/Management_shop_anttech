@@ -1,3 +1,6 @@
+<?php
+include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -7,7 +10,7 @@
     <title>Thanh toán - TechZone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <base href="http://localhost/Banhang/">
+    <base href="<?php echo UrlHelper::baseUrl(); ?>">
 
     <style>
         /* --- 1. CORE VARIABLES & RESET --- */
@@ -892,55 +895,43 @@
                         $old_data = isset($data['old_data']) ? $data['old_data'] : [];
                         ?>
 
+                      
                         <div class="form-group">
                             <label for="fullname">Họ và tên *</label>
                             <input type="text" id="fullname" class="form-control" name="txtHoTen"
                                 placeholder="Nhập họ và tên của bạn"
-                                value="<?php echo isset($old_data['ho_ten']) ? htmlspecialchars($old_data['ho_ten']) : ($user_info ? htmlspecialchars($user_info['full_name']) : ''); ?>"
-                                required>
+                                value="<?php echo isset($old_data['full_name']) ? htmlspecialchars($old_data['full_name']) : ($user_info ? htmlspecialchars($user_info['full_name']) : ''); ?>"
+                                data-required="true">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ho_ten">Họ và tên người nhận*</label>
+                            <input type="text" id="ho_ten" class="form-control" name="txtHoTenNguoiNhan"
+                                placeholder="Nhập họ và tên người nhận"
+                                value="<?php echo isset($old_data['ho_ten']) ? htmlspecialchars($old_data['ho_ten']) : (isset($dia_chi['ho_ten']) ? htmlspecialchars($dia_chi['ho_ten']) : ''); ?>"
+                                data-required="true" >
                         </div>
 
                         <div class="form-group">
-                            <label for="address">Địa chỉ *</label>
-                            <select class="form-control" id="address" name="ddlDiaChi" required>
-                                <option value="">Chọn địa chỉ</option>
-                                <?php if ($data['dia_chi'] && mysqli_num_rows($data['dia_chi']) > 0): ?>
-                                    <?php while ($dc = mysqli_fetch_assoc($data['dia_chi'])): ?>
-                                        <option value="<?php echo $dc['ma_dia_chi']; ?>" <?php
-                                                                                            if (isset($old_data['dia_chi_selected'])) {
-                                                                                                echo $old_data['dia_chi_selected'] == $dc['ma_dia_chi'] ? 'selected' : '';
-                                                                                            } else {
-                                                                                                echo $dc['mac_dinh'] == 1 ? 'selected' : '';
-                                                                                            }
-                                                                                            ?>>
-                                            <?php echo $dc['dia_chi'] . ' - ' . $dc['ho_ten'] . ' - ' . $dc['so_dien_thoai']; ?>
-                                            <?php echo $dc['mac_dinh'] == 1 ? ' (Mặc định)' : ''; ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <option value="">Bạn chưa có địa chỉ nào</option>
-                                <?php endif; ?>
-                            </select>
-                            <a href="Khachhang/taikhoan" class="mt-2 d-block" style="color: var(--primary-green);">+
-                                Thêm địa chỉ mới</a>
+                            <label for="address">Địa chỉ giao hàng *</label>
+                            <input type="text" id="address" class="form-control" name="txtDiaChiGiaoHang"
+                                placeholder="Nhập địa chỉ giao hàng (Số nhà, tên đường, phường/xã, quận/huyện)"
+                                value="<?php echo isset($old_data['dia_chi']) ? htmlspecialchars($old_data['dia_chi']) : (isset($dia_chi['dia_chi']) ? htmlspecialchars($dia_chi['dia_chi']) : ''); ?>"
+                                data-required="true">
+                            <small class="form-text text-muted" style="color: #888; font-size: 12px; margin-top: 5px; display: block;">
+                                <i class="fas fa-info-circle"></i> Nhập địa chỉ cụ thể để giao hàng chính xác
+                            </small>
                         </div>
 
                         <div class="form-group">
                             <label for="phone">Số điện thoại *</label>
                             <input type="tel" id="phone" class="form-control" name="txtSoDienThoai"
                                 placeholder="Nhập số điện thoại"
-                                value="<?php echo isset($old_data['so_dien_thoai']) ? htmlspecialchars($old_data['so_dien_thoai']) : ($user_info ? htmlspecialchars($user_info['so_dien_thoai']) : ''); ?>"
-                                required>
+                                value="<?php echo isset($old_data['so_dien_thoai']) ? htmlspecialchars($old_data['so_dien_thoai']) : ''; ?>"
+                                data-required="true">
                         </div>
 
-                        <div class="form-group">
-                            <label for="email">Địa chỉ email *</label>
-                            <input type="email" id="email" class="form-control" name="txtEmail"
-                                placeholder="Nhập email để nhận thông báo đơn hàng"
-                                value="<?php echo isset($old_data['email']) ? htmlspecialchars($old_data['email']) : ($user_info ? htmlspecialchars($user_info['email']) : ''); ?>"
-                                required>
-                        </div>
-
+                       
                         <h3 class="section-title" style="margin-top: 30px;">Thông tin bổ sung</h3>
                         <div class="form-group">
                             <label for="note">Ghi chú đơn hàng (Tùy chọn)</label>
@@ -952,15 +943,22 @@
                     <div class="order-review-section">
                         <h3 class="section-title">Đơn hàng của bạn</h3>
 
+                        <div id="checkoutStockWarning" class="alert-custom alert-error" style="display:none; margin-bottom:15px;">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <ul class="alert-list mb-0" id="checkoutStockWarningList"></ul>
+                        </div>
+
                         <div class="order-review-box">
-                            <table class="order-table">
+                            <table class="order-table" id="orderTable">
                                 <thead>
                                     <tr>
                                         <th>SẢN PHẨM</th>
                                         <th style="text-align: right;">TẠM TÍNH</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="orderTableBody">
                                     <?php
                                     $tong_tien = 0;
                                     $tong_san_pham = 0;
@@ -1072,22 +1070,8 @@
 
 
     <script>
-        // Lấy các phần tử
-        const accountBtn = document.getElementById('accountBtn');
-        const accountMenu = document.getElementById('accountMenu');
-
-        // Toggle Account Menu (GIỜ ĐÃ HOẠT ĐỘNG VÌ ĐÃ CÓ HTML accountMenu)
-        accountBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            accountMenu.classList.toggle('active');
-        });
-
-        // Close when clicking outside
-        window.addEventListener('click', function(event) {
-            if (!accountBtn.contains(event.target)) {
-                accountMenu.classList.remove('active');
-            }
-        });
+        const CHECKOUT_API_URL = '<?php echo UrlHelper::url('Api/Checkout'); ?>';
+        const CHECKOUT_INIT_API_URL = '<?php echo UrlHelper::url('Api/Checkout/init'); ?>';
 
         // --- LOGIC GIỎ HÀNG ---
         // Khởi tạo giỏ hàng từ dữ liệu PHP đã hiển thị trong bảng đơn hàng
@@ -1156,11 +1140,261 @@
             const discountAmountElement = document.getElementById('discountAmount');
             const finalTotalElement = document.getElementById('finalTotal');
             const finalTotalInput = document.getElementById('finalTotalInput');
-            const subtotalValue = <?php echo $tong_tien; ?>; // Giá trị tạm tính
+            const orderTableBody = document.getElementById('orderTableBody');
+            let subtotalValue = <?php echo $tong_tien; ?>; // fallback từ PHP
+            const checkoutForm = document.querySelector('.checkout-wrapper form');
+            const submitBtn = checkoutForm ? checkoutForm.querySelector('button[name="btnDatHang"]') : null;
+            let checkoutInitPayload = null;
+
+            function escapeHtml(text) {
+                return String(text || '').replace(/[&<>'"]/g, function(ch) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+                });
+            }
+
+            function formatCurrency(value) {
+                return (Number(value || 0)).toLocaleString('vi-VN') + '₫';
+            }
+
+            function getQueryParamsForInit() {
+                const params = new URLSearchParams(window.location.search || '');
+                const query = new URLSearchParams();
+                const items = params.get('items') || '';
+                const qty = params.get('qty') || '';
+                const buynow = params.get('buynow') || '';
+
+                if (buynow === '1' && items !== '') {
+                    query.set('mode', 'buy_now');
+                    query.set('ma_bien_the', items);
+                    query.set('so_luong', qty !== '' ? qty : '1');
+                } else if (items !== '') {
+                    query.set('items', items);
+                }
+
+                return query.toString();
+            }
+
+            function renderPromotionOptions(promotions, selectedPromotionId) {
+                const currentVoucherSelect = document.getElementById('ddlKhuyenMai');
+                if (!currentVoucherSelect) return;
+
+                let html = '<option value="">-- Chọn voucher --</option>';
+                if ((promotions || []).length === 0) {
+                    html += '<option value="" disabled>Không có voucher nào</option>';
+                    currentVoucherSelect.innerHTML = html;
+                    return;
+                }
+
+                promotions.forEach(function(km) {
+                    const id = km.ma_khuyen_mai || '';
+                    const discount = Number(km.tien_khuyen_mai || 0);
+                    const selected = (selectedPromotionId && id === selectedPromotionId) ? ' selected' : '';
+                    const text = (km.ten_khuyen_mai || 'Voucher') + ' (-' + discount.toLocaleString('vi-VN') + '₫)';
+                    html += '<option value="' + escapeHtml(id) + '" data-discount="' + discount + '"' + selected + '>' + escapeHtml(text) + '</option>';
+                });
+
+                currentVoucherSelect.innerHTML = html;
+            }
+
+            function renderOrderItems(items, summary) {
+                if (!orderTableBody) return;
+
+                const rows = [];
+                let totalQty = 0;
+
+                (items || []).forEach(function(item) {
+                    const qty = Number(item.so_luong || 0);
+                    totalQty += qty;
+                    const lineTotal = Number(item.line_total || 0);
+                    let meta = '';
+                    if (item.ten_bien_the) meta += '<span class="product-meta">BIẾN THỂ: ' + escapeHtml(item.ten_bien_the) + '</span>';
+                    if (item.mau_sac) meta += '<span class="product-meta">MÀU SẮC: ' + escapeHtml(item.mau_sac) + '</span>';
+                    if (item.dung_luong) meta += '<span class="product-meta">DUNG LƯỢNG: ' + escapeHtml(item.dung_luong) + '</span>';
+
+                    rows.push(
+                        '<tr>' +
+                        '<td class="product-name-col">' +
+                        escapeHtml(item.ten_san_pham || '') + ' <strong style="color:#333">×</strong> ' + qty + meta +
+                        '</td>' +
+                        '<td class="price-col">' + formatCurrency(lineTotal) + '</td>' +
+                        '</tr>'
+                    );
+                });
+
+                const subtotal = Number((summary && summary.subtotal) || 0);
+                const discount = Number((summary && summary.discount) || 0);
+                const finalTotal = Number((summary && summary.final_total) || 0);
+
+                rows.push(
+                    '<tr class="subtotal-row">' +
+                    '<td>Tạm tính (' + totalQty + ' sản phẩm)</td>' +
+                    '<td class="price-col">' + formatCurrency(subtotal) + '</td>' +
+                    '</tr>'
+                );
+
+                rows.push(
+                    '<tr class="voucher-row">' +
+                    '<td>Khuyến mãi (Voucher)</td>' +
+                    '<td class="price-col">' +
+                    '<select name="ddlKhuyenMai" id="ddlKhuyenMai" class="form-control"></select>' +
+                    '</td>' +
+                    '</tr>'
+                );
+
+                rows.push(
+                    '<tr class="discount-row">' +
+                    '<td>Giảm giá</td>' +
+                    '<td class="price-col" id="discountAmount">-' + formatCurrency(discount) + '</td>' +
+                    '</tr>'
+                );
+
+                rows.push(
+                    '<tr class="total-row">' +
+                    '<td>Tổng</td>' +
+                    '<td class="price-col">' +
+                    '<span id="finalTotal">' + formatCurrency(finalTotal) + '</span>' +
+                    '<input type="hidden" name="final_total" id="finalTotalInput" value="' + finalTotal + '">' +
+                    '</td>' +
+                    '</tr>'
+                );
+
+                orderTableBody.innerHTML = rows.join('');
+            }
+
+            function showCheckoutStockWarnings(errors, message) {
+                const warningBox = document.getElementById('checkoutStockWarning');
+                const warningList = document.getElementById('checkoutStockWarningList');
+                if (!warningBox || !warningList) return;
+
+                const messages = (errors || []).slice();
+                if (messages.length === 0 && message) {
+                    messages.push(message);
+                }
+
+                if (messages.length === 0) {
+                    warningBox.style.display = 'none';
+                    warningList.innerHTML = '';
+                    return;
+                }
+
+                warningList.innerHTML = messages.map(function(item) {
+                    return '<li>' + escapeHtml(item) + '</li>';
+                }).join('');
+                warningBox.style.display = 'flex';
+            }
+
+            function applyFormDefaults(formDefaults) {
+                if (!formDefaults) return;
+
+                const setValue = function(selector, value) {
+                    const element = document.querySelector(selector);
+                    if (element && (element.value === '' || value !== '')) {
+                        element.value = value || '';
+                    }
+                };
+
+                // Theo yêu cầu: API chỉ điền full name, các trường còn lại để người dùng tự nhập.
+                setValue('input[name="txtHoTen"]', formDefaults.txtHoTen || '');
+            }
+
+            function bindVoucherChange() {
+                const currentVoucherSelect = document.getElementById('ddlKhuyenMai');
+                if (!currentVoucherSelect) return;
+
+                currentVoucherSelect.addEventListener('change', function() {
+                    const selectedOption = currentVoucherSelect.options[currentVoucherSelect.selectedIndex];
+                    const discount = selectedOption && selectedOption.dataset && selectedOption.dataset.discount
+                        ? Number(selectedOption.dataset.discount)
+                        : 0;
+
+                    let newTotal = subtotalValue - discount;
+                    if (newTotal < 0) newTotal = 0;
+
+                    const currentDiscountNode = document.getElementById('discountAmount');
+                    const currentFinalNode = document.getElementById('finalTotal');
+                    const currentFinalInput = document.getElementById('finalTotalInput');
+
+                    if (currentDiscountNode) currentDiscountNode.textContent = '-' + formatCurrency(discount);
+                    if (currentFinalNode) currentFinalNode.textContent = formatCurrency(newTotal);
+                    if (currentFinalInput) currentFinalInput.value = newTotal;
+                });
+            }
+
+            function loadCheckoutInit() {
+                const query = getQueryParamsForInit();
+                const endpoint = query !== '' ? (CHECKOUT_INIT_API_URL + '?' + query) : CHECKOUT_INIT_API_URL;
+
+                fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(function(response) {
+                        return response.json().catch(function() {
+                            return { success: false, message: 'Phản hồi API không hợp lệ' };
+                        });
+                    })
+                    .then(function(json) {
+                        if (!json || !json.success || !json.data) {
+                            renderOrderItems([], {
+                                subtotal: 0,
+                                discount: 0,
+                                final_total: 0
+                            });
+                            showCheckoutStockWarnings(
+                                json && Array.isArray(json.errors) ? json.errors : [],
+                                json && json.message ? json.message : 'Không thể tải dữ liệu thanh toán'
+                            );
+                            return;
+                        }
+
+                        checkoutInitPayload = json.data;
+                        const checkoutData = checkoutInitPayload.checkout || {};
+                        const items = checkoutData.items || [];
+                        const promotions = checkoutInitPayload.promotions || [];
+                        const selectedPromotion = checkoutInitPayload.selected_promotion || null;
+                        const selectedPromotionId = selectedPromotion ? (selectedPromotion.ma_khuyen_mai || '') : (checkoutData.ma_khuyen_mai || '');
+                        const stockErrors = checkoutData.stock_errors || [];
+
+                        subtotalValue = Number(checkoutData.subtotal || 0);
+
+                        renderOrderItems(items, {
+                            subtotal: checkoutData.subtotal || 0,
+                            discount: checkoutData.discount || 0,
+                            final_total: checkoutData.final_total || 0
+                        });
+
+                        renderPromotionOptions(promotions, selectedPromotionId);
+                        bindVoucherChange();
+
+                        applyFormDefaults(checkoutInitPayload.form_defaults || {});
+                        showCheckoutStockWarnings(stockErrors);
+
+                        const selectedItemsInput = checkoutForm
+                            ? checkoutForm.querySelector('input[name="selected_items_str"]')
+                            : null;
+                        if (selectedItemsInput && !checkoutData.is_buy_now) {
+                            selectedItemsInput.value = items.map(function(item) {
+                                return item.ma_bien_the || '';
+                            }).filter(function(id) {
+                                return id !== '';
+                            }).join(',');
+                        }
+                    })
+                    .catch(function() {
+                        // fallback giữ dữ liệu render từ PHP hiện tại
+                    });
+            }
 
             // Hàm tính toán lại tổng sau khi áp dụng khuyến mãi
             function updateTotal() {
-                const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+                const currentVoucherSelect = document.getElementById('ddlKhuyenMai');
+                if (!currentVoucherSelect) {
+                    return;
+                }
+
+                const selectedOption = currentVoucherSelect.options[currentVoucherSelect.selectedIndex];
                 let discount = 0;
 
                 if (selectedOption && selectedOption.dataset.discount) {
@@ -1176,16 +1410,113 @@
                 }
 
                 // Cập nhật hiển thị
-                discountAmountElement.textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
-                finalTotalElement.textContent = newTotal.toLocaleString('vi-VN') + '₫';
-                finalTotalInput.value = newTotal;
+                const currentDiscountNode = document.getElementById('discountAmount');
+                const currentFinalNode = document.getElementById('finalTotal');
+                const currentFinalInput = document.getElementById('finalTotalInput');
+
+                if (currentDiscountNode) currentDiscountNode.textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
+                if (currentFinalNode) currentFinalNode.textContent = newTotal.toLocaleString('vi-VN') + '₫';
+                if (currentFinalInput) currentFinalInput.value = newTotal;
             }
 
             // Gắn sự kiện thay đổi cho dropdown voucher
-            voucherSelect.addEventListener('change', updateTotal);
+            if (voucherSelect) {
+                voucherSelect.addEventListener('change', updateTotal);
+            }
 
             // Gọi hàm cập nhật ban đầu
             updateTotal();
+            loadCheckoutInit();
+
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const selectedItemsRaw = (checkoutForm.querySelector('input[name="selected_items_str"]') || {}).value || '';
+                    const forcedQtyRaw = (checkoutForm.querySelector('input[name="forced_qty"]') || {}).value || '';
+                    const isBuyNow = ((checkoutForm.querySelector('input[name="is_buy_now"]') || {}).value || '0') === '1';
+
+                    const payload = {
+                        mode: isBuyNow ? 'buy_now' : 'cart',
+                        payment_method: ((checkoutForm.querySelector('input[name="payment_method"]:checked') || {}).value || 'cod'),
+                        ma_khuyen_mai: (((document.getElementById('ddlKhuyenMai') || {}).value) || ''),
+                        txtHoTen: ((checkoutForm.querySelector('input[name="txtHoTen"]') || {}).value || ''),
+                        txtHoTenNguoiNhan: ((checkoutForm.querySelector('input[name="txtHoTenNguoiNhan"]') || {}).value || ''),
+                        txtDiaChiGiaoHang: ((checkoutForm.querySelector('input[name="txtDiaChiGiaoHang"]') || {}).value || ''),
+                        txtSoDienThoai: ((checkoutForm.querySelector('input[name="txtSoDienThoai"]') || {}).value || ''),
+                        txtEmail: ((checkoutForm.querySelector('input[name="txtEmail"]') || {}).value || ''),
+                        txtGhiChu: ((checkoutForm.querySelector('textarea[name="txtGhiChu"]') || {}).value || '')
+                    };
+
+                    if (isBuyNow) {
+                        payload.ma_bien_the = selectedItemsRaw;
+                        payload.so_luong = parseInt(forcedQtyRaw || '1', 10) || 1;
+                    } else if (selectedItemsRaw.trim() !== '') {
+                        payload.selected_items = selectedItemsRaw
+                            .split(',')
+                            .map(function(id) {
+                                return id.trim();
+                            })
+                            .filter(function(id) {
+                                return id !== '';
+                            });
+                    }
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'ĐANG XỬ LÝ...';
+                    }
+
+                    fetch(CHECKOUT_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(function(response) {
+                            return response.json().catch(function() {
+                                return {
+                                    success: false,
+                                    message: 'Phản hồi API không hợp lệ'
+                                };
+                            });
+                        })
+                        .then(function(json) {
+                            if (!json || !json.success) {
+                                var msg = (json && json.message) ? json.message : 'Không thể đặt hàng. Vui lòng thử lại.';
+                                if (json && Array.isArray(json.errors) && json.errors.length > 0) {
+                                    msg += '\n- ' + json.errors.join('\n- ');
+                                }
+                                alert(msg);
+                                return;
+                            }
+
+                            var data = json.data || {};
+                            if (data.payment_method === 'bank' && data.payment_url) {
+                                window.location.href = data.payment_url;
+                                return;
+                            }
+
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                                return;
+                            }
+
+                            alert('Đặt hàng thành công!');
+                            window.location.href = '<?php echo UrlHelper::url('Khachhang/lichsumuahang'); ?>';
+                        })
+                        .catch(function() {
+                            alert('Không thể kết nối đến API thanh toán. Vui lòng thử lại sau.');
+                        })
+                        .finally(function() {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = 'ĐẶT HÀNG';
+                            }
+                        });
+                });
+            }
         });
     </script>
 

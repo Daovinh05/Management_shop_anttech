@@ -1,7 +1,7 @@
 <?php
 // Include necessary helpers
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/TimezoneHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 ?>
 
 <style>
@@ -730,6 +730,76 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         font-size: 16px;
         color: #d70018;
     }
+
+    .no-results-box {
+        grid-column: 1 / -1;
+        background: #fff;
+        border: 1px solid #ebebeb;
+        border-radius: 10px;
+        padding: 28px 22px;
+    }
+
+    .no-results-title {
+        font-size: 28px;
+        color: #c7c7c7;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .no-results-box h3 {
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .no-results-box p {
+        text-align: center;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-title {
+        margin-top: 18px;
+        margin-bottom: 12px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .suggestion-products {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        padding-bottom: 6px;
+    }
+
+    .suggestion-product {
+        text-decoration: none;
+        color: inherit;
+        text-align: center;
+        min-width: 140px;
+        max-width: 140px;
+        flex: 0 0 140px;
+    }
+
+    .suggestion-product img {
+        width: 100%;
+        height: 110px;
+        object-fit: contain;
+        border: 1px solid #efefef;
+        border-radius: 8px;
+        padding: 8px;
+        background: #fafafa;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-product-name {
+        font-size: 12px;
+        color: #444;
+        line-height: 1.35;
+        height: 32px;
+        overflow: hidden;
+    }
     
     /* Pagination Styles */
     .pagination {
@@ -790,42 +860,32 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     <div class="filter-group">
                         <h4 class="filter-group-title">Danh mục</h4>
 
-                        <label class="filter-option"><input type="radio" name="category" value="" checked><span
-                                class="checkmark"></span>Tất cả</label>
+                        <label class="filter-option"><input type="radio" name="category" value="" checked><span class="checkmark"></span>Tất cả</label>
 
                         <?php foreach ($data['dsdm'] as $dm): ?>
-                            <label class="filter-option"><input type="radio" name="category"
-                                    value="<?php echo $dm['ma_danh_muc']; ?>"><span
-                                    class="checkmark"></span><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></label>
+                            <label class="filter-option"><input type="radio" name="category" value="<?php echo $dm['ma_danh_muc']; ?>"><span class="checkmark"></span><?php echo htmlspecialchars($dm['ten_danh_muc']); ?></label>
                         <?php endforeach; ?>
                     </div>
+
                     <div class="filter-group">
                         <h4 class="filter-group-title">Giá</h4>
-                        <label class="filter-option"><input type="radio" name="price" value="tat-ca" checked><span
-                                class="checkmark"></span>Tất cả</label>
-                        <label class="filter-option"><input type="radio" name="price" value="duoi-2-trieu"><span
-                                class="checkmark"></span>Dưới 2 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="2-4-trieu"><span
-                                class="checkmark"></span>Từ 2 - 4 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="4-7-trieu"><span
-                                class="checkmark"></span>Từ 4 - 7 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="7-13-trieu"><span
-                                class="checkmark"></span>Từ 7 - 13 triệu</label>
-                        <label class="filter-option"><input type="radio" name="price" value="tren-13-trieu"><span
-                                class="checkmark"></span>Trên 13 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="tat-ca" checked><span class="checkmark"></span>Tất cả</label>
+                        <label class="filter-option"><input type="radio" name="price" value="duoi-2-trieu"><span class="checkmark"></span>Dưới 2 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="2-4-trieu"><span class="checkmark"></span>Từ 2 - 4 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="4-7-trieu"><span class="checkmark"></span>Từ 4 - 7 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="7-13-trieu"><span class="checkmark"></span>Từ 7 - 13 triệu</label>
+                        <label class="filter-option"><input type="radio" name="price" value="tren-13-trieu"><span class="checkmark"></span>Trên 13 triệu</label>
                     </div>
+
                     <div class="filter-group">
                         <h4 class="filter-group-title">Thương hiệu</h4>
-                        <label class="filter-option"><input type="radio" name="brand" value="" checked><span
-                                class="checkmark"></span>Tất cả</label>
+                        <label class="filter-option"><input type="radio" name="brand" value="" checked><span class="checkmark"></span>Tất cả</label>
                         <?php
-                        // Lấy danh sách thương hiệu từ model
                         $thuong_hieu_model = $this->model("ThuongHieu_m");
                         $dsth = $thuong_hieu_model->ThuongHieu_getAll();
-                        foreach ($dsth as $th): ?>
-                            <label class="filter-option"><input type="radio" name="brand"
-                                    value="<?php echo $th['ma_thuong_hieu']; ?>"><span
-                                    class="checkmark"></span><?php echo htmlspecialchars($th['ten_thuong_hieu']); ?></label>
+                        foreach ($dsth as $th):
+                        ?>
+                            <label class="filter-option"><input type="radio" name="brand" value="<?php echo $th['ma_thuong_hieu']; ?>"><span class="checkmark"></span><?php echo htmlspecialchars($th['ten_thuong_hieu']); ?></label>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -836,115 +896,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     <h2>Tìm sản phẩm theo nhu cầu</h2>
                     <button class="btn-filter-now"><i class="fa-solid fa-filter"></i> Dùng bộ lọc ngay</button>
                 </div>
-                <div class="results-count">Tìm thấy <?php echo isset($data['total_products']) ? $data['total_products'] : mysqli_num_rows($data['dssp']); ?> kết quả</div>
+
+                <div class="results-count">Đang tải dữ liệu sản phẩm...</div>
 
                 <section class="product-section">
-                    <div class="product-grid">
-                        <?php while ($sp = mysqli_fetch_assoc($data['dssp'])): ?>
-                            <a href="<?php echo UrlHelper::url('Khachhang/chitietsanpham/' . $sp['ma_san_pham']); ?>"
-                                class="product-link">
-                                <div class="product-card">
-                                    <span
-                                        class="sticker-sale">-<?php echo isset($sp['giam_gia']) ? $sp['giam_gia'] : '10'; ?>%</span>
-                                    <?php if (isset($sp['img_bien_the']) && $sp['img_bien_the']): ?>
-                                        <img src="<?php echo !empty($sp['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . htmlspecialchars($sp['img_bien_the']) : '/qlsp/Public/Pictures/no-image.png'; ?>"
-                                            alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
-                                            style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />
-                                    <?php else: ?>
-                                        <img src="https://placehold.co/300x300"
-                                            alt="<?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?>"
-                                            style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;">
-                                    <?php endif; ?>
-
-
-
-                                    <h3 class="product-name"><?php echo htmlspecialchars($sp['ten_san_pham'] ?? ''); ?></h3>
-                                    <div class="product-price-box">
-                                        <div class="price-row">
-                                            <span
-                                                class="old-price"><?php echo isset($sp['gia_cu']) ? number_format($sp['gia_cu'], 0, ',', '.') . '₫' : (isset($sp['gia']) ? number_format($sp['gia'], 0, ',', '.') . '₫' : 'Liên hệ'); ?></span>
-                                            <?php if (isset($sp['giam_gia']) && $sp['giam_gia'] > 0): ?>
-                                                <span class="discount-percent">-<?php echo $sp['giam_gia']; ?>%</span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="current-price">
-                                            <?php echo isset($sp['gia_moi']) ? number_format($sp['gia_moi'], 0, ',', '.') . '₫' : (isset($sp['gia']) ? number_format($sp['gia'], 0, ',', '.') . '₫' : 'Liên hệ'); ?>
-                                        </div>
-                                        <div class="price-discount-text">Giảm
-                                            <?php echo isset($sp['gia_cu']) && isset($sp['gia_moi']) ? number_format($sp['gia_cu'] - $sp['gia_moi'], 0, ',', '.') . '₫' : (isset($sp['gia']) && isset($sp['giam_gia']) ? number_format($sp['gia'] * $sp['giam_gia'] / 100, 0, ',', '.') . '₫' : 'Liên hệ'); ?>
-                                        </div>
-                                        <?php if (isset($sp['so_luong_kho'])): ?>
-                                            <div class="stock-status">
-                                                <?php 
-                                                if ($sp['so_luong_kho'] > 5) {
-                                                    echo '<span style="color: green;">Còn hàng</span>';
-                                                } elseif ($sp['so_luong_kho'] > 0) {
-                                                    echo '<span style="color: orange;">Sắp hết hàng (' . $sp['so_luong_kho'] . ')</span>';
-                                                } else {
-                                                    echo '<span style="color: red;">Hết hàng</span>';
-                                                }
-                                                ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="buy-btn">Mua ngay</div>
-                                </div>
-                            </a>
-                        <?php endwhile; ?>
-                    </div>
+                    <div class="product-grid"></div>
                 </section>
-                
-                <!-- Pagination Controls -->
-                <?php if (isset($data['total_pages']) && $data['total_pages'] > 1): ?>
-                <div class="pagination-container" style="margin-top: 30px; text-align: center;">
-                    <div class="pagination">
-                        <?php
-                        $current_page = $data['current_page'];
-                        $total_pages = $data['total_pages'];
-                        
-                        // Previous button
-                        if ($current_page > 1) {
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . ($current_page - 1)) . '" class="pagination-btn">&laquo; Trước</a>';
-                        } else {
-                            echo '<span class="pagination-btn disabled">&laquo; Trước</span>';
-                        }
-                        
-                        // Page numbers
-                        $start_page = max(1, $current_page - 2);
-                        $end_page = min($total_pages, $current_page + 2);
-                        
-                        if ($start_page > 1) {
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=1") . '" class="pagination-btn">1</a>';
-                            if ($start_page > 2) {
-                                echo '<span class="pagination-ellipsis">...</span>';
-                            }
-                        }
-                        
-                        for ($i = $start_page; $i <= $end_page; $i++) {
-                            if ($i == $current_page) {
-                                echo '<span class="pagination-btn active">' . $i . '</span>';
-                            } else {
-                                echo '<a href="' . UrlHelper::url("Khachhang?page=" . $i) . '" class="pagination-btn">' . $i . '</a>';
-                            }
-                        }
-                        
-                        if ($end_page < $total_pages) {
-                            if ($end_page < $total_pages - 1) {
-                                echo '<span class="pagination-ellipsis">...</span>';
-                            }
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . $total_pages) . '" class="pagination-btn">' . $total_pages . '</a>';
-                        }
-                        
-                        // Next button
-                        if ($current_page < $total_pages) {
-                            echo '<a href="' . UrlHelper::url("Khachhang?page=" . ($current_page + 1)) . '" class="pagination-btn">Tiếp &raquo;</a>';
-                        } else {
-                            echo '<span class="pagination-btn disabled">Tiếp &raquo;</span>';
-                        }
-                        ?>
-                    </div>
-                </div>
-                <?php endif; ?>
+
+                <div class="pagination-container" style="margin-top: 30px; text-align: center; display:none;"></div>
             </main>
 
         </div>
@@ -954,27 +913,15 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 </div>
 
 <script>
-    // Lấy các phần tử
-    const accountBtn = document.getElementById('accountBtn');
-    const accountMenu = document.getElementById('accountMenu');
-
-    // Toggle Account Menu
-    accountBtn.addEventListener('click', function(event) {
-        event.stopPropagation();
-        accountMenu.classList.toggle('active');
-    });
-
-    // Close when clicking outside
-    window.addEventListener('click', function(event) {
-        if (!accountBtn.contains(event.target)) {
-            accountMenu.classList.remove('active');
-        }
-    });
+    const STOREFRONT_API_BASE = '<?php echo UrlHelper::url("Api/Storefront"); ?>';
 
     // Variables to store current filter selections
     let currentCategory = '';
     let currentPriceRange = '';
     let currentBrand = '';
+    let currentPage = 1;
+    let currentSearchKeyword = '';
+    const pageSize = 12;
 
     // Handle price filter selection
     const priceFilters = document.querySelectorAll('input[name="price"]');
@@ -983,7 +930,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             if (this.checked && this.value) {
                 currentPriceRange = this.value;
                 // Filter products based on selected price range, current category and current brand
-                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+                currentPage = 1;
+                fetchStorefrontProducts();
             }
         });
     });
@@ -1000,7 +948,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     currentCategory = '';
                 }
                 // Filter products based on selected category, current price range and current brand
-                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+                currentPage = 1;
+                fetchStorefrontProducts();
             }
         });
     });
@@ -1017,38 +966,32 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                     currentBrand = '';
                 }
                 // Filter products based on selected brand, current category and current price range
-                filterProductsByBoth(currentCategory, currentPriceRange, currentBrand);
+                currentPage = 1;
+                fetchStorefrontProducts();
             }
         });
     });
 
+    function buildApiUrl() {
+        const params = new URLSearchParams();
+        params.set('page', currentPage);
+        params.set('limit', pageSize);
+
+        if (currentCategory) params.set('category_id', currentCategory);
+        if (currentPriceRange) params.set('price_range', currentPriceRange);
+        if (currentBrand) params.set('brand_id', currentBrand);
+        if (currentSearchKeyword) params.set('q', currentSearchKeyword);
+
+        return `${STOREFRONT_API_BASE}?${params.toString()}`;
+    }
+
     // Function to filter products by category, price range and brand
-    function filterProductsByBoth(categoryId, priceRange, brandId) {
+    function fetchStorefrontProducts() {
         // Show loading indicator
         const productGrid = document.querySelector('.product-grid');
         productGrid.innerHTML = '<div class="loading">Đang tải sản phẩm...</div>';
 
-        // Prepare form data
-        let formData = new FormData();
-        if (categoryId) {
-            formData.append('category_id', categoryId);
-        }
-        if (priceRange) {
-            formData.append('price_range', priceRange);
-        }
-        if (brandId) {
-            formData.append('brand_id', brandId);
-        }
-
-        // Log the URL for debugging
-        console.log('Request URL:', '<?php echo UrlHelper::url("Khachhang/filter_by_both"); ?>');
-        console.log('Category ID:', categoryId, 'Price Range:', priceRange, 'Brand ID:', brandId);
-
-        // Make an AJAX request to get filtered products
-        fetch('<?php echo UrlHelper::url("Khachhang/filter_by_both"); ?>', {
-                method: 'POST',
-                body: formData
-            })
+        fetch(buildApiUrl(), { method: 'GET' })
             .then(response => {
                 console.log('Response status:', response.status);
                 if (!response.ok) {
@@ -1058,17 +1001,183 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             })
             .then(data => {
                 console.log('Received data:', data);
-                if (data.error) {
-                    console.error('Server error:', data.error);
-                    productGrid.innerHTML = `<p class="error">Lỗi máy chủ: ${data.error}</p>`;
+                if (!data.success) {
+                    productGrid.innerHTML = `<p class="error">Lỗi máy chủ: ${data.message || 'Không xác định'}</p>`;
                     return;
                 }
-                updateProductGrid(data.products);
-                document.querySelector('.results-count').textContent = `Tìm thấy ${data.count} kết quả`;
+
+                const items = data.data?.items || [];
+                const pagination = data.data?.pagination || { total: 0, total_pages: 0, page: 1 };
+
+                updateProductGrid(items);
+                updatePagination(pagination);
+                const resultCountEl = document.querySelector('.results-count');
+                if (resultCountEl) {
+                    const suffix = currentSearchKeyword ? ` cho "${currentSearchKeyword}"` : '';
+                    resultCountEl.textContent = `Tìm thấy ${pagination.total || 0} kết quả${suffix}`;
+                }
             })
             .catch(error => {
                 console.error('Error details:', error);
                 productGrid.innerHTML = '<p class="error">Lỗi khi tải sản phẩm. Vui lòng thử lại sau.</p>';
+            });
+    }
+
+    function updatePagination(meta) {
+        const container = document.querySelector('.pagination-container');
+        if (!container) {
+            return;
+        }
+
+        const totalPages = Number(meta.total_pages || 0);
+        const page = Number(meta.page || 1);
+
+        if (totalPages <= 1) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+
+        let html = '<div class="pagination">';
+        if (page > 1) {
+            html += `<a href="#" class="pagination-btn" data-page="${page - 1}">&laquo; Trước</a>`;
+        } else {
+            html += '<span class="pagination-btn disabled">&laquo; Trước</span>';
+        }
+
+        const startPage = Math.max(1, page - 2);
+        const endPage = Math.min(totalPages, page + 2);
+
+        if (startPage > 1) {
+            html += '<a href="#" class="pagination-btn" data-page="1">1</a>';
+            if (startPage > 2) {
+                html += '<span class="pagination-ellipsis">...</span>';
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === page) {
+                html += `<span class="pagination-btn active">${i}</span>`;
+            } else {
+                html += `<a href="#" class="pagination-btn" data-page="${i}">${i}</a>`;
+            }
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += '<span class="pagination-ellipsis">...</span>';
+            }
+            html += `<a href="#" class="pagination-btn" data-page="${totalPages}">${totalPages}</a>`;
+        }
+
+        if (page < totalPages) {
+            html += `<a href="#" class="pagination-btn" data-page="${page + 1}">Tiếp &raquo;</a>`;
+        } else {
+            html += '<span class="pagination-btn disabled">Tiếp &raquo;</span>';
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+
+        container.querySelectorAll('a.pagination-btn[data-page]').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentPage = Number(this.getAttribute('data-page'));
+                fetchStorefrontProducts();
+            });
+        });
+    }
+
+    function rankSuggestionProducts(products, maxItems) {
+        if (!Array.isArray(products)) {
+            return [];
+        }
+
+        const strong = [];
+        const normal = [];
+
+        products.forEach(product => {
+            const hasImage = !!(product && product.img_bien_the);
+            const inStock = Number(product && product.so_luong_kho ? product.so_luong_kho : 0) > 0;
+            const hasName = !!(product && String(product.ten_san_pham || '').trim().length >= 4);
+
+            if (!hasName) {
+                return;
+            }
+
+            if (hasImage && inStock) {
+                strong.push(product);
+            } else {
+                normal.push(product);
+            }
+        });
+
+        return strong.concat(normal).slice(0, maxItems);
+    }
+
+    function renderNoResultSuggestions(products) {
+        const productGrid = document.querySelector('.product-grid');
+        if (!productGrid) {
+            return;
+        }
+
+        const keywordSafe = (currentSearchKeyword || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let suggestionsHtml = '';
+
+        const rankedProducts = rankSuggestionProducts(products, 7);
+
+        if (rankedProducts.length > 0) {
+            const baseUrl = '<?php echo UrlHelper::url(); ?>';
+            suggestionsHtml += '<div class="suggestion-title">Một số gợi ý tìm kiếm:</div>';
+            suggestionsHtml += '<div class="suggestion-products">';
+
+            rankedProducts.forEach(product => {
+                const href = `<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>${product.ma_san_pham || ''}`;
+                const img = product.img_bien_the
+                    ? `${baseUrl}Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}`
+                    : `${baseUrl}Public/Images/no-image.png`;
+
+                suggestionsHtml += `
+                    <a href="${href}" class="suggestion-product">
+                        <img src="${img}" alt="${product.ten_san_pham || ''}" onerror="this.onerror=null;this.src='${baseUrl}Public/Images/no-image.png';">
+                        <div class="suggestion-product-name">${product.ten_san_pham || ''}</div>
+                    </a>
+                `;
+            });
+
+            suggestionsHtml += '</div>';
+        }
+
+        productGrid.innerHTML = `
+            <div class="no-results-box">
+                <div class="no-results-title"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3>Không tìm thấy sản phẩm nào</h3>
+                <p>Chúng tôi không tìm thấy sản phẩm nào phù hợp với từ khóa "<strong>${keywordSafe}</strong>"</p>
+                <p>Vui lòng thử lại với từ khóa khác</p>
+                ${suggestionsHtml}
+            </div>
+        `;
+    }
+
+    function fetchNoResultSuggestions() {
+        const recommendationUrl = `${STOREFRONT_API_BASE}?page=1&limit=20`;
+
+        fetch(recommendationUrl, { method: 'GET' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch suggestions');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const items = data && data.success && data.data && Array.isArray(data.data.items)
+                    ? data.data.items
+                    : [];
+                renderNoResultSuggestions(items);
+            })
+            .catch(() => {
+                renderNoResultSuggestions([]);
             });
     }
 
@@ -1127,12 +1236,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
                 let productHtml = `<span class="sticker-sale">-${product.giam_gia || '0'}%</span>`;
 
+                const baseUrl = '<?php echo UrlHelper::url(); ?>';
                 if (product.img_bien_the) {
                     productHtml +=
-                        `<img src="/Banhang/Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
+                        `<img src="${baseUrl}Public/Pictures/bien_the/${encodeURIComponent(product.img_bien_the)}" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
                 } else {
                     productHtml +=
-                        `<img src="https://placehold.co/300x300" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
+                        `<img src="${baseUrl}Public/Images/no-image.png" alt="${product.ten_san_pham || ''}" style="width:100%;height:180px;object-fit:contain;margin-bottom:15px;" />`;
                 }
 
                 productHtml += `<h3 class="product-name">${product.ten_san_pham || ''}</h3>
@@ -1155,7 +1265,32 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                 productGrid.appendChild(productCard);
             });
         } else {
-            productGrid.innerHTML = '<p class="no-products">Không tìm thấy sản phẩm nào phù hợp.</p>';
+            if (currentSearchKeyword) {
+                fetchNoResultSuggestions();
+            } else {
+                productGrid.innerHTML = '<p class="no-products">Không tìm thấy sản phẩm nào phù hợp.</p>';
+            }
         }
     }
+
+    // Khoi dong du lieu theo API de dong bo hoan toan REST cho trang chu
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const p = parseInt(urlParams.get('page') || '1', 10);
+        const q = (urlParams.get('q') || '').trim();
+        const categoryId = (urlParams.get('category_id') || '').trim();
+
+        currentPage = Number.isNaN(p) || p < 1 ? 1 : p;
+        currentSearchKeyword = q;
+        currentCategory = categoryId;
+
+        if (categoryId) {
+            const categoryRadio = document.querySelector('input[name="category"][value="' + categoryId.replace(/"/g, '\\"') + '"]');
+            if (categoryRadio) {
+                categoryRadio.checked = true;
+            }
+        }
+
+        fetchStorefrontProducts();
+    });
 </script>

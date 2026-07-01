@@ -213,7 +213,7 @@
                 <p class="hint">Sử dụng form dưới đây để tải lên file Sản phẩm.</p>
             </div>
 
-            <form method="POST" action="http://localhost/Banhang/Sanpham/up_l" enctype="multipart/form-data">
+            <form id="productImportForm" method="POST" action="#" enctype="multipart/form-data">
                 <label for="txtGhichu">Ghi chú (Tùy chọn)</label>
                 <input type="text" name="txtGhichu" id="txtGhichu" placeholder="Nhập ghi chú hoặc mô tả cho file này">
 
@@ -225,7 +225,7 @@
                     <h4 style="margin-bottom: 5px; font-size: 16px;">Nhấn vào đây để chọn file</h4>
                     <p class="hint">Hoặc kéo thả file vào khu vực này (.xls, .xlsx)</p>
 
-                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" required
+                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" data-required="true"
                         onchange="updateFileName(this)" />
                 </div>
 
@@ -235,14 +235,19 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="http://localhost/Banhang/Sanpham/danhsach" class="btn btn-secondary">
+                    <a href="<?php echo BASE_URL; ?>Sanpham/danhsach" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
-                    <button type="submit" name="btnNhap" class="btn btn-primary" style="min-width: 150px;">
+                    <button type="submit" id="importSubmitBtn" name="btnNhap" class="btn btn-primary" style="min-width: 150px;">
                         <i class="fa-solid fa-upload"></i> Tải lên ngay
                     </button>
                 </div>
             </form>
+
+            <div id="apiImportResult" class="info-section" style="display:none; margin-top:20px;">
+                <h4><i class="fa-solid fa-circle-check"></i> Kết quả import API</h4>
+                <ul id="apiImportSummary"></ul>
+            </div>
 
             <div class="info-section">
                 <h4><i class="fa-solid fa-circle-info"></i> Quy định định dạng file (Ví dụ: File Excel):</h4>
@@ -261,6 +266,8 @@
     </div>
 
     <script>
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
         function updateFileName(input) {
             const display = document.getElementById('fileNameDisplay');
             const nameSpan = document.getElementById('fName');
@@ -275,6 +282,91 @@
                 wrapper.style.borderColor = '#d0d7e2'; // Trả về màu border mặc định
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('productImportForm');
+            const submitBtn = document.getElementById('importSubmitBtn');
+            const resultBox = document.getElementById('apiImportResult');
+            const summary = document.getElementById('apiImportSummary');
+
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const fileInput = document.getElementById('txtfile');
+                if (!fileInput || !fileInput.files || !fileInput.files.length) {
+                    alert('Vui lòng chọn file Excel trước khi tải lên.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang import...';
+
+                fetch(BASE_URL + 'Api/Products/import', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json().then(function(payload) {
+                        return {
+                            ok: response.ok,
+                            status: response.status,
+                            data: payload
+                        };
+                    });
+                })
+                .then(function(result) {
+                    const data = result.data || {};
+
+                    if (!result.ok || !data.success) {
+                        const failedRows = Array.isArray(data.failed_rows) ? data.failed_rows : [];
+                        const failedPreview = failedRows.slice(0, 5).map(function(item) {
+                            return 'Dòng ' + item.row + ' (' + (item.ma_san_pham || 'N/A') + '): ' + item.reason;
+                        }).join('\n');
+
+                        const duplicated = Array.isArray(data.duplicated_codes) ? data.duplicated_codes : [];
+                        const duplicatedText = duplicated.length ? duplicated.join(', ') : 'Không có';
+
+                        resultBox.style.display = 'block';
+                        summary.innerHTML = ''
+                            + '<li><i class="fa-solid fa-caret-right"></i> Tạo mới thành công: <strong>' + (data.created || 0) + '</strong></li>'
+                            + '<li><i class="fa-solid fa-caret-right"></i> Bỏ qua (mã trống): <strong>' + (data.skipped_empty_code || 0) + '</strong></li>'
+                            + '<li><i class="fa-solid fa-caret-right"></i> Mã bị trùng: <strong>' + (data.duplicated_count || 0) + '</strong></li>'
+                            + '<li><i class="fa-solid fa-caret-right"></i> Dòng lỗi: <strong>' + (data.failed_count || 0) + '</strong></li>'
+                            + '<li><i class="fa-solid fa-caret-right"></i> Danh sách mã trùng: ' + duplicatedText + '</li>';
+
+                        throw new Error((data.message || ('Import thất bại (HTTP ' + result.status + ')')) + (failedPreview ? ('\n' + failedPreview) : ''));
+                    }
+
+                    resultBox.style.display = 'block';
+
+                    const duplicated = Array.isArray(data.duplicated_codes) ? data.duplicated_codes : [];
+                    const duplicatedText = duplicated.length ? duplicated.join(', ') : 'Không có';
+
+                    summary.innerHTML = ''
+                        + '<li><i class="fa-solid fa-caret-right"></i> Tạo mới thành công: <strong>' + (data.created || 0) + '</strong></li>'
+                        + '<li><i class="fa-solid fa-caret-right"></i> Bỏ qua (mã trống): <strong>' + (data.skipped_empty_code || 0) + '</strong></li>'
+                        + '<li><i class="fa-solid fa-caret-right"></i> Mã bị trùng: <strong>' + (data.duplicated_count || 0) + '</strong></li>'
+                        + '<li><i class="fa-solid fa-caret-right"></i> Dòng lỗi: <strong>' + (data.failed_count || 0) + '</strong></li>'
+                        + '<li><i class="fa-solid fa-caret-right"></i> Danh sách mã trùng: ' + duplicatedText + '</li>';
+
+                    alert('Import sản phẩm thành công qua REST API.');
+                })
+                .catch(function(error) {
+                    alert('Lỗi import API: ' + error.message);
+                })
+                .finally(function() {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Tải lên ngay';
+                });
+            });
+        });
     </script>
 </body>
 

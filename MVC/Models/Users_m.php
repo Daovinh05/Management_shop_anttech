@@ -1,9 +1,21 @@
 <?php
 class Users_m extends connectDB
 {
+    private function esc($value)
+    {
+        return mysqli_real_escape_string($this->con, (string)$value);
+    }
 
     function users_ins($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai, $avatar)
     {
+        $ma_user = $this->esc($ma_user);
+        $ten_user = $this->esc($ten_user);
+        $full_name = $this->esc($full_name);
+        $password = $this->esc($password);
+        $email = $this->esc($email);
+        $phan_quyen = $this->esc($phan_quyen);
+        $so_dien_thoai = $this->esc($so_dien_thoai);
+        $avatar = $this->esc($avatar);
         $sql = "INSERT INTO users (ma_user, ten_user, full_name, password, email, phan_quyen, so_dien_thoai, avatar) VALUES ('$ma_user', '$ten_user', '$full_name', '$password', '$email', '$phan_quyen','$so_dien_thoai', '$avatar')";
         return mysqli_query($this->con, $sql);
     }
@@ -11,20 +23,33 @@ class Users_m extends connectDB
 
     function checktrungMaUser($ma_user)
     {
+        $ma_user = $this->esc($ma_user);
         $sql = "SELECT * FROM users WHERE ma_user = '$ma_user'";
         $result = mysqli_query($this->con, $sql);
         return (mysqli_num_rows($result) > 0);
     }
 
     // Method to check if phone number already exists
-    function checkTrungSoDienThoai($so_dien_thoai)
+    function checkTrungSoDienThoai($so_dien_thoai, $exclude_ma_user = null)
     {
-        $sql = "SELECT * FROM users WHERE so_dien_thoai = '$so_dien_thoai'";
+        $so_dien_thoai = $this->esc($so_dien_thoai);
+        if ($exclude_ma_user === null || $exclude_ma_user === '') {
+            $sql = "SELECT * FROM users WHERE so_dien_thoai = '$so_dien_thoai'";
+        } else {
+            $exclude_ma_user = $this->esc($exclude_ma_user);
+            $sql = "SELECT * FROM users WHERE so_dien_thoai = '$so_dien_thoai' AND ma_user != '$exclude_ma_user'";
+        }
         $result = mysqli_query($this->con, $sql);
         return (mysqli_num_rows($result) > 0);
     }
     public function checktrungEmail($email, $ma_user)
     {
+        $email = $this->esc($email);
+        if ($ma_user === null || $ma_user === '') {
+            $sql = "SELECT * FROM users WHERE email = '$email'";
+            return mysqli_query($this->con, $sql);
+        }
+        $ma_user = $this->esc($ma_user);
         $sql = "SELECT * FROM users
             WHERE email = '$email'
             AND ma_user != '$ma_user'";
@@ -33,6 +58,8 @@ class Users_m extends connectDB
 
     function Users_find($ma_user, $ten_user)
     {
+        $ma_user = $this->esc($ma_user);
+        $ten_user = $this->esc($ten_user);
         $sql = "SELECT * FROM users WHERE ma_user LIKE '%$ma_user%' AND ten_user LIKE '%$ten_user%' ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC";
         return mysqli_query($this->con, $sql);
     }
@@ -40,7 +67,15 @@ class Users_m extends connectDB
 
     function Users_update($ma_user, $ten_user, $full_name, $password, $email, $phan_quyen, $so_dien_thoai, $avatar)
     {
+        $ma_user = $this->esc($ma_user);
+        $ten_user = $this->esc($ten_user);
+        $full_name = $this->esc($full_name);
+        $password = $this->esc($password);
+        $email = $this->esc($email);
+        $phan_quyen = $this->esc($phan_quyen);
+        $so_dien_thoai = $this->esc($so_dien_thoai);
         if ($avatar !== null) {
+            $avatar = $this->esc($avatar);
             $sql = "UPDATE users SET ten_user = '$ten_user', full_name = '$full_name', password = '$password', email = '$email', phan_quyen = '$phan_quyen', so_dien_thoai = '$so_dien_thoai', avatar = '$avatar' WHERE ma_user = '$ma_user'";
         } else {
             $sql = "UPDATE users SET ten_user = '$ten_user', full_name = '$full_name', password = '$password', email = '$email', phan_quyen = '$phan_quyen', so_dien_thoai = '$so_dien_thoai' WHERE ma_user = '$ma_user'";
@@ -51,11 +86,12 @@ class Users_m extends connectDB
 
     function Users_delete($ma_user)
     {
+        $ma_user = $this->esc($ma_user);
         // Xóa avatar liên quan trước khi xóa user
         $getImageSql = "SELECT avatar FROM users WHERE ma_user = '$ma_user'";
         $result = mysqli_query($this->con, $getImageSql);
         if ($result && $row = mysqli_fetch_assoc($result)) {
-            $imagePath = __DIR__ . '/../Public/Pictures/users/' . $row['avatar'];
+            $imagePath = __DIR__ . '/../../Public/Pictures/users/' . $row['avatar'];
             if (!empty($row['avatar']) && file_exists($imagePath)) {
                 unlink($imagePath);
             }
@@ -75,12 +111,15 @@ class Users_m extends connectDB
 
     function Users_getById($ma_user)
     {
+        $ma_user = $this->esc($ma_user);
         $sql = "SELECT * FROM users WHERE ma_user = '$ma_user'";
         return mysqli_query($this->con, $sql);
     }
 
     function validateUser($username, $password)
     {
+        $username = $this->esc($username);
+        $password = $this->esc($password);
         // Check login by username OR email
         $sql = "SELECT * FROM users WHERE (ten_user = '$username' OR email = '$username') AND password = '$password'";
         $result = mysqli_query($this->con, $sql);
@@ -106,6 +145,7 @@ class Users_m extends connectDB
     // lấy tên để check tên đăng nhập và email có tồn tại không
     function getUserByUsername($username)
     {
+        $username = $this->esc($username);
         $sql = "SELECT * FROM users WHERE ten_user = '$username' OR email = '$username'";
         $result = mysqli_query($this->con, $sql);
         if ($result && mysqli_num_rows($result) > 0) {
@@ -117,6 +157,14 @@ class Users_m extends connectDB
     // Hàm tạo user mới với mã user tự động tăng U01, U02, ...U10 nhé dùng cho đăng ký
     function createUser($username, $email,  $full_name, $password, $role, $so_dien_thoai, $avatar = '')
     {
+        $username = $this->esc($username);
+        $email = $this->esc($email);
+        $full_name = $this->esc($full_name);
+        $password = $this->esc($password);
+        $role = $this->esc($role);
+        $so_dien_thoai = $this->esc($so_dien_thoai);
+        $avatar = $this->esc($avatar);
+
         $sql_max = "SELECT ma_user FROM users WHERE ma_user LIKE 'U%' ORDER BY CAST(SUBSTRING(ma_user, 2) AS UNSIGNED) DESC LIMIT 1";
         $result = mysqli_query($this->con, $sql_max);
         if ($result && mysqli_num_rows($result) > 0) {
@@ -188,5 +236,14 @@ class Users_m extends connectDB
         
         // Return true only if both operations succeeded
         return $result_users && $result_address;
+    }
+
+    // Cập nhật mật khẩu cho user hiện tại
+    function Users_update_password($ma_user, $new_password)
+    {
+        $ma_user = $this->esc($ma_user);
+        $new_password = $this->esc($new_password);
+        $sql = "UPDATE users SET password = '$new_password' WHERE ma_user = '$ma_user'";
+        return mysqli_query($this->con, $sql);
     }
 }

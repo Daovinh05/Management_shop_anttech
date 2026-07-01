@@ -1,3 +1,6 @@
+<?php
+include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,7 +8,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($data['title']) ? $data['title'] : 'Trang chủ - TechZone'; ?></title>
-    <base href="http://localhost/Banhang/">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="TechZone - Điện thoại & Laptop Chính Hãng">
+    <meta property="og:description" content="Mua sắm điện thoại, laptop chính hãng giá tốt nhất">
+    <meta property="og:image" content="<?php echo UrlHelper::url('Public/Images/4_197.png'); ?>">
+    <meta property="og:url" content="<?php echo UrlHelper::baseUrl(); ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TechZone">
+    
+    <base href="<?php echo UrlHelper::baseUrl(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -234,7 +246,8 @@
             height: 100%;
             border: 2px solid var(--border-color);
             border-radius: 4px;
-            overflow: hidden;
+            overflow: visible;
+            position: relative;
         }
 
         .search-box input {
@@ -268,6 +281,97 @@
         .search-btn-text {
             margin-left: 5px;
             font-weight: 600;
+        }
+
+        .search-suggest-list {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 1200;
+            display: none;
+        }
+
+        .search-suggest-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #1f1f1f;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .search-suggest-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggest-item:hover {
+            background: #f3fbfa;
+        }
+
+        .search-suggest-thumb {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #f9f9f9;
+            border: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .search-suggest-name {
+            font-size: 13px;
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-suggest-empty {
+            padding: 10px 12px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .search-suggest-section {
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 700;
+            border-bottom: 1px solid #f2f2f2;
+            background: #fcfcfc;
+            text-transform: uppercase;
+        }
+
+        .search-suggest-history-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #1f1f1f;
+            border-bottom: 1px solid #f2f2f2;
+            font-size: 13px;
+        }
+
+        .search-suggest-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggest-history-item:hover {
+            background: #f3fbfa;
+        }
+
+        .search-suggest-history-item i {
+            color: #7b7b7b;
+            font-size: 12px;
         }
 
         .header-actions {
@@ -816,9 +920,10 @@
 
             <div class="middle-section">
                 <div class="search-box">
-                    <form action="<?php echo $this->url('Khachhang/timkiem'); ?>" method="GET">
+                    <form action="<?php echo $this->url('Khachhang'); ?>" method="GET" id="homeSearchForm" autocomplete="off">
                         <input
                             type="text"
+                            id="homeSearchInput"
                             name="q"
                             placeholder="Hôm nay bạn muốn tìm kiếm gì?"
                             value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>">
@@ -826,6 +931,7 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <span class="search-btn-text">Tìm kiếm ngay </span>
                         </button>
+                        <div class="search-suggest-list" id="homeSearchSuggest"></div>
                     </form>
                 </div>
 
@@ -836,14 +942,14 @@
                     <?php
                     if (isset($_SESSION['user_id'])) {
                         // Kết nối database để lấy avatar
-                        $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                        $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                         if ($conn) {
                             $user_id = $_SESSION['user_id'];
                             $query = "SELECT avatar FROM users WHERE ma_user = '$user_id'";
                             $result = mysqli_query($conn, $query);
                             if ($result && $row = mysqli_fetch_assoc($result)) {
                                 if (!empty($row['avatar'])) {
-                                    echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
+                                    echo '<img src="' . UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
                                 } else {
                                     echo '<i class="fa-regular fa-user" style="vertical-align: middle;"></i>';
                                 }
@@ -862,7 +968,7 @@
                         <?php
                         if (isset($_SESSION['user_id'])) {
                             // Kết nối database để lấy full_name
-                            $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                            $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                             if ($conn) {
                                 $user_id = $_SESSION['user_id'];
                                 $query = "SELECT full_name FROM users WHERE ma_user = '$user_id'";
@@ -894,7 +1000,7 @@
                             <a href="<?php echo UrlHelper::url('Khachhang/lichsumuahang'); ?>"><i
                                     class="fa-solid fa-box-open"></i> Đơn hàng của tôi</a>
                             <div class="divider"></div>
-                            <a href="<?php echo UrlHelper::url('Login/logout'); ?>" style="color: #d70018;"><i
+                                <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="js-api-logout" data-redirect="<?php echo UrlHelper::url('Home'); ?>" style="color: #d70018;"><i
                                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
                         <?php else: ?>
                             <a href="<?php echo UrlHelper::url('Login'); ?>"><i class="fa-solid fa-user"></i> Đăng nhập</a>
@@ -907,18 +1013,7 @@
                 <a href="<?php echo UrlHelper::url('Khachhang/giohang'); ?>" class="action-item cart-icon-wrap">
                     <i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span>
                     <span class="cart-badge" id="cartBadge">
-                        <?php
-                        if (isset($data['chi_tiet_gio_hang']) && $data['chi_tiet_gio_hang']) {
-                            $total_qty = 0;
-                            mysqli_data_seek($data['chi_tiet_gio_hang'], 0); // Reset pointer to beginning
-                            while ($item = mysqli_fetch_assoc($data['chi_tiet_gio_hang'])) {
-                                $total_qty += $item['so_luong'];
-                            }
-                            echo $total_qty;
-                        } else {
-                            echo '0';
-                        }
-                        ?>
+                        0
                     </span>
                 </a>
             </div>
@@ -994,6 +1089,7 @@
         echo "<div class='alert alert-danger'>Không có nội dung để hiển thị!</div>";
     }
     ?>
+        <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
 
     <footer class="main-footer">
         <div class="container">
@@ -1058,22 +1154,49 @@
         </div>
     </footer>
 
+    <script src="<?php echo UrlHelper::url('Public/Js/form-required-validator.js?v=1'); ?>"></script>
     <script>
-        // Lấy các phần tử
-        const accountBtn = document.getElementById('accountBtn');
-        const accountMenu = document.getElementById('accountMenu');
+        // Lấy các phần tử (dùng tên biến riêng để tránh trùng với script từng page)
+        const khMasterAccountBtn = document.getElementById('accountBtn');
+        const khMasterAccountMenu = document.getElementById('accountMenu');
 
         // Toggle Account Menu
-        accountBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            accountMenu.classList.toggle('active');
-        });
+        if (khMasterAccountBtn && khMasterAccountMenu) {
+            khMasterAccountBtn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                khMasterAccountMenu.classList.toggle('active');
+            });
 
-        // Close when clicking outside
-        window.addEventListener('click', function(event) {
-            if (!accountBtn.contains(event.target)) {
-                accountMenu.classList.remove('active');
+            // Close when clicking outside
+            window.addEventListener('click', function(event) {
+                if (!khMasterAccountBtn.contains(event.target)) {
+                    khMasterAccountMenu.classList.remove('active');
+                }
+            });
+        }
+
+        document.addEventListener('click', function(event) {
+            var logoutLink = event.target.closest('.js-api-logout');
+            if (!logoutLink) {
+                return;
             }
+
+            event.preventDefault();
+            var redirectUrl = logoutLink.getAttribute('data-redirect') || '<?php echo UrlHelper::url('Home'); ?>';
+
+            fetch('<?php echo UrlHelper::url('Api/Auth/logout'); ?>', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(function() {
+                window.location.href = redirectUrl;
+            })
+            .catch(function() {
+                window.location.href = logoutLink.getAttribute('href') || redirectUrl;
+            });
         });
 
         // --- 2. XỬ LÝ GIAO DIỆN CƠ BẢN ---
@@ -1099,96 +1222,102 @@
             input.value = value + 1;
         }
 
-        // --- 3. LOGIC GIỎ HÀNG (MỚI & QUAN TRỌNG) ---
+        // --- 3. MINI CART LOGIC (REST API) ---
+        var CART_API_BASE = "<?php echo $this->url('Api/Cart'); ?>";
 
         // Hàm mở/đóng Sidebar
         function toggleCart() {
             var overlay = document.querySelector('.cart-overlay');
             var sidebar = document.querySelector('.cart-sidebar');
+            if (!overlay || !sidebar) {
+                return;
+            }
             overlay.classList.toggle('active');
             sidebar.classList.toggle('active');
-        }
 
-        // Hàm thêm vào giỏ
-        function addToCart() {
-            // Lấy thông tin sản phẩm từ giao diện
-            var img = document.getElementById('mainImage').src;
-            var name = document.getElementById('productTitle').innerText;
-            var variantFull = document.getElementById('variantLabel').innerText;
-            var variant = variantFull.replace("Phiên bản: ", "");
-            var quantity = parseInt(document.getElementById('quantityInput').value);
-            var priceStr = document.getElementById('currentPrice').innerText;
-
-            // Chuyển giá từ chuỗi "11.400.000 ₫" sang số 11400000 để tính toán
-            var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
-
-            // Tạo object sản phẩm
-            var product = {
-                img: img,
-                name: name,
-                variant: variant,
-                quantity: quantity,
-                price: price
-            };
-
-            // Thêm vào mảng (Ở đây làm đơn giản là cứ thêm mới, chưa gộp sản phẩm trùng)
-            cart.push(product);
-
-            // Cập nhật giao diện giỏ hàng
-            renderCart();
-
-            // Mở giỏ hàng cho người dùng thấy
-            var overlay = document.querySelector('.cart-overlay');
-            var sidebar = document.querySelector('.cart-sidebar');
-            if (!sidebar.classList.contains('active')) {
-                toggleCart();
+            if (sidebar.classList.contains('active')) {
+                loadMiniCartFromApi();
             }
         }
 
-        // Hàm xóa sản phẩm
-        function removeFromCart(index) {
-            cart.splice(index, 1); // Xóa 1 phần tử tại vị trí index
-            renderCart(); // Vẽ lại giỏ hàng
+        function loadMiniCartFromApi() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', CART_API_BASE, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) {
+                    return;
+                }
+
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var items = response && response.data ? (response.data.items || []) : [];
+                    var summary = response && response.data ? (response.data.summary || {}) : {};
+
+                    renderMiniCart(items, summary);
+                    updateCartBadge(summary.total_quantity || 0);
+                } else if (xhr.status === 401) {
+                    renderMiniCart([], { total_quantity: 0, subtotal: 0 });
+                    updateCartBadge(0);
+                }
+            };
+            xhr.send();
         }
 
-        // Hàm vẽ lại giỏ hàng (Render)
-        function renderCart() {
-            var cartBody = document.getElementById('cartBody');
-            var cartFooter = document.getElementById('cartFooter');
+        function updateCartBadge(totalQty) {
             var cartBadge = document.getElementById('cartBadge');
+            if (cartBadge) {
+                cartBadge.innerText = parseInt(totalQty || 0, 10);
+            }
+        }
 
-            // 1. Cập nhật số lượng trên icon badge
-            var totalQuantity = 0;
-            var totalPrice = 0;
-
-            cart.forEach(item => {
-                totalQuantity += item.quantity;
-                totalPrice += (item.price * item.quantity);
-            });
-            cartBadge.innerText = totalQuantity;
-
-            // 2. Xử lý hiển thị Body
-            if (cart.length === 0) {
-                cartBody.innerHTML = '<div class="empty-cart-msg">Chưa có sản phẩm trong giỏ hàng</div>';
-                cartFooter.innerHTML = ''; // Xóa footer nếu trống
+        function removeMiniCartItem(maBienThe) {
+            if (!maBienThe) {
                 return;
             }
 
-            // Nếu có sản phẩm, tạo HTML
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', CART_API_BASE + '/' + encodeURIComponent(maBienThe), true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
+                    loadMiniCartFromApi();
+                }
+            };
+            xhr.send();
+        }
+
+        function renderMiniCart(items, summary) {
+            var cartBody = document.getElementById('cartBody');
+            var cartFooter = document.getElementById('cartFooter');
+            if (!cartBody || !cartFooter) {
+                return;
+            }
+
+            var totalPrice = Number(summary && summary.subtotal ? summary.subtotal : 0);
+
+            if (!items || items.length === 0) {
+                cartBody.innerHTML = '<div class="empty-cart-msg">Chưa có sản phẩm trong giỏ hàng</div>';
+                cartFooter.innerHTML = '';
+                return;
+            }
+
             var html = '';
-            cart.forEach((item, index) => {
-                var itemTotal = (item.price * item.quantity).toLocaleString('vi-VN');
+            items.forEach(function(item) {
+                var price = Number(item.price || item.gia || 0);
+                var quantity = Number(item.quantity || item.so_luong || 0);
+                var name = item.name || item.ten_san_pham || '';
+                var variant = item.variant || item.variant_name || '';
+
                 html += `
                 <div class="cart-item">
                     <div class="cart-item-img">
-                        <img src="\${item.img}" alt="">
+                        <img src="${item.img || ''}" alt="">
                     </div>
                     <div class="cart-item-info">
-                        <span class="cart-item-name">\${item.name}</span>
-                        <span class="cart-item-variant">\${item.variant}</span>
-                        <div class="cart-item-price">\${item.quantity} x \${item.price.toLocaleString('vi-VN')} ₫</div>
+                        <span class="cart-item-name">${name}</span>
+                        <span class="cart-item-variant">${variant}</span>
+                        <div class="cart-item-price">${quantity} x ${price.toLocaleString('vi-VN')} ₫</div>
                     </div>
-                    <div class="cart-remove-btn" onclick="removeFromCart(\${index})">
+                    <div class="cart-remove-btn" onclick="removeMiniCartItem('${item.ma_bien_the || ''}')">
                         <i class="fa-solid fa-xmark"></i>
                     </div>
                 </div>
@@ -1196,10 +1325,9 @@
             });
             cartBody.innerHTML = html;
 
-            // 3. Xử lý hiển thị Footer (Tổng tiền & Button)
             cartFooter.innerHTML = `
                 <div class="cart-total-row">
-                    Tổng số phụ: <span class="cart-total-price">\${totalPrice.toLocaleString('vi-VN')} ₫</span>
+                    Tổng số phụ: <span class="cart-total-price">${totalPrice.toLocaleString('vi-VN')} ₫</span>
                 </div>
                 <div class="cart-btn-group">
                     <button class="btn-view-cart" onclick="location.href='<?php echo $this->url('Khachhang/giohang'); ?>'">XEM GIỎ HÀNG</button>
@@ -1213,39 +1341,236 @@
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        // Hàm mua ngay - thêm sản phẩm vào giỏ hàng và chuyển sang trang thanh toán
-        function buyNow() {
-            // Lấy thông tin sản phẩm từ giao diện
-            var img = document.getElementById('mainImage').src;
-            var name = document.getElementById('productTitle').innerText;
-            var variantFull = document.getElementById('variantLabel').innerText;
-            var variant = variantFull.replace("Phiên bản: ", "");
-            var quantity = parseInt(document.getElementById('quantityInput').value);
-            var priceStr = document.getElementById('currentPrice').innerText;
+        // Trang gio hang da tu goi GET /Api/Cart de render bang,
+        // nen bo qua auto-load o master de tranh request trung lap.
+        var khIsCartPage = <?php echo (isset($data['page']) && $data['page'] === 'Khachhang/khachhang_giohang') ? 'true' : 'false'; ?>;
+        var khSearchSuggestApi = '<?php echo UrlHelper::url('Api/Search/suggestions'); ?>';
+        var khSearchHistoryApi = '<?php echo UrlHelper::url('Api/Search/history'); ?>';
+        var khSearchSaveApi = '<?php echo UrlHelper::url('Api/Search'); ?>';
+        var khSearchHomeUrl = '<?php echo UrlHelper::url('Khachhang'); ?>';
 
-            // Chuyển giá từ chuỗi "11.400.000 ₫" sang số để tính toán
-            var price = parseInt(priceStr.replace(/\./g, '').replace(' ₫', ''));
-
-            // Tạo object sản phẩm
-            var product = {
-                img: img,
-                name: name,
-                variant: variant,
-                quantity: quantity,
-                price: price
-            };
-
-            // Thêm vào mảng giỏ hàng
-            cart.push(product);
-
-            // Cập nhật giao diện giỏ hàng
-            renderCart();
-
-            // Chuyển hướng sang trang thanh toán
-            setTimeout(function() {
-                window.location.href = '<?php echo $this->url('Khachhang/thanhtoan'); ?>';
-            }, 500); // Delay nhỏ để đảm bảo sản phẩm được thêm vào giỏ
+        function khEscapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
+
+        function khCloseSearchSuggestions() {
+            var box = document.getElementById('homeSearchSuggest');
+            if (!box) {
+                return;
+            }
+            box.style.display = 'none';
+            box.innerHTML = '';
+        }
+
+        function khRenderSearchSuggestions(items, keyword) {
+            var box = document.getElementById('homeSearchSuggest');
+            if (!box) {
+                return;
+            }
+
+            if (!items || items.length === 0) {
+                box.innerHTML = '<div class="search-suggest-empty">Không có gợi ý cho "' + khEscapeHtml(keyword) + '"</div>';
+                box.style.display = 'block';
+                return;
+            }
+
+            var html = '';
+            var baseUrl = '<?php echo UrlHelper::url(); ?>';
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i] || {};
+                var productId = item.ma_san_pham || '';
+                var productName = item.ten_san_pham || '';
+                var img = item.img_bien_the ? (baseUrl + 'Public/Pictures/bien_the/' + encodeURIComponent(item.img_bien_the)) : (baseUrl + 'Public/Images/no-image.png');
+                var href = '<?php echo UrlHelper::url('Khachhang/chitietsanpham/'); ?>' + productId;
+
+                html += '<a class="search-suggest-item" href="' + href + '">'
+                    + '<img class="search-suggest-thumb" src="' + img + '" alt="">'
+                    + '<span class="search-suggest-name">' + khEscapeHtml(productName) + '</span>'
+                    + '</a>';
+            }
+
+            box.innerHTML = html;
+            box.style.display = 'block';
+        }
+
+        function khRenderSearchHistory(historyItems) {
+            var box = document.getElementById('homeSearchSuggest');
+            if (!box) {
+                return;
+            }
+
+            if (!historyItems || historyItems.length === 0) {
+                box.innerHTML = '<div class="search-suggest-empty">Chưa có lịch sử tìm kiếm</div>';
+                box.style.display = 'block';
+                return;
+            }
+
+            var html = '<div class="search-suggest-section">Tìm kiếm gần đây</div>';
+
+            for (var i = 0; i < historyItems.length; i++) {
+                var keyword = (historyItems[i] && historyItems[i].keyword) ? String(historyItems[i].keyword).trim() : '';
+                if (!keyword) {
+                    continue;
+                }
+
+                var params = new URLSearchParams();
+                params.set('q', keyword);
+                params.set('page', '1');
+
+                html += '<a class="search-suggest-history-item" href="' + khSearchHomeUrl + '?' + params.toString() + '">'
+                    + '<i class="fa-solid fa-clock-rotate-left"></i>'
+                    + '<span>' + khEscapeHtml(keyword) + '</span>'
+                    + '</a>';
+            }
+
+            box.innerHTML = html;
+            box.style.display = 'block';
+        }
+
+        function khLoadSearchHistory() {
+            return fetch(khSearchHistoryApi, { method: 'GET' })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch history');
+                    }
+                    return response.json();
+                })
+                .then(function(json) {
+                    if (!json || !json.success) {
+                        khRenderSearchHistory([]);
+                        return;
+                    }
+                    khRenderSearchHistory(Array.isArray(json.data) ? json.data : []);
+                })
+                .catch(function() {
+                    khRenderSearchHistory([]);
+                });
+        }
+
+        function khSaveSearchKeyword(keyword) {
+            return fetch(khSearchSaveApi, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        keyword: keyword
+                    }),
+                    keepalive: true
+                })
+                .then(function() {
+                    return true;
+                })
+                .catch(function() {
+                    return false;
+                });
+        }
+
+        function khInitSearchRestFlow() {
+            var form = document.getElementById('homeSearchForm');
+            var input = document.getElementById('homeSearchInput');
+            var suggestBox = document.getElementById('homeSearchSuggest');
+
+            if (!form || !input || !suggestBox) {
+                return;
+            }
+
+            var debounceTimer = null;
+            var requestCounter = 0;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var keyword = (input.value || '').trim();
+                if (!keyword) {
+                    window.location.href = khSearchHomeUrl;
+                    return;
+                }
+
+                khSaveSearchKeyword(keyword).finally(function() {
+                    var params = new URLSearchParams();
+                    params.set('q', keyword);
+                    params.set('page', '1');
+                    window.location.href = khSearchHomeUrl + '?' + params.toString();
+                });
+            });
+
+            input.addEventListener('input', function() {
+                var keyword = (input.value || '').trim();
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+
+                if (!keyword || keyword.length < 2) {
+                    if (!keyword) {
+                        khLoadSearchHistory();
+                    } else {
+                        khCloseSearchSuggestions();
+                    }
+                    return;
+                }
+
+                debounceTimer = setTimeout(function() {
+                    requestCounter += 1;
+                    var currentReq = requestCounter;
+                    var url = khSearchSuggestApi + '?q=' + encodeURIComponent(keyword) + '&limit=8';
+
+                    fetch(url, { method: 'GET' })
+                        .then(function(response) {
+                            if (!response.ok) {
+                                throw new Error('Failed to fetch suggestions');
+                            }
+                            return response.json();
+                        })
+                        .then(function(json) {
+                            if (currentReq !== requestCounter) {
+                                return;
+                            }
+
+                            if (!json || !json.success) {
+                                khCloseSearchSuggestions();
+                                return;
+                            }
+
+                            khRenderSearchSuggestions(json.data || [], keyword);
+                        })
+                        .catch(function() {
+                            khCloseSearchSuggestions();
+                        });
+                }, 220);
+            });
+
+            input.addEventListener('focus', function() {
+                var keyword = (input.value || '').trim();
+                if (!keyword) {
+                    khLoadSearchHistory();
+                    return;
+                }
+
+                if (keyword.length >= 2 && suggestBox.innerHTML.trim() !== '') {
+                    suggestBox.style.display = 'block';
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!form.contains(e.target)) {
+                    khCloseSearchSuggestions();
+                }
+            });
+        }
+
+        // Đồng bộ badge ngay khi tải layout
+        document.addEventListener('DOMContentLoaded', function() {
+            khInitSearchRestFlow();
+            if (!khIsCartPage) {
+                loadMiniCartFromApi();
+            }
+        });
     </script>
 </body>
 

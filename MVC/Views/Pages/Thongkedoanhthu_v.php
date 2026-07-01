@@ -257,6 +257,11 @@
             color: #92400e;
         }
 
+        .status-da-duyet {
+            background: #dbeafe;
+            color: #510c25;
+        }
+
         .status-dang-giao {
             background: #dbeafe;
             color: #1e40af;
@@ -385,38 +390,38 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <i class="fa-solid fa-shopping-cart fa-2x" style="color: #93c5fd;"></i>
-                <div class="stat-value"><?php echo $data['tongquan']['tong_don'] ?? 0; ?></div>
+                <div class="stat-value" id="statTongDon"><?php echo $data['tongquan']['tong_don'] ?? 0; ?></div>
                 <div class="stat-label">Tổng Đơn Hàng</div>
             </div>
             <div class="stat-card">
                 <i class="fa-solid fa-check-circle fa-2x" style="color: #4ade80;"></i>
-                <div class="stat-value"><?php echo $data['tongquan']['hoan_thanh'] ?? 0; ?></div>
+                <div class="stat-value" id="statHoanThanh"><?php echo $data['tongquan']['hoan_thanh'] ?? 0; ?></div>
                 <div class="stat-label">Đơn Hoàn Thành</div>
             </div>
             <div class="stat-card">
                 <i class="fa-solid fa-truck fa-2x" style="color: #60a5fa;"></i>
-                <div class="stat-value"><?php echo $data['tongquan']['dang_giao'] ?? 0; ?></div>
+                <div class="stat-value" id="statDangGiao"><?php echo $data['tongquan']['dang_giao'] ?? 0; ?></div>
                 <div class="stat-label">Đang Giao</div>
             </div>
             <div class="stat-card">
                 <i class="fa-solid fa-clock fa-2x" style="color: #fbbf24;"></i>
-                <div class="stat-value"><?php echo $data['tongquan']['cho_duyet'] ?? 0; ?></div>
+                <div class="stat-value" id="statChoDuyet"><?php echo $data['tongquan']['cho_duyet'] ?? 0; ?></div>
                 <div class="stat-label">Chờ Duyệt</div>
             </div>
         </div>
 
         <!-- Form lọc theo ngày và tìm kiếm -->
-        <form method="post" action="http://localhost/Banhang/Thongke/locTheoNgay" class="form-search">
+        <form id="statsFilterForm" class="form-search" onsubmit="return false;">
             <div class="search-fields">
                 <div>
                     <label for="txtTuNgay">Từ ngày</label>
                     <input type="date" id="txtTuNgay" name="txtTuNgay"
-                        value="<?php echo $data['tungay'] ?? date('Y-m-d'); ?>" />
+                        value="<?php echo $data['tungay'] ?? ''; ?>" />
                 </div>
                 <div>
                     <label for="txtDenNgay">Đến ngày</label>
                     <input type="date" id="txtDenNgay" name="txtDenNgay"
-                        value="<?php echo $data['denngay'] ?? date('Y-m-d'); ?>" />
+                        value="<?php echo $data['denngay'] ?? ''; ?>" />
                 </div>
                 <div>
                     <label for="txtMaDonHang">Mã đơn hàng</label>
@@ -431,13 +436,13 @@
             </div>
 
             <div class="actions" style="margin-top:0;">
-                <button type="submit" class="btn-primary" name="btnLoc"><i class="fa-solid fa-filter"></i> Lọc</button>
-                <button type="submit" class="btn-ghost" name="btnTimKiem"><i class="fa-solid fa-search"></i> Tìm
+                <button type="button" class="btn-primary" id="btnLocThongKe"><i class="fa-solid fa-filter"></i> Lọc</button>
+                <button type="button" class="btn-ghost" id="btnTimKiemThongKe"><i class="fa-solid fa-search"></i> Tìm
                     kiếm</button>
-                <a href="http://localhost/Banhang/Thongke/thongke" class="btn-ghost">Làm mới</a>
-                <a href="http://localhost/Banhang/Thongke/xuatExcel" class="btn-excel">
+                <button type="button" class="btn-ghost" id="btnLamMoiThongKe">Làm mới</button>
+                <button type="button" class="btn-excel" id="btnXuatExcelThongKe">
                     <i class="fa-solid fa-file-excel"></i> Xuất Excel
-                </a>
+                </button>
             </div>
         </form>
     </div>
@@ -454,9 +459,9 @@
                     </div>
                     <div>
                         <span
-                            class="status-badge payment-cod"><?php echo ($data['thongkephuongthuc']['cod']['so_don'] ?? 0) . ' đơn'; ?></span>
+                            class="status-badge payment-cod" id="statCodCount"><?php echo ($data['thongkephuongthuc']['cod']['so_don'] ?? 0) . ' đơn'; ?></span>
                         <span
-                            class="currency"><?php echo number_format($data['thongkephuongthuc']['cod']['doanh_thu'] ?? 0, 0, ',', '.'); ?>
+                            class="currency" id="statCodRevenue"><?php echo number_format($data['thongkephuongthuc']['cod']['doanh_thu'] ?? 0, 0, ',', '.'); ?>
                             ₫</span>
                     </div>
                 </div>
@@ -467,9 +472,9 @@
                     </div>
                     <div>
                         <span
-                            class="status-badge payment-vnpay"><?php echo ($data['thongkephuongthuc']['vnpay']['so_don'] ?? 0) . ' đơn'; ?></span>
+                            class="status-badge payment-vnpay" id="statVnpayCount"><?php echo ($data['thongkephuongthuc']['vnpay']['so_don'] ?? 0) . ' đơn'; ?></span>
                         <span
-                            class="currency"><?php echo number_format($data['thongkephuongthuc']['vnpay']['doanh_thu'] ?? 0, 0, ',', '.'); ?>
+                            class="currency" id="statVnpayRevenue"><?php echo number_format($data['thongkephuongthuc']['vnpay']['doanh_thu'] ?? 0, 0, ',', '.'); ?>
                             ₫</span>
                     </div>
                 </div>
@@ -488,7 +493,7 @@
 
         <div class="chart-card">
             <div class="chart-title">Top Sản Phẩm Bán Chạy</div>
-            <div class="chart-data">
+            <div class="chart-data" id="topSanPhamContainer">
                 <?php
                 $topProducts = $data['top_sanpham'] ?? [];
                 if (is_resource($topProducts) || $topProducts instanceof mysqli_result) {
@@ -577,10 +582,14 @@
                                     $status = $order['trang_thai_don_hang'] ?? '';
                                     switch ($status) {
                                         case 'cho_duyet':
-                                        case 'da_duyet':
                                             $bg = '#fef3c7';
                                             $color = '#92400e';
-                                            $label = $status === 'cho_duyet' ? 'Chờ xác nhận' : 'Đã xác nhận';
+                                            $label = 'Chờ xác nhận';
+                                            break;
+                                        case 'da_duyet':
+                                            $bg = '#dbeafe';
+                                            $color = '#1d4ed8';
+                                            $label = 'Đã xác nhận';
                                             break;
                                         case 'dang_giao':
                                             $bg = '#dbeafe';
@@ -656,5 +665,214 @@
         </div>
     </div>
 </body>
+
+<script>
+    const THONGKE_API_BASE = '<?php echo UrlHelper::url('Api/Thongke'); ?>';
+
+    function formatCurrencyVn(value) {
+        return Number(value || 0).toLocaleString('vi-VN') + ' ₫';
+    }
+
+    function escapeHtml(text) {
+        return String(text || '').replace(/[&<>'"]/g, function(ch) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+        });
+    }
+
+    function getStatusMeta(status) {
+        switch (status) {
+            case 'cho_duyet':
+                return { label: 'Chờ xác nhận', bg: '#fef3c7', color: '#92400e' };
+            case 'da_duyet':
+                return { label: 'Đã xác nhận', bg: '#dbeafe', color: '#1d4ed8' };
+            case 'dang_giao':
+                return { label: 'Đang giao', bg: '#dbeafe', color: '#1e40af' };
+            case 'hoan_thanh':
+                return { label: 'Hoàn thành', bg: '#d1fae5', color: '#065f46' };
+            case 'da_huy':
+                return { label: 'Đã hủy', bg: '#fee2e2', color: '#991b1b' };
+            default:
+                return { label: 'Không rõ', bg: '#f3f4f6', color: '#374151' };
+        }
+    }
+
+    function getCurrentFilters() {
+        return {
+            tu_ngay: document.getElementById('txtTuNgay')?.value || '',
+            den_ngay: document.getElementById('txtDenNgay')?.value || '',
+            ma_don_hang: document.getElementById('txtMaDonHang')?.value || '',
+            ten_khach_hang: document.getElementById('txtTenKhachHang')?.value || ''
+        };
+    }
+
+    function buildQuery(filters) {
+        const query = new URLSearchParams();
+        Object.keys(filters || {}).forEach(function(key) {
+            const value = (filters[key] || '').toString().trim();
+            if (value !== '') {
+                query.set(key, value);
+            }
+        });
+        return query.toString();
+    }
+
+    function renderSummary(tongquan) {
+        document.getElementById('statTongDon').textContent = Number(tongquan?.tong_don || 0);
+        document.getElementById('statHoanThanh').textContent = Number(tongquan?.hoan_thanh || 0);
+        document.getElementById('statDangGiao').textContent = Number(tongquan?.dang_giao || 0);
+        document.getElementById('statChoDuyet').textContent = Number(tongquan?.cho_duyet || 0);
+    }
+
+    function renderPaymentStats(payment) {
+        document.getElementById('statCodCount').textContent = Number(payment?.cod?.so_don || 0) + ' đơn';
+        document.getElementById('statCodRevenue').textContent = formatCurrencyVn(payment?.cod?.doanh_thu || 0);
+        document.getElementById('statVnpayCount').textContent = Number(payment?.vnpay?.so_don || 0) + ' đơn';
+        document.getElementById('statVnpayRevenue').textContent = formatCurrencyVn(payment?.vnpay?.doanh_thu || 0);
+    }
+
+    function renderTopProducts(items) {
+        const container = document.getElementById('topSanPhamContainer');
+        if (!container) return;
+
+        if (!Array.isArray(items) || items.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#6b7280;">Không có dữ liệu</div>';
+            return;
+        }
+
+        const html = items.slice(0, 5).map(function(product, index) {
+            const name = product.ten_san_pham || product.ten_bien_the || 'N/A';
+            const sold = Number(product.tong_ban || 0);
+            const revenue = formatCurrencyVn(product.doanh_thu || 0);
+            return '<div class="chart-item">'
+                + '<div class="chart-item-label">'
+                + '<span style="font-weight:600; color:#4f46e5;">' + (index + 1) + '.</span>'
+                + '<span>' + escapeHtml(name) + '</span>'
+                + '</div>'
+                + '<div><span style="color:#6b7280;">' + sold + ' cái</span> '
+                + '<span class="currency">' + revenue + '</span></div>'
+                + '</div>';
+        }).join('');
+
+        container.innerHTML = html;
+    }
+
+    function renderOrders(orders) {
+        const body = document.getElementById('dhBody');
+        const count = document.getElementById('resultCount');
+        if (!body) return;
+
+        if (!Array.isArray(orders) || orders.length === 0) {
+            body.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#6b7280;">Không có đơn hàng nào</td></tr>';
+            if (count) count.textContent = '0 đơn hàng';
+            return;
+        }
+
+        const html = orders.map(function(order) {
+            const status = getStatusMeta(order.trang_thai_don_hang || '');
+            const paymentMethod = (order.phuong_thuc || '').toString().toLowerCase();
+            const paymentBadge = paymentMethod
+                ? '<span class="status-badge payment-' + escapeHtml(paymentMethod) + '">' + escapeHtml(order.phuong_thuc) + '</span>'
+                : '<span style="color:#9ca3af;">N/A</span>';
+
+            const paymentStatus = order.trang_thai_thanh_toan
+                ? '<span class="status-badge" style="background:' + (order.trang_thai_thanh_toan === 'da_thanh_toan' ? '#d1fae5' : '#fef3c7')
+                + '; color:' + (order.trang_thai_thanh_toan === 'da_thanh_toan' ? '#065f46' : '#92400e') + ';">'
+                + (order.trang_thai_thanh_toan === 'da_thanh_toan' ? 'Đã thanh toán' : 'Chưa thanh toán') + '</span>'
+                : '<span style="color:#9ca3af;">N/A</span>';
+
+            const created = order.ngay_tao ? new Date(order.ngay_tao.replace(' ', 'T')) : null;
+            const createdText = created && !isNaN(created.getTime()) ? created.toLocaleString('vi-VN') : (order.ngay_tao || 'N/A');
+
+            return '<tr>'
+                + '<td>' + escapeHtml(order.ma_don_hang || 'N/A') + '</td>'
+                + '<td><div style="font-weight:500;">' + escapeHtml(order.ten_khach_hang || 'N/A') + '</div>'
+                + '<div style="font-size:13px; color:#666; margin-top:2px;">' + escapeHtml(order.so_dien_thoai || 'N/A') + '</div></td>'
+                + '<td>' + escapeHtml(createdText) + '</td>'
+                + '<td><span class="status-badge" style="background:' + status.bg + '; color:' + status.color + ';">' + status.label + '</span></td>'
+                + '<td>' + paymentBadge + '</td>'
+                + '<td>' + paymentStatus + '</td>'
+                + '<td><span class="currency">' + formatCurrencyVn(order.tong_tien_hang || 0) + '</span></td>'
+                + '<td><span class="currency discount">-' + formatCurrencyVn(order.tien_khuyen_mai || 0) + '</span></td>'
+                + '<td><span class="currency">' + formatCurrencyVn(order.thanh_toan || 0) + '</span></td>'
+                + '</tr>';
+        }).join('');
+
+        body.innerHTML = html;
+        if (count) count.textContent = orders.length + ' đơn hàng';
+    }
+
+    function loadDashboard(filters) {
+        const query = buildQuery(filters || {});
+        const endpoint = query ? (THONGKE_API_BASE + '/dashboard?' + query) : (THONGKE_API_BASE + '/dashboard');
+
+        return fetch(endpoint, { method: 'GET' })
+            .then(function(response) {
+                return response.json().catch(function() {
+                    return { success: false, message: 'Phản hồi API không hợp lệ' };
+                });
+            })
+            .then(function(json) {
+                if (!json || !json.success || !json.data) {
+                    throw new Error((json && json.message) ? json.message : 'Không thể tải dữ liệu thống kê');
+                }
+
+                renderSummary(json.data.tongquan || {});
+                renderPaymentStats(json.data.thongkephuongthuc || {});
+                renderTopProducts(json.data.top_sanpham || []);
+                renderOrders(json.data.danhsachdonhang || []);
+            });
+    }
+
+    function exportExcel(filters) {
+        const query = buildQuery(filters || {});
+        const endpoint = query ? (THONGKE_API_BASE + '/export?' + query) : (THONGKE_API_BASE + '/export');
+        window.location.href = endpoint;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnLoc = document.getElementById('btnLocThongKe');
+        const btnTim = document.getElementById('btnTimKiemThongKe');
+        const btnRefresh = document.getElementById('btnLamMoiThongKe');
+        const btnExcel = document.getElementById('btnXuatExcelThongKe');
+
+        if (btnLoc) {
+            btnLoc.addEventListener('click', function() {
+                loadDashboard(getCurrentFilters()).catch(function(err) {
+                    alert(err.message || 'Không thể lọc dữ liệu thống kê.');
+                });
+            });
+        }
+
+        if (btnTim) {
+            btnTim.addEventListener('click', function() {
+                loadDashboard(getCurrentFilters()).catch(function(err) {
+                    alert(err.message || 'Không thể tìm kiếm dữ liệu thống kê.');
+                });
+            });
+        }
+
+        if (btnRefresh) {
+            btnRefresh.addEventListener('click', function() {
+                document.getElementById('txtTuNgay').value = '';
+                document.getElementById('txtDenNgay').value = '';
+                document.getElementById('txtMaDonHang').value = '';
+                document.getElementById('txtTenKhachHang').value = '';
+                loadDashboard({}).catch(function(err) {
+                    alert(err.message || 'Không thể làm mới thống kê.');
+                });
+            });
+        }
+
+        if (btnExcel) {
+            btnExcel.addEventListener('click', function() {
+                exportExcel(getCurrentFilters());
+            });
+        }
+
+        loadDashboard(getCurrentFilters()).catch(function(err) {
+            alert(err.message || 'Không thể tải dữ liệu thống kê.');
+        });
+    });
+</script>
 
 </html>

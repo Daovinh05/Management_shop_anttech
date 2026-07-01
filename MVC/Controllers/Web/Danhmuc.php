@@ -1,0 +1,175 @@
+<?php
+class Danhmuc extends controller
+{
+    private $dm;
+
+    function __construct()
+    {
+        $this->dm = $this->model("DanhMuc_m");
+    }
+    function Get_data()
+    {
+        $this->danhsach();
+    }
+
+    function danhsach()
+    {
+        $this->view('Master', [
+            'page' => 'Danhsachdanhmuc_v'
+        ]);
+    }
+
+
+    function themmoi()
+    {
+        $this->view('Master', [
+            'page' => 'Danhmuc_v',
+            'ma_danh_muc' => '',
+            'ten_danh_muc' => ''
+        ]);
+    }
+
+    function ins()
+    {
+        if (isset($_POST['btnLuu'])) {
+            $ma_danh_muc = $_POST['txtMadanhmuc'];
+            $ten_danh_muc = $_POST['txtTendanhmuc'];
+
+            // Kiểm tra dữ liệu rỗng
+            if ($ma_danh_muc == '') {
+                echo "<script>alert('Mã danh mục không được rỗng!')</script>";
+                $this->themmoi();
+            } else {
+                // Kiểm tra trùng mã danh mục
+                $kq1 = $this->dm->checktrungMaDM($ma_danh_muc);
+                if ($kq1) {
+                    echo "<script>alert('Mã danh mục đã tồn tại! Vui lòng nhập mã khác.')</script>";
+                    $this->view('Master', [
+                        'page' => 'Danhmuc_v',
+                        'ma_danh_muc' => $ma_danh_muc,
+                        'ten_danh_muc' => $ten_danh_muc
+                    ]);
+                } else {
+                    $kq = $this->dm->danhmuc_ins($ma_danh_muc, $ten_danh_muc);
+                    if ($kq) {
+                        echo "<script>alert('Thêm mới thành công!');</script>";
+                        $this->danhsach(); // Quay về danh sách sau khi thêm thành công
+                    } else {
+                        // Show detailed error for debugging
+                        $error = mysqli_error($this->dm->con);
+                        echo "<script>alert('Thêm mới thất bại! Lỗi: " . addslashes($error) . "');</script>";
+                        $this->themmoi();
+                    }
+                }
+            }
+        }
+    }
+
+    function Timkiem()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(410);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Endpoint đã ngừng hỗ trợ. Vui lòng sử dụng GET /Api/Danhmuc'
+        ]);
+        return;
+    }
+
+
+
+    function sua($ma_danh_muc)
+    {
+        $this->view('Master', [
+            'page' => 'Danhmuc_sua'
+        ]);
+    }
+
+    function update()
+    {
+        if (isset($_POST['btnCapnhat'])) {
+            $ma_danh_muc = $_POST['txtMadanhmuc'];
+            $ten_danh_muc = $_POST['txtTendanhmuc'];
+
+            $kq = $this->dm->DanhMuc_update($ma_danh_muc, $ten_danh_muc);
+            if ($kq)
+                echo "<script>alert('Cập nhật thành công!'); window.location='" . $this->url('Danhmuc/danhsach') . "';</script>";
+            else {
+                $error = mysqli_error($this->dm->con);
+                echo "<script>alert('Cập nhật thất bại! Lỗi: " . addslashes($error) . "');</script>";
+            }
+
+            // Nếu cập nhật thất bại, gọi lại view sửa để người dùng thử lại
+            if (!$kq) {
+                $this->sua($ma_danh_muc);
+            }
+        }
+    }
+
+    function xoa($ma_danh_muc)
+    {
+        if ($this->dm->DanhMuc_hasProducts($ma_danh_muc)) {
+            echo "<script>alert('Không thể xóa vì đang có sản phẩm thuộc Danh mục " . $ma_danh_muc . "'); window.location='" . $this->url('Danhmuc/danhsach') . "';</script>";
+            return;
+        }
+
+        $kq = $this->dm->Danhmuc_delete($ma_danh_muc);
+        if ($kq)
+            echo "<script>alert('Xóa thành công!'); window.location='" . $this->url('Danhmuc/danhsach') . "';</script>"; // Chuyển về trang danh sách
+        else
+            echo "<script>alert('Xóa thất bại!'); window.location='" . $this->url('Danhmuc/danhsach') . "';</script>"; // Quay lại trang danh sách
+    }
+
+
+
+    // Hiển thị form nhập Excel
+    function import_form()
+    {
+        $this->view('Master', [
+            'page' => 'Danhmuc_up_v'
+        ]);
+    }
+
+
+    function up_l()
+    {
+        if (!isset($_FILES['txtfile']) || $_FILES['txtfile']['error'] != 0) {
+            echo "<script>alert('Upload file lỗi')</script>";
+            return;
+        }
+
+        $file = $_FILES['txtfile']['tmp_name'];
+
+        $objReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $objExcel  = $objReader->load($file);
+
+        $sheet     = $objExcel->getSheet(0);
+        $sheetData = $sheet->toArray(null, true, true, true);
+
+        for ($i = 2; $i <= count($sheetData); $i++) {
+
+            $ma_danh_muc  = trim($sheetData[$i]['A']);
+            $ten_danh_muc = trim($sheetData[$i]['B']);
+
+            if ($ma_danh_muc == '') continue;
+
+            // ✅ CHECK TRÙNG MÃ DANH MỤC
+            if ($this->dm->checktrungMaDM($ma_danh_muc)) {
+                echo "<script>
+                alert('Mã danh mục $ma_danh_muc đã tồn tại! Vui lòng kiểm tra lại file.');
+                window.location.href='" . $this->url('Danhmuc/import_form') . "';
+            </script>";
+                return;
+            }
+
+            // Insert
+            if (!$this->dm->danhmuc_ins($ma_danh_muc, $ten_danh_muc)) {
+                $error = mysqli_error($this->dm->con);
+                die("Lỗi khi thêm danh mục: " . $error);
+            }
+        }
+
+        echo "<script>alert('Upload danh mục thành công!')</script>";
+        $this->view('Master', ['page' => 'Danhmuc_up_v']);
+    }
+}

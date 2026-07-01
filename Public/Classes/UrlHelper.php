@@ -7,6 +7,12 @@ class UrlHelper
      */
     public static function baseUrl()
     {
+        // Sử dụng BASE_URL đã được định nghĩa trong Config
+        if (defined('BASE_URL')) {
+            return BASE_URL;
+        }
+        
+        // Fallback nếu chưa load Config
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
         $baseUrl = $protocol . $host;

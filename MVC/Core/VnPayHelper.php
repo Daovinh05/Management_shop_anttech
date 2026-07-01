@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/MVC/Core/vnpay_config.php';
+require_once __DIR__ . '/vnpay_config.php';
 
 // class VnPayHelper
 // {

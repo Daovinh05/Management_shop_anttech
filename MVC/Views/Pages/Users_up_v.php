@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Upload file — Tổng hợp hoàn chỉnh</title>
+    <title>Upload file users</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -89,7 +89,6 @@
             margin-bottom: 10px;
         }
 
-        /* Ẩn input file gốc */
         .file-upload-wrapper input[type="file"] {
             position: absolute;
             left: 0;
@@ -171,6 +170,17 @@
             color: var(--primary);
             margin-top: 3px;
         }
+
+        .summary-box {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #f8fafc;
+            display: none;
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
     </style>
 </head>
 
@@ -179,10 +189,10 @@
         <div class="card">
             <div style="text-align: center; margin-bottom: 30px;">
                 <h2><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên file Người dùng</h2>
-                <p class="hint">Sử dụng form dưới đây để tải lên file Người dùng.</p>
+                <p class="hint">Sử dụng form dưới đây để tải lên file người dùng qua REST API.</p>
             </div>
 
-            <form method="POST" action="http://localhost/Banhang/Users/up_l" enctype="multipart/form-data">
+            <form id="importUserForm" method="POST" action="<?php echo BASE_URL; ?>Users/up_l" enctype="multipart/form-data">
 
                 <label for="txtGhichu">Ghi chú (Tùy chọn)</label>
                 <input type="text" name="txtGhichu" id="txtGhichu" placeholder="Nhập ghi chú hoặc mô tả cho file này">
@@ -195,7 +205,7 @@
                     <h4 style="margin-bottom: 5px; font-size: 16px;">Nhấn vào đây để chọn file</h4>
                     <p class="hint">Hoặc kéo thả file vào khu vực này (.xls, .xlsx)</p>
 
-                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" required
+                    <input type="file" id="txtfile" name="txtfile" accept=".xls,.xlsx" data-required="true"
                         onchange="updateFileName(this)" />
                 </div>
 
@@ -205,7 +215,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="http://localhost/Banhang/Users/danhsach" class="btn btn-secondary">
+                    <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
                     <button type="submit" name="btnUpload" class="btn btn-primary" style="min-width: 150px;">
@@ -214,6 +224,8 @@
                 </div>
             </form>
 
+            <div class="summary-box" id="importSummary"></div>
+
             <div class="info-section">
                 <h4><i class="fa-solid fa-circle-info"></i> Quy định định dạng file (Ví dụ: File Excel):</h4>
                 <ul>
@@ -221,28 +233,88 @@
                         <strong>.xlsx</strong>.
                     </li>
                     <li><i class="fa-solid fa-caret-right"></i> Dữ liệu bắt đầu từ dòng thứ 2 (dòng 1 là tiêu đề).</li>
-                    <li><i class="fa-solid fa-caret-right"></i> Cấu trúc cột cần tuân thủ thứ tự quy định của hệ thống.
-                    </li>
+                    <li><i class="fa-solid fa-caret-right"></i> Cột chuẩn: A mã user, B tên user, C password, D email, E phân quyền, F họ tên, G số điện thoại, H avatar.</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
+        const BASE_URL = '<?php echo BASE_URL; ?>';
+
         function updateFileName(input) {
             const display = document.getElementById('fileNameDisplay');
             const nameSpan = document.getElementById('fName');
-            const wrapper = document.getElementById('file-wrapper'); // Lấy wrapper để thay đổi kiểu dáng
+            const wrapper = document.getElementById('file-wrapper');
 
             if (input.files && input.files.length > 0) {
                 nameSpan.textContent = input.files[0].name;
                 display.style.display = 'block';
-                wrapper.style.borderColor = 'var(--primary)'; // Đổi màu border khi đã chọn file
+                wrapper.style.borderColor = 'var(--primary)';
             } else {
-                display.style.none = 'none';
-                wrapper.style.borderColor = '#d0d7e2'; // Trả về màu border mặc định
+                display.style.display = 'none';
+                wrapper.style.borderColor = '#d0d7e2';
             }
         }
+
+        function renderSummary(payload) {
+            const box = document.getElementById('importSummary');
+            if (!box) {
+                return;
+            }
+
+            const lines = [];
+            lines.push((payload && payload.message) ? payload.message : 'Hoàn tất import');
+            lines.push('Tạo mới: ' + (payload.created || 0));
+            lines.push('Bỏ qua mã rỗng: ' + (payload.skipped_empty_code || 0));
+            lines.push('Trùng mã: ' + (payload.duplicated_count || 0));
+            lines.push('Lỗi: ' + (payload.failed_count || 0));
+
+            if (Array.isArray(payload.duplicated_codes) && payload.duplicated_codes.length > 0) {
+                lines.push('Mã trùng: ' + payload.duplicated_codes.join(', '));
+            }
+
+            if (Array.isArray(payload.failed_rows) && payload.failed_rows.length > 0) {
+                lines.push('Chi tiết lỗi:');
+                payload.failed_rows.forEach(function(item) {
+                    lines.push('- Dòng ' + item.row + ' (' + (item.ma_user || 'N/A') + '): ' + (item.reason || 'Lỗi không xác định'));
+                });
+            }
+
+            box.textContent = lines.join('\n');
+            box.style.display = 'block';
+            box.style.borderColor = payload.success ? '#16a34a' : '#dc2626';
+            box.style.background = payload.success ? '#f0fdf4' : '#fef2f2';
+        }
+
+        document.getElementById('importUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch(BASE_URL + 'Api/Users/import', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(async (response) => {
+                    const data = await response.json().catch(() => ({}));
+                    return {
+                        status: response.status,
+                        data
+                    };
+                })
+                .then((result) => {
+                    renderSummary(result.data || {});
+                    if (result.status >= 200 && result.status < 300 && result.data.success) {
+                        alert('Import users thành công qua REST API');
+                    } else {
+                        alert('Import users có lỗi: ' + ((result.data && result.data.message) ? result.data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch((error) => {
+                    alert('Không thể kết nối API import users: ' + error.message);
+                });
+        });
     </script>
 </body>
 

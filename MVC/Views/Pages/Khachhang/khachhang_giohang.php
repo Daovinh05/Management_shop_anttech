@@ -1,7 +1,7 @@
 <?php
 // Include necessary helpers
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/TimezoneHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 ?>
 
 <!DOCTYPE html>
@@ -538,137 +538,36 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             <div class="cart-grid-layout">
 
                 <div class="cart-content-left">
-                    <?php if ($data['chi_tiet_gio_hang'] && mysqli_num_rows($data['chi_tiet_gio_hang']) > 0): ?>
-                        <div class="cart-table-wrapper">
-                            <table class="cart-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 50px; text-align: center;">
-                                            <label for="checkAll" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                                                <input type="checkbox" id="checkAll" class="custom-checkbox" onclick="toggleAll(this)" checked>
-                                                <span style="font-size: 14px; font-weight: 600;">All</span>
-                                            </label>
-                                        </th>
-                                        <th>SẢN PHẨM</th>
-                                        <th>GIÁ</th>
-                                        <th style="text-align: center;">SỐ LƯỢNG</th>
-                                        <th style="text-align: center;">TẠM TÍNH</th>
-                                        <th>XÓA</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cartTableBody">
-                                    <?php
-                                    $tong_tien = 0;
-                                    foreach ($data['detailed_cart'] as $item):
-                                        $thanh_tien = $item['gia'] * $item['so_luong'];
-                                        $tong_tien += $thanh_tien;
+                    <div id="cartTableWrapper" class="cart-table-wrapper" style="display:none;">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px; text-align: center;">
+                                        <label for="checkAll" style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                                            <input type="checkbox" id="checkAll" class="custom-checkbox" onclick="toggleAll(this)" checked>
+                                            <span style="font-size: 14px; font-weight: 600;">All</span>
+                                        </label>
+                                    </th>
+                                    <th>SẢN PHẨM</th>
+                                    <th>GIÁ</th>
+                                    <th style="text-align: center;">SỐ LƯỢNG</th>
+                                    <th style="text-align: center;">TẠM TÍNH</th>
+                                    <th>XÓA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody"></tbody>
+                        </table>
+                    </div>
 
-                                        // Tạo chuỗi biến thể đầy đủ (bao gồm RAM)
-                                        $variant_text = [];
-                                        if(!empty($item['mau_sac'])) $variant_text[] = $item['mau_sac'];
-                                        if(!empty($item['dung_luong'])) $variant_text[] = $item['dung_luong'];
-                                        if(!empty($item['ram'])) $variant_text[] = $item['ram']; // Laptop thường có RAM
-                                        
-                                        // Nếu mảng rỗng thì dùng tên biến thể gốc
-                                        $variant_str = !empty($variant_text) ? implode(' - ', $variant_text) : ($item['ten_bien_the'] ?? '');
+                    <a id="continueShopBtn" href="<?php echo $this->url('Khachhang'); ?>" class="btn-continue-shop" style="display:none;"><i
+                            class="fa-solid fa-arrow-left"></i> Tiếp tục xem sản phẩm</a>
 
-                                        // Determine image source
-                                        $img_src = !empty($item['img_bien_the']) ? '/Banhang/Public/Pictures/bien_the/' . $item['img_bien_the'] : $this->url('Public/Images/no-image.png');
-                                    ?>
-                                        <tr>
-                                            <td style="text-align: center;">
-                                                <input type="checkbox" 
-                                                    name="selected_items[]" 
-                                                    value="<?php echo $item['ma_bien_the']; ?>" 
-                                                    class="custom-checkbox item-checkbox"
-
-                                                    data-price="<?php echo $item['gia']; ?>"
-                                                    data-quantity="<?php echo $item['so_luong']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($item['ten_san_pham']); ?>"
-                                                    data-img="<?php echo $img_src; ?>"
-                                                    data-variant="<?php echo htmlspecialchars($variant_str); ?>"
-
-                                                    onclick="updateTotal()"
-                                                    checked>
-                                            </td>
-                                            <td>
-                                                <div class="col-product">
-                                                    
-                                                    <img src="<?php echo $img_src; ?>" class="cart-prod-img"
-                                                        alt="<?php echo $item['ten_san_pham']; ?>">
-                                                    <div class="cart-prod-info">
-                                                        <a href="#"
-                                                            class="cart-prod-name"><?php echo $item['ten_san_pham']; ?></a>
-                                                        <?php if (!empty($item['ten_bien_the'])): ?>
-                                                        <div class="cart-prod-meta" style="color:#333; font-weight:600;">
-                                                            <?php echo $item['ten_bien_the']; ?>
-                                                        </div>
-                                                        <?php endif; ?>
-
-                                                        <?php if (!empty($item['mau_sac'])): ?>
-                                                            <div class="cart-prod-meta">MÀU SẮC: <?php echo $item['mau_sac']; ?></div>
-                                                        <?php endif; ?>
-                                                        
-                                                        <?php if (!empty($item['ram'])): ?>
-                                                            <div class="cart-prod-meta">RAM: <?php echo $item['ram']; ?></div>
-                                                        <?php endif; ?>
-
-                                                        <?php if (!empty($item['dung_luong'])): ?>
-                                                            <div class="cart-prod-meta">DUNG LƯỢNG: <?php echo $item['dung_luong']; ?></div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="col-price"><?php echo number_format($item['gia'], 0, ',', '.') . ' ₫'; ?>
-                                            </td>
-                                            <td>
-                                                <div class="qty-box">
-                                                    <button type="button" class="qty-btn" 
-                                                            onclick="updateCartItem(this, -1, '<?php echo $item['ma_bien_the']; ?>', <?php echo $item['gia']; ?>)">
-                                                        -
-                                                    </button>
-                                                    
-                                                    <input type="number" 
-                                                        id="qty_<?php echo $item['ma_bien_the']; ?>" 
-                                                        value="<?php echo $item['so_luong']; ?>" 
-                                                        class="qty-input" 
-                                                        min="1" 
-                                                        onchange="updateCartItem(this, 0, '<?php echo $item['ma_bien_the']; ?>', <?php echo $item['gia']; ?>)">
-                                                    
-                                                    <button type="button" class="qty-btn" 
-                                                            onclick="updateCartItem(this, 1, '<?php echo $item['ma_bien_the']; ?>', <?php echo $item['gia']; ?>)">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td class="col-subtotal" style="text-align: center;" id="subtotal_<?php echo $item['ma_bien_the']; ?>">
-                                                <?php echo number_format($thanh_tien, 0, ',', '.') . ' ₫'; ?>
-                                            </td>
-                                            
-                                            <td class="col-actions" style="text-align: center;">
-                                                <a href="<?php echo $this->url('Khachhang/xoakhoigio/' . $item['ma_gio_hang'] . '/' . $item['ma_bien_the']); ?>"
-                                                class="btn-remove-item"
-                                                style="margin: 0 auto;"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <a href="<?php echo $this->url('Khachhang'); ?>" class="btn-continue-shop"><i
-                                class="fa-solid fa-arrow-left"></i> Tiếp tục xem sản phẩm</a>
-                    <?php else: ?>
-                        <div class="text-center py-5">
-                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                            <h4>Giỏ hàng của bạn đang trống</h4>
-                            <p>Thêm sản phẩm vào giỏ hàng để tiến hành mua sắm</p>
-                            <a href="<?php echo $this->url('Khachhang'); ?>" class="btn btn-primary">Tiếp tục mua sắm</a>
-                        </div>
-                    <?php endif; ?>
+                    <div id="emptyCartState" class="text-center py-5" style="display:none;">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <h4>Giỏ hàng của bạn đang trống</h4>
+                        <p>Thêm sản phẩm vào giỏ hàng để tiến hành mua sắm</p>
+                        <a href="<?php echo $this->url('Khachhang'); ?>" class="btn btn-primary">Tiếp tục mua sắm</a>
+                    </div>
                 </div>
 
                 <div class="cart-summary-box">
@@ -698,6 +597,117 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
     <script>
         
+
+        var CART_API_BASE = "<?php echo $this->url('Api/Cart'); ?>";
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderCartTable(items) {
+            var tableWrapper = document.getElementById('cartTableWrapper');
+            var emptyState = document.getElementById('emptyCartState');
+            var continueBtn = document.getElementById('continueShopBtn');
+            var tbody = document.getElementById('cartTableBody');
+
+            if (!items || items.length === 0) {
+                tableWrapper.style.display = 'none';
+                continueBtn.style.display = 'none';
+                emptyState.style.display = 'block';
+                tbody.innerHTML = '';
+                updateTotal();
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tableWrapper.style.display = 'block';
+            continueBtn.style.display = 'inline-block';
+
+            var html = '';
+            items.forEach(function(item) {
+                var subtotal = (Number(item.gia) || 0) * (Number(item.so_luong) || 0);
+                var variantText = item.variant_name || item.variant || item.ten_bien_the || '';
+
+                html += `
+                    <tr id="row_${escapeHtml(item.ma_bien_the)}">
+                        <td style="text-align: center;">
+                            <input type="checkbox"
+                                name="selected_items[]"
+                                value="${escapeHtml(item.ma_bien_the)}"
+                                class="custom-checkbox item-checkbox"
+                                data-price="${Number(item.gia) || 0}"
+                                data-quantity="${Number(item.so_luong) || 0}"
+                                data-name="${escapeHtml(item.ten_san_pham || item.name || '')}"
+                                data-img="${escapeHtml(item.img || '')}"
+                                data-variant="${escapeHtml(variantText)}"
+                                onclick="updateTotal()"
+                                checked>
+                        </td>
+                        <td>
+                            <div class="col-product">
+                                <img src="${escapeHtml(item.img || '')}" class="cart-prod-img" alt="${escapeHtml(item.ten_san_pham || item.name || '')}">
+                                <div class="cart-prod-info">
+                                    <a href="#" class="cart-prod-name">${escapeHtml(item.ten_san_pham || item.name || '')}</a>
+                                    <div class="cart-prod-meta" style="color:#333; font-weight:600;">${escapeHtml(item.ten_bien_the || '')}</div>
+                                    ${item.mau_sac ? `<div class="cart-prod-meta">MÀU SẮC: ${escapeHtml(item.mau_sac)}</div>` : ''}
+                                    ${item.ram ? `<div class="cart-prod-meta">RAM: ${escapeHtml(item.ram)}</div>` : ''}
+                                    ${item.dung_luong ? `<div class="cart-prod-meta">DUNG LƯỢNG: ${escapeHtml(item.dung_luong)}</div>` : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="col-price">${formatCurrency(Number(item.gia) || 0)}</td>
+                        <td>
+                            <div class="qty-box">
+                                <button type="button" class="qty-btn" onclick="updateCartItem(this, -1, '${escapeHtml(item.ma_bien_the)}', ${Number(item.gia) || 0})">-</button>
+                                <input type="number" id="qty_${escapeHtml(item.ma_bien_the)}" value="${Number(item.so_luong) || 1}" class="qty-input" min="1" onchange="updateCartItem(this, 0, '${escapeHtml(item.ma_bien_the)}', ${Number(item.gia) || 0})">
+                                <button type="button" class="qty-btn" onclick="updateCartItem(this, 1, '${escapeHtml(item.ma_bien_the)}', ${Number(item.gia) || 0})">+</button>
+                            </div>
+                        </td>
+                        <td class="col-subtotal" style="text-align: center;" id="subtotal_${escapeHtml(item.ma_bien_the)}">${formatCurrency(subtotal)}</td>
+                        <td class="col-actions" style="text-align: center;">
+                            <button type="button" class="btn-remove-item" style="margin: 0 auto;" onclick="removeCartItem('${escapeHtml(item.ma_bien_the)}')">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            updateTotal();
+        }
+
+        function loadCartDataFromApi() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', CART_API_BASE, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) {
+                    return;
+                }
+
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var items = response && response.data ? (response.data.items || []) : [];
+                    renderCartTable(items);
+
+                    var headerBadge = document.getElementById('cartBadge');
+                    var totalQty = response && response.data && response.data.summary ? response.data.summary.total_quantity : 0;
+                    if (headerBadge) {
+                        headerBadge.innerText = totalQty;
+                    }
+                } else if (xhr.status === 401) {
+                    window.location.href = '<?php echo $this->url('Login'); ?>';
+                } else {
+                    alert('Không thể tải dữ liệu giỏ hàng. Vui lòng thử lại.');
+                }
+            };
+            xhr.send();
+        }
 
         // Hàm format tiền tệ VNĐ
         function formatCurrency(amount) {
@@ -776,7 +786,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             window.location.href = url;
         }
 
-        updateTotal();
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCartDataFromApi();
+        });
 
         // Hàm xử lý cập nhật số lượng (AJAX)
         function updateCartItem(element, change, ma_bien_the, don_gia) {
@@ -811,47 +823,76 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             // Cập nhật giá trị hiển thị trên input ngay lập tức cho mượt
             input.value = newQty;
 
-            // Gửi AJAX lên server
+            // Gửi AJAX lên REST API
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "<?php echo $this->url('Khachhang/capnhatgiohang_ajax'); ?>", true);
+            xhr.open("POST", CART_API_BASE + "/update/" + encodeURIComponent(ma_bien_the), true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.success) {
-                            // 1. Cập nhật thành tiền của dòng sản phẩm đó
-                            var newSubtotal = newQty * don_gia;
-                            var subtotalCell = document.getElementById('subtotal_' + ma_bien_the);
-                            if (subtotalCell) {
-                                subtotalCell.innerText = formatCurrency(newSubtotal);
-                            }
-
-                            // 2. Cập nhật dữ liệu trong Checkbox (để hàm updateTotal tính toán đúng)
-                            var checkbox = document.querySelector(`.item-checkbox[value="${ma_bien_the}"]`);
-                            if (checkbox) {
-                                checkbox.setAttribute('data-quantity', newQty);
-                            }
-
-                            // 3. Gọi lại hàm tính tổng giỏ hàng
-                            updateTotal();
-
-                            var headerBadge = document.getElementById('cartBadge');
-                            if (headerBadge && response.new_total_qty !== undefined) {
-                                headerBadge.innerText = response.new_total_qty;
-                            }
-                            
-                        } else {
-                            alert("Lỗi: " + response.message);
-                            // Reset lại số lượng cũ nếu lỗi
-                            input.value = currentQty; 
-                        }
-                    }
+                if (xhr.readyState !== 4) {
+                    return;
                 }
+
+                var response = {};
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {}
+
+                if (xhr.status === 200 && response.success) {
+                    var cartData = response.data || {};
+                    var items = cartData.items || [];
+                    var summary = cartData.summary || {};
+
+                    // Dùng cùng response cập nhật bảng, mini-item-price và badge.
+                    renderCartTable(items);
+                    updateCartBadge(summary.total_quantity || 0);
+
+                    if (typeof renderMiniCart === 'function') {
+                        renderMiniCart(items, summary);
+                    }
+                    return;
+                }
+
+                input.value = currentQty;
+                alert("Lỗi: " + (response.message || "Không thể cập nhật số lượng"));
             };
             
-            xhr.send("ma_bien_the=" + ma_bien_the + "&so_luong=" + newQty);
+            xhr.send("so_luong=" + encodeURIComponent(newQty));
+        }
+
+        function removeCartItem(ma_bien_the) {
+            if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("DELETE", CART_API_BASE + "/" + encodeURIComponent(ma_bien_the), true);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) {
+                    return;
+                }
+
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    loadCartDataFromApi();
+
+                    var response = {};
+                    try {
+                        response = JSON.parse(xhr.responseText);
+                    } catch (e) {}
+
+                    var headerBadge = document.getElementById('cartBadge');
+                    var totalQty = response && response.data && response.data.summary ? response.data.summary.total_quantity : undefined;
+                    if (headerBadge && totalQty !== undefined) {
+                        headerBadge.innerText = totalQty;
+                    }
+
+                } else {
+                    alert('Không thể xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.');
+                }
+            };
+
+            xhr.send();
         }
 
         // Chạy tính tổng lần đầu khi trang tải xong (nếu muốn mặc định check all thì thêm code check ở đây)

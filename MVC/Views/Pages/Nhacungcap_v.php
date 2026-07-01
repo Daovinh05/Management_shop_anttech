@@ -94,21 +94,21 @@
     <div class="card">
         <h1>Thêm mới nhà cung cấp</h1>
         <p class="lead">Nhập thông tin nhà cung cấp mới.</p>
-        <form method="post" action="http://localhost/Banhang/Nhacungcap/ins" enctype="multipart/form-data">
+        <form id="createSupplierForm" method="post" action="<?php echo BASE_URL; ?>Nhacungcap/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã nhà cung cấp <span style="color:red">*</span></label>
-                <input type="text" name="txtManhacungcap" required
+                <input type="text" name="txtManhacungcap" data-required="true"
                     value="<?php echo isset($data['ma_nha_cung_cap']) ? htmlspecialchars($data['ma_nha_cung_cap']) : '' ?>" />
             </div>
             <div>
                 <label>Tên nhà cung cấp <span style="color:red">*</span></label>
-                <input type="text" name="txtTennhacungcap" required
+                <input type="text" name="txtTennhacungcap" data-required="true"
                     value="<?php echo isset($data['ten_nha_cung_cap']) ? htmlspecialchars($data['ten_nha_cung_cap']) : '' ?>" />
             </div>
 
             <div>
                 <label for="phone">Điện thoại(10 số)</label>
-                <input type="tel" id="phone" name="txtDienThoai" placeholder="VD: 0912345678" required
+                <input type="tel" id="phone" name="txtDienThoai" placeholder="VD: 0912345678" data-required="true"
                     value="<?php echo isset($data['dienthoai']) ? $data['dienthoai'] : '' ?>" maxlength="10"
                     pattern="[0-9]{10}" title="Vui lòng nhập đúng 10 chữ số điện thoại" />
             </div>
@@ -116,21 +116,80 @@
             <div class="full">
                 <label for="address">Địa chỉ</label>
                 <textarea id="address" name="txtDiaChi" placeholder="Nhập địa chỉ nhà cung cấp"
-                    required><?php echo isset($data['diachi']) ? $data['diachi'] : '' ?></textarea>
+                    data-required="true"><?php echo isset($data['diachi']) ? $data['diachi'] : '' ?></textarea>
             </div>
 
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Nhacungcap/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnLuu" class="btn-primary">Lưu thông tin</button>
+                    <button type="submit" id="createSupplierBtn" name="btnLuu" class="btn-primary">Lưu thông tin</button>
                 </div>
             </div>
         </form>
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('createSupplierForm');
+        const submitBtn = document.getElementById('createSupplierBtn');
+
+        if (!form || !submitBtn) {
+            return;
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const ma = (form.querySelector('input[name="txtManhacungcap"]') || {}).value || '';
+            const ten = (form.querySelector('input[name="txtTennhacungcap"]') || {}).value || '';
+            const diaChi = (form.querySelector('textarea[name="txtDiaChi"]') || {}).value || '';
+            const dienThoai = (form.querySelector('input[name="txtDienThoai"]') || {}).value || '';
+
+            if (!ma.trim() || !ten.trim()) {
+                alert('Vui lòng nhập đầy đủ mã và tên nhà cung cấp.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang lưu...';
+
+            fetch(BASE_URL + 'Api/Nhacungcap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ma_nha_cung_cap: ma.trim(),
+                        ten_nha_cung_cap: ten.trim(),
+                        dia_chi: diaChi.trim(),
+                        dien_thoai: dienThoai.trim()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Thêm nhà cung cấp thành công qua REST API');
+                        window.location.href = BASE_URL + 'Nhacungcap/danhsach';
+                    } else {
+                        alert('Lưu thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tạo nhà cung cấp: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Lưu thông tin';
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>

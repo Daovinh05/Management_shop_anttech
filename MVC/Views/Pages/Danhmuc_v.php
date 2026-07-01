@@ -94,29 +94,84 @@
     <div class="card">
         <h1>Thêm mới Danh mục</h1>
         <p class="lead">Nhập thông tin danh mục mới.</p>
-        <form method="post" action="http://localhost/Banhang/Danhmuc/ins" enctype="multipart/form-data">
+        <form id="createCategoryForm" method="post" action="<?php echo BASE_URL; ?>Danhmuc/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtMadanhmuc" required
+                <input type="text" name="txtMadanhmuc" data-required="true"
                     value="<?php echo isset($data['ma_danh_muc']) ? htmlspecialchars($data['ma_danh_muc']) : '' ?>" />
             </div>
             <div>
                 <label>Tên danh mục <span style="color:red">*</span></label>
-                <input type="text" name="txtTendanhmuc" required
+                <input type="text" name="txtTendanhmuc" data-required="true"
                     value="<?php echo isset($data['ten_danh_muc']) ? htmlspecialchars($data['ten_danh_muc']) : '' ?>" />
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Danhmuc/danhsach" class="btn-back"><i
+                <a href="<?php echo BASE_URL; ?>Danhmuc/danhsach" class="btn-back"><i
                         class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
-                    <button type="submit" name="btnLuu" class="btn-primary">Lưu thông tin</button>
+                    <button type="submit" id="createCategoryBtn" name="btnLuu" class="btn-primary">Lưu thông tin</button>
                 </div>
             </div>
         </form>
     </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('createCategoryForm');
+        const submitBtn = document.getElementById('createCategoryBtn');
+
+        if (!form || !submitBtn) {
+            return;
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const maDanhMuc = (form.querySelector('input[name="txtMadanhmuc"]') || {}).value || '';
+            const tenDanhMuc = (form.querySelector('input[name="txtTendanhmuc"]') || {}).value || '';
+
+            if (!maDanhMuc.trim() || !tenDanhMuc.trim()) {
+                alert('Vui lòng nhập đầy đủ mã và tên danh mục.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang lưu...';
+
+            fetch(BASE_URL + 'Api/Danhmuc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ma_danh_muc: maDanhMuc.trim(),
+                        ten_danh_muc: tenDanhMuc.trim()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert('Thêm danh mục thành công qua REST API');
+                        window.location.href = BASE_URL + 'Danhmuc/danhsach';
+                    } else {
+                        alert('Lưu thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tạo danh mục: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Lưu thông tin';
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>

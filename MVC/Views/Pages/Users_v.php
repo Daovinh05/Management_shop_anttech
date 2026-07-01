@@ -3,7 +3,6 @@
 
 <body>
     <style>
-        /* Simple form styles following existing pattern */
         .card {
             width: 100%;
             background: #fff;
@@ -63,49 +62,49 @@
     <div class="card">
         <h1>Thêm mới User</h1>
         <p class="lead">Nhập thông tin user mới.</p>
-        <form method="post" action="http://localhost/Banhang/Users/ins" enctype="multipart/form-data">
+        <form id="createUserForm" method="post" action="<?php echo BASE_URL; ?>Users/ins" enctype="multipart/form-data">
             <div>
                 <label>Mã user <span style="color:red">*</span></label>
-                <input type="text" name="txtMauser" required
-                    value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : '' ?>" />
+                <input type="text" name="txtMauser" data-required="true"
+                    value="<?php echo isset($data['ma_user']) ? htmlspecialchars($data['ma_user']) : ''; ?>" />
             </div>
             <div>
                 <label>Họ và tên <span style="color:red">*</span></label>
-                <input type="text" name="txtHoten" required
-                    value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : '' ?>" />
+                <input type="text" name="txtHoten" data-required="true"
+                    value="<?php echo isset($data['full_name']) ? htmlspecialchars($data['full_name']) : ''; ?>" />
             </div>
             <div>
                 <label>Số điện thoại</label>
                 <input type="text" name="txtSoDienThoai"
-                    value="<?php echo isset($data['so_dien_thoai']) ? htmlspecialchars($data['so_dien_thoai']) : '' ?>" />
+                    value="<?php echo isset($data['so_dien_thoai']) ? htmlspecialchars($data['so_dien_thoai']) : ''; ?>" />
             </div>
             <div>
                 <label>Tên tài khoản <span style="color:red">*</span></label>
-                <input type="text" name="txtTenuser" required
-                    value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : '' ?>" />
+                <input type="text" name="txtTenuser" data-required="true"
+                    value="<?php echo isset($data['ten_user']) ? htmlspecialchars($data['ten_user']) : ''; ?>" />
             </div>
             <div>
                 <label>Mật khẩu</label>
-                <input type="password" name="txtPassword" required
-                    value="<?php echo isset($data['password']) ? htmlspecialchars($data['password']) : '' ?>" />
+                <input type="password" name="txtPassword" data-required="true"
+                    value="<?php echo isset($data['password']) ? htmlspecialchars($data['password']) : ''; ?>" />
             </div>
             <div>
                 <label>Email</label>
-                <input type="email" name="txtEmail" required
-                    value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : '' ?>" />
+                <input type="email" name="txtEmail" data-required="true"
+                    value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : ''; ?>" />
             </div>
             <div>
                 <label>Phân quyền</label>
                 <select name="ddlPhanquyen">
-                    <option value="nhan_vien"
+                    <!-- <option value="nhan_vien"
                         <?php echo (isset($data['phan_quyen']) && $data['phan_quyen'] == 'nhan_vien') ? 'selected' : ''; ?>>
-                        Nhân viên</option>
+                        Nhân viên</option> -->
                     <option value="admin"
                         <?php echo (isset($data['phan_quyen']) && $data['phan_quyen'] == 'admin') ? 'selected' : ''; ?>>
                         Admin
                     </option>
                     <option value="khach_hang"
-                        <?php echo (isset($data['phan_quyen']) && $data['phan_quyen'] == 'khach_hang') ? 'selected' : ''; ?>>
+                        <?php echo (!isset($data['phan_quyen']) || $data['phan_quyen'] == 'khach_hang') ? 'selected' : ''; ?>>
                         Khách hàng
                     </option>
                 </select>
@@ -113,17 +112,10 @@
             <div>
                 <label>Avatar</label>
                 <input type="file" name="txtAvatar" accept="image/*" />
-                <?php if (isset($data['avatar']) && !empty($data['avatar'])): ?>
-                    <div style="margin-top: 10px;">
-                        <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($data['avatar']); ?>"
-                             alt="Avatar người dùng" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
-                    </div>
-                <?php endif; ?>
             </div>
 
             <div class="actions">
-                <a href="http://localhost/Banhang/Users/danhsach" class="btn-back"><i
-                        class="fa-solid fa-arrow-left"></i>
+                <a href="<?php echo BASE_URL; ?>Users/danhsach" class="btn-back"><i class="fa-solid fa-arrow-left"></i>
                     Quay lại</a>
                 <div style="display:flex;gap:12px">
                     <button type="reset" class="btn-ghost">Reset</button>
@@ -133,6 +125,39 @@
         </form>
     </div>
 
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    document.getElementById('createUserForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch(BASE_URL + 'Api/Users', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async (response) => {
+                const data = await response.json().catch(() => ({}));
+                return {
+                    status: response.status,
+                    data
+                };
+            })
+            .then((result) => {
+                if (result.status >= 200 && result.status < 300 && result.data.success) {
+                    alert('Thêm user thành công qua REST API');
+                    window.location.href = BASE_URL + 'Users/danhsach';
+                    return;
+                }
+
+                alert('Thêm user thất bại: ' + (result.data.message || 'Lỗi không xác định'));
+            })
+            .catch((error) => {
+                alert('Không thể kết nối API thêm user: ' + error.message);
+            });
+    });
+    </script>
 </body>
 
 </html>

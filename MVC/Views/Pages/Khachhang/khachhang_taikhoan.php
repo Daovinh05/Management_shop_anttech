@@ -1,7 +1,7 @@
 <?php
 // Include necessary helpers
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/TimezoneHelper.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/TimezoneHelper.php';
+include_once __DIR__ . '/../../../../Public/Classes/UrlHelper.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -952,7 +952,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                 </div>
                 <?php
                 if ($user && !empty($user['avatar'])) {
-                    echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($user['avatar']) . '" alt="Avatar" style="width: 60px; height: 60px; 
+                    echo '<img src="' . UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($user['avatar']) . '" alt="Avatar" style="width: 60px; height: 60px;
        border-radius: 50%; margin-right: 8px; vertical-align: middle;">';
                 } else {
                     echo '<i class="fa-regular fa-user" style="vertical-align: middle;"></i>';
@@ -976,14 +976,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <span class="info-label">Email</span>
                         <span class="info-value"><?php echo htmlspecialchars($email); ?></span>
                     </div>
-                    <div class="info-row">
+                    <!-- <div class="info-row">
                         <span class="info-label">Địa chỉ</span>
                         <span class="info-value"><?php echo htmlspecialchars($dia_chi_value); ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Thông tin chi tiết</span>
                         <span class="info-value"><?php echo htmlspecialchars(is_string($dia_chi_text) ? $dia_chi_text : ''); ?></span>
-                    </div>
+                    </div> -->
 
                     <button class="btn-black-outline" onclick="openModal()">CẬP NHẬT</button>
                 </div>
@@ -1011,8 +1011,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
         </div>
     </div>
 
-    <!-- Hidden form for updating user info -->
-    <form id="updateUserInfoForm" action="http://localhost/Banhang/Khachhang/capnhatTaikhoan" method="post"
+    <!-- Hidden form for compatibility -->
+    <form id="updateUserInfoForm" action="<?php echo UrlHelper::url('Api/Profile'); ?>" method="post"
         style="display: none;">
         <input type="hidden" name="txtMaUser" value="<?php echo $user ? $user['ma_user'] : ''; ?>">
         <input type="hidden" name="txtTenUser" value="<?php echo $user ? $user['ten_user'] : ''; ?>">
@@ -1066,14 +1066,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
             <div class="modal-body">
                 <div class="avatar-section">
-                    <form method="post" action="http://localhost/Banhang/Khachhang/capnhatTaikhoan" enctype="multipart/form-data">
+                    <form method="post" action="<?php echo UrlHelper::url('Api/Profile'); ?>" enctype="multipart/form-data">
                         <div class="avatar-container">
                             <div class="avatar-circle" style="position: relative; display: inline-block;">
                                 <?php if ($user && !empty($user['avatar'])): ?>
-                                    <img src="/Banhang/Public/Pictures/users/<?php echo htmlspecialchars($user['avatar'] ?? ''); ?>"
+                                    <img src="<?php echo UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($user['avatar'] ?? ''); ?>"
                                          alt="Avatar người dùng" style="width: 160px; height: 140px; border-radius: 50%; object-fit: fill;" id="avatar-preview">
                                 <?php else: ?>
-                                    <img src="/Banhang/Public/Images/avatar.png"
+                                    <img src="<?php echo UrlHelper::url('Public/Images/avatar.png'); ?>"
                                          alt="Avatar người dùng" style="width: 160px; height: 140px; border-radius: 50%; object-fit: fill;" id="avatar-preview">
                                 <?php endif; ?>
 
@@ -1107,11 +1107,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         <input type="text" class="modal-input" id="modal-email"
                             value="<?php echo htmlspecialchars($email); ?>">
                     </div>
-                     <div class="modal-form-group">
+                     <!-- <div class="modal-form-group">
                         <label class="modal-label">ĐỊA CHỈ</label>
                         <input type="text" class="modal-input" id="modal-diaChi"
                             value="<?php echo htmlspecialchars($dia_chi_value); ?>">
-                    </div>
+                    </div> -->
 
                     <!-- <div class="modal-form-group">
                         <label class="modal-label">ĐỊA CHỈ GIAO HÀNG</label>
@@ -1158,11 +1158,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
                         </div>
                     </div> -->
 
-                    <div class="modal-form-group detail-address-group">
+                    <!-- <div class="modal-form-group detail-address-group">
                         <label class="modal-label">Hiển thị thông tin chi tiết</label> 
                         <input type="text" class="modal-input adress_detail" id="modal-address-detail"
                             value="<?php echo htmlspecialchars($dia_chi_text); ?>" readonly>
-                    </div>
+                    </div> -->
 
                     <button class="btn-save" onclick="saveChanges()">LƯU THAY ĐỔI</button>
                 </div>
@@ -1172,7 +1172,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
 
     <script>
-        // Các hàm xử lý modal riêng biệt để tránh xung đột với các phần khác
+        const PROFILE_API_URL = '<?php echo UrlHelper::url('Api/Profile'); ?>';
+        const PROFILE_PASSWORD_API_URL = '<?php echo UrlHelper::url('Api/Profile/password'); ?>';
         const modal = document.getElementById('updateModal');
         const passwordModal = document.getElementById('passwordModal');
 
@@ -1192,153 +1193,122 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             passwordModal.classList.remove('active');
         }
 
-        // Function to save changes
-        function saveChanges() {
-            // Get the form elements
+        function readFileAsDataUrl(file) {
+            return new Promise(function(resolve, reject) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error('Không thể đọc tệp ảnh'));
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function saveChanges() {
             const fullnameElement = document.getElementById('modal-fullname');
             const phoneElement = document.getElementById('modal-phone');
             const emailElement = document.getElementById('modal-email');
             const avatarInputElement = document.getElementById('avatar-input');
-            const addressElement = document.getElementById('modal-diaChi');  // Fixed variable name
-            
-            if (!fullnameElement || !phoneElement || !emailElement || !avatarInputElement || !addressElement) {
-                console.error('One or more form elements not found');
-                alert('Không tìm thấy các trường cần thiết để cập nhật thông tin!');
+
+            if (!fullnameElement || !phoneElement || !emailElement || !avatarInputElement) {
+                alert('Không tìm thấy dữ liệu để cập nhật');
                 return;
             }
 
-            // Get updated values from the modal form
-            const fullname = fullnameElement.value;
-            const phone = phoneElement.value;
-            const email = emailElement.value;
-            const address = addressElement.value;   
+            const fullName = fullnameElement.value.trim();
+            const phone = phoneElement.value.trim();
+            const email = emailElement.value.trim();
 
-            // Create a FormData object to handle file upload along with other data
-            const formData = new FormData();
-            
-            // Add text fields
-            formData.append('txtMaUser', '<?php echo $user['ma_user']; ?>');
-            formData.append('txtFullName', fullname);
-            formData.append('txtSoDienThoai', phone);
-            formData.append('txtEmail', email);
-            formData.append('txtDiaChi', address);
-            
-            // Add avatar file if selected
-            if (avatarInputElement.files.length > 0) {
-                formData.append('txtAvatar', avatarInputElement.files[0]);
+            if (!fullName || !phone || !email) {
+                alert('Vui lòng nhập đầy đủ họ tên, số điện thoại và email');
+                return;
             }
 
-            // Log form data for debugging
-            console.log('Sending form data:');
-            for (let pair of formData.entries()) {
-                console.log(pair[0]+ ': ' + pair[1]);
+            const payload = {
+                full_name: fullName,
+                so_dien_thoai: phone,
+                email: email
+            };
+
+            const avatarFile = avatarInputElement.files && avatarInputElement.files[0] ? avatarInputElement.files[0] : null;
+            if (avatarFile) {
+                try {
+                    payload.avatar_base64 = await readFileAsDataUrl(avatarFile);
+                } catch (error) {
+                    alert('Không thể đọc ảnh đại diện. Vui lòng thử lại.');
+                    return;
+                }
             }
 
-            // Send AJAX request to update user info
-            fetch('http://localhost/Banhang/Khachhang/capnhatTaikhoan', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    return response.text();
-                })
-                .then(data => {
-                    console.log('Server response:', data);
-                    try {
-                        const result = JSON.parse(data);
-                        if (result.success) {
-                            alert('Cập nhật thông tin thành công!');
-                            // Reload the page to reflect changes
-                            location.reload();
-                        } else {
-                            alert(result.message || 'Có lỗi xảy ra khi cập nhật thông tin!');
-                        }
-                    } catch (e) {
-                        // If response is not JSON, it might be a redirect or error page
-                        // Check if it looks like a success message
-                        if (data.toLowerCase().includes('thành công') || data.includes('success')) {
-                            alert('Cập nhật thông tin thành công!');
-                            location.reload();
-                        } else {
-                            alert('Cập nhật thất bại. Vui lòng thử lại. Chi tiết: ' + data.substring(0, 200));
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi cập nhật thông tin! Chi tiết: ' + error.message);
+            try {
+                const response = await fetch(PROFILE_API_URL, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
                 });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Cập nhật tài khoản thất bại');
+                }
+
+                alert(result.message || 'Cập nhật thông tin thành công');
+                location.reload();
+            } catch (error) {
+                alert(error.message || 'Có lỗi xảy ra khi cập nhật thông tin');
+            }
         }
 
-        // Function to change password
-        function changePassword() {
+        async function changePassword() {
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
-            // Basic validation
             if (!currentPassword || !newPassword || !confirmNewPassword) {
-                alert('Vui lòng điền đầy đủ thông tin!');
+                alert('Vui lòng điền đầy đủ thông tin mật khẩu');
                 return;
             }
 
             if (newPassword !== confirmNewPassword) {
-                alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+                alert('Mật khẩu mới và xác nhận mật khẩu không khớp');
                 return;
             }
 
-            // if (newPassword.length < 6) {
-            //     alert('Mật khẩu mới phải có ít nhất 6 ký tự!');
-            //     return;
-            // }
-
-            // Create form data to send to server
-            const formData = new FormData();
-            formData.append('txtMaUser', '<?php echo $user['ma_user']; ?>');
-            formData.append('txtCurrentPassword', currentPassword); // Mật khẩu hiện tại người dùng nhập
-            formData.append('txtNewPassword', newPassword); // Mật khẩu mới
-
-            // Send AJAX request to update password
-            fetch('http://localhost/Banhang/Khachhang/doimatkhau', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    const result = JSON.parse(data);
-                    if (result.success) {
-                        alert('Đổi mật khẩu thành công!');
-                        // Clear the password fields
-                        document.getElementById('currentPassword').value = '';
-                        document.getElementById('newPassword').value = '';
-                        document.getElementById('confirmNewPassword').value = '';
-                        // Close the modal
-                        closePasswordModal();
-                    } else {
-                        alert(result.message || 'Có lỗi xảy ra khi đổi mật khẩu!');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi đổi mật khẩu!');
+            try {
+                const response = await fetch(PROFILE_PASSWORD_API_URL, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword,
+                        confirm_password: confirmNewPassword
+                    })
                 });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Đổi mật khẩu thất bại');
+                }
+
+                alert(result.message || 'Đổi mật khẩu thành công');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                closePasswordModal();
+            } catch (error) {
+                alert(error.message || 'Có lỗi xảy ra khi đổi mật khẩu');
+            }
         }
 
-        // Đóng modal khi click ra ngoài (riêng cho các modal của trang này)
-        window.addEventListener('click', function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-            if (event.target == passwordModal) {
-                closePasswordModal();
-            }
-        });
-
         // --- LOGIC GIỎ HÀNG (GIỐNG TRANG CHI TIẾT) ---
-        var cart = []; // Mảng chứa các object sản phẩm
+        var cart = [];
 
-        // Hàm mở/đóng Sidebar
         function toggleCart() {
             var overlay = document.querySelector('.cart-overlay');
             var sidebar = document.querySelector('.cart-sidebar');
@@ -1346,65 +1316,52 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             sidebar.classList.toggle('active');
         }
 
-        // Hàm thêm vào giỏ (Được gọi từ nút Mua ngay trên card)
         function addToCart(name, price, img) {
-            // Tạo object sản phẩm
             var product = {
                 img: img,
                 name: name,
-                color: 'Mặc định', // Ở trang chủ không chọn màu nên để mặc định
+                color: 'Mặc định',
                 storage: 'Mặc định',
                 quantity: 1,
                 price: price
             };
 
-            // Thêm vào mảng (Ở đây làm đơn giản là cứ thêm mới, chưa gộp sản phẩm trùng)
             cart.push(product);
-
-            // Cập nhật giao diện giỏ hàng
             renderCart();
 
-            // Mở giỏ hàng cho người dùng thấy
-            var overlay = document.querySelector('.cart-overlay');
             var sidebar = document.querySelector('.cart-sidebar');
             if (!sidebar.classList.contains('active')) {
                 toggleCart();
             }
         }
 
-        // Hàm xóa sản phẩm
         function removeFromCart(index) {
-            cart.splice(index, 1); // Xóa 1 phần tử tại vị trí index
-            renderCart(); // Vẽ lại giỏ hàng
+            cart.splice(index, 1);
+            renderCart();
         }
 
-        // Hàm vẽ lại giỏ hàng (Render)
         function renderCart() {
             var cartBody = document.getElementById('cartBody');
             var cartFooter = document.getElementById('cartFooter');
             var cartBadge = document.getElementById('cartBadge');
 
-            // 1. Cập nhật số lượng trên icon badge
             var totalQuantity = 0;
             var totalPrice = 0;
 
-            cart.forEach(item => {
+            cart.forEach(function(item) {
                 totalQuantity += item.quantity;
                 totalPrice += (item.price * item.quantity);
             });
             cartBadge.innerText = totalQuantity;
 
-            // 2. Xử lý hiển thị Body
             if (cart.length === 0) {
                 cartBody.innerHTML = '<div class="empty-cart-msg">Chưa có sản phẩm trong giỏ hàng</div>';
-                cartFooter.innerHTML = ''; // Xóa footer nếu trống
+                cartFooter.innerHTML = '';
                 return;
             }
 
-            // Nếu có sản phẩm, tạo HTML
             var html = '';
-            cart.forEach((item, index) => {
-                var itemTotal = (item.price * item.quantity).toLocaleString('vi-VN');
+            cart.forEach(function(item, index) {
                 html += `
                 <div class="cart-item">
                     <div class="cart-item-img">
@@ -1424,7 +1381,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             });
             cartBody.innerHTML = html;
 
-            // 3. Xử lý hiển thị Footer (Tổng tiền & Button)
             cartFooter.innerHTML = `
                 <div class="cart-total-row">
                     Tổng số phụ: <span class="cart-total-price">${totalPrice.toLocaleString('vi-VN')} ₫</span>
@@ -1436,31 +1392,20 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
             `;
         }
 
-        // Function to open password change modal
-        function openPasswordModal() {
-            document.getElementById('passwordModal').classList.add('active');
-        }
-
-        // Function to close password change modal
-        function closePasswordModal() {
-            document.getElementById('passwordModal').classList.remove('active');
-        }
-
-        // Đóng khi click ra ngoài
         window.addEventListener('click', function(event) {
-            if (event.target == modal) {
+            if (event.target === modal) {
                 closeModal();
             }
-            if (event.target == document.getElementById('passwordModal')) {
+            if (event.target === passwordModal) {
                 closePasswordModal();
             }
-            // Đóng menu tài khoản khi click ra ngoài
-            if (!accountBtn.contains(event.target)) {
-                accountMenu.classList.remove('active');
+            if (typeof accountBtn !== 'undefined' && typeof accountMenu !== 'undefined') {
+                if (!accountBtn.contains(event.target)) {
+                    accountMenu.classList.remove('active');
+                }
             }
         });
 
-        // Avatar upload functionality for customer profile page
         document.addEventListener('DOMContentLoaded', function() {
             const cameraBtn = document.getElementById('camera-btn');
             const avatarInput = document.getElementById('avatar-input');
@@ -1473,27 +1418,28 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Banhang/Public/Classes/UrlHelper.php'
 
                 avatarInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
-                    if (file) {
-                        // Validate file type
-                        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-                        if (!validTypes.includes(file.type)) {
-                            alert('Vui lòng chọn file ảnh (JPEG, PNG, GIF, WEBP)');
-                            return;
-                        }
-
-                        // Validate file size (max 5MB)
-                        if (file.size > 5 * 1024 * 1024) {
-                            alert('File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
-                            return;
-                        }
-
-                        // Preview the selected image
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            avatarPreview.src = e.target.result;
-                        };
-                        reader.readAsDataURL(file);
+                    if (!file) {
+                        return;
                     }
+
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Vui lòng chọn tệp ảnh (JPEG, PNG, GIF, WEBP)');
+                        avatarInput.value = '';
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Tệp ảnh quá lớn. Vui lòng chọn tệp nhỏ hơn 5 MB');
+                        avatarInput.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        avatarPreview.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 });
             }
         });

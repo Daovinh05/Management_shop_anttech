@@ -27,79 +27,79 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             <nav class="menu_left1">
                 <ul>
                     <li>
-                        <a href="http://localhost/Banhang/admin"
-                            class="<?php echo (strpos($current, 'admin') !== false) ? 'active' : ''; ?>">
+                        <a href="<?php echo UrlHelper::url('Quanly'); ?>"
+                            class="<?php echo (strpos($current, 'Quanly') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-chart-pie"></i> Tổng quan
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Users/danhsach"
+                        <a href="<?php echo UrlHelper::url('Users/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachusers_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-users"></i> Quản lý người dùng
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Danhmuc/danhsach"
+                        <a href="<?php echo UrlHelper::url('Danhmuc/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachdanhmuc_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-list"></i> Quản lý danh mục
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Thuonghieu/danhsach"
+                        <a href="<?php echo UrlHelper::url('Thuonghieu/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachthuonghieu_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-copyright"></i> Quản lý thương hiệu
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Nhacungcap/danhsach"
+                        <a href="<?php echo UrlHelper::url('Nhacungcap/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachnhacungcap_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-truck"></i> Quản lý nhà cung cấp
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Danhgia/danhsach"
+                        <a href="<?php echo UrlHelper::url('Danhgia/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachdanhgia') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-truck"></i> Quản lý đánh giá
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Sanpham/danhsach"
+                        <a href="<?php echo UrlHelper::url('Sanpham/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachsanpham_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-mobile-alt"></i> Quản lý sản phẩm
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/BienThe/danhsach"
+                        <a href="<?php echo UrlHelper::url('BienThe/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachbienthe_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-sliders-h"></i> Quản lý biến thể
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Khuyenmai/danhsach"
+                        <a href="<?php echo UrlHelper::url('Khuyenmai/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachkhuyenmai_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-percentage"></i> Quản lý khuyến mãi
                         </a>
                     </li>
-                    <li>
-                        <a href="http://localhost/Banhang/Danhgia/danhsach"
+                    <!-- <li>
+                        <a href="<?php echo UrlHelper::url('Danhgia/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachkhuyenmai_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-percentage"></i> Quản lý đánh giá
                         </a>
-                    </li>
+                    </li> -->
                     <li>
-                        <a href="http://localhost/Banhang/Donhang/danhsach"
+                        <a href="<?php echo UrlHelper::url('Donhang/danhsach'); ?>"
                             class="<?php echo (strpos($current, 'danhsachdonhang_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-shopping-cart"></i> Quản lý đơn hàng
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Thongke"
+                        <a href="<?php echo UrlHelper::url('Thongke'); ?>"
                             class="<?php echo (strpos($current, 'Thongkedoanhthu_v') !== false) ? 'active' : ''; ?>">
                             <i class="fa-solid fa-chart-line"></i> Thống kê
                         </a>
                     </li>
                     <li>
-                        <a href="http://localhost/Banhang/Login/logout" class="logout-btn1" title="Đăng xuất">
+                        <a href="<?php echo UrlHelper::url('Login/logout'); ?>" class="logout-btn1 js-api-logout" data-redirect="<?php echo UrlHelper::url('Login'); ?>" title="Đăng xuất">
                             <i class="fa-solid fa-sign-out-alt"></i> Đăng xuất
                         </a>
                     </li>
@@ -111,7 +111,7 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
             <header class="top-header">
                 <div class="page-title">
                     <?php
-                    if (strpos($current, 'admin') !== false) echo 'Dashboard';
+                    if (strpos($current, 'Quanly') !== false) echo 'Dashboard';
                     elseif (strpos($current, 'Sanpham') !== false) echo 'Sản phẩm';
                     elseif (strpos($current, 'Danhmuc') !== false) echo 'Danh mục';
                     elseif (strpos($current, 'Thuonghieu') !== false) echo 'Thương hiệu';
@@ -128,11 +128,11 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                 <div class="user-info">
                     <?php if (isset($_SESSION['user_name'])): ?>
                         <span>
-                            Xin chào: 
+                            Xin chào:
                             <?php
                             if (isset($_SESSION['user_id'])) {
                                 // Kết nối database để lấy full_name
-                                $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                                $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                                 if ($conn) {
                                     $user_id = $_SESSION['user_id'];
                                     $query = "SELECT full_name FROM users WHERE ma_user = '$user_id'";
@@ -164,26 +164,26 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
                             <?php
                             if (isset($_SESSION['user_id'])) {
                                 // Kết nối database để lấy avatar
-                                $conn = mysqli_connect('localhost', 'root', '', 'banhang');
+                                $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                                 if ($conn) {
                                     $user_id = $_SESSION['user_id'];
                                     $query = "SELECT avatar FROM users WHERE ma_user = '$user_id'";
                                     $result = mysqli_query($conn, $query);
                                     if ($result && $row = mysqli_fetch_assoc($result)) {
                                         if (!empty($row['avatar'])) {
-                                            echo '<img src="/Banhang/Public/Pictures/users/' . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">';
+                                            echo '<img src="' . UrlHelper::url('Public/Pictures/users/') . htmlspecialchars($row['avatar']) . '" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">';
                                         } else {
-                                            echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                            echo '<img src="' . UrlHelper::url('Public/Images/avatar.png') . '" alt="Avatar">';
                                         }
                                     } else {
-                                        echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                        echo '<img src="' . UrlHelper::url('Public/Images/avatar.png') . '" alt="Avatar">';
                                     }
                                     mysqli_close($conn);
                                 } else {
-                                    echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                    echo '<img src="' . UrlHelper::url('Public/Images/avatar.png') . '" alt="Avatar">';
                                 }
                             } else {
-                                echo '<img src="' . $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/Banhang/Public/Images/avatar.png" alt="Avatar">';
+                                echo '<img src="' . UrlHelper::url('Public/Images/avatar.png') . '" alt="Avatar">';
                             }
                             ?>
                         </div>
@@ -206,10 +206,35 @@ include_once __DIR__ . '/../../Public/Classes/UrlHelper.php';
         </div>
     </div>
 
+    <?php include_once __DIR__ . '/Partials/techzone_chatbot.php'; ?>
+
+    <script src="<?php echo UrlHelper::url('Public/Js/form-required-validator.js?v=1'); ?>"></script>
     <script>
         // JavaScript for additional functionality if needed
         document.addEventListener('DOMContentLoaded', function() {
-            // Add any JavaScript functionality here
+            document.addEventListener('click', function(event) {
+                var logoutLink = event.target.closest('.js-api-logout');
+                if (!logoutLink) {
+                    return;
+                }
+
+                event.preventDefault();
+                var redirectUrl = logoutLink.getAttribute('data-redirect') || '<?php echo UrlHelper::url('Login'); ?>';
+
+                fetch('<?php echo UrlHelper::url('Api/Auth/logout'); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                    .then(function() {
+                        window.location.href = redirectUrl;
+                    })
+                    .catch(function() {
+                        window.location.href = logoutLink.getAttribute('href') || redirectUrl;
+                    });
+            });
         });
     </script>
 </body>

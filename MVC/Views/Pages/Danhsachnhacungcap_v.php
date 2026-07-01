@@ -3,10 +3,8 @@
 
 <body>
     <style>
-    /* Custom styles for the actions */
     .btn-create {
         background: #10b981;
-        /* Màu xanh lá cây */
         padding: 8px 15px;
         border-radius: 10px;
         color: #fff;
@@ -33,19 +31,6 @@
         display: inline-block;
     }
 
-    .btn-back {
-        background: #6b7280;
-        padding: 8px 15px;
-        border-radius: 10px;
-        color: #fff;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    /* Các style cơ bản khác giữ nguyên */
     :root {
         --bg: #f5f7fb;
         --card: #ffffff;
@@ -222,116 +207,241 @@
     }
     </style>
 
-    <main role="main">
-        <div class="card">
-            <div class="actions-top">
-                <div>
-                    <h1><i class="fa-solid fa-truck-fast"></i> Quản lý Nhà cung cấp</h1>
-                    <p class="lead">Tìm kiếm và quản lý thông tin nhà cung cấp.</p>
-                </div>
-                <div class="actions">
-                    <a href="http://localhost/Banhang/Nhacungcap/themmoi" class="btn-create"><i
-                            class="fa-solid fa-plus"></i>
-                        Thêm mới nhà cung cấp</a>
-                    <a href="http://localhost/Banhang/Danhmuc/import_form" class="btn-ghost"><i
-                            class="fa-solid fa-file-excel"></i> Nhập
-                        Excel</a>
-                </div>
+    <div class="card">
+        <div class="actions-top">
+            <div>
+                <h1><i class="fa-solid fa-truck-fast"></i> Quản lý Nhà cung cấp</h1>
+                <p class="lead">Tìm kiếm và quản lý thông tin nhà cung cấp.</p>
             </div>
-
-            <form method="post" action="http://localhost/Banhang/Nhacungcap/Timkiem" class="form-search"
-                style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
-                <div class="search-fields">
-                    <div>
-                        <label for="searchId">Mã nhà cung cấp</label>
-                        <input type="text" id="searchId" name="txtMancc" placeholder="Nhập mã cần tìm"
-                            value="<?php echo isset($data['mancc']) ? $data['mancc'] : '' ?>" />
-                    </div>
-
-                    <div>
-                        <label for="searchName">Tên nhà cung cấp</label>
-                        <input type="text" id="searchName" name="txtTenncc" placeholder="Nhập tên cần tìm"
-                            value="<?php echo isset($data['tenncc']) ? $data['tenncc'] : '' ?>" />
-                    </div>
-                </div>
-
-                <div class="actions" style="margin-top:0;">
-                    <button type="submit" class="btn-primary" name="btnTim"><i class="fa-solid fa-search"></i> Tìm
-                        kiếm</button>
-                    <a href="http://localhost/Banhang/Nhacungcap/danhsach" class="btn-ghost">Làm mới</a>
-                    <button type="submit" name="btnXuatexcel" class="btn-excel">
-                        <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
-                    </button>
-                </div>
-            </form>
-
-            <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
-            <?php if (isset($data['dulieu'])) {
-                // Đặt lại con trỏ dữ liệu
-                if (is_a($data['dulieu'], 'mysqli_result')) {
-                    mysqli_data_seek($data['dulieu'], 0);
-                }
-                $count = mysqli_num_rows($data['dulieu']); // Lấy tổng số bản ghi
-            ?>
-            <div style="margin:10px 0">
-                <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+            <div class="actions">
+                <a href="<?php echo BASE_URL; ?>Nhacungcap/themmoi" class="btn-create"><i class="fa-solid fa-plus"></i>
+                    Thêm mới nhà cung cấp</a>
+                <a href="<?php echo BASE_URL; ?>Nhacungcap/import_form" class="btn-ghost"><i class="fa-solid fa-file-excel"></i> Nhập Excel</a>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Mã nhà cung cấp</th>
-                            <th>Tên nhà cung cấp</th>
-                            <th>Địa chỉ</th>
-                            <th>Điện thoại</th>
-                            <th style="text-align:right">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="nccBody">
-                        <?php
-                            $serial = 1; // Khởi tạo bộ đếm số thứ tự
-                            while ($row = mysqli_fetch_array($data['dulieu'])) {
-                            ?>
-                        <tr>
-                            <td><span style="font-weight:600;color:var(--accent)"><?php echo $serial++; ?></span>
-                            </td>
-                            <td><span
-                                    style="font-weight:600;color:var(--accent)"><?php echo $row['ma_nha_cung_cap'] ?></span>
-                            </td>
-                            <td><?php echo $row['ten_nha_cung_cap'] ?></td>
-                            <td><?php echo $row['dia_chi'] ?></td>
-                            <td><?php echo $row['dien_thoai'] ?></td>
-                            <td style="text-align:right">
-                                <a href="http://localhost/Banhang/Nhacungcap/sua/<?php echo $row['ma_nha_cung_cap'] ?>"><button
-                                        class="btn-edit">✏️
-                                        Sửa</button></a>
-                                <a href="http://localhost/Banhang/Nhacungcap/xoa/<?php echo $row['ma_nha_cung_cap'] ?>"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xoá không?')"><button
-                                        class="btn-delete">🗑️
-                                        Xóa</button></a>
-                            </td>
-                        </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-            <script>
-            // Manual search only (no AJAX)
-            const idInput = document.getElementById('searchId');
-            const nameInput = document.getElementById('searchName');
-            const resultCount = document.getElementById('resultCount');
-
-            // khởi tạo đếm
-            resultCount.textContent = '<?php echo $count; ?> bản ghi';
-            </script>
-            <?php } ?>
-            <?php if (isset($data['dulieu']) && mysqli_num_rows($data['dulieu']) === 0) { ?>
-            <div class="hint">Không có kết quả phù hợp.</div>
-            <?php } ?>
-
         </div>
-    </main>
+
+        <form id="supplierSearchForm" method="get" action="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="form-search"
+            style="margin-bottom:30px;border:1px dashed #cbd5e1;padding:20px;border-radius:12px;background:#f8fafc">
+            <div class="search-fields">
+                <div>
+                    <label for="searchId">Mã nhà cung cấp</label>
+                    <input type="text" id="searchId" name="txtManhacungcap" placeholder="Nhập mã nhà cung cấp..." />
+                </div>
+
+                <div>
+                    <label for="searchName">Tên nhà cung cấp</label>
+                    <input type="text" id="searchName" name="txtTennhacungcap" placeholder="Nhập tên nhà cung cấp..." />
+                </div>
+            </div>
+
+            <div class="actions" style="margin-top:0;">
+                <button type="submit" class="btn-primary" name="btnTim" value="1"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
+                <a href="<?php echo BASE_URL; ?>Nhacungcap/danhsach" class="btn-ghost">Làm mới</a>
+                <button type="button" name="btnXuatexcel" class="btn-excel" onclick="exportSuppliersExcel()">
+                    <i class="fa-solid fa-solid fa-download"></i> Xuất Excel
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2><i class="fa-solid fa-list-ul"></i> Danh sách hiện tại</h2>
+        <div style="margin:10px 0">
+            <strong>Kết quả: <span id="resultCount" class="hint"></span></strong>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã nhà cung cấp</th>
+                        <th>Tên nhà cung cấp</th>
+                        <th>Địa chỉ</th>
+                        <th>Điện thoại</th>
+                        <th style="text-align:right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="supplierBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function renderSupplierRows(items) {
+        const tbody = document.getElementById('supplierBody');
+        const resultCountEl = document.getElementById('resultCount');
+
+        if (!tbody || !resultCountEl) {
+            return;
+        }
+
+        resultCountEl.textContent = items.length + ' bản ghi';
+
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6b7280">Không có kết quả phù hợp.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = items.map((row, index) => {
+            const ma = row.ma_nha_cung_cap || '';
+            return '<tr>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + (items.length - index) + '</span></td>'
+                + '<td><span style="font-weight:600;color:var(--accent)">' + escapeHtml(ma) + '</span></td>'
+                + '<td>' + escapeHtml(row.ten_nha_cung_cap || '') + '</td>'
+                + '<td>' + escapeHtml(row.dia_chi || '') + '</td>'
+                + '<td>' + escapeHtml(row.dien_thoai || '') + '</td>'
+                + '<td style="text-align:right">'
+                + '<a href="' + BASE_URL + 'Nhacungcap/sua/' + encodeURIComponent(ma) + '"><button class="btn-edit">✏️ Sửa</button></a> '
+                + '<button type="button" class="btn-delete" onclick="deleteSupplier(\'' + escapeHtml(ma) + '\')">🗑️ Xóa API</button>'
+                + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    function loadAllSuppliers() {
+        const resultCountEl = document.getElementById('resultCount');
+        if (resultCountEl) {
+            resultCountEl.textContent = 'Đang tải nhà cung cấp...';
+        }
+
+        fetch(BASE_URL + 'Api/Nhacungcap', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    renderSupplierRows(Array.isArray(data.data) ? data.data : []);
+                } else {
+                    alert('Không thể tải danh sách nhà cung cấp từ API: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API nhà cung cấp: ' + error.message);
+            });
+    }
+
+    function deleteSupplier(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa nhà cung cấp ' + id + ' bằng REST API không?')) {
+            return;
+        }
+
+        fetch(BASE_URL + 'Api/Nhacungcap/' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    alert('Đã xóa nhà cung cấp thành công qua REST API');
+                    loadAllSuppliers();
+                } else {
+                    alert('Lỗi xóa: ' + ((data && data.message) ? data.message : 'Không xác định'));
+                }
+            })
+            .catch(error => {
+                alert('Không thể kết nối API xóa: ' + error.message);
+            });
+    }
+
+    function exportSuppliersExcel() {
+        const ma = (document.getElementById('searchId') || {}).value || '';
+        const ten = (document.getElementById('searchName') || {}).value || '';
+        const url = new URL(BASE_URL + 'Api/Nhacungcap');
+
+        if (ma.trim() !== '') {
+            url.searchParams.set('ma_nha_cung_cap', ma.trim());
+        }
+
+        if (ten.trim() !== '') {
+            url.searchParams.set('ten_nha_cung_cap', ten.trim());
+        }
+
+        url.searchParams.set('format', 'xlsx');
+
+        fetch(url.toString(), {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Xuất Excel thất bại với mã HTTP ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'DanhSachNhaCungCap.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(error => {
+                alert('Không thể xuất Excel qua API: ' + error.message);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAllSuppliers();
+
+        const searchForm = document.getElementById('supplierSearchForm');
+        if (!searchForm) {
+            return;
+        }
+
+        searchForm.addEventListener('submit', function(event) {
+            const submitter = event.submitter;
+            const submitName = submitter && submitter.name ? submitter.name : '';
+
+            if (submitName !== 'btnTim') {
+                return;
+            }
+
+            event.preventDefault();
+
+            const ma = (document.getElementById('searchId') || {}).value || '';
+            const ten = (document.getElementById('searchName') || {}).value || '';
+            const url = new URL(BASE_URL + 'Api/Nhacungcap');
+
+            if (ma.trim() !== '') {
+                url.searchParams.set('ma_nha_cung_cap', ma.trim());
+            }
+
+            if (ten.trim() !== '') {
+                url.searchParams.set('ten_nha_cung_cap', ten.trim());
+            }
+
+            const resultCountEl = document.getElementById('resultCount');
+            if (resultCountEl) {
+                resultCountEl.textContent = 'Đang tìm kiếm...';
+            }
+
+            fetch(url.toString(), {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        renderSupplierRows(Array.isArray(data.data) ? data.data : []);
+                    } else {
+                        alert('Tìm kiếm thất bại: ' + ((data && data.message) ? data.message : 'Lỗi không xác định'));
+                        renderSupplierRows([]);
+                    }
+                })
+                .catch(error => {
+                    alert('Không thể kết nối API tìm kiếm: ' + error.message);
+                });
+        });
+    });
+    </script>
 </body>
 
 </html>
