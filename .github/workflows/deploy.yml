@@ -13,7 +13,17 @@ jobs:
     steps:
       - name: Deploy
         run: |
-          cd /home/vinh/project/Banhang
+          # Tự động tìm thư mục "Banhang" trong thư mục Home của user hiện tại (bỏ qua thư mục của actions-runner)
+          TARGET_DIR=$(find "$HOME" -maxdepth 3 -type d -name "Banhang" -not -path "*/actions-runner/*" | head -n 1)
+          
+          if [ -n "$TARGET_DIR" ]; then
+            echo "Đã tìm thấy dự án tại: $TARGET_DIR"
+            cd "$TARGET_DIR"
+          else
+            echo "LỖI: Không tìm thấy thư mục dự án Banhang trên máy này!"
+            exit 1
+          fi
+
           git fetch origin main
           git reset --hard origin/main
           docker compose down
