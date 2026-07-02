@@ -1,35 +1,26 @@
 # Banhang
 
-## Yêu cầu
-
-- Docker
-- Docker Compose (optional)
-
-## Cài đặt
-
-1. Clone dự án:
+## 1. Clone
 
 ```bash
 git clone <repository-url>
 cd Banhang
 ```
 
-2. Build Docker image:
+## 2. Build & chạy với Docker
 
 ```bash
-docker build -t banhang .
-```
-
-3. Chạy container:
-
-```bash
-docker run -d -p 8080:80 --name banhang banhang
-```
-
-Truy cập: `http://localhost:8080`
-
-## Hoặc sử dụng Docker Compose (nếu có)
-
-```bash
+cp .env.docker.example .env
 docker compose up -d
 ```
+
+Truy cập: `http://localhost:${APP_PORT}`
+
+## 3. Kiểm tra database
+
+phpMyAdmin: `http://localhost:${PHPMYADMIN_PORT}`
+- Server: `db`
+- User: `${DB_USER}`
+- Pass: `${DB_PASS}`
+
+Import file `banhang.sql` nếu chưa có dữ liệu.
