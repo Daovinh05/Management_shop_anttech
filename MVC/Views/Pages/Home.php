@@ -720,7 +720,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
     <header>
         <div class="logo">ANT<span>TECH</span></div>
         <ul class="nav-menu">
-            <li class="nav-item">Hot New Mobile</li>
+            <li class="nav-item">Hot New 123</li>
             <li class="nav-item">BÁN CHẠY NHAT</li>
             <li class="nav-item sale-tag">KHUYẾN MÃI SẬP SÀN <span class="badge-discount">siêu hot</span></li>
         </ul>
