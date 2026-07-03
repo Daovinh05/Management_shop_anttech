@@ -960,7 +960,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                             </div>
                             <div class="fp-info">
                                 <a href="#" class="fp-name">AntTech - Chính Chủ</a>
-                                <span class="fp-followers">96.598 người theo dõi</span>
+                                <span class="fp-followers">123.000 người theo dõi</span>
                             </div>
                         </div>
                     </div>
@@ -975,7 +975,7 @@ include_once __DIR__ . '/../../../Public/Classes/UrlHelper.php';
                     <div class="contact-info">
                         <p>Nhận phản hồi, thắc mắc:</p>
                         <p>anttech.com.vn @gmail.com</p>
-                        <p style="margin-top: 15px; display: inline-block;">Tư vấn Free 24/07 : </p>
+                        <p style="margin-top: 15px; display: inline-block;">Tư vấn 24/07 : </p>
                         <span class="hotline-large" style="display: inline-block;">0825.303.888</span>
 
                     </div>
