@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Conventional Commits validator
+# Format: type(scope): description
+# Allowed types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert
+
+commit_msg_file="$1"
+commit_msg=$(cat "$commit_msg_file")
+
+# Regex pattern for conventional commits
+pattern="^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?: .{1,}"
+
+if ! echo "$commit_msg" | grep -qE "$pattern"; then
+    echo ""
+    echo "❌ Commit message không đúng chuẩn Conventional Commits!"
+    echo ""
+    echo "✅ Định dạng đúng:"
+    echo "   feat: Mô tả"
+    echo "   fix: Mô tả"
+    echo "   docs: Mô tả"
+    echo "   style: Mô tả"
+    echo "   refactor: Mô tả"
+    echo "   perf: Mô tả"
+    echo "   test: Mô tả"
+    echo "   chore: Mô tả"
+    echo ""
+    echo "📝 Ví dụ:"
+    echo "   feat: Thêm giỏ hàng cho người dùng"
+    echo "   fix(auth): Sửa lỗi đăng nhập"
+    echo "   docs: Cập nhật tài liệu API"
+    echo ""
+    echo "📌 Các type được chấp nhận:"
+    echo "   feat     - Tính năng mới"
+    echo "   fix      - Sửa lỗi"
+    echo "   docs     - Tài liệu"
+    echo "   style    - Định dạng code"
+    echo "   refactor - Tái cấu trúc"
+    echo "   perf     - Cải thiện hiệu suất"
+    echo "   test     - Kiểm thử"
+    echo "   chore    - Công việc lặt vặt"
+    echo "   ci       - CI/CD"
+    echo "   build    - Build system"
+    echo "   revert   - Rollback"
+    echo ""
+    exit 1
+fi
