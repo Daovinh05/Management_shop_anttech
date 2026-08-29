@@ -1,0 +1,16 @@
+#!/bin/bash
+echo "🔧 Đang setup Git hooks..."
+git config core.hooksPath .githooks
+echo "✅ Git hooks đã được cấu hình!"
+echo ""
+echo "📝 Quy tắc commit message:"
+echo "   feat: Tính năng mới"
+echo "   fix: Sửa lỗi"
+echo "   docs: Tài liệu"
+echo "   style: Định dạng code"
+echo "   refactor: Tái cấu trúc"
+echo "   perf: Cải thiện hiệu suất"
+echo "   test: Kiểm thử"
+echo "   chore: Công việc lặt vặt"
+echo ""
+echo "💡 Ví dụ: git commit -m \"feat: Thêm giỏ hàng\""
